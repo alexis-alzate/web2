@@ -391,7 +391,7 @@
 }
 
 .hero-name{
- font-size:clamp(4rem,8vw,6rem)!important;
+ font-size:clamp(3.65rem,7.4vw,5.55rem)!important;
  letter-spacing:4px!important;
  text-shadow:0 0 25px rgba(255,255,255,.12);
 }
@@ -478,7 +478,7 @@ section{
   }
   .hero-photo img{
     object-fit: cover !important;
-    object-position: 6% 39% !important;
+    object-position: 4% 38% !important;
   }
   .hero-photo::after{
     height: 58% !important;
