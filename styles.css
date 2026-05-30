@@ -471,12 +471,13 @@ section{
 
 @media (max-width: 768px){
   .hero-photo{
-    height: 74vh !important;
-    min-height: 560px !important;
+    height: 62vh !important;
+    min-height: 430px !important;
+    max-height: 540px !important;
   }
   .hero-photo img{
     object-fit: cover !important;
-    object-position: 28% 22% !important;
+    object-position: 30% 38% !important;
   }
 }
 
