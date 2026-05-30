@@ -1,5 +1,6 @@
 const latestRelease = {
-  title: 'Seguir\u00e9',
+  title: 'Seguire',
+  trackingTitle: 'Seguir\u00e9',
   artist: 'ZAETTA',
   cover: 'assets/seguire-cover.jpg',
   link: 'https://too.fm/bkyz4mw'
@@ -12,7 +13,7 @@ if (heroImage) {
 
 document.querySelectorAll('[data-release-link]').forEach(link => {
   link.href = latestRelease.link;
-  link.dataset.trackContent = latestRelease.title;
+  link.dataset.trackContent = latestRelease.trackingTitle || latestRelease.title;
 });
 
 document.querySelectorAll('[data-release-title]').forEach(element => {
@@ -25,11 +26,11 @@ document.querySelectorAll('[data-release-artist]').forEach(element => {
 
 document.querySelectorAll('[data-release-cover]').forEach(image => {
   image.src = latestRelease.cover;
-  image.alt = `Portada de ${latestRelease.title}`;
+  image.alt = `Portada de ${latestRelease.trackingTitle || latestRelease.title}`;
 });
 
 document.querySelectorAll('[data-view-label="latest_release_card"]').forEach(element => {
-  element.dataset.viewLabel = `${latestRelease.title.toLowerCase().replace(/\s+/g, '_')}_release_card`;
+  element.dataset.viewLabel = `${(latestRelease.trackingTitle || latestRelease.title).toLowerCase().replace(/\s+/g, '_')}_release_card`;
 });
 
 // Fade-up on scroll
