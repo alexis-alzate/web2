@@ -25,6 +25,24 @@ const trackTikTokEvent = (eventName, params = {}) => {
   window.ttq.track(eventName, params);
 };
 
+const googleEventNames = {
+  ListenClick: 'listen_click',
+  SocialClick: 'social_click',
+  ContactClick: 'contact_click',
+  PlayerView: 'player_view',
+  Engaged10s: 'engaged_10s',
+  Engaged30s: 'engaged_30s',
+  MusicSectionView: 'music_section_view',
+  ReleaseCardView: 'release_card_view',
+  BeatsSectionView: 'beats_section_view',
+  ProductionsSectionView: 'productions_section_view'
+};
+
+const trackGoogleEvent = (eventName, params = {}) => {
+  if (typeof window.gtag !== 'function') return;
+  window.gtag('event', googleEventNames[eventName] || eventName, params);
+};
+
 const trackedOnce = new Set();
 const trackMetaEventOnce = (eventName, params = {}) => {
   const key = `${eventName}:${params.label || ''}`;
@@ -32,6 +50,7 @@ const trackMetaEventOnce = (eventName, params = {}) => {
   trackedOnce.add(key);
   trackMetaEvent(eventName, params);
   trackTikTokEvent(eventName, params);
+  trackGoogleEvent(eventName, params);
 };
 
 window.setTimeout(() => {
@@ -58,6 +77,11 @@ document.querySelectorAll('[data-track-event]').forEach(element => {
       destination: element.href || ''
     });
     trackTikTokEvent(element.dataset.trackEvent, {
+      label: element.dataset.trackLabel || '',
+      content_name: element.dataset.trackContent || element.textContent.trim(),
+      destination: element.href || ''
+    });
+    trackGoogleEvent(element.dataset.trackEvent, {
       label: element.dataset.trackLabel || '',
       content_name: element.dataset.trackContent || element.textContent.trim(),
       destination: element.href || ''
