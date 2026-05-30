@@ -472,13 +472,13 @@ section{
 
 @media (max-width: 768px){
   .hero-photo{
-    height: 62vh !important;
+    height: 58vh !important;
     min-height: 430px !important;
-    max-height: 540px !important;
+    max-height: 500px !important;
   }
   .hero-photo img{
     object-fit: cover !important;
-    object-position: 30% 38% !important;
+    object-position: 38% 42% !important;
   }
   .hero-photo::after{
     height: 58% !important;
