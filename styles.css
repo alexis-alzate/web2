@@ -211,9 +211,12 @@
   }
   .release-feature-copy h2 {
     font-family: "Bebas Neue", sans-serif;
-    font-size: 2.85rem;
+    font-size: clamp(2.05rem, 5.8vw, 2.85rem);
     line-height: .9;
     letter-spacing: 2px;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    text-wrap: balance;
   }
   .release-feature-copy p {
     color: var(--green);
@@ -643,7 +646,9 @@ section{
   }
 
   .release-feature-copy h2 {
-    font-size: 2.3rem;
+    font-size: clamp(1.9rem, 9.5vw, 2.3rem);
+    line-height: .92;
+    letter-spacing: 1.6px;
   }
 
   .release-feature-copy a {
@@ -686,6 +691,43 @@ section{
 
   .section-label {
     margin-bottom: 20px !important;
+  }
+}
+
+@supports (-webkit-line-clamp: 2) {
+  .release-feature-copy h2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 420px) {
+  .release-feature {
+    grid-template-columns: minmax(112px, 34vw) minmax(0, 1fr) !important;
+    gap: 14px !important;
+    padding: 20px 16px !important;
+  }
+
+  .release-cover-link,
+  .release-feature img {
+    width: 100% !important;
+  }
+
+  .release-feature-copy {
+    gap: 7px !important;
+  }
+
+  .release-feature-copy h2 {
+    font-size: clamp(1.7rem, 8.4vw, 2.05rem) !important;
+    line-height: .94 !important;
+    letter-spacing: 1.25px !important;
+  }
+
+  .release-feature-copy p {
+    font-size: .66rem !important;
+    letter-spacing: 2px !important;
   }
 }
 
