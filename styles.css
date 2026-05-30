@@ -1,0 +1,661 @@
+:root {
+    --green: #23e747;
+    --black: #000;
+    --card: #111;
+    --border: #1e1e1e;
+    --muted: #888;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: #fff; font-family: "Barlow", sans-serif; overflow-x: hidden; }
+
+  /* NAV — removed, no nav needed */
+
+  /* HERO FOTO — limpia, sin overlay, sin texto encima */
+  .hero-photo {
+    width: 100%;
+    height: 100vh;
+    min-height: 700px;
+    max-height: 1100px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+  }
+
+  .hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+    filter: brightness(.78);
+  }
+
+  @media (min-width: 1200px) {
+    .hero-photo {
+      height: 92vh;
+    }
+
+    .hero-photo img {
+      object-position: center 20%;
+    }
+  }
+  /* fade suave solo en la parte inferior */
+  .hero-photo::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
+    background: linear-gradient(to bottom, transparent, #000);
+  }
+
+  /* HERO INFO — debajo de la foto */
+  .hero-info {
+    background: #000;
+    padding: 10px 24px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+    margin-top: -40px;
+    position: relative;
+    z-index: 5;
+  }
+  .hero-name {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2.8rem, 12vw, 4.5rem);
+    letter-spacing: 4px; line-height: 1;
+  }
+  .hero-role {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .75rem; letter-spacing: 4px;
+    color: var(--green); text-transform: uppercase; margin-bottom: 4px;
+  }
+  .hero-sub {
+    font-size: .85rem; color: #888; font-weight: 300;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+  }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+  /* BOTONES */
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--green); color: #000;
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 700; font-size: .82rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 11px 21px; border: none; cursor: pointer;
+    text-decoration: none; transition: opacity .2s;
+  }
+  .btn-primary:hover { opacity: .85; }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: #fff;
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 600; font-size: .82rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 11px 22px; border: 1px solid rgba(255,255,255,.35);
+    cursor: pointer; text-decoration: none; transition: border-color .2s, color .2s;
+  }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); }
+
+  /* SECCIONES */
+  section {
+    padding: 26px 20px;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .72rem; letter-spacing: 4px;
+    color: var(--green); text-transform: uppercase; margin-bottom: 18px;
+  }
+  .divider { height: 1px; background: var(--border); max-width: 700px; margin: 0 auto; }
+  .divider-music-start {
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+  .divider-music-inner {
+    margin-top: 4px;
+    margin-bottom: 0;
+    opacity: .26;
+  }
+  .divider-section-shift {
+    margin-top: 18px;
+    margin-bottom: 10px;
+  }
+
+  /* SOCIAL */
+  .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .social-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #050505;
+    border: 1px solid rgba(255,255,255,.04);
+    padding: 22px 10px;
+    text-decoration: none;
+    color: #fff;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all .2s ease;
+    border-radius: 18px;
+  }
+  .social-item:hover { border-color: var(--green); transform: translateY(-2px); }
+  .social-item.inactive { opacity: .35; pointer-events: none; }
+  .social-item svg { width: 26px; height: 26px; fill: var(--green); }
+
+  /* RELEASE PREMIUM */
+  .release-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.04);
+    box-shadow: 0 10px 50px rgba(0,0,0,.85);
+    display: flex;
+    flex-direction: column;
+    background: #020202;
+  }
+  .release-status {
+    padding: 17px 22px 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(57,255,99,.20), transparent 68%),
+      linear-gradient(180deg, rgba(57,255,99,.12), rgba(57,255,99,.035)),
+      #051109;
+  }
+  .release-status p {
+    color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin: 0 auto;
+  }
+  .release-feature {
+    display: grid;
+    grid-template-columns: 164px 1fr;
+    align-items: center;
+    gap: 22px;
+    padding: 30px 26px;
+    background:
+      radial-gradient(circle at 18% 22%, rgba(57,255,99,.12), transparent 48%),
+      #080808;
+  }
+  .release-feature img {
+    width: 164px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 14px;
+    box-shadow:
+      0 18px 40px rgba(0,0,0,.55),
+      0 0 26px rgba(57,255,99,.10);
+  }
+  .release-feature-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+  }
+  .release-feature-copy h2 {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 2.85rem;
+    line-height: .9;
+    letter-spacing: 2px;
+  }
+  .release-feature-copy p {
+    color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .release-feature-copy a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 19px;
+    border-radius: 999px;
+    background: var(--green);
+    color: #000;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .release-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .release-texts { display: flex; flex-direction: column; gap: 3px; }
+  .release-name {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 2.2rem; letter-spacing: 1px; line-height: 1;
+  }
+  .release-artist { color: var(--green); font-size: .78rem; letter-spacing: 2px; text-transform: uppercase; }
+  .btn-spotify {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--green); color: #000;
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 700; font-size: .72rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 11px 20px; text-decoration: none; transition: opacity .2s, transform .15s;
+    width: fit-content; border-radius: 4px;
+  }
+  .btn-spotify:hover { opacity: .85; transform: translateY(-1px); }
+
+  /* BEATS */
+  .beats-card,
+  .productions-card {
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.03);
+    box-shadow: 0 12px 50px rgba(0,0,0,.9);
+    background: #020202;
+  }
+  .beats-info {
+    padding: 18px 22px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(57,255,99,.18), transparent 68%),
+      linear-gradient(180deg, rgba(57,255,99,.10), rgba(57,255,99,.03)),
+      #051109;
+  }
+  .beats-kicker {
+    color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin: 0 auto;
+  }
+  .productions-info {
+    padding: 18px 22px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(57,255,99,.18), transparent 68%),
+      linear-gradient(180deg, rgba(57,255,99,.10), rgba(57,255,99,.03)),
+      #051109;
+  }
+  .productions-info p {
+    color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin: 0 auto;
+  }
+
+  /* LABEL */
+  .label-card {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 24px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .label-headline {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.7rem; letter-spacing: 1px; line-height: 1.1;
+  }
+  .label-headline span { color: var(--green); }
+  .label-sub { font-size: .88rem; color: #aaa; line-height: 1.6; }
+
+  /* CONTACTO */
+  .contact-card {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 20px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .contact-row { display: flex; align-items: center; gap: 14px; font-size: .88rem; color: #ccc; }
+  .contact-row svg { width: 20px; height: 20px; fill: var(--green); flex-shrink: 0; }
+  .btn-send {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--green); color: #000;
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 700; font-size: .82rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 14px; text-decoration: none; transition: opacity .2s;
+  }
+  .btn-send:hover { opacity: .85; }
+
+  /* FOOTER */
+  footer {
+    background: #050505; border-top: 1px solid var(--border);
+    padding: 28px 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+  }
+  .footer-logo { font-family: "Bebas Neue", sans-serif; font-size: 1.3rem; letter-spacing: 4px; color: var(--green); }
+  .footer-copy { font-size: .72rem; color: var(--muted); letter-spacing: 1px; }
+  .footer-socials { display: flex; gap: 20px; }
+  .footer-socials a { color: var(--muted); transition: color .2s; }
+  .footer-socials a:hover { color: var(--green); }
+  .footer-socials svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* ANIMACIONES */
+  .fade-up { opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+.section-label{text-align:center!important;width:100%;display:block;}
+.release-top{justify-content:center!important;}
+.release-texts{align-items:center!important;text-align:center!important;}
+.release-name,.release-artist,.label-headline,.label-sub,.contact-card,.contact-card *{text-align:center!important;}
+.contact-row{justify-content:center!important;}
+
+
+/* ===== BEACONS PRO STYLE ===== */
+:root{
+ --green:#39ff63 !important;
+}
+
+.hero-photo{
+ height:95vh !important;
+ min-height:700px !important;
+ background:#000 !important;
+}
+
+.hero-photo img{
+ object-fit:cover !important;
+ object-position:center 25% !important;
+ filter:brightness(.85) contrast(1.08) saturate(1.1) !important;
+}
+
+.hero-name{
+ font-size:clamp(4rem,8vw,6rem)!important;
+ letter-spacing:4px!important;
+ text-shadow:0 0 25px rgba(255,255,255,.12);
+}
+
+.hero-role{
+ font-size:.95rem!important;
+ letter-spacing:5px!important;
+}
+
+.section-label{
+ font-family:"Bebas Neue",sans-serif!important;
+ font-size:1.82rem!important;
+ letter-spacing:3.5px!important;
+ text-align:center!important;
+ color:#39ff63!important;
+ margin:0 0 23px!important;
+ text-shadow:0 0 12px rgba(57,255,99,.22);
+}
+
+.social-item,
+.release-card,
+.beats-card,
+.productions-card,
+.label-card,
+.contact-card{
+ background:linear-gradient(180deg,#090909,#020202)!important;
+ border:1px solid rgba(255,255,255,.05)!important;
+ border-radius:28px!important;
+ box-shadow:0 25px 70px rgba(0,0,0,.8)!important;
+ overflow:hidden!important;
+ transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease !important;
+}
+
+.social-item:hover,
+.release-card:hover,
+.beats-card:hover,
+.productions-card:hover{
+ transform:translateY(-5px)!important;
+ border-color:rgba(57,255,99,.34)!important;
+ box-shadow:
+   0 28px 80px rgba(0,0,0,.88),
+   0 0 34px rgba(57,255,99,.14) !important;
+}
+
+.release-card iframe,
+.beats-card iframe,
+.productions-card iframe{
+ border-radius:28px!important;
+}
+
+.release-name,
+.label-headline{
+ font-family:"Bebas Neue",sans-serif!important;
+ letter-spacing:2px!important;
+}
+
+.label-headline{
+ font-size:2.7rem!important;
+}
+
+.contact-card,
+.label-card{
+ text-align:center!important;
+}
+
+section{
+ max-width:760px!important;
+}
+
+.divider{
+ opacity:.4!important;
+}
+
+.social-grid{
+ gap:16px!important;
+}
+
+
+@media (max-width: 768px){
+  .hero-photo{
+    height: 80vh !important;
+    min-height: 600px !important;
+  }
+  .hero-photo img{
+    object-fit: cover !important;
+    object-position: 28% 22% !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hero-photo {
+    width: min(100%, 760px) !important;
+    height: min(88vh, 780px) !important;
+    min-height: 660px !important;
+    margin: 0 auto !important;
+  }
+
+  .hero-photo img {
+    transform: none;
+    object-position: 28% 22% !important;
+  }
+
+  .hero-photo::after {
+    height: 38% !important;
+  }
+
+  .hero-info {
+    margin-top: -72px !important;
+    padding-top: 0 !important;
+  }
+}
+
+
+.spotify-btn, .btn-spotify, a[href*="spotify"]{
+    transform: scale(1.04);
+    box-shadow: 0 0 25px rgba(29,185,84,.45) !important;
+    font-weight: 800 !important;
+}
+
+
+/* ===== AJUSTE PREMIUM DE CARDS / MOBILE ===== */
+@media (max-width: 768px) {
+  section {
+    padding: 24px 18px !important;
+  }
+
+  .social-grid {
+    gap: 12px !important;
+  }
+
+  .social-item {
+    min-height: 108px !important;
+    padding: 18px 8px !important;
+    border-radius: 24px !important;
+  }
+
+  .release-card,
+  .beats-card,
+  .productions-card,
+  .label-card,
+  .contact-card {
+    border-radius: 24px !important;
+    border: 1px solid rgba(57,255,99,.10) !important;
+    box-shadow: 0 18px 55px rgba(0,0,0,.75), 0 0 18px rgba(57,255,99,.04) !important;
+  }
+
+  .release-card iframe,
+  .beats-card iframe,
+  .productions-card iframe {
+    height: 300px !important;
+    border-radius: 24px !important;
+  }
+
+  .label-card,
+  .contact-card {
+    padding: 24px 20px !important;
+  }
+
+  .label-headline {
+    font-size: 2.35rem !important;
+    line-height: 1.02 !important;
+  }
+
+  .label-sub {
+    font-size: .92rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .contact-row {
+    line-height: 1.35 !important;
+  }
+
+  .btn-send,
+  .btn-primary,
+  .btn-spotify {
+    border-radius: 999px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* CTA de Spotify más claro sin verse exagerado */
+.hero-btns a[href*="spotify"],
+.social-item[href*="spotify"],
+.footer-socials a[href*="spotify"] {
+  box-shadow: 0 0 28px rgba(57,255,99,.22) !important;
+}
+
+.release-card,
+.beats-card,
+.productions-card {
+  position: relative !important;
+}
+
+.release-card::after,
+.beats-card::after,
+.productions-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(57,255,99,.06), transparent 42%);
+}
+
+
+/* ===== JERARQUÍA FINAL: LANZAMIENTO PROTAGONISTA / BEATS COMPACTO ===== */
+@media (max-width: 768px) {
+  /* Último lanzamiento: protagonista */
+  section:has(.release-card) {
+    padding-top: 24px !important;
+    padding-bottom: 14px !important;
+  }
+
+  .release-card {
+    border: 1px solid rgba(57,255,99,.20) !important;
+    box-shadow:
+      0 20px 70px rgba(0,0,0,.85),
+      0 0 32px rgba(57,255,99,.10) !important;
+  }
+
+  .release-feature {
+    grid-template-columns: 132px 1fr;
+    gap: 17px;
+    padding: 22px 18px;
+  }
+
+  .release-feature img {
+    width: 132px;
+    border-radius: 12px;
+  }
+
+  .release-feature-copy h2 {
+    font-size: 2.3rem;
+  }
+
+  .release-feature-copy a {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: .64rem;
+    letter-spacing: 1.7px;
+  }
+
+  /* Mis Beats: más compacto para que no compita con el single principal */
+  section:has(.beats-card) {
+    padding-top: 22px !important;
+  }
+
+  .beats-card {
+    border-color: rgba(255,255,255,.06) !important;
+    box-shadow:
+      0 14px 45px rgba(0,0,0,.72),
+      0 0 16px rgba(57,255,99,.04) !important;
+  }
+
+  .beats-card iframe {
+    height: 260px !important;
+  }
+
+  section:has(.productions-card) {
+    padding-top: 22px !important;
+  }
+
+  .productions-card {
+    border-color: rgba(255,255,255,.06) !important;
+    box-shadow:
+      0 14px 45px rgba(0,0,0,.72),
+      0 0 16px rgba(57,255,99,.04) !important;
+  }
+
+  .productions-card iframe {
+    height: 300px !important;
+  }
+
+  .section-label {
+    margin-bottom: 20px !important;
+  }
+}
+
+/* Fallback por si algún navegador no soporta :has() */
+@media (max-width: 768px) {
+  .release-card {
+    margin-top: 2px !important;
+  }
+
+  .beats-card {
+    opacity: .96 !important;
+  }
+
+  .productions-card {
+    opacity: .96 !important;
+  }
+}
