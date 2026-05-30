@@ -337,6 +337,30 @@
   .footer-socials a:hover { color: var(--green); }
   .footer-socials svg { width: 18px; height: 18px; fill: currentColor; }
 
+  .floating-listen {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    z-index: 30;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--green);
+    color: #000;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-decoration: none;
+    text-transform: uppercase;
+    box-shadow: 0 18px 45px rgba(0,0,0,.55), 0 0 28px rgba(57,255,99,.34);
+    transform: translateX(-50%);
+  }
+
   /* ANIMACIONES */
   .fade-up { opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s ease; }
   .fade-up.visible { opacity: 1; transform: translateY(0); }
@@ -354,8 +378,8 @@
 }
 
 .hero-photo{
- height:95vh !important;
- min-height:700px !important;
+ height:88vh !important;
+ min-height:640px !important;
  background:#000 !important;
 }
 
@@ -447,8 +471,8 @@ section{
 
 @media (max-width: 768px){
   .hero-photo{
-    height: 80vh !important;
-    min-height: 600px !important;
+    height: 74vh !important;
+    min-height: 560px !important;
   }
   .hero-photo img{
     object-fit: cover !important;
@@ -459,8 +483,8 @@ section{
 @media (min-width: 769px) {
   .hero-photo {
     width: min(100%, 760px) !important;
-    height: min(88vh, 780px) !important;
-    min-height: 660px !important;
+    height: min(82vh, 720px) !important;
+    min-height: 620px !important;
     margin: 0 auto !important;
   }
 
@@ -544,6 +568,14 @@ section{
   .btn-spotify {
     border-radius: 999px !important;
     min-height: 44px !important;
+  }
+
+  body {
+    padding-bottom: 76px !important;
+  }
+
+  .floating-listen {
+    display: inline-flex !important;
   }
 }
 
