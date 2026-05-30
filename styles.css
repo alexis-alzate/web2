@@ -197,6 +197,11 @@
       0 18px 40px rgba(0,0,0,.55),
       0 0 26px rgba(57,255,99,.10);
   }
+  .release-cover-link {
+    display: block;
+    width: fit-content;
+    line-height: 0;
+  }
   .release-feature-copy {
     display: flex;
     flex-direction: column;
