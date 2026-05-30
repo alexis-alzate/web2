@@ -1,5 +1,5 @@
 const latestRelease = {
-  title: 'Seguiré',
+  title: 'Tengo una Reina Valera',
   artist: 'ZAETTA',
   cover: 'assets/seguire-cover.jpg',
   link: 'https://too.fm/bkyz4mw'
