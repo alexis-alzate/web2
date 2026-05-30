@@ -1,5 +1,5 @@
 const latestRelease = {
-  title: 'Seguiré',
+  title: 'Seguirè',
   artist: 'ZAETTA',
   cover: 'assets/seguire-cover.jpg',
   link: 'https://too.fm/bkyz4mw'
