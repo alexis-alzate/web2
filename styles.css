@@ -478,7 +478,7 @@ section{
   }
   .hero-photo img{
     object-fit: cover !important;
-    object-position: 8% 42% !important;
+    object-position: 6% 39% !important;
   }
   .hero-photo::after{
     height: 58% !important;
