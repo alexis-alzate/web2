@@ -1,7 +1,36 @@
+const latestRelease = {
+  title: 'Seguire',
+  artist: 'ZAETTA',
+  cover: 'assets/seguire-cover.jpg',
+  link: 'https://too.fm/bkyz4mw'
+};
+
 const heroImage = document.getElementById('heroBg');
 if (heroImage) {
   heroImage.src = 'assets/hero.jpg';
 }
+
+document.querySelectorAll('[data-release-link]').forEach(link => {
+  link.href = latestRelease.link;
+  link.dataset.trackContent = latestRelease.title;
+});
+
+document.querySelectorAll('[data-release-title]').forEach(element => {
+  element.textContent = latestRelease.title;
+});
+
+document.querySelectorAll('[data-release-artist]').forEach(element => {
+  element.textContent = latestRelease.artist;
+});
+
+document.querySelectorAll('[data-release-cover]').forEach(image => {
+  image.src = latestRelease.cover;
+  image.alt = `Portada de ${latestRelease.title}`;
+});
+
+document.querySelectorAll('[data-view-label="latest_release_card"]').forEach(element => {
+  element.dataset.viewLabel = `${latestRelease.title.toLowerCase().replace(/\s+/g, '_')}_release_card`;
+});
 
 // Fade-up on scroll
 const _obs = new IntersectionObserver(entries => {
