@@ -1,5 +1,5 @@
 const latestRelease = {
-  title: 'Seguire',
+  title: 'Seguir\u00e9',
   trackingTitle: 'Seguir\u00e9',
   artist: 'ZAETTA',
   cover: 'assets/seguire-cover.jpg',

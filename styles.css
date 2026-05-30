@@ -212,10 +212,11 @@
   .release-feature-copy h2 {
     font-family: "Bebas Neue", sans-serif;
     font-size: clamp(2.05rem, 5.8vw, 2.85rem);
-    line-height: .9;
+    line-height: 1;
     letter-spacing: 2px;
     max-width: 100%;
     overflow-wrap: break-word;
+    padding-top: .08em;
     text-wrap: balance;
   }
   .release-feature-copy p {
@@ -647,8 +648,9 @@ section{
 
   .release-feature-copy h2 {
     font-size: clamp(1.9rem, 9.5vw, 2.3rem);
-    line-height: .92;
+    line-height: 1;
     letter-spacing: 1.6px;
+    padding-top: .1em;
   }
 
   .release-feature-copy a {
@@ -721,8 +723,9 @@ section{
 
   .release-feature-copy h2 {
     font-size: clamp(1.7rem, 8.4vw, 2.05rem) !important;
-    line-height: .94 !important;
+    line-height: 1 !important;
     letter-spacing: 1.25px !important;
+    padding-top: .1em !important;
   }
 
   .release-feature-copy p {
