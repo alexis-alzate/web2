@@ -393,9 +393,9 @@
 .label-card,
 .contact-card{
  background:linear-gradient(180deg,#090909,#020202)!important;
- border:1px solid rgba(255,255,255,.05)!important;
+ border:1px solid rgba(57,255,99,.10)!important;
  border-radius:28px!important;
- box-shadow:0 25px 70px rgba(0,0,0,.8)!important;
+ box-shadow:0 25px 70px rgba(0,0,0,.8), 0 0 18px rgba(57,255,99,.035)!important;
  overflow:hidden!important;
  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease !important;
 }
@@ -615,10 +615,10 @@ section{
   }
 
   .beats-card {
-    border-color: rgba(255,255,255,.06) !important;
+    border-color: rgba(57,255,99,.15) !important;
     box-shadow:
       0 14px 45px rgba(0,0,0,.72),
-      0 0 16px rgba(57,255,99,.04) !important;
+      0 0 22px rgba(57,255,99,.07) !important;
   }
 
   .beats-card iframe {
@@ -630,10 +630,10 @@ section{
   }
 
   .productions-card {
-    border-color: rgba(255,255,255,.06) !important;
+    border-color: rgba(57,255,99,.15) !important;
     box-shadow:
       0 14px 45px rgba(0,0,0,.72),
-      0 0 16px rgba(57,255,99,.04) !important;
+      0 0 22px rgba(57,255,99,.07) !important;
   }
 
   .productions-card iframe {
