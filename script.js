@@ -1,10 +1,18 @@
 const latestRelease = {
   title: 'Seguir\u00e9',
   trackingTitle: 'Seguir\u00e9',
+  slug: 'seguire',
   artist: 'ZAETTA',
   cover: 'assets/seguire-cover.jpg',
   link: 'https://too.fm/bkyz4mw'
 };
+
+const releaseSlug = latestRelease.slug || (latestRelease.trackingTitle || latestRelease.title)
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '_')
+  .replace(/^_|_$/g, '');
 
 const heroImage = document.getElementById('heroBg');
 if (heroImage) {
@@ -14,6 +22,10 @@ if (heroImage) {
 document.querySelectorAll('[data-release-link]').forEach(link => {
   link.href = latestRelease.link;
   link.dataset.trackContent = latestRelease.trackingTitle || latestRelease.title;
+});
+
+document.querySelectorAll('[data-release-action]').forEach(element => {
+  element.dataset.trackEvent = `release_${releaseSlug}_${element.dataset.releaseAction}`;
 });
 
 document.querySelectorAll('[data-release-title]').forEach(element => {
@@ -29,8 +41,9 @@ document.querySelectorAll('[data-release-cover]').forEach(image => {
   image.alt = `Portada de ${latestRelease.trackingTitle || latestRelease.title}`;
 });
 
-document.querySelectorAll('[data-view-label="latest_release_card"]').forEach(element => {
-  element.dataset.viewLabel = `${(latestRelease.trackingTitle || latestRelease.title).toLowerCase().replace(/\s+/g, '_')}_release_card`;
+document.querySelectorAll('[data-release-view]').forEach(element => {
+  element.dataset.viewEvent = `release_${releaseSlug}_${element.dataset.releaseView}`;
+  element.dataset.viewLabel = `release_${releaseSlug}`;
 });
 
 // Fade-up on scroll
@@ -55,22 +68,9 @@ const trackTikTokEvent = (eventName, params = {}) => {
   window.ttq.track(eventName, params);
 };
 
-const googleEventNames = {
-  ListenClick: 'listen_click',
-  SocialClick: 'social_click',
-  ContactClick: 'contact_click',
-  PlayerView: 'player_view',
-  Engaged10s: 'engaged_10s',
-  Engaged30s: 'engaged_30s',
-  MusicSectionView: 'music_section_view',
-  ReleaseCardView: 'release_card_view',
-  BeatsSectionView: 'beats_section_view',
-  ProductionsSectionView: 'productions_section_view'
-};
-
 const trackGoogleEvent = (eventName, params = {}) => {
   if (typeof window.gtag !== 'function') return;
-  window.gtag('event', googleEventNames[eventName] || eventName, params);
+  window.gtag('event', eventName, params);
 };
 
 const trackedOnce = new Set();
@@ -84,18 +84,40 @@ const trackMetaEventOnce = (eventName, params = {}) => {
 };
 
 window.setTimeout(() => {
-  trackMetaEventOnce('Engaged10s', {
+  trackMetaEventOnce('interes_10s', {
     label: 'time_on_page',
     seconds: 10
   });
 }, 10000);
 
 window.setTimeout(() => {
-  trackMetaEventOnce('Engaged30s', {
+  trackMetaEventOnce('interes_30s', {
     label: 'time_on_page',
     seconds: 30
   });
 }, 30000);
+
+const scrollMilestones = [
+  { eventName: 'interes_scroll_50', percent: 50 },
+  { eventName: 'interes_scroll_90', percent: 90 }
+];
+
+const trackScrollMilestones = () => {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  if (scrollable <= 0) return;
+
+  const currentPercent = Math.round((window.scrollY / scrollable) * 100);
+  scrollMilestones.forEach(milestone => {
+    if (currentPercent < milestone.percent) return;
+
+    trackMetaEventOnce(milestone.eventName, {
+      label: 'scroll_depth',
+      percent: milestone.percent
+    });
+  });
+};
+
+window.addEventListener('scroll', trackScrollMilestones, { passive: true });
 
 document.querySelectorAll('[data-track-event]').forEach(element => {
   if (element.tagName === 'IFRAME') return;
