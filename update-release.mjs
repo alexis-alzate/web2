@@ -36,7 +36,7 @@ try {
 
   const metadata = await metadataResponse.json();
   const title = await ask('Nombre visible de la cancion', metadata.title);
-  const slug = await ask('Nombre corto sin espacios ni tildes', slugify(title));
+  const slug = slugify(await ask('Nombre corto sin espacios ni tildes', slugify(title)));
   const listenUrl = await ask('Enlace para los botones (too.fm o Spotify)', spotifyUrl);
   const socialDescription = await ask(
     'Texto que aparecera al compartir por WhatsApp',
@@ -46,10 +46,10 @@ try {
     'Texto visible debajo de Artista - Productor',
     'Musica con proposito. Sonidos que trascienden.'
   );
-  const version = await ask('Version de la vista previa', '1');
+  const version = slugify(await ask('Version de la vista previa', '1'));
 
-  if (!/^[a-z0-9-]+$/.test(slug)) throw new Error('El nombre corto solo puede tener letras, numeros y guiones.');
-  if (!/^[a-z0-9-]+$/.test(version)) throw new Error('La version solo puede tener letras, numeros y guiones.');
+  if (!slug) throw new Error('El nombre corto no puede quedar vacio.');
+  if (!version) throw new Error('La version no puede quedar vacia.');
 
   const coverFilename = `${slug}-cover.jpg`;
   const coverPath = `assets/${coverFilename}`;
