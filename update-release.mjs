@@ -40,7 +40,7 @@ try {
   const listenUrl = await ask('Enlace para los botones (too.fm o Spotify)', spotifyUrl);
   const socialDescription = await ask(
     'Texto que aparecera al compartir por WhatsApp',
-    `Escucha ${title}, el nuevo lanzamiento de ZAETTA.`
+    `Escucha ${title}, el nuevo lanzamiento de Zaetta.`
   );
   const heroText = await ask(
     'Texto visible debajo de Artista - Productor',
@@ -56,7 +56,7 @@ try {
   const shareUrl = `https://www.lujourban.com/?lanzamiento=${slug}-v${version}`;
   const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
-  const socialTitle = `${title} - ZAETTA`;
+  const socialTitle = `${title} - Zaetta`;
 
   const [scriptSource, htmlSource, imageResponse] = await Promise.all([
     readFile('script.js', 'utf8'),
