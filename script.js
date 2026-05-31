@@ -2,7 +2,7 @@ const latestRelease = {
   title: "Predicador",
   trackingTitle: "Predicador",
   slug: "predicador",
-  artist: "ZAETTA ft. Alex Rodriguez & Julian Ramos",
+  artist: 'ZAETTA',
   cover: "assets/predicador-cover.jpg",
   link: "https://open.spotify.com/intl-es/track/5C52EVyuczyiEvYGr4wDK5",
   browserTitle: "ZAETTA - Escucha Predicador",
