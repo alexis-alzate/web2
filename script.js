@@ -1,10 +1,10 @@
 const latestRelease = {
-  title: 'Seguir\u00e9',
-  trackingTitle: 'Seguir\u00e9',
-  slug: 'seguire',
+  title: 'Predicador',
+  trackingTitle: 'Predicador',
+  slug: 'predicador',
   artist: 'ZAETTA',
-  cover: 'assets/seguire-cover.jpg',
-  link: 'https://too.fm/bkyz4mw'
+  cover: 'assets/predicador-cover.jpg',
+  link: 'https://open.spotify.com/intl-es/track/5C52EVyuczyiEvYGr4wDK5'
 };
 
 const releaseSlug = latestRelease.slug || (latestRelease.trackingTitle || latestRelease.title)
