@@ -18,9 +18,11 @@ El asistente te pedira:
 7. Una version. Para una cancion nueva usa `1`.
 
 El asistente descarga la portada desde Spotify y actualiza la web, los botones,
-los eventos de medicion y la vista previa social.
+los eventos de medicion y una pagina independiente para compartir el lanzamiento.
 
-Al final mostrara el enlace exacto que debes compartir por WhatsApp.
+Al final mostrara el enlace exacto que debes compartir por WhatsApp. Usa ese
+enlace para promocionar la cancion. La direccion `https://www.lujourban.com/`
+mantiene la vista previa general del artista.
 
 ## Publicar
 

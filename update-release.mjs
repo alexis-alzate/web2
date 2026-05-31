@@ -53,10 +53,39 @@ try {
 
   const coverFilename = `${slug}-cover.jpg`;
   const coverPath = `assets/${coverFilename}`;
-  const shareUrl = `https://www.lujourban.com/?lanzamiento=${slug}-v${version}`;
+  const shareDirectory = `lanzamientos/${slug}-v${version}`;
+  const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
   const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - Zaetta`;
+  const sharePage = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${shareUrl}">
+<meta property="og:title" content="${escapeHtml(socialTitle)}">
+<meta property="og:description" content="${escapeHtml(socialDescription)}">
+<meta property="og:image" content="${shareImageUrl}">
+<meta property="og:image:secure_url" content="${shareImageUrl}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="300">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(socialTitle)}">
+<meta name="twitter:description" content="${escapeHtml(socialDescription)}">
+<meta name="twitter:image" content="${shareImageUrl}">
+<meta http-equiv="refresh" content="0;url=/">
+<title>${escapeHtml(socialTitle)}</title>
+<script>window.location.replace('/');</script>
+</head>
+<body>
+<p><a href="/">Ir al sitio oficial de Zaetta</a></p>
+</body>
+</html>
+`;
 
   const [scriptSource, htmlSource, imageResponse] = await Promise.all([
     readFile('script.js', 'utf8'),
@@ -95,24 +124,19 @@ try {
     .replaceAll(`release_${previousSlug}`, `release_${slug}`)
     .replaceAll(`data-track-content="${escapeHtml(previousTitle)}"`, `data-track-content="${escapeHtml(title)}"`);
 
-  nextHtml = replaceRequired(nextHtml, /<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${shareUrl}">`, 'og:url');
-  nextHtml = replaceRequired(nextHtml, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escapeHtml(socialTitle)}">`, 'og:title');
-  nextHtml = replaceRequired(nextHtml, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${escapeHtml(socialDescription)}">`, 'og:description');
-  nextHtml = replaceRequired(nextHtml, /<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${shareImageUrl}">`, 'og:image');
-  nextHtml = replaceRequired(nextHtml, /<meta property="og:image:secure_url" content="[^"]*">/, `<meta property="og:image:secure_url" content="${shareImageUrl}">`, 'og:image:secure_url');
-  nextHtml = replaceRequired(nextHtml, /<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${escapeHtml(socialTitle)}">`, 'twitter:title');
-  nextHtml = replaceRequired(nextHtml, /<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${escapeHtml(socialDescription)}">`, 'twitter:description');
-  nextHtml = replaceRequired(nextHtml, /<meta name="twitter:image" content="[^"]*">/, `<meta name="twitter:image" content="${shareImageUrl}">`, 'twitter:image');
-  nextHtml = replaceRequired(nextHtml, /<title>[^<]*<\/title>/, `<title>${escapeHtml(browserTitle)}</title>`, 'title');
   nextHtml = replaceRequired(nextHtml, /<p class="hero-sub" data-release-hero-text>[^<]*<\/p>/, `<p class="hero-sub" data-release-hero-text>${escapeHtml(heroText)}</p>`, 'heroText');
   nextHtml = replaceRequired(nextHtml, /<h2 data-release-title>[^<]*<\/h2>/, `<h2 data-release-title>${escapeHtml(title)}</h2>`, 'titulo visible');
   nextHtml = replaceRequired(nextHtml, /alt="Portada de [^"]*"/, `alt="Portada de ${escapeHtml(title)}"`, 'texto de portada');
 
-  await mkdir('assets', { recursive: true });
+  await Promise.all([
+    mkdir('assets', { recursive: true }),
+    mkdir(shareDirectory, { recursive: true })
+  ]);
   await Promise.all([
     writeFile(coverPath, Buffer.from(await imageResponse.arrayBuffer())),
     writeFile('script.js', nextScript),
-    writeFile('index.html', nextHtml)
+    writeFile('index.html', nextHtml),
+    writeFile(`${shareDirectory}/index.html`, sharePage)
   ]);
 
   console.log('\nActualizacion terminada.');
