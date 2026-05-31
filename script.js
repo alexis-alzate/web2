@@ -78,6 +78,22 @@ const trackClarityEvent = (eventName) => {
   window.clarity('event', eventName);
 };
 
+const identifyClarityOwner = () => {
+  if (typeof window.clarity !== 'function') return;
+
+  try {
+    const ownerId = window.localStorage.getItem('zaetta_clarity_owner_id');
+    if (!ownerId) return;
+
+    window.clarity('identify', ownerId, undefined, undefined, 'ZAETTA Owner');
+    window.clarity('set', 'visitor_type', 'owner');
+  } catch {
+    // localStorage can be unavailable when the browser blocks site storage.
+  }
+};
+
+identifyClarityOwner();
+
 const trackedOnce = new Set();
 const trackMetaEventOnce = (eventName, params = {}) => {
   const key = `${eventName}:${params.label || ''}`;
