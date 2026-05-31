@@ -86,6 +86,19 @@ const trackClarityEvent = (eventName) => {
   window.clarity('event', eventName);
 };
 
+const saveClarityOwnerFromUrl = () => {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('owner') !== 'zaetta-alexis') return;
+
+  try {
+    window.localStorage.setItem('zaetta_clarity_owner_id', 'zaetta-owner-alexis');
+    url.searchParams.delete('owner');
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  } catch {
+    // localStorage can be unavailable when the browser blocks site storage.
+  }
+};
+
 const identifyClarityOwner = () => {
   if (typeof window.clarity !== 'function') return;
 
@@ -100,6 +113,7 @@ const identifyClarityOwner = () => {
   }
 };
 
+saveClarityOwnerFromUrl();
 identifyClarityOwner();
 
 const trackedOnce = new Set();
