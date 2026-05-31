@@ -4,7 +4,9 @@ const latestRelease = {
   slug: 'predicador',
   artist: 'ZAETTA',
   cover: 'assets/predicador-cover.jpg',
-  link: 'https://open.spotify.com/intl-es/track/5C52EVyuczyiEvYGr4wDK5'
+  link: 'https://open.spotify.com/intl-es/track/5C52EVyuczyiEvYGr4wDK5',
+  browserTitle: 'ZAETTA - Escucha Predicador',
+  heroText: 'Música con propósito. Sonidos que trascienden.'
 };
 
 const releaseSlug = latestRelease.slug || (latestRelease.trackingTitle || latestRelease.title)
@@ -18,6 +20,12 @@ const heroImage = document.getElementById('heroBg');
 if (heroImage) {
   heroImage.src = 'assets/hero.jpg';
 }
+
+document.title = latestRelease.browserTitle;
+
+document.querySelectorAll('[data-release-hero-text]').forEach(element => {
+  element.textContent = latestRelease.heroText;
+});
 
 document.querySelectorAll('[data-release-link]').forEach(link => {
   link.href = latestRelease.link;
