@@ -37,10 +37,13 @@ try {
   const metadata = await metadataResponse.json();
   const title = await ask('Nombre visible de la cancion', metadata.title);
   const slug = slugify(await ask('Nombre corto sin espacios ni tildes', slugify(title)));
+  const featuring = await ask('Featuring (dejalo vacio si la cancion es solo de Zaetta)');
+  const artist = featuring ? `ZAETTA ft. ${featuring}` : 'ZAETTA';
+  const socialArtist = featuring ? `Zaetta ft. ${featuring}` : 'Zaetta';
   const listenUrl = await ask('Enlace para los botones (too.fm o Spotify)', spotifyUrl);
   const socialDescription = await ask(
     'Texto que aparecera al compartir por WhatsApp',
-    `Escucha ${title}, el nuevo lanzamiento de Zaetta.`
+    `Escucha ${title}, el nuevo lanzamiento de ${socialArtist}.`
   );
   const heroText = await ask(
     'Texto visible debajo de Artista - Productor',
@@ -57,7 +60,7 @@ try {
   const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
   const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
-  const socialTitle = `${title} - Zaetta`;
+  const socialTitle = `${title} - ${socialArtist}`;
   const sharePage = `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -110,7 +113,7 @@ try {
   title: ${JSON.stringify(title)},
   trackingTitle: ${JSON.stringify(title)},
   slug: ${JSON.stringify(slug)},
-  artist: 'ZAETTA',
+  artist: ${JSON.stringify(artist)},
   cover: ${JSON.stringify(coverPath)},
   link: ${JSON.stringify(listenUrl)},
   browserTitle: ${JSON.stringify(browserTitle)},
