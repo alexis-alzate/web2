@@ -16,7 +16,7 @@ El asistente te pedira:
 5. El enlace que abriran los botones. Usa `too.fm` si lo tienes.
 6. El texto para WhatsApp.
 7. El texto visible dentro de la web.
-8. Una version. Para una cancion nueva usa `1`.
+8. Una version. El asistente propone automaticamente la siguiente disponible.
 
 El asistente descarga la portada desde Spotify y actualiza la web, los botones,
 los eventos de medicion y una pagina independiente para compartir el lanzamiento.

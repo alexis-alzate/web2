@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
@@ -27,6 +27,21 @@ const replaceRequired = (source, pattern, replacement, label) => {
   return source.replace(pattern, replacement);
 };
 
+const getNextPreviewVersion = async slug => {
+  try {
+    const entries = await readdir('lanzamientos', { withFileTypes: true });
+    const versions = entries
+      .filter(entry => entry.isDirectory())
+      .map(entry => entry.name.match(new RegExp(`^${slug}-v(\\d+)$`))?.[1])
+      .filter(Boolean)
+      .map(Number);
+
+    return String(Math.max(0, ...versions) + 1);
+  } catch {
+    return '1';
+  }
+};
+
 try {
   const spotifyUrl = await ask('Pega el enlace de Spotify de la cancion');
   if (!spotifyUrl.includes('open.spotify.com/')) throw new Error('El enlace de Spotify no es valido.');
@@ -48,7 +63,8 @@ try {
     'Texto visible debajo de Artista - Productor',
     'Musica con proposito. Sonidos que trascienden.'
   );
-  const version = slugify(await ask('Version de la vista previa', '1'));
+  const suggestedVersion = await getNextPreviewVersion(slug);
+  const version = slugify(await ask('Version de la vista previa', suggestedVersion));
 
   if (!slug) throw new Error('El nombre corto no puede quedar vacio.');
   if (!version) throw new Error('La version no puede quedar vacia.');
