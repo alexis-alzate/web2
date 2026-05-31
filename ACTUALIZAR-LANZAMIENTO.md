@@ -27,12 +27,10 @@ mantiene la vista previa general del artista.
 
 ## Publicar
 
-Ejecuta:
+Ejecuta un solo comando:
 
 ```bash
-git add .
-git commit -m "Set nombre de la cancion as latest release"
-git push origin main
+./publicar.sh
 ```
 
 Espera el despliegue antes de compartir el enlace.
