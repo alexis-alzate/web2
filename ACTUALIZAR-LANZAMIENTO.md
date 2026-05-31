@@ -12,7 +12,7 @@ El asistente te pedira:
 1. El enlace de Spotify.
 2. El nombre de la cancion.
 3. Un nombre corto sin espacios ni tildes.
-4. El featuring. Dejalo vacio si la cancion es solo de Zaetta.
+4. El featuring para WhatsApp. Dejalo vacio si la cancion es solo de Zaetta.
 5. El enlace que abriran los botones. Usa `too.fm` si lo tienes.
 6. El texto para WhatsApp.
 7. El texto visible dentro de la web.

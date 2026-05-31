@@ -37,8 +37,7 @@ try {
   const metadata = await metadataResponse.json();
   const title = await ask('Nombre visible de la cancion', metadata.title);
   const slug = slugify(await ask('Nombre corto sin espacios ni tildes', slugify(title)));
-  const featuring = await ask('Featuring (dejalo vacio si la cancion es solo de Zaetta)');
-  const artist = featuring ? `ZAETTA ft. ${featuring}` : 'ZAETTA';
+  const featuring = await ask('Featuring para WhatsApp (dejalo vacio si la cancion es solo de Zaetta)');
   const socialArtist = featuring ? `Zaetta ft. ${featuring}` : 'Zaetta';
   const listenUrl = await ask('Enlace para los botones (too.fm o Spotify)', spotifyUrl);
   const socialDescription = await ask(
@@ -113,7 +112,7 @@ try {
   title: ${JSON.stringify(title)},
   trackingTitle: ${JSON.stringify(title)},
   slug: ${JSON.stringify(slug)},
-  artist: ${JSON.stringify(artist)},
+  artist: 'ZAETTA',
   cover: ${JSON.stringify(coverPath)},
   link: ${JSON.stringify(listenUrl)},
   browserTitle: ${JSON.stringify(browserTitle)},
