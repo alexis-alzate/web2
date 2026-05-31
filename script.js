@@ -73,6 +73,11 @@ const trackGoogleEvent = (eventName, params = {}) => {
   window.gtag('event', eventName, params);
 };
 
+const trackClarityEvent = (eventName) => {
+  if (typeof window.clarity !== 'function') return;
+  window.clarity('event', eventName);
+};
+
 const trackedOnce = new Set();
 const trackMetaEventOnce = (eventName, params = {}) => {
   const key = `${eventName}:${params.label || ''}`;
@@ -81,6 +86,7 @@ const trackMetaEventOnce = (eventName, params = {}) => {
   trackMetaEvent(eventName, params);
   trackTikTokEvent(eventName, params);
   trackGoogleEvent(eventName, params);
+  trackClarityEvent(eventName);
 };
 
 window.setTimeout(() => {
@@ -138,6 +144,7 @@ document.querySelectorAll('[data-track-event]').forEach(element => {
       content_name: element.dataset.trackContent || element.textContent.trim(),
       destination: element.href || ''
     });
+    trackClarityEvent(element.dataset.trackEvent);
   });
 });
 
