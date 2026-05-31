@@ -146,6 +146,15 @@ try {
   nextHtml = replaceRequired(nextHtml, /<h2 data-release-title>[^<]*<\/h2>/, `<h2 data-release-title>${escapeHtml(title)}</h2>`, 'titulo visible');
   nextHtml = replaceRequired(nextHtml, /alt="Portada de [^"]*"/, `alt="Portada de ${escapeHtml(title)}"`, 'texto de portada');
 
+  const history = await readFile('release-history.json', 'utf8').then(JSON.parse);
+  const release = { title, slug, cover: coverPath, link: listenUrl, browserTitle, heroText, shareUrl };
+  const previousReleaseIndex = history.releases.findIndex(item => item.slug === slug);
+  if (previousReleaseIndex === -1) {
+    history.releases.push(release);
+  } else {
+    history.releases[previousReleaseIndex] = release;
+  }
+
   await Promise.all([
     mkdir('assets', { recursive: true }),
     mkdir(shareDirectory, { recursive: true })
@@ -154,6 +163,7 @@ try {
     writeFile(coverPath, Buffer.from(await imageResponse.arrayBuffer())),
     writeFile('script.js', nextScript),
     writeFile('index.html', nextHtml),
+    writeFile('release-history.json', `${JSON.stringify(history, null, 2)}\n`),
     writeFile(`${shareDirectory}/index.html`, sharePage)
   ]);
 

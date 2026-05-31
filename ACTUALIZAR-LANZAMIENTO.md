@@ -39,3 +39,17 @@ Espera el despliegue antes de compartir el enlace.
 
 Si WhatsApp conserva una vista previa antigua, ejecuta nuevamente el asistente
 con los mismos datos y aumenta la version a `2`, `3`, etc.
+
+## Volver a un lanzamiento anterior
+
+Ejecuta:
+
+```bash
+node reactivar-lanzamiento.mjs
+```
+
+Elige una cancion escribiendo su numero y publica:
+
+```bash
+./publicar.sh
+```
