@@ -61,7 +61,7 @@ try {
   );
   const heroText = await ask(
     'Texto visible debajo de Artista - Productor',
-    'Musica con proposito. Sonidos que trascienden.'
+    'Música con propósito. Sonidos que trascienden.'
   );
   const suggestedVersion = await getNextPreviewVersion(slug);
   const version = slugify(await ask('Version de la vista previa', suggestedVersion));
