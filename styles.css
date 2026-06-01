@@ -317,6 +317,16 @@
   }
   .label-headline span { color: var(--green); }
   .label-sub { font-size: .88rem; color: #aaa; line-height: 1.6; }
+  .label-services-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 42px; margin-top: 4px; padding: 0 18px;
+    border: 1px solid rgba(57,255,99,.32); color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .76rem; font-weight: 700; letter-spacing: 2px;
+    text-decoration: none; text-transform: uppercase;
+    transition: border-color .2s, background .2s, color .2s;
+  }
+  .label-services-link:hover { border-color: var(--green); background: var(--green); color: #000; }
 
   /* CONTACTO */
   .contact-card {
