@@ -5,6 +5,7 @@ const latestRelease = {
   artist: 'ZAETTA',
   cover: "assets/predicador-cover.jpg",
   link: "https://open.spotify.com/track/5C52EVyuczyiEvYGr4wDK5?si=tXpu1_WGRriQA3E8-DvPWA",
+  shareUrl: "https://www.lujourban.com/lanzamientos/predicador-v4/",
   browserTitle: "ZAETTA - Escucha Predicador",
   heroText: "Música con propósito. Sonidos que trascienden."
 };
@@ -52,6 +53,32 @@ document.querySelectorAll('[data-release-cover]').forEach(image => {
 document.querySelectorAll('[data-release-view]').forEach(element => {
   element.dataset.viewEvent = `release_${releaseSlug}_${element.dataset.releaseView}`;
   element.dataset.viewLabel = `release_${releaseSlug}`;
+});
+
+document.querySelectorAll('[data-share-button]').forEach(button => {
+  button.addEventListener('click', async () => {
+    const shareData = {
+      title: latestRelease.browserTitle,
+      text: latestRelease.heroText,
+      url: latestRelease.shareUrl
+    };
+
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        if (error.name !== 'AbortError') console.error('No se pudo compartir el lanzamiento.', error);
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(latestRelease.shareUrl);
+      window.alert('Enlace del lanzamiento copiado.');
+    } catch {
+      window.prompt('Copia el enlace del lanzamiento:', latestRelease.shareUrl);
+    }
+  });
 });
 
 // Fade-up on scroll

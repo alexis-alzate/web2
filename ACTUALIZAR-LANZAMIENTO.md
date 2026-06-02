@@ -20,6 +20,7 @@ El asistente te pedira:
 
 El asistente descarga la portada desde Spotify y actualiza la web, los botones,
 los eventos de medicion y una pagina independiente para compartir el lanzamiento.
+El boton `Compartir` de la tarjeta usara automaticamente ese enlace promocional.
 
 Al final mostrara el enlace exacto que debes compartir por WhatsApp. Usa ese
 enlace para promocionar la cancion. La direccion `https://www.lujourban.com/`

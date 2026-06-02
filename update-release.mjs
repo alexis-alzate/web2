@@ -131,6 +131,7 @@ try {
   artist: 'ZAETTA',
   cover: ${JSON.stringify(coverPath)},
   link: ${JSON.stringify(listenUrl)},
+  shareUrl: ${JSON.stringify(shareUrl)},
   browserTitle: ${JSON.stringify(browserTitle)},
   heroText: ${JSON.stringify(heroText)}
 };`;
