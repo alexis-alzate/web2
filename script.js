@@ -146,18 +146,25 @@ const scrollMilestones = [
   { eventName: 'interes_scroll_90', percent: 90 }
 ];
 
+let isScrolling = false;
 const trackScrollMilestones = () => {
-  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-  if (scrollable <= 0) return;
+  if (isScrolling) return;
 
-  const currentPercent = Math.round((window.scrollY / scrollable) * 100);
-  scrollMilestones.forEach(milestone => {
-    if (currentPercent < milestone.percent) return;
+  isScrolling = true;
+  window.requestAnimationFrame(() => {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollable > 0) {
+      const currentPercent = Math.round((window.scrollY / scrollable) * 100);
+      scrollMilestones.forEach(milestone => {
+        if (currentPercent < milestone.percent) return;
 
-    trackMetaEventOnce(milestone.eventName, {
-      label: 'scroll_depth',
-      percent: milestone.percent
-    });
+        trackMetaEventOnce(milestone.eventName, {
+          label: 'scroll_depth',
+          percent: milestone.percent
+        });
+      });
+    }
+    isScrolling = false;
   });
 };
 

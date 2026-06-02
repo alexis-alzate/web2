@@ -602,6 +602,12 @@ section{
 
   .floating-listen {
     display: inline-flex !important;
+    left: 50% !important;
+    right: auto !important;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    white-space: nowrap;
+    transform: translateX(-50%) !important;
   }
 }
 
