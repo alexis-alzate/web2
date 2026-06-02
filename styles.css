@@ -286,6 +286,59 @@
   }
   .btn-spotify:hover { opacity: .85; transform: translateY(-1px); }
 
+  /* COMUNIDAD VIP */
+  .vip-card {
+    padding: 24px 22px 22px;
+    border: 1px solid rgba(57,255,99,.16);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(57,255,99,.16), transparent 58%),
+      linear-gradient(180deg, rgba(8,24,13,.92), rgba(2,5,3,.98));
+    box-shadow: 0 14px 45px rgba(0,0,0,.72);
+    text-align: center;
+  }
+  .vip-kicker {
+    margin-bottom: 8px;
+    color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .vip-card h2 {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2rem, 7vw, 2.65rem);
+    letter-spacing: 1.5px;
+    line-height: .98;
+  }
+  .vip-card h2 span { color: var(--green); }
+  .vip-copy {
+    max-width: 420px;
+    margin: 12px auto 18px;
+    color: rgba(255,255,255,.68);
+    font-size: .88rem;
+    line-height: 1.55;
+  }
+  .vip-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 20px;
+    border-radius: 999px;
+    background: var(--green);
+    color: #000;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: opacity .2s, transform .15s;
+  }
+  .vip-button:hover { opacity: .85; transform: translateY(-1px); }
+
   /* BEATS */
   .beats-card,
   .productions-card {
