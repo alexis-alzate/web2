@@ -170,6 +170,9 @@
       #051109;
   }
   .release-status p {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
     color: var(--green);
     font-family: "Barlow Condensed", sans-serif;
     font-size: .68rem;
@@ -177,6 +180,21 @@
     letter-spacing: 2.5px;
     text-transform: uppercase;
     margin: 0 auto;
+  }
+  .release-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(57,255,99,.48);
+    animation: release-status-pulse 1.8s ease-out infinite;
+  }
+  @keyframes release-status-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(57,255,99,.48); opacity: .88; }
+    50% { box-shadow: 0 0 0 7px rgba(57,255,99,0); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .release-status-dot { animation: none; }
   }
   .release-feature {
     display: grid;
