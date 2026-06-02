@@ -10,6 +10,14 @@ const latestRelease = {
   heroText: "Música con propósito. Sonidos que trascienden."
 };
 
+const siteFeatures = {
+  showVipCommunity: true
+};
+
+document.querySelectorAll('[data-vip-community]').forEach(element => {
+  element.hidden = !siteFeatures.showVipCommunity;
+});
+
 const releaseSlug = latestRelease.slug || (latestRelease.trackingTitle || latestRelease.title)
   .normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '')

@@ -59,3 +59,15 @@ Para volver a una cancion anterior:
 ./2-REACTIVAR-ANTERIOR.sh
 ./3-PUBLICAR-CAMBIOS.sh
 ```
+
+## 4. Mostrar u ocultar la Comunidad VIP
+
+Ejecuta:
+
+```bash
+./4-ALTERNAR-COMUNIDAD-VIP.sh
+```
+
+Este comando funciona como un interruptor: si la tarjeta VIP esta visible, la
+oculta; si esta oculta, la vuelve a mostrar. Tambien publica el cambio
+automaticamente, por lo que no necesitas ejecutar el comando 3 despues.

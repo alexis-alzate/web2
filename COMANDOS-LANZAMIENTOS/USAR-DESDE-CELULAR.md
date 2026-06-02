@@ -91,6 +91,18 @@ horas innecesarias, tambien puedes detener el Codespace desde GitHub:
 2. Abre el menu de tres puntos del Codespace.
 3. Pulsa **Stop codespace**.
 
+## Mostrar u ocultar la Comunidad VIP
+
+Desde la misma terminal ejecuta:
+
+```bash
+cd COMANDOS-LANZAMIENTOS
+./4-ALTERNAR-COMUNIDAD-VIP.sh
+```
+
+Este comando funciona como un interruptor y publica el cambio automaticamente.
+No necesitas ejecutar `./3-PUBLICAR-CAMBIOS.sh` despues.
+
 ## Resumen rapido
 
 Nuevo lanzamiento:
@@ -107,4 +119,11 @@ Volver a una cancion anterior:
 cd COMANDOS-LANZAMIENTOS
 ./2-REACTIVAR-ANTERIOR.sh
 ./3-PUBLICAR-CAMBIOS.sh
+```
+
+Mostrar u ocultar la Comunidad VIP:
+
+```bash
+cd COMANDOS-LANZAMIENTOS
+./4-ALTERNAR-COMUNIDAD-VIP.sh
 ```
