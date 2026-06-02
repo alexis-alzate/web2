@@ -11,7 +11,7 @@ const latestRelease = {
 };
 
 const siteFeatures = {
-  showVipCommunity: false
+  showVipCommunity: true
 };
 
 document.querySelectorAll('[data-vip-community]').forEach(element => {
