@@ -421,7 +421,7 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
       ${imageOrPlaceholder(artist, 'artist-photo-placeholder', '../')}
       <div class="artist-list-copy">
         <p>${escapeHtml(artist.role)}</p>
-        <h2>${escapeHtml(artist.name)}</h2>
+        <h2>${escapeHtml(artist.cardName || artist.name)}</h2>
         <span class="artist-list-accent" aria-hidden="true"></span>
         <small>${escapeHtml(artist.tagline)}</small>
       </div>

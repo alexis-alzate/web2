@@ -537,11 +537,11 @@
   .artist-list-card {
     position: relative;
     display: grid;
-    grid-template-columns: 132px minmax(0, 1fr) 42px;
-    gap: 22px;
+    grid-template-columns: 116px minmax(0, 1fr) 40px;
+    gap: 20px;
     align-items: center;
-    min-height: 190px;
-    padding: 22px;
+    min-height: 166px;
+    padding: 18px;
     border: 1px solid rgba(57,255,99,.28);
     border-radius: 24px;
     background:
@@ -575,7 +575,7 @@
     border: 1px solid rgba(57,255,99,.18);
   }
   .artist-photo-placeholder {
-    width: 132px;
+    width: 116px;
     aspect-ratio: 1;
     border-radius: 18px;
   }
@@ -610,7 +610,7 @@
   .artist-list-copy h2 {
     margin-top: 12px;
     font-family: "Barlow", sans-serif;
-    font-size: clamp(1.85rem, 4.6vw, 2.58rem);
+    font-size: clamp(1.72rem, 4.1vw, 2.36rem);
     font-weight: 300;
     letter-spacing: 0;
     line-height: 1.02;
@@ -627,16 +627,16 @@
   }
   .artist-list-copy small {
     display: block;
-    margin-top: 12px;
+    margin-top: 10px;
     color: rgba(255,255,255,.68);
-    font-size: .94rem;
+    font-size: .9rem;
     line-height: 1.48;
   }
   .artist-list-arrow {
     display: grid;
     place-items: center;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border: 1px solid rgba(57,255,99,.32);
     border-radius: 50%;
     color: #fff;
@@ -952,28 +952,28 @@ a[href*="spotify"]{
   }
 
   .artist-list-card {
-    grid-template-columns: 112px minmax(0, 1fr) !important;
-    gap: 16px !important;
-    min-height: 154px !important;
-    padding: 16px !important;
-    border-radius: 22px !important;
+    grid-template-columns: 96px minmax(0, 1fr) !important;
+    gap: 14px !important;
+    min-height: 132px !important;
+    padding: 14px !important;
+    border-radius: 20px !important;
   }
 
   .artist-photo-placeholder {
-    width: 112px !important;
-    border-radius: 18px !important;
+    width: 96px !important;
+    border-radius: 16px !important;
   }
 
   .artist-list-copy p {
-    min-height: 28px !important;
-    padding: 0 13px !important;
-    font-size: .6rem !important;
-    letter-spacing: 2.9px !important;
+    min-height: 24px !important;
+    padding: 0 11px !important;
+    font-size: .56rem !important;
+    letter-spacing: 2.5px !important;
   }
 
   .artist-list-copy h2 {
-    margin-top: 10px !important;
-    font-size: clamp(1.46rem, 6.4vw, 1.92rem) !important;
+    margin-top: 8px !important;
+    font-size: clamp(1.34rem, 5.8vw, 1.72rem) !important;
     line-height: 1.05 !important;
     letter-spacing: 0 !important;
     white-space: normal !important;
@@ -986,9 +986,9 @@ a[href*="spotify"]{
   }
 
   .artist-list-copy small {
-    margin-top: 7px !important;
+    margin-top: 6px !important;
     color: rgba(255,255,255,.62) !important;
-    font-size: .82rem !important;
+    font-size: .78rem !important;
     line-height: 1.48 !important;
   }
 
