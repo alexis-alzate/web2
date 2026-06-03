@@ -382,14 +382,6 @@
     background: var(--card); border: 1px solid var(--border);
     padding: 24px; display: flex; flex-direction: column; gap: 12px;
   }
-  .label-mark {
-    width: clamp(96px, 24vw, 138px);
-    height: auto;
-    display: block;
-    margin: -2px auto 2px;
-    opacity: .82;
-    filter: saturate(.92) contrast(.98);
-  }
   .label-headline {
     font-family: "Bebas Neue", sans-serif;
     font-size: 2.7rem; letter-spacing: 2px; line-height: 1.1;
@@ -448,6 +440,7 @@
     text-shadow: 0 0 34px rgba(57,255,99,.22);
   }
   .artists-nav {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -456,7 +449,20 @@
     margin: 0 auto;
     padding: 22px 20px 8px;
   }
+  .artists-nav-mark {
+    position: absolute;
+    top: -16px;
+    left: 6px;
+    width: 92px;
+    height: 92px;
+    object-fit: cover;
+    opacity: .16;
+    pointer-events: none;
+    filter: saturate(.9) brightness(1.14);
+  }
   .artists-brand {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -475,6 +481,8 @@
     border-radius: 50%;
   }
   .artists-back {
+    position: relative;
+    z-index: 1;
     color: var(--green);
     font-family: "Barlow Condensed", sans-serif;
     font-size: .7rem;

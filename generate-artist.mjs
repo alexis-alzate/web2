@@ -404,6 +404,7 @@ ${trackingHead}
 <body class="artists-page">
 ${trackingNoScript}
 <header class="artists-nav">
+  <img class="artists-nav-mark" src="../assets/lujo-urban-logo.png" alt="" aria-hidden="true">
   <a href="/" class="artists-brand" data-track-event="artistas_nav_home_click" data-track-label="artists_nav_brand">
     <img src="../assets/zaetta-music-logo.jpg" alt="Lujo Urban">
     Lujo Urban
