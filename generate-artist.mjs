@@ -234,7 +234,6 @@ ${socialOrder.filter(key => artist.links?.[key]).map(key => `    <a href="${esca
 const heroButtons = artist => {
   const buttons = [];
   const eventSlug = trackingSlug(artist);
-  const buttonIcon = key => (svg[key] || '').replace('<svg viewBox="0 0 24 24"', '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"');
 
   if (artist.links?.spotify) {
     buttons.push(`<a href="${escapeHtml(artist.links.spotify)}" target="_blank" rel="noopener" class="btn-primary" data-track-event="artista_${eventSlug}_hero_spotify_click" data-track-label="artist_hero_spotify">
@@ -245,7 +244,6 @@ const heroButtons = artist => {
 
   if (artist.links?.tiktok) {
     buttons.push(`<a href="${escapeHtml(artist.links.tiktok)}" target="_blank" rel="noopener" class="btn-secondary" data-track-event="artista_${eventSlug}_hero_tiktok_click" data-track-label="artist_hero_tiktok">
-      ${buttonIcon('tiktok')}
       TikTok
     </a>`);
   }
@@ -348,7 +346,7 @@ const renderArtistPage = artist => {
 <link rel="stylesheet" href="../../styles.css">
 ${trackingHead}
 </head>
-<body class="artists-page">
+<body class="artist-profile-page">
 ${trackingNoScript}
 <main>
 ${renderHeroPhoto(artist)}

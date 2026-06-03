@@ -424,6 +424,25 @@
       linear-gradient(180deg, rgba(255,255,255,.018), transparent 28%),
       #000;
   }
+  .artist-profile-page {
+    min-height: 100vh;
+    background: #000;
+  }
+  .artist-profile-page .fade-up {
+    opacity: 1;
+    transform: none;
+  }
+  .artist-profile-page .hero-info {
+    overflow: hidden;
+  }
+  .artist-profile-page .hero-name {
+    max-width: min(100%, 760px);
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+  .artist-profile-page .hero-btns {
+    width: 100%;
+  }
   .artists-page .fade-up {
     opacity: 1;
     transform: none;
