@@ -367,6 +367,7 @@ ${renderEmbedSection('Beats', 'Catálogo de beats', artist.beatsEmbed, `artista_
 ${renderEmbedSection('Producciones', 'Producciones destacadas', artist.productionsEmbed, `artista_${eventSlug}_producciones_visto`)}
 ${renderContact(artist)}
 </main>
+<script src="../../script.js"></script>
 ${trackingBodyScript}
 </body>
 </html>
