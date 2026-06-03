@@ -412,6 +412,7 @@ ${trackingNoScript}
   <section class="artists-hero" data-view-event="artistas_directorio_visto" data-view-label="artists_directory_hero">
     <p class="artists-kicker">Lujo Urban presenta</p>
     <h1>Artistas<br><span>del movimiento.</span></h1>
+    <div class="artists-glow-line" aria-hidden="true"></div>
     <p>Un espacio para descubrir talento aliado, lanzamientos y proyectos conectados con la visión de Lujo Urban.</p>
   </section>
 
@@ -421,10 +422,39 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
       <div class="artist-list-copy">
         <p>${escapeHtml(artist.role)}</p>
         <h2>${escapeHtml(artist.name)}</h2>
+        <span class="artist-list-accent" aria-hidden="true"></span>
         <small>${escapeHtml(artist.tagline)}</small>
       </div>
+      <span class="artist-list-arrow" aria-hidden="true">→</span>
     </a>`).join('\n')}
   </section>
+
+  <section class="artists-proof" aria-label="Valores Lujo Urban">
+    <div>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13h-2V7.35l-8 1.33V18a3 3 0 11-2-2.83z"/></svg>
+      <h2>Talento real</h2>
+      <p>Conectamos con artistas que están haciendo historia.</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.28L22 9.1l-5.25 4.72L18.18 21 12 17.3 5.82 21l1.43-7.18L2 9.1l7.1-.82L12 2z"/></svg>
+      <h2>Visión global</h2>
+      <p>Llevamos tu música a nuevas audiencias y oportunidades.</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 8-8 12-8-12 8-8zm0 3.2L7.35 9.85 12 16.82l4.65-6.97L12 5.2zm-2.8 5.3L12 14.7l2.8-4.2L12 7.7l-2.8 2.8z"/></svg>
+      <h2>Identidad lujo</h2>
+      <p>Calidad, estrategia y excelencia en cada proyecto.</p>
+    </div>
+  </section>
+
+  <a href="/" class="artists-label-cta" data-track-event="artistas_lujo_urban_cta_click" data-track-label="artists_label_cta">
+    <span class="artists-label-monogram" aria-hidden="true">L</span>
+    <span>
+      <strong>Lujo Urban</strong>
+      <small>Movimiento. Visión. Legado.</small>
+    </span>
+    <em>Conoce más →</em>
+  </a>
 </main>
 ${trackingBodyScript}
 </body>

@@ -420,7 +420,7 @@
   .artists-page {
     min-height: 100vh;
     background:
-      radial-gradient(circle at 50% -8%, rgba(57,255,99,.09), transparent 38%),
+      radial-gradient(circle at 50% 16%, rgba(57,255,99,.12), transparent 26%),
       linear-gradient(180deg, rgba(255,255,255,.018), transparent 28%),
       #000;
   }
@@ -495,20 +495,34 @@
   .artists-hero {
     width: min(100%, 760px);
     margin: 0 auto;
-    padding: 38px 20px 26px;
+    padding: 42px 20px 30px;
     text-align: center;
   }
-  .artists-hero .artists-kicker { margin-bottom: 10px; }
-  .artists-hero h1 {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: clamp(3.1rem, 13vw, 5.2rem);
-    letter-spacing: 3px;
-    line-height: .92;
+  .artists-hero .artists-kicker {
+    margin-bottom: 12px;
+    color: rgba(57,255,99,.78);
   }
-  .artists-hero h1 span { color: var(--green); }
+  .artists-hero h1 {
+    font-family: "Barlow", sans-serif;
+    font-size: clamp(3rem, 9.5vw, 5.1rem);
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: .98;
+  }
+  .artists-hero h1 span {
+    color: rgba(57,255,99,.78);
+    font-weight: 300;
+  }
+  .artists-glow-line {
+    width: min(220px, 48vw);
+    height: 1px;
+    margin: 24px auto 0;
+    background: linear-gradient(90deg, transparent, rgba(57,255,99,.95), transparent);
+    box-shadow: 0 0 18px rgba(57,255,99,.82);
+  }
   .artists-hero p {
     max-width: 520px;
-    margin: 14px auto 0;
+    margin: 22px auto 0;
     color: rgba(255,255,255,.72);
     font-size: .94rem;
     line-height: 1.6;
@@ -518,21 +532,35 @@
     gap: 16px;
     width: min(100%, 760px);
     margin: 0 auto;
-    padding: 0 20px 42px;
+    padding: 0 20px 34px;
   }
   .artist-list-card {
+    position: relative;
     display: grid;
-    grid-template-columns: 112px 1fr;
-    gap: 18px;
+    grid-template-columns: 176px 1fr 54px;
+    gap: 26px;
     align-items: center;
-    padding: 18px;
-    border: 1px solid rgba(255,255,255,.06);
+    padding: 30px;
+    border: 1px solid rgba(57,255,99,.28);
     border-radius: 24px;
     background:
-      linear-gradient(180deg, rgba(8,8,8,.98), rgba(2,2,2,.98));
-    box-shadow: 0 16px 48px rgba(0,0,0,.76);
+      radial-gradient(circle at 50% 0, rgba(57,255,99,.12), transparent 42%),
+      linear-gradient(180deg, rgba(10,12,10,.98), rgba(2,2,2,.98));
+    box-shadow:
+      0 16px 48px rgba(0,0,0,.76),
+      0 0 30px rgba(57,255,99,.08),
+      inset 0 1px 0 rgba(255,255,255,.04);
     color: #fff;
     text-decoration: none;
+  }
+  .artist-list-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(57,255,99,.10), transparent);
+    opacity: .45;
   }
   .artist-photo-placeholder,
   .artist-profile-photo {
@@ -546,9 +574,9 @@
     border: 1px solid rgba(57,255,99,.18);
   }
   .artist-photo-placeholder {
-    width: 112px;
+    width: 176px;
     aspect-ratio: 1;
-    border-radius: 18px;
+    border-radius: 22px;
   }
   img.artist-photo-placeholder,
   img.artist-profile-photo {
@@ -563,26 +591,136 @@
     letter-spacing: 2px;
   }
   .artist-list-copy p {
-    color: var(--green);
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    background: rgba(255,255,255,.055);
+    color: rgba(57,255,99,.92);
     font-family: "Barlow Condensed", sans-serif;
-    font-size: .68rem;
+    font-size: .7rem;
     font-weight: 700;
-    letter-spacing: 2.5px;
+    letter-spacing: 3.5px;
     text-transform: uppercase;
   }
   .artist-list-copy h2 {
-    margin-top: 3px;
-    font-family: "Bebas Neue", sans-serif;
-    font-size: clamp(2rem, 8vw, 2.8rem);
-    letter-spacing: 2px;
-    line-height: 1;
+    margin-top: 14px;
+    font-family: "Barlow", sans-serif;
+    font-size: clamp(2.15rem, 6.2vw, 3.1rem);
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 1.02;
+  }
+  .artist-list-accent {
+    display: block;
+    width: 48px;
+    height: 2px;
+    margin: 18px 0 0;
+    background: var(--green);
+    box-shadow: 0 0 14px rgba(57,255,99,.65);
   }
   .artist-list-copy small {
     display: block;
-    margin-top: 8px;
+    margin-top: 18px;
     color: rgba(255,255,255,.68);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  .artist-list-arrow {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border: 1px solid rgba(57,255,99,.32);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    box-shadow: 0 0 20px rgba(57,255,99,.08);
+  }
+  .artists-proof {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    width: min(100%, 760px);
+    margin: 0 auto;
+    padding: 28px 20px 36px;
+  }
+  .artists-proof div {
+    padding: 0 24px;
+    text-align: center;
+  }
+  .artists-proof div + div {
+    border-left: 1px solid rgba(255,255,255,.08);
+  }
+  .artists-proof svg {
+    width: 38px;
+    height: 38px;
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 1.5;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 10px rgba(57,255,99,.62));
+  }
+  .artists-proof h2 {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .78rem;
+    letter-spacing: 3.6px;
+    text-transform: uppercase;
+  }
+  .artists-proof p {
+    margin-top: 10px;
+    color: rgba(255,255,255,.62);
     font-size: .88rem;
-    line-height: 1.45;
+    line-height: 1.55;
+  }
+  .artists-label-cta {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 18px;
+    width: min(calc(100% - 40px), 716px);
+    margin: 0 auto 44px;
+    padding: 18px 22px;
+    border: 1px solid rgba(57,255,99,.32);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(8,14,9,.88), rgba(1,2,1,.98));
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 0 24px rgba(57,255,99,.08);
+  }
+  .artists-label-monogram {
+    color: var(--green);
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3rem;
+    line-height: .85;
+    text-shadow: 0 0 16px rgba(57,255,99,.42);
+  }
+  .artists-label-cta strong,
+  .artists-label-cta em {
+    display: block;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .78rem;
+    font-style: normal;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .artists-label-cta small {
+    display: block;
+    margin-top: 5px;
+    color: rgba(255,255,255,.48);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .62rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .artists-label-cta em {
+    color: var(--green);
+    font-size: .68rem;
   }
 
   /* CONTACTO */
@@ -750,7 +888,7 @@ a[href*="spotify"]{
 
   .artists-page {
     background:
-      radial-gradient(circle at 50% -6%, rgba(57,255,99,.08), transparent 34%),
+      radial-gradient(circle at 50% 20%, rgba(57,255,99,.12), transparent 38%),
       #000 !important;
   }
 
@@ -775,7 +913,7 @@ a[href*="spotify"]{
   }
 
   .artists-hero {
-    padding: 34px 22px 28px !important;
+    padding: 42px 22px 32px !important;
   }
 
   .artists-hero .artists-kicker {
@@ -786,20 +924,20 @@ a[href*="spotify"]{
   }
 
   .artists-hero h1 {
-    font-size: clamp(3.05rem, 13vw, 3.72rem) !important;
-    line-height: .96 !important;
-    letter-spacing: 2px !important;
+    font-size: clamp(3rem, 12vw, 3.7rem) !important;
+    line-height: 1.04 !important;
+    letter-spacing: 0 !important;
   }
 
   .artists-hero h1 span {
     display: block !important;
-    font-size: .86em !important;
-    letter-spacing: 1.7px !important;
+    font-size: .66em !important;
+    letter-spacing: 0 !important;
     white-space: normal !important;
   }
 
   .artists-hero p {
-    max-width: 340px !important;
+    max-width: 330px !important;
     margin-top: 18px !important;
     color: rgba(255,255,255,.64) !important;
     font-size: .94rem !important;
@@ -807,31 +945,39 @@ a[href*="spotify"]{
   }
 
   .artist-list {
-    padding: 0 18px 42px !important;
+    padding: 0 18px 26px !important;
   }
 
   .artist-list-card {
-    grid-template-columns: 96px minmax(0, 1fr) !important;
-    gap: 15px !important;
-    padding: 16px !important;
-    border-radius: 22px !important;
+    grid-template-columns: 130px minmax(0, 1fr) !important;
+    gap: 18px !important;
+    padding: 22px !important;
+    border-radius: 24px !important;
   }
 
   .artist-photo-placeholder {
-    width: 96px !important;
-    border-radius: 15px !important;
+    width: 130px !important;
+    border-radius: 20px !important;
   }
 
   .artist-list-copy p {
-    font-size: .62rem !important;
-    letter-spacing: 2.6px !important;
+    min-height: 28px !important;
+    padding: 0 13px !important;
+    font-size: .6rem !important;
+    letter-spacing: 2.9px !important;
   }
 
   .artist-list-copy h2 {
-    font-size: clamp(2rem, 8.4vw, 2.35rem) !important;
-    line-height: 1 !important;
-    letter-spacing: 1.35px !important;
-    white-space: nowrap !important;
+    margin-top: 12px !important;
+    font-size: clamp(1.8rem, 7.5vw, 2.18rem) !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+    white-space: normal !important;
+  }
+
+  .artist-list-accent {
+    width: 38px !important;
+    margin-top: 14px !important;
   }
 
   .artist-list-copy small {
@@ -839,6 +985,46 @@ a[href*="spotify"]{
     color: rgba(255,255,255,.62) !important;
     font-size: .86rem !important;
     line-height: 1.48 !important;
+  }
+
+  .artist-list-arrow {
+    display: none !important;
+  }
+
+  .artists-proof {
+    grid-template-columns: repeat(3, 1fr) !important;
+    padding: 24px 18px 32px !important;
+  }
+
+  .artists-proof div {
+    padding: 0 10px !important;
+  }
+
+  .artists-proof svg {
+    width: 34px !important;
+    height: 34px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .artists-proof h2 {
+    font-size: .64rem !important;
+    letter-spacing: 2.4px !important;
+  }
+
+  .artists-proof p {
+    font-size: .78rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .artists-label-cta {
+    grid-template-columns: auto 1fr !important;
+    margin-bottom: 40px !important;
+    padding: 16px 18px !important;
+  }
+
+  .artists-label-cta em {
+    grid-column: 2;
+    margin-top: 4px;
   }
 
   .social-grid {
