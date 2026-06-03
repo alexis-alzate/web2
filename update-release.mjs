@@ -91,7 +91,7 @@ try {
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="300">
 <meta property="og:image:height" content="300">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
