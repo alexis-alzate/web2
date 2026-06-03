@@ -3,11 +3,14 @@
     {
       "name": "Siervo John",
       "slug": "siervo-john",
-      "role": "Artista aliado",
+      "role": "Artista cristiano",
       "tagline": "Música con identidad, visión y propósito.",
-      "bio": "Perfil oficial dentro del ecosistema Lujo Urban. Este espacio queda listo para su foto, enlaces, lanzamientos y contenido destacado.",
-      "photo": "",
-      "links": {},
+      "bio": "Perfil oficial de Siervo John dentro del ecosistema Lujo Urban.",
+      "photo": "assets/siervo-john-photo.jpeg",
+      "links": {
+        "tiktok": "https://www.tiktok.com/@elsiervojhon?_r=1&_t=ZS-96uFZCQaekG",
+        "instagram": "https://www.instagram.com/elsiervo_jhon?igsh=MTQ0NWt0dW1sOWZodg=="
+      },
       "release": null,
       "beatsEmbed": "",
       "productionsEmbed": "",

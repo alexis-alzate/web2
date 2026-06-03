@@ -1,5 +1,5 @@
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { extname, basename } from 'node:path';
+import { extname } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
@@ -33,8 +33,156 @@ const svg = {
   tiktok: '<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.27 8.27 0 004.84 1.55V6.79a4.85 4.85 0 01-1.07-.1z"/></svg>',
   instagram: '<svg viewBox="0 0 24 24"><path d="M7.75 2C4.57 2 2 4.57 2 7.75v8.5C2 19.43 4.57 22 7.75 22h8.5C19.43 22 22 19.43 22 16.25v-8.5C22 4.57 19.43 2 16.25 2h-8.5zm0 2h8.5A3.75 3.75 0 0120 7.75v8.5A3.75 3.75 0 0116.25 20h-8.5A3.75 3.75 0 014 16.25v-8.5A3.75 3.75 0 017.75 4zm8.75 1a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z"/></svg>',
   youtube: '<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.5 15.5v-7l6 3.5-6 3.5z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 10-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.19 2.23.19v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99A10 10 0 0022 12z"/></svg>',
   whatsapp: '<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>'
 };
+
+const trackingHead = `<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VGKG8CCY6L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VGKG8CCY6L');
+</script>
+<!-- End Google Analytics -->
+<!-- Microsoft Clarity -->
+<script>
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "wziogq92mh");
+</script>
+<!-- End Microsoft Clarity -->
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '670742718071367');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
+<!-- TikTok Pixel Code -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;
+  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+  n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;
+  e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D857IOBC77U70JIQN4BG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- End TikTok Pixel Code -->`;
+
+const trackingNoScript = `<noscript>
+  <img height="1" width="1" style="display:none" alt=""
+    src="https://www.facebook.com/tr?id=670742718071367&ev=PageView&noscript=1">
+</noscript>`;
+
+const trackingBodyScript = `<script>
+  const trackMetaEvent = (eventName, params = {}) => {
+    if (typeof window.fbq !== 'function') return;
+    window.fbq('trackCustom', eventName, params);
+  };
+
+  const trackTikTokEvent = (eventName, params = {}) => {
+    if (!window.ttq || typeof window.ttq.track !== 'function') return;
+    window.ttq.track(eventName, params);
+  };
+
+  const trackGoogleEvent = (eventName, params = {}) => {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', eventName, params);
+  };
+
+  const trackClarityEvent = eventName => {
+    if (typeof window.clarity !== 'function') return;
+    window.clarity('event', eventName);
+  };
+
+  const trackedOnce = new Set();
+  const trackEvent = (eventName, params = {}, once = false) => {
+    const key = eventName + ':' + (params.label || params.section || params.content_name || '');
+    if (once && trackedOnce.has(key)) return;
+    if (once) trackedOnce.add(key);
+
+    trackMetaEvent(eventName, params);
+    trackTikTokEvent(eventName, params);
+    trackGoogleEvent(eventName, params);
+    trackClarityEvent(eventName);
+  };
+
+  window.setTimeout(() => trackEvent('artistas_interes_10s', {
+    label: 'time_on_page',
+    seconds: 10
+  }, true), 10000);
+
+  window.setTimeout(() => trackEvent('artistas_interes_30s', {
+    label: 'time_on_page',
+    seconds: 30
+  }, true), 30000);
+
+  document.querySelectorAll('[data-track-event]').forEach(element => {
+    if (element.tagName === 'IFRAME') return;
+
+    element.addEventListener('click', () => {
+      trackEvent(element.dataset.trackEvent, {
+        label: element.dataset.trackLabel || '',
+        content_name: element.dataset.trackContent || element.textContent.trim(),
+        destination: element.href || ''
+      });
+    });
+  });
+
+  const trackedPlayers = document.querySelectorAll('iframe[data-track-event]');
+  if (trackedPlayers.length) {
+    const playerObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const player = entry.target;
+        trackEvent(player.dataset.trackEvent, {
+          label: player.dataset.trackLabel || '',
+          content_name: player.title || player.src
+        }, true);
+        playerObserver.unobserve(player);
+      });
+    }, { threshold: 0.45 });
+
+    trackedPlayers.forEach(player => playerObserver.observe(player));
+  }
+
+  const trackedViews = document.querySelectorAll('[data-view-event]');
+  if (trackedViews.length) {
+    const viewObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const element = entry.target;
+        trackEvent(element.dataset.viewEvent, {
+          label: element.dataset.viewLabel || '',
+          section: element.querySelector('.section-label, h1, h2')?.textContent.trim() || ''
+        }, true);
+        viewObserver.unobserve(element);
+      });
+    }, { threshold: 0.35 });
+
+    trackedViews.forEach(element => viewObserver.observe(element));
+  }
+</script>`;
 
 const copyAsset = async (source, slug, suffix) => {
   if (!source) return '';
@@ -50,6 +198,8 @@ const initials = name => name
   .slice(0, 2)
   .map(part => part[0]?.toUpperCase())
   .join('');
+
+const trackingSlug = artist => artist.slug.replace(/-/g, '_');
 
 const imageOrPlaceholder = (artist, className, prefix = '') => artist.photo
   ? `<img class="${className}" src="${prefix}${artist.photo}" alt="${escapeHtml(artist.name)}">`
@@ -67,11 +217,13 @@ const renderSocialGrid = artist => {
   const links = Object.entries(artist.links || {}).filter(([, url]) => url);
   if (!links.length) return '';
 
-  const labels = { spotify: 'Spotify', tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube', whatsapp: 'WhatsApp' };
+  const eventSlug = trackingSlug(artist);
+  const socialOrder = ['tiktok', 'spotify', 'instagram', 'youtube', 'facebook', 'whatsapp'];
+  const labels = { spotify: 'Spotify', tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube', facebook: 'Facebook', whatsapp: 'WhatsApp' };
   return `<div class="divider"></div>
-<section class="fade-up">
+<section class="fade-up" data-view-event="artista_${eventSlug}_redes_vista" data-view-label="artist_social_grid">
   <div class="social-grid">
-${links.map(([key, url]) => `    <a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="social-item" data-track-event="artista_${artist.slug}_${key}_click" data-track-label="artist_${key}">
+${socialOrder.filter(key => artist.links?.[key]).map(key => `    <a href="${escapeHtml(artist.links[key])}" target="_blank" rel="noopener" class="social-item" data-track-event="artista_${eventSlug}_${key}_click" data-track-label="artist_${key}">
       ${svg[key] || ''}
       ${labels[key] || key}
     </a>`).join('\n')}
@@ -81,8 +233,9 @@ ${links.map(([key, url]) => `    <a href="${escapeHtml(url)}" target="_blank" re
 
 const heroButtons = artist => {
   const buttons = [];
+  const eventSlug = trackingSlug(artist);
   if (artist.links?.spotify) {
-    buttons.push(`<a href="${escapeHtml(artist.links.spotify)}" target="_blank" rel="noopener" class="btn-primary" data-track-event="artista_${artist.slug}_hero_spotify_click" data-track-label="artist_hero_spotify">
+    buttons.push(`<a href="${escapeHtml(artist.links.spotify)}" target="_blank" rel="noopener" class="btn-primary" data-track-event="artista_${eventSlug}_hero_spotify_click" data-track-label="artist_hero_spotify">
       ${svg.spotify.replace('<svg ', '<svg width="15" height="15" ')}
       Escucha ahora
     </a>`);
@@ -95,7 +248,7 @@ const heroButtons = artist => {
   ].filter(([key]) => artist.links?.[key]);
 
   secondaryEntries.slice(0, buttons.length ? 1 : 2).forEach(([key, label]) => {
-    buttons.push(`<a href="${escapeHtml(artist.links[key])}" target="_blank" rel="noopener" class="btn-secondary" data-track-event="artista_${artist.slug}_hero_${key}_click" data-track-label="artist_hero_${key}">
+    buttons.push(`<a href="${escapeHtml(artist.links[key])}" target="_blank" rel="noopener" class="btn-secondary" data-track-event="artista_${eventSlug}_hero_${key}_click" data-track-label="artist_hero_${key}">
       ${svg[key].replace('<svg ', '<svg width="13" height="13" ')}
       ${label}
     </a>`);
@@ -111,24 +264,25 @@ const heroButtons = artist => {
 const renderRelease = artist => {
   if (!artist.release?.title || !artist.release?.link) return '';
 
+  const eventSlug = trackingSlug(artist);
   const cover = artist.release.cover
     ? `<img src="../../${artist.release.cover}" alt="Portada de ${escapeHtml(artist.release.title)}">`
     : `<div class="artist-photo-placeholder" aria-hidden="true"><span>${escapeHtml(initials(artist.release.title))}</span></div>`;
 
   return `<div class="divider divider-music-inner"></div>
-<section class="fade-up">
+<section class="fade-up" data-view-event="artista_${eventSlug}_release_visto" data-view-label="artist_release">
   <p class="section-label">Último lanzamiento</p>
   <div class="release-card">
     <div class="release-status">
       <p><span class="release-status-dot" aria-hidden="true"></span>Ya disponible</p>
     </div>
     <div class="release-feature">
-      <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" class="release-cover-link">${cover}</a>
+      <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" class="release-cover-link" data-track-event="artista_${eventSlug}_release_portada_click" data-track-label="artist_release_cover" data-track-content="${escapeHtml(artist.release.title)}">${cover}</a>
       <div class="release-feature-copy">
         <h2>${escapeHtml(artist.release.title)}</h2>
         <p>${escapeHtml(artist.name)}</p>
         <div class="release-actions">
-          <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener">Escuchar ahora</a>
+          <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" data-track-event="artista_${eventSlug}_release_escuchar_click" data-track-label="artist_release_button" data-track-content="${escapeHtml(artist.release.title)}">Escuchar ahora</a>
         </div>
       </div>
     </div>
@@ -140,7 +294,7 @@ const renderEmbedSection = (title, kicker, embed, eventName) => {
   if (!embed) return '';
 
   return `<div class="divider divider-music-inner"></div>
-<section class="fade-up">
+<section class="fade-up" data-view-event="${escapeHtml(eventName)}" data-view-label="${escapeHtml(title.toLowerCase())}">
   <p class="section-label">${escapeHtml(title)}</p>
   <div class="beats-card">
     <div class="beats-info">
@@ -162,16 +316,18 @@ const renderEmbedSection = (title, kicker, embed, eventName) => {
 const renderContact = artist => {
   if (!artist.contact?.url) return '';
 
+  const eventSlug = trackingSlug(artist);
   return `<div class="divider"></div>
 <section class="fade-up">
   <p class="section-label">Contacto</p>
   <div class="contact-card">
-    <a href="${escapeHtml(artist.contact.url)}" class="btn-send" target="_blank" rel="noopener">${escapeHtml(artist.contact.label || 'Contacto')}</a>
+    <a href="${escapeHtml(artist.contact.url)}" class="btn-send" target="_blank" rel="noopener" data-track-event="artista_${eventSlug}_contacto_click" data-track-label="artist_contact">${escapeHtml(artist.contact.label || 'Contacto')}</a>
   </div>
 </section>`;
 };
 
 const renderArtistPage = artist => {
+  const eventSlug = trackingSlug(artist);
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -194,12 +350,14 @@ const renderArtistPage = artist => {
 <title>${escapeHtml(`${artist.name} - Lujo Urban`)}</title>
 <link rel="icon" href="../../assets/zaetta-music-logo.jpg" type="image/jpeg">
 <link rel="stylesheet" href="../../styles.css">
+${trackingHead}
 </head>
 <body class="artists-page">
+${trackingNoScript}
 <main>
 ${renderHeroPhoto(artist)}
 
-<div class="hero-info fade-up">
+<div class="hero-info fade-up" data-view-event="artista_${eventSlug}_hero_visto" data-view-label="artist_hero">
   <h1 class="hero-name">${escapeHtml(artist.name)}</h1>
   <p class="hero-role">${escapeHtml(artist.role)}</p>
   <p class="hero-sub">${escapeHtml(artist.tagline)}</p>
@@ -209,10 +367,11 @@ ${renderHeroPhoto(artist)}
 </div>
 ${renderSocialGrid(artist)}
 ${renderRelease(artist)}
-${renderEmbedSection('Beats', 'Catálogo de beats', artist.beatsEmbed, `artista_${artist.slug}_beats_visto`)}
-${renderEmbedSection('Producciones', 'Producciones destacadas', artist.productionsEmbed, `artista_${artist.slug}_producciones_visto`)}
+${renderEmbedSection('Beats', 'Catálogo de beats', artist.beatsEmbed, `artista_${eventSlug}_beats_visto`)}
+${renderEmbedSection('Producciones', 'Producciones destacadas', artist.productionsEmbed, `artista_${eventSlug}_producciones_visto`)}
 ${renderContact(artist)}
 </main>
+${trackingBodyScript}
 </body>
 </html>
 `;
@@ -240,25 +399,27 @@ const renderDirectory = artists => `<!DOCTYPE html>
 <title>Artistas - Lujo Urban</title>
 <link rel="icon" href="../assets/zaetta-music-logo.jpg" type="image/jpeg">
 <link rel="stylesheet" href="../styles.css">
+${trackingHead}
 </head>
 <body class="artists-page">
+${trackingNoScript}
 <header class="artists-nav">
-  <a href="/" class="artists-brand">
+  <a href="/" class="artists-brand" data-track-event="artistas_nav_home_click" data-track-label="artists_nav_brand">
     <img src="../assets/zaetta-music-logo.jpg" alt="Lujo Urban">
     Lujo Urban
   </a>
-  <a href="/" class="artists-back">Volver</a>
+  <a href="/" class="artists-back" data-track-event="artistas_nav_volver_click" data-track-label="artists_nav_back">Volver</a>
 </header>
 
 <main>
-  <section class="artists-hero">
+  <section class="artists-hero" data-view-event="artistas_directorio_visto" data-view-label="artists_directory_hero">
     <p class="artists-kicker">Lujo Urban presenta</p>
     <h1>Artistas<br><span>del movimiento.</span></h1>
     <p>Un espacio para descubrir talento aliado, lanzamientos y proyectos conectados con la visión de Lujo Urban.</p>
   </section>
 
   <section class="artist-list" aria-label="Artistas de Lujo Urban">
-${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-list-card">
+${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-list-card" data-track-event="artista_${trackingSlug(artist)}_directorio_click" data-track-label="artist_directory_card" data-track-content="${escapeHtml(artist.name)}">
       ${imageOrPlaceholder(artist, 'artist-photo-placeholder', '../')}
       <div class="artist-list-copy">
         <p>${escapeHtml(artist.role)}</p>
@@ -268,6 +429,7 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
     </a>`).join('\n')}
   </section>
 </main>
+${trackingBodyScript}
 </body>
 </html>
 `;
@@ -326,7 +488,7 @@ try {
   const photo = await copyAsset(photoSource, slug, 'photo');
 
   const links = {};
-  for (const key of ['spotify', 'tiktok', 'instagram', 'youtube', 'whatsapp']) {
+  for (const key of ['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp']) {
     const url = await ask(`Link de ${key} (opcional)`);
     if (url) links[key] = url;
   }

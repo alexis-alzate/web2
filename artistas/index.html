@@ -20,33 +20,177 @@
 <title>Artistas - Lujo Urban</title>
 <link rel="icon" href="../assets/zaetta-music-logo.jpg" type="image/jpeg">
 <link rel="stylesheet" href="../styles.css">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VGKG8CCY6L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VGKG8CCY6L');
+</script>
+<!-- End Google Analytics -->
+<!-- Microsoft Clarity -->
+<script>
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "wziogq92mh");
+</script>
+<!-- End Microsoft Clarity -->
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '670742718071367');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
+<!-- TikTok Pixel Code -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;
+  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+  n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;
+  e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D857IOBC77U70JIQN4BG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- End TikTok Pixel Code -->
 </head>
 <body class="artists-page">
+<noscript>
+  <img height="1" width="1" style="display:none" alt=""
+    src="https://www.facebook.com/tr?id=670742718071367&ev=PageView&noscript=1">
+</noscript>
 <header class="artists-nav">
-  <a href="/" class="artists-brand">
+  <a href="/" class="artists-brand" data-track-event="artistas_nav_home_click" data-track-label="artists_nav_brand">
     <img src="../assets/zaetta-music-logo.jpg" alt="Lujo Urban">
     Lujo Urban
   </a>
-  <a href="/" class="artists-back">Volver</a>
+  <a href="/" class="artists-back" data-track-event="artistas_nav_volver_click" data-track-label="artists_nav_back">Volver</a>
 </header>
 
 <main>
-  <section class="artists-hero">
+  <section class="artists-hero" data-view-event="artistas_directorio_visto" data-view-label="artists_directory_hero">
     <p class="artists-kicker">Lujo Urban presenta</p>
     <h1>Artistas<br><span>del movimiento.</span></h1>
     <p>Un espacio para descubrir talento aliado, lanzamientos y proyectos conectados con la visión de Lujo Urban.</p>
   </section>
 
   <section class="artist-list" aria-label="Artistas de Lujo Urban">
-    <a href="/artistas/siervo-john/" class="artist-list-card">
-      <div class="artist-photo-placeholder" aria-label="Foto pendiente de Siervo John"><span>SJ</span></div>
+    <a href="/artistas/siervo-john/" class="artist-list-card" data-track-event="artista_siervo_john_directorio_click" data-track-label="artist_directory_card" data-track-content="Siervo John">
+      <img class="artist-photo-placeholder" src="../assets/siervo-john-photo.jpeg" alt="Siervo John">
       <div class="artist-list-copy">
-        <p>Artista aliado</p>
+        <p>Artista cristiano</p>
         <h2>Siervo John</h2>
         <small>Música con identidad, visión y propósito.</small>
       </div>
     </a>
   </section>
 </main>
+<script>
+  const trackMetaEvent = (eventName, params = {}) => {
+    if (typeof window.fbq !== 'function') return;
+    window.fbq('trackCustom', eventName, params);
+  };
+
+  const trackTikTokEvent = (eventName, params = {}) => {
+    if (!window.ttq || typeof window.ttq.track !== 'function') return;
+    window.ttq.track(eventName, params);
+  };
+
+  const trackGoogleEvent = (eventName, params = {}) => {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', eventName, params);
+  };
+
+  const trackClarityEvent = eventName => {
+    if (typeof window.clarity !== 'function') return;
+    window.clarity('event', eventName);
+  };
+
+  const trackedOnce = new Set();
+  const trackEvent = (eventName, params = {}, once = false) => {
+    const key = eventName + ':' + (params.label || params.section || params.content_name || '');
+    if (once && trackedOnce.has(key)) return;
+    if (once) trackedOnce.add(key);
+
+    trackMetaEvent(eventName, params);
+    trackTikTokEvent(eventName, params);
+    trackGoogleEvent(eventName, params);
+    trackClarityEvent(eventName);
+  };
+
+  window.setTimeout(() => trackEvent('artistas_interes_10s', {
+    label: 'time_on_page',
+    seconds: 10
+  }, true), 10000);
+
+  window.setTimeout(() => trackEvent('artistas_interes_30s', {
+    label: 'time_on_page',
+    seconds: 30
+  }, true), 30000);
+
+  document.querySelectorAll('[data-track-event]').forEach(element => {
+    if (element.tagName === 'IFRAME') return;
+
+    element.addEventListener('click', () => {
+      trackEvent(element.dataset.trackEvent, {
+        label: element.dataset.trackLabel || '',
+        content_name: element.dataset.trackContent || element.textContent.trim(),
+        destination: element.href || ''
+      });
+    });
+  });
+
+  const trackedPlayers = document.querySelectorAll('iframe[data-track-event]');
+  if (trackedPlayers.length) {
+    const playerObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const player = entry.target;
+        trackEvent(player.dataset.trackEvent, {
+          label: player.dataset.trackLabel || '',
+          content_name: player.title || player.src
+        }, true);
+        playerObserver.unobserve(player);
+      });
+    }, { threshold: 0.45 });
+
+    trackedPlayers.forEach(player => playerObserver.observe(player));
+  }
+
+  const trackedViews = document.querySelectorAll('[data-view-event]');
+  if (trackedViews.length) {
+    const viewObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const element = entry.target;
+        trackEvent(element.dataset.viewEvent, {
+          label: element.dataset.viewLabel || '',
+          section: element.querySelector('.section-label, h1, h2')?.textContent.trim() || ''
+        }, true);
+        viewObserver.unobserve(element);
+      });
+    }, { threshold: 0.35 });
+
+    trackedViews.forEach(element => viewObserver.observe(element));
+  }
+</script>
 </body>
 </html>

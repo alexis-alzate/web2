@@ -79,6 +79,7 @@
     letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
   }
   .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .hero-btns svg { fill: currentColor; }
 
   /* BOTONES */
   .btn-primary {
