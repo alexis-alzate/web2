@@ -598,7 +598,7 @@
     border-radius: 16px;
   }
   .artist-list--grid .artist-list-copy h2 {
-    font-size: clamp(1.46rem, 2.3vw, 2rem);
+    font-size: clamp(1.34rem, 2vw, 1.78rem);
   }
   .artist-list--grid .artist-list-copy small {
     font-size: .84rem;
@@ -624,8 +624,8 @@
     place-items: center;
     overflow: hidden;
     background:
-      radial-gradient(circle at 50% 22%, rgba(57,255,99,.24), transparent 54%),
-      linear-gradient(145deg, #111, #020202);
+      radial-gradient(circle at 50% 24%, rgba(57,255,99,.18), transparent 52%),
+      linear-gradient(145deg, rgba(11,18,13,.96), #020202);
     border: 1px solid rgba(57,255,99,.18);
   }
   .artist-photo-placeholder {
@@ -640,10 +640,11 @@
   }
   .artist-photo-placeholder span,
   .artist-profile-photo span {
-    color: var(--green);
+    color: rgba(57,255,99,.82);
     font-family: "Bebas Neue", sans-serif;
-    font-size: 2.2rem;
-    letter-spacing: 2px;
+    font-size: 1.82rem;
+    letter-spacing: 4px;
+    text-shadow: 0 0 18px rgba(57,255,99,.34);
   }
   .artist-list-copy p {
     display: inline-flex;
@@ -664,7 +665,7 @@
   .artist-list-copy h2 {
     margin-top: 12px;
     font-family: "Barlow", sans-serif;
-    font-size: clamp(1.72rem, 4.1vw, 2.36rem);
+    font-size: clamp(1.5rem, 3.4vw, 2.05rem);
     font-weight: 300;
     letter-spacing: 0;
     line-height: 1.02;
@@ -1048,7 +1049,7 @@ a[href*="spotify"]{
 
   .artist-list-copy h2 {
     margin-top: 8px !important;
-    font-size: clamp(1.34rem, 5.8vw, 1.72rem) !important;
+    font-size: clamp(1.2rem, 5.1vw, 1.52rem) !important;
     line-height: 1.05 !important;
     letter-spacing: 0 !important;
     white-space: normal !important;

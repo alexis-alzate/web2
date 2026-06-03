@@ -22,6 +22,14 @@ const slugify = value => value
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-|-$/g, '');
 
+const compactArtistName = value => String(value || '')
+  .toLowerCase()
+  .replace(/^(el|la|los|las)\s+/i, '')
+  .split(/\s+/)
+  .filter(Boolean)
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(' ');
+
 const escapeHtml = value => String(value || '')
   .replace(/&/g, '&amp;')
   .replace(/"/g, '&quot;')
@@ -426,7 +434,7 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
       ${imageOrPlaceholder(artist, 'artist-photo-placeholder', '../')}
       <div class="artist-list-copy">
         <p>${escapeHtml(artist.role)}</p>
-        <h2>${escapeHtml(artist.cardName || artist.name)}</h2>
+        <h2>${escapeHtml(artist.cardName || compactArtistName(artist.name))}</h2>
         <span class="artist-list-accent" aria-hidden="true"></span>
         <small>${escapeHtml(artist.tagline)}</small>
       </div>
@@ -515,6 +523,7 @@ try {
   if (!slug) throw new Error('El nombre corto no puede quedar vacio.');
 
   const role = await ask('Rol visible', 'Artista aliado');
+  const cardName = await ask('Nombre corto para la tarjeta', compactArtistName(name));
   const tagline = await ask('Frase corta', 'Música con identidad, visión y propósito.');
   const bio = await ask('Bio corta', `Perfil oficial de ${name} dentro del ecosistema Lujo Urban.`);
   const photoSource = await ask('Ruta de foto principal (dejalo vacio si aun no tienes foto)');
@@ -544,7 +553,7 @@ try {
     contact = url ? { label, url } : null;
   }
 
-  const nextArtist = { name, slug, role, tagline, bio, photo, links, release, beatsEmbed, productionsEmbed, contact };
+  const nextArtist = { name, cardName, slug, role, tagline, bio, photo, links, release, beatsEmbed, productionsEmbed, contact };
   const index = data.artists.findIndex(artist => artist.slug === slug);
   if (index === -1) data.artists.push(nextArtist);
   else data.artists[index] = nextArtist;

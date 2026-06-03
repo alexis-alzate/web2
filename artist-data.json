@@ -1,6 +1,20 @@
 {
   "artists": [
     {
+      "name": "EL EVANGELISTA GONZALEZ",
+      "cardName": "Evangelista Gonzalez",
+      "slug": "evangelista-gonzalez",
+      "role": "Artista oficial",
+      "tagline": "Música con identidad, visión y propósito.",
+      "bio": "Perfil oficial de EL EVANGELISTA GONZALEZ dentro del ecosistema Lujo Urban.",
+      "photo": "",
+      "links": {},
+      "release": null,
+      "beatsEmbed": "",
+      "productionsEmbed": "",
+      "contact": null
+    },
+    {
       "name": "EL SIERVO JOHN",
       "cardName": "El Siervo John",
       "slug": "siervo-john",
