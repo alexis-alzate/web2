@@ -862,7 +862,8 @@
 
 .hero-info .hero-name{
  max-width: min(100%, 760px);
- overflow-wrap: anywhere;
+ overflow-wrap: normal;
+ word-break: normal;
  text-wrap: balance;
 }
 
@@ -918,10 +919,12 @@
     letter-spacing: 5px !important;
   }
   .hero-info .hero-name{
-    font-size: clamp(2.65rem, 13vw, 4rem) !important;
-    line-height: .95 !important;
-    letter-spacing: 2px !important;
-    max-width: calc(100vw - 28px) !important;
+    font-size: clamp(2.2rem, 10.6vw, 3.35rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: 1.1px !important;
+    max-width: calc(100vw - 44px) !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
   }
   .hero-photo img{
     object-fit: cover !important;
