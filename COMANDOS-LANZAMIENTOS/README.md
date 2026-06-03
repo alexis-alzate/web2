@@ -1,4 +1,4 @@
-# Comandos para lanzamientos
+# Comandos del sitio
 
 Abre una terminal dentro de esta carpeta:
 
@@ -71,3 +71,39 @@ Ejecuta:
 Este comando funciona como un interruptor: si la tarjeta VIP esta visible, la
 oculta; si esta oculta, la vuelve a mostrar. Tambien publica el cambio
 automaticamente, por lo que no necesitas ejecutar el comando 3 despues.
+
+## 5. Agregar o actualizar un artista
+
+Ejecuta:
+
+```bash
+./5-NUEVO-ARTISTA.sh
+```
+
+Este asistente crea la pagina del artista con la plantilla Lujo Urban y te
+pregunta que secciones quieres incluir.
+
+Puedes dejar vacio lo que no aplique:
+
+- Foto principal.
+- Spotify.
+- TikTok.
+- Instagram.
+- YouTube.
+- WhatsApp.
+- Ultimo lanzamiento.
+- Beats.
+- Producciones.
+- Contacto o booking.
+
+Tambien actualiza automaticamente:
+
+- `/artistas/`
+- `/artistas/nombre-del-artista/`
+- `sitemap.xml`
+
+Despues publica con:
+
+```bash
+./3-PUBLICAR-CAMBIOS.sh
+```

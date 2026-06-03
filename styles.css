@@ -422,6 +422,10 @@
       radial-gradient(circle at 50% -10%, rgba(57,255,99,.12), transparent 42%),
       #000;
   }
+  .artists-page .fade-up {
+    opacity: 1;
+    transform: none;
+  }
   .artists-nav {
     display: flex;
     align-items: center;
@@ -514,6 +518,11 @@
     width: 112px;
     aspect-ratio: 1;
     border-radius: 18px;
+  }
+  img.artist-photo-placeholder,
+  img.artist-profile-photo {
+    display: block;
+    object-fit: cover;
   }
   .artist-photo-placeholder span,
   .artist-profile-photo span {

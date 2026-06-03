@@ -103,6 +103,38 @@ cd COMANDOS-LANZAMIENTOS
 Este comando funciona como un interruptor y publica el cambio automaticamente.
 No necesitas ejecutar `./3-PUBLICAR-CAMBIOS.sh` despues.
 
+## Agregar o actualizar un artista
+
+Desde la misma terminal ejecuta:
+
+```bash
+cd COMANDOS-LANZAMIENTOS
+./5-NUEVO-ARTISTA.sh
+```
+
+El asistente te pedira:
+
+1. Nombre artistico.
+2. Nombre corto sin espacios ni tildes.
+3. Rol visible.
+4. Frase corta.
+5. Bio corta.
+6. Foto principal, si ya la tienes.
+7. Redes sociales.
+8. Si tiene ultimo lanzamiento.
+9. Si tiene beats.
+10. Si tiene producciones.
+11. Si tiene contacto o booking.
+
+Puedes dejar vacio lo que no aplique. Por ejemplo, si Siervo John no tiene
+beats, simplemente dejas ese campo vacio y la seccion no aparece.
+
+Cuando termine, publica:
+
+```bash
+./3-PUBLICAR-CAMBIOS.sh
+```
+
 ## Resumen rapido
 
 Nuevo lanzamiento:
@@ -126,4 +158,12 @@ Mostrar u ocultar la Comunidad VIP:
 ```bash
 cd COMANDOS-LANZAMIENTOS
 ./4-ALTERNAR-COMUNIDAD-VIP.sh
+```
+
+Agregar o actualizar un artista:
+
+```bash
+cd COMANDOS-LANZAMIENTOS
+./5-NUEVO-ARTISTA.sh
+./3-PUBLICAR-CAMBIOS.sh
 ```
