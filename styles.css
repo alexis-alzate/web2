@@ -1,5 +1,5 @@
 :root {
-    --green: #23e747;
+    --green: #39ff63;
     --black: #000;
     --card: #111;
     --border: #1e1e1e;
@@ -65,12 +65,13 @@
   }
   .hero-name {
     font-family: "Bebas Neue", sans-serif;
-    font-size: clamp(2.8rem, 12vw, 4.5rem);
+    font-size: clamp(3.65rem, 7.4vw, 5.55rem);
     letter-spacing: 4px; line-height: 1;
+    text-shadow: 0 0 25px rgba(255,255,255,.12);
   }
   .hero-role {
     font-family: "Barlow Condensed", sans-serif;
-    font-size: .75rem; letter-spacing: 4px;
+    font-size: .95rem; letter-spacing: 5px;
     color: var(--green); text-transform: uppercase; margin-bottom: 4px;
   }
   .hero-sub {
@@ -102,15 +103,22 @@
   /* SECCIONES */
   section {
     padding: 26px 20px;
-    max-width: 620px;
+    max-width: 760px;
     margin: 0 auto;
   }
   .section-label {
-    font-family: "Barlow Condensed", sans-serif;
-    font-size: .72rem; letter-spacing: 4px;
-    color: var(--green); text-transform: uppercase; margin-bottom: 18px;
+    display: block;
+    width: 100%;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.82rem;
+    letter-spacing: 3.5px;
+    text-align: center;
+    color: var(--green);
+    text-transform: uppercase;
+    margin: 0 0 23px;
+    text-shadow: 0 0 12px rgba(57,255,99,.22);
   }
-  .divider { height: 1px; background: var(--border); max-width: 700px; margin: 0 auto; }
+  .divider { height: 1px; background: var(--border); max-width: 700px; margin: 0 auto; opacity: .4; }
   .divider-music-start {
     margin-top: 12px;
     margin-bottom: 8px;
@@ -126,7 +134,7 @@
   }
 
   /* SOCIAL */
-  .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .social-item {
     display: flex;
     flex-direction: column;
@@ -269,23 +277,6 @@
     color: var(--green);
     cursor: pointer;
   }
-  .release-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .release-texts { display: flex; flex-direction: column; gap: 3px; }
-  .release-name {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 2.2rem; letter-spacing: 1px; line-height: 1;
-  }
-  .release-artist { color: var(--green); font-size: .78rem; letter-spacing: 2px; text-transform: uppercase; }
-  .btn-spotify {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--green); color: #000;
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 700; font-size: .72rem; letter-spacing: 2px; text-transform: uppercase;
-    padding: 11px 20px; text-decoration: none; transition: opacity .2s, transform .15s;
-    width: fit-content; border-radius: 4px;
-  }
-  .btn-spotify:hover { opacity: .85; transform: translateY(-1px); }
-
   /* COMUNIDAD VIP */
   .vip-card {
     padding: 24px 22px 22px;
@@ -392,7 +383,7 @@
   }
   .label-headline {
     font-family: "Bebas Neue", sans-serif;
-    font-size: 1.7rem; letter-spacing: 1px; line-height: 1.1;
+    font-size: 2.7rem; letter-spacing: 2px; line-height: 1.1;
   }
   .label-headline span { color: var(--green); }
   .label-sub { font-size: .88rem; color: #aaa; line-height: 1.6; }
@@ -464,17 +455,9 @@
   .fade-up { opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s ease; }
   .fade-up.visible { opacity: 1; transform: translateY(0); }
 
-.section-label{text-align:center!important;width:100%;display:block;}
-.release-top{justify-content:center!important;}
-.release-texts{align-items:center!important;text-align:center!important;}
-.release-name,.release-artist,.label-headline,.label-sub,.contact-card,.contact-card *{text-align:center!important;}
+.label-headline,.label-sub,.contact-card,.contact-card *{text-align:center!important;}
 .contact-row{justify-content:center!important;}
 
-
-/* ===== BEACONS PRO STYLE ===== */
-:root{
- --green:#39ff63 !important;
-}
 
 .hero-photo{
  height:88vh !important;
@@ -486,27 +469,6 @@
  object-fit:cover !important;
  object-position:center 25% !important;
  filter:brightness(.85) contrast(1.08) saturate(1.1) !important;
-}
-
-.hero-name{
- font-size:clamp(3.65rem,7.4vw,5.55rem)!important;
- letter-spacing:4px!important;
- text-shadow:0 0 25px rgba(255,255,255,.12);
-}
-
-.hero-role{
- font-size:.95rem!important;
- letter-spacing:5px!important;
-}
-
-.section-label{
- font-family:"Bebas Neue",sans-serif!important;
- font-size:1.82rem!important;
- letter-spacing:3.5px!important;
- text-align:center!important;
- color:#39ff63!important;
- margin:0 0 23px!important;
- text-shadow:0 0 12px rgba(57,255,99,.22);
 }
 
 .social-item,
@@ -540,33 +502,10 @@
  border-radius:28px!important;
 }
 
-.release-name,
-.label-headline{
- font-family:"Bebas Neue",sans-serif!important;
- letter-spacing:2px!important;
-}
-
-.label-headline{
- font-size:2.7rem!important;
-}
-
 .contact-card,
 .label-card{
  text-align:center!important;
 }
-
-section{
- max-width:760px!important;
-}
-
-.divider{
- opacity:.4!important;
-}
-
-.social-grid{
- gap:16px!important;
-}
-
 
 @media (max-width: 768px){
   .hero-photo{
@@ -609,7 +548,7 @@ section{
 }
 
 
-.spotify-btn, .btn-spotify, a[href*="spotify"]{
+a[href*="spotify"]{
     transform: scale(1.04);
     box-shadow: 0 0 25px rgba(29,185,84,.45) !important;
     font-weight: 800 !important;
@@ -669,8 +608,7 @@ section{
   }
 
   .btn-send,
-  .btn-primary,
-  .btn-spotify {
+  .btn-primary {
     border-radius: 999px !important;
     min-height: 44px !important;
   }
