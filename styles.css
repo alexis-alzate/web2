@@ -537,10 +537,11 @@
   .artist-list-card {
     position: relative;
     display: grid;
-    grid-template-columns: 176px 1fr 54px;
-    gap: 26px;
+    grid-template-columns: 132px minmax(0, 1fr) 42px;
+    gap: 22px;
     align-items: center;
-    padding: 30px;
+    min-height: 190px;
+    padding: 22px;
     border: 1px solid rgba(57,255,99,.28);
     border-radius: 24px;
     background:
@@ -574,9 +575,9 @@
     border: 1px solid rgba(57,255,99,.18);
   }
   .artist-photo-placeholder {
-    width: 176px;
+    width: 132px;
     aspect-ratio: 1;
-    border-radius: 22px;
+    border-radius: 18px;
   }
   img.artist-photo-placeholder,
   img.artist-profile-photo {
@@ -594,50 +595,52 @@
     display: inline-flex;
     width: fit-content;
     align-items: center;
-    min-height: 30px;
-    padding: 0 16px;
+    min-height: 28px;
+    padding: 0 14px;
     border: 1px solid rgba(255,255,255,.12);
     border-radius: 999px;
     background: rgba(255,255,255,.055);
     color: rgba(57,255,99,.92);
     font-family: "Barlow Condensed", sans-serif;
-    font-size: .7rem;
+    font-size: .66rem;
     font-weight: 700;
-    letter-spacing: 3.5px;
+    letter-spacing: 3px;
     text-transform: uppercase;
   }
   .artist-list-copy h2 {
-    margin-top: 14px;
+    margin-top: 12px;
     font-family: "Barlow", sans-serif;
-    font-size: clamp(2.15rem, 6.2vw, 3.1rem);
+    font-size: clamp(1.85rem, 4.6vw, 2.58rem);
     font-weight: 300;
     letter-spacing: 0;
     line-height: 1.02;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .artist-list-accent {
     display: block;
-    width: 48px;
+    width: 42px;
     height: 2px;
-    margin: 18px 0 0;
+    margin: 14px 0 0;
     background: var(--green);
     box-shadow: 0 0 14px rgba(57,255,99,.65);
   }
   .artist-list-copy small {
     display: block;
-    margin-top: 18px;
+    margin-top: 12px;
     color: rgba(255,255,255,.68);
-    font-size: 1rem;
-    line-height: 1.55;
+    font-size: .94rem;
+    line-height: 1.48;
   }
   .artist-list-arrow {
     display: grid;
     place-items: center;
-    width: 54px;
-    height: 54px;
+    width: 42px;
+    height: 42px;
     border: 1px solid rgba(57,255,99,.32);
     border-radius: 50%;
     color: #fff;
-    font-size: 2rem;
+    font-size: 1.55rem;
     line-height: 1;
     box-shadow: 0 0 20px rgba(57,255,99,.08);
   }
@@ -949,15 +952,16 @@ a[href*="spotify"]{
   }
 
   .artist-list-card {
-    grid-template-columns: 130px minmax(0, 1fr) !important;
-    gap: 18px !important;
-    padding: 22px !important;
-    border-radius: 24px !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    gap: 16px !important;
+    min-height: 154px !important;
+    padding: 16px !important;
+    border-radius: 22px !important;
   }
 
   .artist-photo-placeholder {
-    width: 130px !important;
-    border-radius: 20px !important;
+    width: 112px !important;
+    border-radius: 18px !important;
   }
 
   .artist-list-copy p {
@@ -968,11 +972,12 @@ a[href*="spotify"]{
   }
 
   .artist-list-copy h2 {
-    margin-top: 12px !important;
-    font-size: clamp(1.8rem, 7.5vw, 2.18rem) !important;
+    margin-top: 10px !important;
+    font-size: clamp(1.46rem, 6.4vw, 1.92rem) !important;
     line-height: 1.05 !important;
     letter-spacing: 0 !important;
     white-space: normal !important;
+    max-width: 100% !important;
   }
 
   .artist-list-accent {
@@ -981,9 +986,9 @@ a[href*="spotify"]{
   }
 
   .artist-list-copy small {
-    margin-top: 8px !important;
+    margin-top: 7px !important;
     color: rgba(255,255,255,.62) !important;
-    font-size: .86rem !important;
+    font-size: .82rem !important;
     line-height: 1.48 !important;
   }
 
