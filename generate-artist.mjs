@@ -234,25 +234,21 @@ ${socialOrder.filter(key => artist.links?.[key]).map(key => `    <a href="${esca
 const heroButtons = artist => {
   const buttons = [];
   const eventSlug = trackingSlug(artist);
+  const buttonIcon = key => (svg[key] || '').replace('<svg ', '<svg width="13" height="13" fill="currentColor" ');
+
   if (artist.links?.spotify) {
     buttons.push(`<a href="${escapeHtml(artist.links.spotify)}" target="_blank" rel="noopener" class="btn-primary" data-track-event="artista_${eventSlug}_hero_spotify_click" data-track-label="artist_hero_spotify">
-      ${svg.spotify.replace('<svg ', '<svg width="15" height="15" ')}
+      ${svg.spotify.replace('<svg ', '<svg width="15" height="15" fill="currentColor" ')}
       Escucha ahora
     </a>`);
   }
 
-  const secondaryEntries = [
-    ['tiktok', 'TikTok'],
-    ['instagram', 'Instagram'],
-    ['youtube', 'YouTube']
-  ].filter(([key]) => artist.links?.[key]);
-
-  secondaryEntries.slice(0, buttons.length ? 1 : 2).forEach(([key, label]) => {
-    buttons.push(`<a href="${escapeHtml(artist.links[key])}" target="_blank" rel="noopener" class="btn-secondary" data-track-event="artista_${eventSlug}_hero_${key}_click" data-track-label="artist_hero_${key}">
-      ${svg[key].replace('<svg ', '<svg width="13" height="13" ')}
-      ${label}
+  if (artist.links?.tiktok) {
+    buttons.push(`<a href="${escapeHtml(artist.links.tiktok)}" target="_blank" rel="noopener" class="btn-secondary" data-track-event="artista_${eventSlug}_hero_tiktok_click" data-track-label="artist_hero_tiktok">
+      ${buttonIcon('tiktok')}
+      TikTok
     </a>`);
-  });
+  }
 
   buttons.push(`<a href="/artistas/" class="btn-secondary" data-track-event="artistas_directorio_click" data-track-label="artist_hero_artistas">
       Artistas
