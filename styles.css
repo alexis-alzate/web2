@@ -457,8 +457,8 @@
     right: 20px;
     bottom: -10px;
     height: 1px;
-    background: linear-gradient(90deg, rgba(212,174,92,.36), transparent 42%, rgba(57,255,99,.18));
-    opacity: .45;
+    background: linear-gradient(90deg, rgba(57,255,99,.18), transparent 58%);
+    opacity: .32;
   }
   .artists-brand {
     position: relative;
@@ -495,7 +495,7 @@
   .artists-hero {
     width: min(100%, 760px);
     margin: 0 auto;
-    padding: 44px 20px 28px;
+    padding: 38px 20px 26px;
     text-align: center;
   }
   .artists-hero .artists-kicker { margin-bottom: 10px; }
@@ -529,9 +529,8 @@
     border: 1px solid rgba(255,255,255,.06);
     border-radius: 24px;
     background:
-      linear-gradient(145deg, rgba(255,255,255,.045), transparent 36%),
       linear-gradient(180deg, rgba(8,8,8,.98), rgba(2,2,2,.98));
-    box-shadow: 0 18px 56px rgba(0,0,0,.78), inset 0 1px 0 rgba(255,255,255,.035);
+    box-shadow: 0 16px 48px rgba(0,0,0,.76);
     color: #fff;
     text-decoration: none;
   }
@@ -549,7 +548,7 @@
   .artist-photo-placeholder {
     width: 112px;
     aspect-ratio: 1;
-    border-radius: 16px;
+    border-radius: 18px;
   }
   img.artist-photo-placeholder,
   img.artist-profile-photo {
@@ -776,7 +775,7 @@ a[href*="spotify"]{
   }
 
   .artists-hero {
-    padding: 42px 22px 30px !important;
+    padding: 34px 22px 28px !important;
   }
 
   .artists-hero .artists-kicker {
@@ -787,14 +786,16 @@ a[href*="spotify"]{
   }
 
   .artists-hero h1 {
-    font-size: clamp(3.35rem, 10.6vw, 4.1rem) !important;
-    line-height: .94 !important;
-    letter-spacing: 2.4px !important;
+    font-size: clamp(3.05rem, 13vw, 3.72rem) !important;
+    line-height: .96 !important;
+    letter-spacing: 2px !important;
   }
 
   .artists-hero h1 span {
     display: block !important;
-    white-space: nowrap !important;
+    font-size: .86em !important;
+    letter-spacing: 1.7px !important;
+    white-space: normal !important;
   }
 
   .artists-hero p {
@@ -806,18 +807,18 @@ a[href*="spotify"]{
   }
 
   .artist-list {
-    padding: 0 18px 44px !important;
+    padding: 0 18px 42px !important;
   }
 
   .artist-list-card {
-    grid-template-columns: 104px minmax(0, 1fr) !important;
-    gap: 16px !important;
+    grid-template-columns: 96px minmax(0, 1fr) !important;
+    gap: 15px !important;
     padding: 16px !important;
     border-radius: 22px !important;
   }
 
   .artist-photo-placeholder {
-    width: 104px !important;
+    width: 96px !important;
     border-radius: 15px !important;
   }
 
@@ -827,15 +828,16 @@ a[href*="spotify"]{
   }
 
   .artist-list-copy h2 {
-    font-size: clamp(2.35rem, 10.2vw, 2.72rem) !important;
-    line-height: .94 !important;
-    letter-spacing: 1.8px !important;
+    font-size: clamp(2rem, 8.4vw, 2.35rem) !important;
+    line-height: 1 !important;
+    letter-spacing: 1.35px !important;
+    white-space: nowrap !important;
   }
 
   .artist-list-copy small {
-    margin-top: 10px !important;
+    margin-top: 8px !important;
     color: rgba(255,255,255,.62) !important;
-    font-size: .9rem !important;
+    font-size: .86rem !important;
     line-height: 1.48 !important;
   }
 
