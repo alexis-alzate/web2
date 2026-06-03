@@ -398,6 +398,63 @@
   }
   .label-services-link:hover { border-color: var(--green); background: var(--green); color: #000; }
 
+  /* ARTISTAS */
+  .artists-card {
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(57,255,99,.13), transparent 62%),
+      linear-gradient(180deg, rgba(10,10,10,.98), rgba(2,2,2,.98));
+    box-shadow: 0 16px 48px rgba(0,0,0,.78);
+    text-align: center;
+  }
+  .artists-kicker {
+    margin-bottom: 8px;
+    color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .artists-card h2 {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2rem, 7vw, 2.65rem);
+    letter-spacing: 1.6px;
+    line-height: .98;
+  }
+  .artists-card h2 span { color: var(--green); }
+  .artists-copy {
+    max-width: 440px;
+    margin: 12px auto 18px;
+    color: rgba(255,255,255,.68);
+    font-size: .88rem;
+    line-height: 1.55;
+  }
+  .artists-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 18px;
+    border: 1px solid rgba(57,255,99,.32);
+    color: var(--green);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: border-color .2s, background .2s, color .2s, transform .15s;
+  }
+  .artists-link:hover {
+    border-color: var(--green);
+    background: var(--green);
+    color: #000;
+    transform: translateY(-1px);
+  }
+
   /* CONTACTO */
   .contact-card {
     background: var(--card); border: 1px solid var(--border);
