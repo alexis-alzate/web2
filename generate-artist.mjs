@@ -234,11 +234,11 @@ ${socialOrder.filter(key => artist.links?.[key]).map(key => `    <a href="${esca
 const heroButtons = artist => {
   const buttons = [];
   const eventSlug = trackingSlug(artist);
-  const buttonIcon = key => (svg[key] || '').replace('<svg ', '<svg width="13" height="13" fill="currentColor" ');
+  const buttonIcon = key => (svg[key] || '').replace('<svg viewBox="0 0 24 24"', '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"');
 
   if (artist.links?.spotify) {
     buttons.push(`<a href="${escapeHtml(artist.links.spotify)}" target="_blank" rel="noopener" class="btn-primary" data-track-event="artista_${eventSlug}_hero_spotify_click" data-track-label="artist_hero_spotify">
-      ${svg.spotify.replace('<svg ', '<svg width="15" height="15" fill="currentColor" ')}
+      ${svg.spotify.replace('<svg viewBox="0 0 24 24"', '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"')}
       Escucha ahora
     </a>`);
   }
