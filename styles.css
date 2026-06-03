@@ -430,15 +430,15 @@
   }
   .artist-hero-placeholder {
     background:
-      radial-gradient(circle at 50% 18%, rgba(57,255,99,.18), transparent 44%),
+      radial-gradient(circle at 50% 32%, rgba(57,255,99,.16), transparent 38%),
       linear-gradient(145deg, #111, #020202);
   }
   .artist-hero-placeholder span {
-    color: var(--green);
+    color: rgba(57,255,99,.78);
     font-family: "Bebas Neue", sans-serif;
-    font-size: clamp(6rem, 26vw, 12rem);
-    letter-spacing: 8px;
-    text-shadow: 0 0 34px rgba(57,255,99,.22);
+    font-size: clamp(3.9rem, 14vw, 7.4rem);
+    letter-spacing: 6px;
+    text-shadow: 0 0 34px rgba(57,255,99,.18);
   }
   .artists-nav {
     position: relative;
@@ -854,6 +854,18 @@
  filter:brightness(.85) contrast(1.08) saturate(1.1) !important;
 }
 
+.artist-hero-placeholder{
+ height: min(64vh, 520px) !important;
+ min-height: 420px !important;
+ max-height: 560px !important;
+}
+
+.hero-info .hero-name{
+ max-width: min(100%, 760px);
+ overflow-wrap: anywhere;
+ text-wrap: balance;
+}
+
 .social-item,
 .release-card,
 .beats-card,
@@ -895,6 +907,21 @@
     height: 58vh !important;
     min-height: 430px !important;
     max-height: 500px !important;
+  }
+  .artist-hero-placeholder{
+    height: 44vh !important;
+    min-height: 300px !important;
+    max-height: 360px !important;
+  }
+  .artist-hero-placeholder span{
+    font-size: clamp(3.4rem, 17vw, 5.8rem) !important;
+    letter-spacing: 5px !important;
+  }
+  .hero-info .hero-name{
+    font-size: clamp(2.65rem, 13vw, 4rem) !important;
+    line-height: .95 !important;
+    letter-spacing: 2px !important;
+    max-width: calc(100vw - 28px) !important;
   }
   .hero-photo img{
     object-fit: cover !important;
