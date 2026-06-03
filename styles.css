@@ -382,6 +382,15 @@
     background: var(--card); border: 1px solid var(--border);
     padding: 24px; display: flex; flex-direction: column; gap: 12px;
   }
+  .label-mark {
+    width: clamp(58px, 16vw, 84px);
+    height: auto;
+    display: block;
+    margin: -4px auto 0;
+    opacity: .58;
+    filter: saturate(.9) contrast(.95);
+    mix-blend-mode: screen;
+  }
   .label-headline {
     font-family: "Bebas Neue", sans-serif;
     font-size: 2.7rem; letter-spacing: 2px; line-height: 1.1;
