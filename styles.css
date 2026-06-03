@@ -527,12 +527,45 @@
     font-size: .94rem;
     line-height: 1.6;
   }
+  .artists-section {
+    width: min(100%, 1160px);
+    margin: 0 auto;
+    padding: 0 20px 34px;
+  }
+  .artists-section-head {
+    width: min(100%, 760px);
+    margin: 0 auto 16px;
+    text-align: center;
+  }
+  .artists-section-head p {
+    color: rgba(57,255,99,.78);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .artists-section-head h2 {
+    margin-top: 6px;
+    color: rgba(255,255,255,.76);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
   .artist-list {
     display: grid;
     gap: 16px;
-    width: min(100%, 760px);
+    width: 100%;
     margin: 0 auto;
-    padding: 0 20px 34px;
+  }
+  .artist-list--single {
+    width: min(100%, 760px);
+  }
+  .artist-list--grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
   }
   .artist-list-card {
     position: relative;
@@ -553,6 +586,27 @@
       inset 0 1px 0 rgba(255,255,255,.04);
     color: #fff;
     text-decoration: none;
+  }
+  .artist-list--grid .artist-list-card {
+    grid-template-columns: 104px minmax(0, 1fr) 36px;
+    gap: 16px;
+    min-height: 150px;
+    padding: 16px;
+  }
+  .artist-list--grid .artist-photo-placeholder {
+    width: 104px;
+    border-radius: 16px;
+  }
+  .artist-list--grid .artist-list-copy h2 {
+    font-size: clamp(1.46rem, 2.3vw, 2rem);
+  }
+  .artist-list--grid .artist-list-copy small {
+    font-size: .84rem;
+  }
+  .artist-list--grid .artist-list-arrow {
+    width: 36px;
+    height: 36px;
+    font-size: 1.35rem;
   }
   .artist-list-card::before {
     content: "";
@@ -947,8 +1001,29 @@ a[href*="spotify"]{
     line-height: 1.72 !important;
   }
 
-  .artist-list {
+  .artists-section {
     padding: 0 18px 26px !important;
+  }
+
+  .artists-section-head {
+    margin-bottom: 14px !important;
+  }
+
+  .artists-section-head p {
+    font-size: .62rem !important;
+    letter-spacing: 2.8px !important;
+  }
+
+  .artists-section-head h2 {
+    font-size: .72rem !important;
+    letter-spacing: 3px !important;
+  }
+
+  .artist-list,
+  .artist-list--grid,
+  .artist-list--single {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
   }
 
   .artist-list-card {

@@ -416,7 +416,12 @@ ${trackingNoScript}
     <p>Un espacio para descubrir talento aliado, lanzamientos y proyectos conectados con la visión de Lujo Urban.</p>
   </section>
 
-  <section class="artist-list" aria-label="Artistas de Lujo Urban">
+  <section class="artists-section" aria-labelledby="artists-section-title">
+    <div class="artists-section-head">
+      <p>Artistas oficiales</p>
+      <h2 id="artists-section-title">Roster Lujo Urban</h2>
+    </div>
+    <div class="artist-list ${artists.length > 1 ? 'artist-list--grid' : 'artist-list--single'}" aria-label="Artistas de Lujo Urban">
 ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-list-card" data-track-event="artista_${trackingSlug(artist)}_directorio_click" data-track-label="artist_directory_card" data-track-content="${escapeHtml(artist.name)}">
       ${imageOrPlaceholder(artist, 'artist-photo-placeholder', '../')}
       <div class="artist-list-copy">
@@ -427,6 +432,7 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
       </div>
       <span class="artist-list-arrow" aria-hidden="true">→</span>
     </a>`).join('\n')}
+    </div>
   </section>
 
   <section class="artists-proof" aria-label="Valores Lujo Urban">
