@@ -420,7 +420,8 @@
   .artists-page {
     min-height: 100vh;
     background:
-      radial-gradient(circle at 50% -10%, rgba(57,255,99,.12), transparent 42%),
+      radial-gradient(circle at 50% -8%, rgba(57,255,99,.09), transparent 38%),
+      linear-gradient(180deg, rgba(255,255,255,.018), transparent 28%),
       #000;
   }
   .artists-page .fade-up {
@@ -449,16 +450,15 @@
     margin: 0 auto;
     padding: 22px 20px 8px;
   }
-  .artists-nav-mark {
+  .artists-nav::after {
+    content: "";
     position: absolute;
-    top: -48px;
-    left: -26px;
-    width: 188px;
-    height: 188px;
-    object-fit: cover;
-    opacity: .34;
-    pointer-events: none;
-    filter: saturate(.95) brightness(1.18);
+    left: 20px;
+    right: 20px;
+    bottom: -10px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(212,174,92,.36), transparent 42%, rgba(57,255,99,.18));
+    opacity: .45;
   }
   .artists-brand {
     position: relative;
@@ -470,15 +470,16 @@
     font-family: "Barlow Condensed", sans-serif;
     font-size: .72rem;
     font-weight: 800;
-    letter-spacing: 2.5px;
+    letter-spacing: 3px;
     text-decoration: none;
     text-transform: uppercase;
   }
   .artists-brand img {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     object-fit: cover;
     border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(212,174,92,.28);
   }
   .artists-back {
     position: relative;
@@ -494,7 +495,7 @@
   .artists-hero {
     width: min(100%, 760px);
     margin: 0 auto;
-    padding: 34px 20px 24px;
+    padding: 44px 20px 28px;
     text-align: center;
   }
   .artists-hero .artists-kicker { margin-bottom: 10px; }
@@ -527,8 +528,10 @@
     padding: 18px;
     border: 1px solid rgba(255,255,255,.06);
     border-radius: 24px;
-    background: linear-gradient(180deg, rgba(8,8,8,.98), rgba(2,2,2,.98));
-    box-shadow: 0 16px 48px rgba(0,0,0,.76);
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.045), transparent 36%),
+      linear-gradient(180deg, rgba(8,8,8,.98), rgba(2,2,2,.98));
+    box-shadow: 0 18px 56px rgba(0,0,0,.78), inset 0 1px 0 rgba(255,255,255,.035);
     color: #fff;
     text-decoration: none;
   }
@@ -546,7 +549,7 @@
   .artist-photo-placeholder {
     width: 112px;
     aspect-ratio: 1;
-    border-radius: 18px;
+    border-radius: 16px;
   }
   img.artist-photo-placeholder,
   img.artist-profile-photo {
@@ -744,6 +747,96 @@ a[href*="spotify"]{
 @media (max-width: 768px) {
   section {
     padding: 24px 18px !important;
+  }
+
+  .artists-page {
+    background:
+      radial-gradient(circle at 50% -6%, rgba(57,255,99,.08), transparent 34%),
+      #000 !important;
+  }
+
+  .artists-nav {
+    padding: 18px 18px 6px !important;
+  }
+
+  .artists-brand {
+    gap: 9px !important;
+    font-size: .68rem !important;
+    letter-spacing: 2.8px !important;
+  }
+
+  .artists-brand img {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .artists-back {
+    font-size: .66rem !important;
+    letter-spacing: 2px !important;
+  }
+
+  .artists-hero {
+    padding: 42px 22px 30px !important;
+  }
+
+  .artists-hero .artists-kicker {
+    margin-bottom: 14px !important;
+    color: rgba(255,255,255,.68) !important;
+    font-size: .66rem !important;
+    letter-spacing: 3.2px !important;
+  }
+
+  .artists-hero h1 {
+    font-size: clamp(3.35rem, 10.6vw, 4.1rem) !important;
+    line-height: .94 !important;
+    letter-spacing: 2.4px !important;
+  }
+
+  .artists-hero h1 span {
+    display: block !important;
+    white-space: nowrap !important;
+  }
+
+  .artists-hero p {
+    max-width: 340px !important;
+    margin-top: 18px !important;
+    color: rgba(255,255,255,.64) !important;
+    font-size: .94rem !important;
+    line-height: 1.72 !important;
+  }
+
+  .artist-list {
+    padding: 0 18px 44px !important;
+  }
+
+  .artist-list-card {
+    grid-template-columns: 104px minmax(0, 1fr) !important;
+    gap: 16px !important;
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .artist-photo-placeholder {
+    width: 104px !important;
+    border-radius: 15px !important;
+  }
+
+  .artist-list-copy p {
+    font-size: .62rem !important;
+    letter-spacing: 2.6px !important;
+  }
+
+  .artist-list-copy h2 {
+    font-size: clamp(2.35rem, 10.2vw, 2.72rem) !important;
+    line-height: .94 !important;
+    letter-spacing: 1.8px !important;
+  }
+
+  .artist-list-copy small {
+    margin-top: 10px !important;
+    color: rgba(255,255,255,.62) !important;
+    font-size: .9rem !important;
+    line-height: 1.48 !important;
   }
 
   .social-grid {
