@@ -88,6 +88,25 @@
     font-size: .95rem; letter-spacing: 5px;
     color: var(--green); text-transform: uppercase; margin-bottom: 4px;
   }
+  .hero-role-balanced {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: .75em;
+    width: min(100%, 19.5rem);
+    margin-right: auto;
+    margin-left: auto;
+  }
+  .hero-role-balanced span:first-child {
+    text-align: right;
+  }
+  .hero-role-balanced span:nth-child(2) {
+    letter-spacing: 0;
+    text-align: center;
+  }
+  .hero-role-balanced span:last-child {
+    text-align: left;
+  }
   .hero-sub {
     font-size: .85rem; color: #888; font-weight: 300;
     letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
