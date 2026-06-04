@@ -932,6 +932,14 @@
     letter-spacing: 5px !important;
   }
   .hero-info .hero-name{
+    font-size: clamp(2.65rem, 13vw, 4rem) !important;
+    line-height: .95 !important;
+    letter-spacing: 2px !important;
+    max-width: calc(100vw - 28px) !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+  .artist-page .hero-info .hero-name{
     font-size: clamp(2.2rem, 10.6vw, 3.35rem) !important;
     line-height: 1.02 !important;
     letter-spacing: 1.1px !important;

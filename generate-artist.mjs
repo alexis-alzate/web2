@@ -356,7 +356,7 @@ const renderArtistPage = artist => {
 <link rel="stylesheet" href="../../styles.css">
 ${trackingHead}
 </head>
-<body>
+<body class="artist-page">
 ${trackingNoScript}
 <main>
 ${renderHeroPhoto(artist)}
