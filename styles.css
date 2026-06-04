@@ -500,59 +500,37 @@
   }
   .artists-hero .artists-kicker {
     margin-bottom: 12px;
-    color: rgba(57,255,99,.78);
+    color: rgba(255,255,255,.68);
   }
   .artists-hero h1 {
-    font-family: "Barlow", sans-serif;
-    font-size: clamp(3rem, 9.5vw, 5.1rem);
-    font-weight: 300;
-    letter-spacing: 0;
-    line-height: .98;
-  }
-  .artists-hero h1 span {
-    color: rgba(57,255,99,.78);
-    font-weight: 300;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: clamp(2.75rem, 8.5vw, 4.6rem);
+    font-weight: 500;
+    letter-spacing: 8px;
+    line-height: 1;
+    text-transform: uppercase;
   }
   .artists-glow-line {
-    width: min(220px, 48vw);
+    width: min(170px, 40vw);
     height: 1px;
-    margin: 24px auto 0;
-    background: linear-gradient(90deg, transparent, rgba(57,255,99,.95), transparent);
-    box-shadow: 0 0 18px rgba(57,255,99,.82);
+    margin: 18px auto 0;
+    background: linear-gradient(90deg, transparent, rgba(57,255,99,.72), transparent);
+    box-shadow: 0 0 14px rgba(57,255,99,.5);
   }
-  .artists-hero p {
-    max-width: 520px;
-    margin: 22px auto 0;
-    color: rgba(255,255,255,.72);
-    font-size: .94rem;
-    line-height: 1.6;
+  .artists-hero-sub {
+    margin: 18px auto 0;
+    color: rgba(57,255,99,.78);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    line-height: 1.3;
+    text-transform: uppercase;
   }
   .artists-section {
     width: min(100%, 1160px);
     margin: 0 auto;
     padding: 0 20px 34px;
-  }
-  .artists-section-head {
-    width: min(100%, 760px);
-    margin: 0 auto 16px;
-    text-align: center;
-  }
-  .artists-section-head p {
-    color: rgba(57,255,99,.78);
-    font-family: "Barlow Condensed", sans-serif;
-    font-size: .68rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-  .artists-section-head h2 {
-    margin-top: 6px;
-    color: rgba(255,255,255,.76);
-    font-family: "Barlow Condensed", sans-serif;
-    font-size: .82rem;
-    font-weight: 600;
-    letter-spacing: 4px;
-    text-transform: uppercase;
   }
   .artist-list {
     display: grid;
@@ -1012,42 +990,24 @@ a[href*="spotify"]{
   }
 
   .artists-hero h1 {
-    font-size: clamp(3rem, 12vw, 3.7rem) !important;
-    line-height: 1.04 !important;
-    letter-spacing: 0 !important;
+    font-size: clamp(2.4rem, 11vw, 3.25rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: 5px !important;
   }
 
-  .artists-hero h1 span {
-    display: block !important;
-    font-size: .66em !important;
-    letter-spacing: 0 !important;
-    white-space: normal !important;
+  .artists-glow-line {
+    width: min(150px, 38vw) !important;
+    margin-top: 16px !important;
   }
 
-  .artists-hero p {
-    max-width: 330px !important;
-    margin-top: 18px !important;
-    color: rgba(255,255,255,.64) !important;
-    font-size: .94rem !important;
-    line-height: 1.72 !important;
+  .artists-hero-sub {
+    margin-top: 16px !important;
+    font-size: .66rem !important;
+    letter-spacing: 3.2px !important;
   }
 
   .artists-section {
     padding: 0 18px 26px !important;
-  }
-
-  .artists-section-head {
-    margin-bottom: 14px !important;
-  }
-
-  .artists-section-head p {
-    font-size: .62rem !important;
-    letter-spacing: 2.8px !important;
-  }
-
-  .artists-section-head h2 {
-    font-size: .72rem !important;
-    letter-spacing: 3px !important;
   }
 
   .artist-list,

@@ -419,16 +419,12 @@ ${trackingNoScript}
 <main>
   <section class="artists-hero" data-view-event="artistas_directorio_visto" data-view-label="artists_directory_hero">
     <p class="artists-kicker">Lujo Urban presenta</p>
-    <h1>Artistas<br><span>del movimiento.</span></h1>
+    <h1>Zaetta Music</h1>
     <div class="artists-glow-line" aria-hidden="true"></div>
-    <p>Un espacio para descubrir talento aliado, lanzamientos y proyectos conectados con la visión de Lujo Urban.</p>
+    <p class="artists-hero-sub">Artistas oficiales</p>
   </section>
 
-  <section class="artists-section" aria-labelledby="artists-section-title">
-    <div class="artists-section-head">
-      <p>Artistas oficiales</p>
-      <h2 id="artists-section-title">Roster Lujo Urban</h2>
-    </div>
+  <section class="artists-section" aria-label="Roster oficial de artistas">
     <div class="artist-list ${artists.length > 1 ? 'artist-list--grid' : 'artist-list--single'}" aria-label="Artistas de Lujo Urban">
 ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-list-card" data-track-event="artista_${trackingSlug(artist)}_directorio_click" data-track-label="artist_directory_card" data-track-content="${escapeHtml(artist.name)}">
       ${imageOrPlaceholder(artist, 'artist-photo-placeholder', '../')}
