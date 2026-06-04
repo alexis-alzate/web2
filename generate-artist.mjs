@@ -420,7 +420,7 @@ ${trackingNoScript}
   <section class="artists-hero" data-view-event="artistas_directorio_visto" data-view-label="artists_directory_hero">
     <p class="artists-kicker">Lujo Urban presenta</p>
     <h1 class="artists-logo-title">
-      <img src="../assets/hola.jpeg" alt="" aria-hidden="true">
+      <img src="../assets/hola.png" alt="" aria-hidden="true">
       <span>Zaetta Music</span>
     </h1>
     <div class="artists-glow-line" aria-hidden="true"></div>
