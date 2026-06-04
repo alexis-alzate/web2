@@ -433,6 +433,7 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
         <h2>${escapeHtml(artist.cardName || compactArtistName(artist.name))}</h2>
         <span class="artist-list-accent" aria-hidden="true"></span>
         <small>${escapeHtml(artist.tagline)}</small>
+        <span class="artist-list-cta">Ver perfil</span>
       </div>
       <span class="artist-list-arrow" aria-hidden="true">→</span>
     </a>`).join('\n')}
