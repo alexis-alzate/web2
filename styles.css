@@ -567,16 +567,15 @@
     align-items: center;
     min-height: 116px;
     padding: 14px 16px;
-    border: 1px solid rgba(57,255,99,.22);
+    border: 1px solid rgba(57,255,99,.18);
     border-radius: 20px;
     background:
-      radial-gradient(circle at 18% 50%, rgba(57,255,99,.10), transparent 34%),
-      linear-gradient(180deg, rgba(13,15,13,.99), rgba(3,3,3,1));
+      radial-gradient(circle at 18% 50%, rgba(57,255,99,.08), transparent 34%),
+      linear-gradient(180deg, rgba(12,13,12,.97), rgba(3,3,3,.99));
     box-shadow:
-      0 16px 44px rgba(0,0,0,.74),
-      0 0 22px rgba(57,255,99,.075),
-      inset 0 1px 0 rgba(255,255,255,.06),
-      inset 0 -1px 0 rgba(57,255,99,.055);
+      0 14px 40px rgba(0,0,0,.66),
+      0 0 18px rgba(57,255,99,.055),
+      inset 0 1px 0 rgba(255,255,255,.04);
     color: #fff;
     text-decoration: none;
   }
@@ -607,20 +606,20 @@
     inset: 0;
     border-radius: inherit;
     pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(57,255,99,.08), transparent);
-    opacity: .4;
+    background: linear-gradient(90deg, transparent, rgba(57,255,99,.06), transparent);
+    opacity: .34;
   }
   .artist-list-card::after {
     content: "";
     position: absolute;
     inset: 8px;
-    border: 1px solid rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.052);
     border-radius: 16px;
     pointer-events: none;
     background:
-      radial-gradient(circle at 14% 50%, rgba(57,255,99,.075), transparent 24%),
-      linear-gradient(135deg, rgba(255,255,255,.04), transparent 42%);
-    opacity: .78;
+      radial-gradient(circle at 14% 50%, rgba(57,255,99,.06), transparent 24%),
+      linear-gradient(135deg, rgba(255,255,255,.03), transparent 42%);
+    opacity: .7;
   }
   .artist-photo-placeholder,
   .artist-list-copy,
