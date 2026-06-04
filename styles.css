@@ -567,14 +567,14 @@
     align-items: center;
     min-height: 116px;
     padding: 14px 16px;
-    border: 1px solid rgba(57,255,99,.18);
+    border: 1px solid rgba(57,255,99,.12);
     border-radius: 20px;
     background:
-      radial-gradient(circle at 18% 50%, rgba(57,255,99,.09), transparent 34%),
+      radial-gradient(circle at 18% 50%, rgba(57,255,99,.065), transparent 34%),
       linear-gradient(180deg, rgba(8,9,8,.94), rgba(2,2,2,.98));
     box-shadow:
       0 14px 40px rgba(0,0,0,.66),
-      0 0 18px rgba(57,255,99,.045);
+      0 0 14px rgba(57,255,99,.03);
     color: #fff;
     text-decoration: none;
   }
@@ -605,20 +605,20 @@
     inset: 0;
     border-radius: inherit;
     pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(57,255,99,.06), transparent);
-    opacity: .32;
+    background: linear-gradient(90deg, transparent, rgba(57,255,99,.04), transparent);
+    opacity: .26;
   }
   .artist-list-card::after {
     content: "";
     position: absolute;
     inset: 8px;
-    border: 1px solid rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.028);
     border-radius: 16px;
     pointer-events: none;
     background:
-      radial-gradient(circle at 14% 50%, rgba(57,255,99,.07), transparent 24%),
-      linear-gradient(135deg, rgba(255,255,255,.025), transparent 42%);
-    opacity: .64;
+      radial-gradient(circle at 14% 50%, rgba(57,255,99,.045), transparent 24%),
+      linear-gradient(135deg, rgba(255,255,255,.02), transparent 42%);
+    opacity: .56;
   }
   .artist-photo-placeholder,
   .artist-list-copy,
@@ -666,11 +666,11 @@
   }
   .artist-list-accent {
     display: block;
-    width: 30px;
+    width: 24px;
     height: 2px;
-    margin: 9px 0 0;
-    background: var(--green);
-    box-shadow: var(--lux-green-glow-soft);
+    margin: 8px 0 0;
+    background: rgba(57,255,99,.82);
+    box-shadow: 0 0 10px rgba(57,255,99,.42);
   }
   .artist-list-copy small {
     display: block;
@@ -685,15 +685,16 @@
     align-items: center;
     gap: 8px;
     margin-top: 8px;
-    color: rgba(57,255,99,.86);
+    color: rgba(255,255,255,.66);
     font-family: "Barlow Condensed", sans-serif;
     font-size: .58rem;
     font-weight: 700;
-    letter-spacing: 2.3px;
+    letter-spacing: 2.2px;
     text-transform: uppercase;
   }
   .artist-list-cta::after {
     content: "→";
+    color: rgba(57,255,99,.78);
     font-size: .86rem;
     line-height: 1;
   }
@@ -1076,8 +1077,8 @@ a[href*="spotify"]{
   }
 
   .artist-list-accent {
-    width: 28px !important;
-    margin-top: 8px !important;
+    width: 22px !important;
+    margin-top: 7px !important;
   }
 
   .artist-list-copy small {
@@ -1090,7 +1091,7 @@ a[href*="spotify"]{
   .artist-list-cta {
     margin-top: 7px !important;
     font-size: .54rem !important;
-    letter-spacing: 1.9px !important;
+    letter-spacing: 1.8px !important;
   }
 
   .artist-list-arrow {
