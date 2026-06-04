@@ -429,7 +429,6 @@ ${trackingNoScript}
 ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-list-card" data-track-event="artista_${trackingSlug(artist)}_directorio_click" data-track-label="artist_directory_card" data-track-content="${escapeHtml(artist.name)}">
       ${imageOrPlaceholder(artist, 'artist-photo-placeholder', '../')}
       <div class="artist-list-copy">
-        <p>${escapeHtml(artist.role)}</p>
         <h2>${escapeHtml(artist.cardName || compactArtistName(artist.name))}</h2>
         <span class="artist-list-accent" aria-hidden="true"></span>
         <small>${escapeHtml(artist.tagline)}</small>
