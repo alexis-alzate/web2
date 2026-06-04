@@ -530,13 +530,11 @@
   }
   .artists-logo-title img {
     display: block;
-    width: 76px;
-    aspect-ratio: 1;
-    border: 1px solid rgba(57,255,99,.18);
-    border-radius: 50%;
-    object-fit: cover;
+    width: min(180px, 44vw);
+    height: auto;
+    object-fit: contain;
     object-position: center;
-    box-shadow: 0 0 18px rgba(57,255,99,.08), inset 0 1px 0 rgba(255,255,255,.06);
+    filter: drop-shadow(0 0 14px rgba(57,255,99,.08));
   }
   .artists-logo-title span {
     position: absolute;
@@ -1052,7 +1050,7 @@ a[href*="spotify"]{
   }
 
   .artists-logo-title img {
-    width: 64px !important;
+    width: min(150px, 42vw) !important;
   }
 
   .artists-glow-line {
