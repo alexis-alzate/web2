@@ -4,6 +4,20 @@
     --card: #111;
     --border: #1e1e1e;
     --muted: #888;
+    --lux-surface: rgba(2,2,2,.98);
+    --lux-surface-soft: rgba(10,12,10,.98);
+    --lux-border-green: rgba(57,255,99,.28);
+    --lux-border-green-soft: rgba(57,255,99,.18);
+    --lux-border-white-soft: rgba(255,255,255,.12);
+    --lux-card-radius: 24px;
+    --lux-card-radius-inner: 18px;
+    --lux-card-padding: 20px;
+    --lux-card-padding-compact: 18px;
+    --lux-card-glow: 0 16px 48px rgba(0,0,0,.76), 0 0 30px rgba(57,255,99,.08), inset 0 1px 0 rgba(255,255,255,.04);
+    --lux-green-glow-soft: 0 0 14px rgba(57,255,99,.65);
+    --lux-label-spacing: 3px;
+    --lux-label-font: .66rem;
+    --lux-copy-muted: rgba(255,255,255,.68);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -552,16 +566,13 @@
     gap: 20px;
     align-items: center;
     min-height: 166px;
-    padding: 20px;
-    border: 1px solid rgba(57,255,99,.28);
-    border-radius: 24px;
+    padding: var(--lux-card-padding);
+    border: 1px solid var(--lux-border-green);
+    border-radius: var(--lux-card-radius);
     background:
       radial-gradient(circle at 50% 0, rgba(57,255,99,.12), transparent 42%),
-      linear-gradient(180deg, rgba(10,12,10,.98), rgba(2,2,2,.98));
-    box-shadow:
-      0 16px 48px rgba(0,0,0,.76),
-      0 0 30px rgba(57,255,99,.08),
-      inset 0 1px 0 rgba(255,255,255,.04);
+      linear-gradient(180deg, var(--lux-surface-soft), var(--lux-surface));
+    box-shadow: var(--lux-card-glow);
     color: #fff;
     text-decoration: none;
   }
@@ -569,7 +580,7 @@
     grid-template-columns: 104px minmax(0, 1fr) 36px;
     gap: 16px;
     min-height: 150px;
-    padding: 18px;
+    padding: var(--lux-card-padding-compact);
   }
   .artist-list--grid .artist-photo-placeholder {
     width: 104px;
@@ -600,7 +611,7 @@
     position: absolute;
     inset: 10px;
     border: 1px solid rgba(255,255,255,.055);
-    border-radius: 18px;
+    border-radius: var(--lux-card-radius-inner);
     pointer-events: none;
     background:
       radial-gradient(circle at 18% 22%, rgba(57,255,99,.11), transparent 28%),
@@ -622,12 +633,12 @@
     background:
       radial-gradient(circle at 50% 24%, rgba(57,255,99,.18), transparent 52%),
       linear-gradient(145deg, rgba(11,18,13,.96), #020202);
-    border: 1px solid rgba(57,255,99,.18);
+    border: 1px solid var(--lux-border-green-soft);
   }
   .artist-photo-placeholder {
     width: 116px;
     aspect-ratio: 1;
-    border-radius: 18px;
+    border-radius: var(--lux-card-radius-inner);
   }
   img.artist-photo-placeholder,
   img.artist-profile-photo {
@@ -648,14 +659,14 @@
     align-items: center;
     min-height: 28px;
     padding: 0 14px;
-    border: 1px solid rgba(255,255,255,.12);
+    border: 1px solid var(--lux-border-white-soft);
     border-radius: 999px;
     background: rgba(255,255,255,.055);
     color: rgba(57,255,99,.92);
     font-family: "Barlow Condensed", sans-serif;
-    font-size: .66rem;
+    font-size: var(--lux-label-font);
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: var(--lux-label-spacing);
     text-transform: uppercase;
   }
   .artist-list-copy h2 {
@@ -674,12 +685,12 @@
     height: 2px;
     margin: 14px 0 0;
     background: var(--green);
-    box-shadow: 0 0 14px rgba(57,255,99,.65);
+    box-shadow: var(--lux-green-glow-soft);
   }
   .artist-list-copy small {
     display: block;
     margin-top: 10px;
-    color: rgba(255,255,255,.68);
+    color: var(--lux-copy-muted);
     font-size: .9rem;
     line-height: 1.48;
   }
@@ -691,7 +702,7 @@
     margin-top: 12px;
     color: rgba(57,255,99,.86);
     font-family: "Barlow Condensed", sans-serif;
-    font-size: .66rem;
+    font-size: var(--lux-label-font);
     font-weight: 700;
     letter-spacing: 2.5px;
     text-transform: uppercase;
@@ -972,6 +983,17 @@ a[href*="spotify"]{
 
 /* ===== AJUSTE PREMIUM DE CARDS / MOBILE ===== */
 @media (max-width: 768px) {
+  :root {
+    --lux-card-radius-mobile: 20px;
+    --lux-card-radius-inner-mobile: 16px;
+    --lux-card-padding-mobile: 16px;
+    --lux-label-font-mobile: .56rem;
+    --lux-label-spacing-mobile: 2.5px;
+    --lux-copy-muted-mobile: rgba(255,255,255,.62);
+    --lux-cta-font-mobile: .58rem;
+    --lux-cta-spacing-mobile: 2px;
+  }
+
   section {
     padding: 24px 18px !important;
   }
@@ -1045,25 +1067,25 @@ a[href*="spotify"]{
     grid-template-columns: 96px minmax(0, 1fr) !important;
     gap: 14px !important;
     min-height: 132px !important;
-    padding: 16px !important;
-    border-radius: 20px !important;
+    padding: var(--lux-card-padding-mobile, 16px) !important;
+    border-radius: var(--lux-card-radius-mobile, 20px) !important;
   }
 
   .artist-list-card::after {
     inset: 8px !important;
-    border-radius: 16px !important;
+    border-radius: var(--lux-card-radius-inner-mobile, 16px) !important;
   }
 
   .artist-photo-placeholder {
     width: 96px !important;
-    border-radius: 16px !important;
+    border-radius: var(--lux-card-radius-inner-mobile, 16px) !important;
   }
 
   .artist-list-copy p {
     min-height: 24px !important;
     padding: 0 11px !important;
-    font-size: .56rem !important;
-    letter-spacing: 2.5px !important;
+    font-size: var(--lux-label-font-mobile, .56rem) !important;
+    letter-spacing: var(--lux-label-spacing-mobile, 2.5px) !important;
   }
 
   .artist-list-copy h2 {
@@ -1082,15 +1104,15 @@ a[href*="spotify"]{
 
   .artist-list-copy small {
     margin-top: 6px !important;
-    color: rgba(255,255,255,.62) !important;
+    color: var(--lux-copy-muted-mobile, rgba(255,255,255,.62)) !important;
     font-size: .78rem !important;
     line-height: 1.48 !important;
   }
 
   .artist-list-cta {
     margin-top: 8px !important;
-    font-size: .58rem !important;
-    letter-spacing: 2px !important;
+    font-size: var(--lux-cta-font-mobile, .58rem) !important;
+    letter-spacing: var(--lux-cta-spacing-mobile, 2px) !important;
   }
 
   .artist-list-arrow {
