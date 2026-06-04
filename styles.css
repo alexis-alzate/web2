@@ -518,16 +518,16 @@
   }
   .artists-hero h1 {
     font-family: "Barlow Condensed", sans-serif;
-    font-size: clamp(2.75rem, 8.5vw, 4.6rem);
+    font-size: clamp(2.25rem, 6.8vw, 3.65rem);
     font-weight: 500;
-    letter-spacing: 8px;
+    letter-spacing: 6px;
     line-height: 1;
     text-transform: uppercase;
   }
   .artists-glow-line {
-    width: min(170px, 40vw);
+    width: min(145px, 36vw);
     height: 1px;
-    margin: 18px auto 0;
+    margin: 16px auto 0;
     background: linear-gradient(90deg, transparent, rgba(57,255,99,.72), transparent);
     box-shadow: 0 0 14px rgba(57,255,99,.5);
   }
@@ -567,15 +567,16 @@
     align-items: center;
     min-height: 116px;
     padding: 14px 16px;
-    border: 1px solid rgba(57,255,99,.18);
+    border: 1px solid rgba(57,255,99,.22);
     border-radius: 20px;
     background:
-      radial-gradient(circle at 18% 50%, rgba(57,255,99,.08), transparent 34%),
-      linear-gradient(180deg, rgba(12,13,12,.97), rgba(3,3,3,.99));
+      radial-gradient(circle at 18% 50%, rgba(57,255,99,.10), transparent 34%),
+      linear-gradient(180deg, rgba(13,15,13,.99), rgba(3,3,3,1));
     box-shadow:
-      0 14px 40px rgba(0,0,0,.66),
-      0 0 18px rgba(57,255,99,.055),
-      inset 0 1px 0 rgba(255,255,255,.04);
+      0 16px 44px rgba(0,0,0,.74),
+      0 0 22px rgba(57,255,99,.075),
+      inset 0 1px 0 rgba(255,255,255,.06),
+      inset 0 -1px 0 rgba(57,255,99,.055);
     color: #fff;
     text-decoration: none;
   }
@@ -606,20 +607,20 @@
     inset: 0;
     border-radius: inherit;
     pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(57,255,99,.06), transparent);
-    opacity: .34;
+    background: linear-gradient(90deg, transparent, rgba(57,255,99,.08), transparent);
+    opacity: .4;
   }
   .artist-list-card::after {
     content: "";
     position: absolute;
     inset: 8px;
-    border: 1px solid rgba(255,255,255,.052);
+    border: 1px solid rgba(255,255,255,.07);
     border-radius: 16px;
     pointer-events: none;
     background:
-      radial-gradient(circle at 14% 50%, rgba(57,255,99,.06), transparent 24%),
-      linear-gradient(135deg, rgba(255,255,255,.03), transparent 42%);
-    opacity: .7;
+      radial-gradient(circle at 14% 50%, rgba(57,255,99,.075), transparent 24%),
+      linear-gradient(135deg, rgba(255,255,255,.04), transparent 42%);
+    opacity: .78;
   }
   .artist-photo-placeholder,
   .artist-list-copy,
@@ -1024,14 +1025,14 @@ a[href*="spotify"]{
   }
 
   .artists-hero h1 {
-    font-size: clamp(2.4rem, 11vw, 3.25rem) !important;
+    font-size: clamp(2.1rem, 9.4vw, 2.85rem) !important;
     line-height: 1.02 !important;
-    letter-spacing: 5px !important;
+    letter-spacing: 4px !important;
   }
 
   .artists-glow-line {
-    width: min(150px, 38vw) !important;
-    margin-top: 16px !important;
+    width: min(130px, 34vw) !important;
+    margin-top: 14px !important;
   }
 
   .artists-hero-sub {
