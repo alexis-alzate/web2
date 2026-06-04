@@ -782,12 +782,13 @@
     text-decoration: none;
     box-shadow: 0 0 24px rgba(57,255,99,.08);
   }
-  .artists-label-monogram {
-    color: var(--green);
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 3rem;
-    line-height: .85;
-    text-shadow: 0 0 16px rgba(57,255,99,.42);
+  .artists-label-logo {
+    display: block;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 0 16px rgba(212,174,92,.16);
   }
   .artists-label-cta strong,
   .artists-label-cta em {

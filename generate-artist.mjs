@@ -396,13 +396,13 @@ const renderDirectory = artists => `<!DOCTYPE html>
 <meta property="og:site_name" content="LUJO URBAN">
 <meta property="og:title" content="Artistas - Lujo Urban">
 <meta property="og:description" content="Conoce los artistas aliados de Lujo Urban.">
-<meta property="og:image" content="https://www.lujourban.com/assets/zaetta-music-logo.jpg">
+<meta property="og:image" content="https://www.lujourban.com/assets/lujo-urban-logo.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Artistas - Lujo Urban">
 <meta name="twitter:description" content="Conoce los artistas aliados de Lujo Urban.">
-<meta name="twitter:image" content="https://www.lujourban.com/assets/zaetta-music-logo.jpg">
+<meta name="twitter:image" content="https://www.lujourban.com/assets/lujo-urban-logo.png">
 <title>Artistas - Lujo Urban</title>
-<link rel="icon" href="../assets/zaetta-music-logo.jpg" type="image/jpeg">
+<link rel="icon" href="../assets/lujo-urban-logo.png" type="image/png">
 <link rel="stylesheet" href="../styles.css">
 ${trackingHead}
 </head>
@@ -410,7 +410,7 @@ ${trackingHead}
 ${trackingNoScript}
 <header class="artists-nav">
   <a href="/" class="artists-brand" data-track-event="artistas_nav_home_click" data-track-label="artists_nav_brand">
-    <img src="../assets/zaetta-music-logo.jpg" alt="Lujo Urban">
+    <img src="../assets/lujo-urban-logo.png" alt="Lujo Urban">
     Lujo Urban
   </a>
   <a href="/" class="artists-back" data-track-event="artistas_nav_volver_click" data-track-label="artists_nav_back">Volver</a>
@@ -461,7 +461,7 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
   </section>
 
   <a href="/" class="artists-label-cta" data-track-event="artistas_lujo_urban_cta_click" data-track-label="artists_label_cta">
-    <span class="artists-label-monogram" aria-hidden="true">L</span>
+    <img class="artists-label-logo" src="../assets/lujo-urban-logo.png" alt="" aria-hidden="true">
     <span>
       <strong>Lujo Urban</strong>
       <small>Movimiento. Visión. Legado.</small>
