@@ -89,22 +89,28 @@
     color: var(--green); text-transform: uppercase; margin-bottom: 4px;
   }
   .hero-role-balanced {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    column-gap: .75em;
-    width: min(100%, 19.5rem);
+    position: relative;
+    display: block;
+    width: min(100%, 16rem);
+    min-height: 1.2em;
     margin-right: auto;
     margin-left: auto;
   }
   .hero-role-balanced span:first-child {
+    position: absolute;
+    right: calc(50% + .75em);
     text-align: right;
   }
   .hero-role-balanced span:nth-child(2) {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     letter-spacing: 0;
     text-align: center;
   }
   .hero-role-balanced span:last-child {
+    position: absolute;
+    left: calc(50% + .75em);
     text-align: left;
   }
   .hero-sub {
