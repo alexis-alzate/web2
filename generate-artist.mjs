@@ -396,13 +396,13 @@ const renderDirectory = artists => `<!DOCTYPE html>
 <meta property="og:site_name" content="LUJO URBAN">
 <meta property="og:title" content="Artistas - Lujo Urban">
 <meta property="og:description" content="Conoce los artistas aliados de Lujo Urban.">
-<meta property="og:image" content="https://www.lujourban.com/assets/lujo-urban-logo.png">
+<meta property="og:image" content="https://www.lujourban.com/assets/lujo.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Artistas - Lujo Urban">
 <meta name="twitter:description" content="Conoce los artistas aliados de Lujo Urban.">
-<meta name="twitter:image" content="https://www.lujourban.com/assets/lujo-urban-logo.png">
+<meta name="twitter:image" content="https://www.lujourban.com/assets/lujo.png">
 <title>Artistas - Lujo Urban</title>
-<link rel="icon" href="../assets/lujo-urban-logo.png" type="image/png">
+<link rel="icon" href="../assets/lujo.png" type="image/png">
 <link rel="stylesheet" href="../styles.css">
 ${trackingHead}
 </head>
@@ -410,7 +410,7 @@ ${trackingHead}
 ${trackingNoScript}
 <header class="artists-nav">
   <a href="/" class="artists-brand" data-track-event="artistas_nav_home_click" data-track-label="artists_nav_brand">
-    <img src="../assets/lujo-urban-logo.png" alt="Lujo Urban">
+    <img src="../assets/lujo.png" alt="Lujo Urban">
     Lujo Urban
   </a>
   <a href="/" class="artists-back" data-track-event="artistas_nav_volver_click" data-track-label="artists_nav_back">Volver</a>
@@ -461,7 +461,7 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
   </section>
 
   <a href="/" class="artists-label-cta" data-track-event="artistas_lujo_urban_cta_click" data-track-label="artists_label_cta">
-    <img class="artists-label-logo" src="../assets/lujo-urban-logo.png" alt="" aria-hidden="true">
+    <img class="artists-label-logo" src="../assets/lujo.png" alt="" aria-hidden="true">
     <span>
       <strong>Lujo Urban</strong>
       <small>Movimiento. Visión. Legado.</small>

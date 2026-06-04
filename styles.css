@@ -489,11 +489,11 @@
     text-transform: uppercase;
   }
   .artists-brand img {
-    width: 28px;
-    height: 28px;
-    object-fit: cover;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px rgba(212,174,92,.28);
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    border-radius: 0;
+    box-shadow: none;
   }
   .artists-back {
     position: relative;
@@ -785,10 +785,10 @@
   .artists-label-logo {
     display: block;
     width: 48px;
-    height: 48px;
-    object-fit: cover;
-    border-radius: 10px;
-    box-shadow: 0 0 16px rgba(212,174,92,.16);
+    height: 56px;
+    object-fit: contain;
+    border-radius: 0;
+    box-shadow: none;
   }
   .artists-label-cta strong,
   .artists-label-cta em {
