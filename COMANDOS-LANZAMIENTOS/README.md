@@ -136,6 +136,9 @@ El comando actualiza automaticamente:
 - Las paginas individuales de artistas.
 - `sitemap.xml`
 
+El generador respeta este orden manual. Si luego creas o actualizas otro
+artista, el roster mantiene el orden guardado en `artist-data.json`.
+
 Despues publica con:
 
 ```bash
