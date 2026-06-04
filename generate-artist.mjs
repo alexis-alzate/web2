@@ -555,8 +555,6 @@ try {
   if (index === -1) data.artists.push(nextArtist);
   else data.artists[index] = nextArtist;
 
-  data.artists.sort((a, b) => a.name.localeCompare(b.name));
-
   await buildArtists(data);
 
   console.log('\nArtista generado correctamente.');
