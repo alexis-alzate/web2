@@ -107,3 +107,37 @@ Despues publica con:
 ```bash
 ./3-PUBLICAR-CAMBIOS.sh
 ```
+
+## 6. Mover un artista en el roster
+
+Ejecuta:
+
+```bash
+./6-MOVER-ARTISTA.sh
+```
+
+Este asistente te pide:
+
+- El slug del artista, por ejemplo `siervo-john`.
+- El movimiento: `arriba`, `abajo` o una posicion numerica como `1`.
+
+Tambien puedes usar el comando directo desde la raiz del proyecto:
+
+```bash
+node move-artist.mjs siervo-john arriba
+node move-artist.mjs siervo-john abajo
+node move-artist.mjs siervo-john 1
+```
+
+El comando actualiza automaticamente:
+
+- `artist-data.json`
+- `/artistas/`
+- Las paginas individuales de artistas.
+- `sitemap.xml`
+
+Despues publica con:
+
+```bash
+./3-PUBLICAR-CAMBIOS.sh
+```
