@@ -44,6 +44,7 @@ button,
   padding: 10px 14px;
   text-decoration: none;
   cursor: pointer;
+  min-height: 40px;
   transition:
     transform .18s ease,
     border-color .18s ease,
@@ -113,6 +114,7 @@ select {
   background: rgba(0, 0, 0, .34);
   color: var(--text);
   padding: 12px;
+  min-height: 40px;
 }
 
 label {
@@ -166,6 +168,96 @@ label {
   font-size: .82rem;
   letter-spacing: .24em;
   text-transform: uppercase;
+}
+
+.folder,
+.subfolder {
+  display: block;
+}
+
+.folder > summary,
+.subfolder > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.folder > summary::-webkit-details-marker,
+.subfolder > summary::-webkit-details-marker {
+  display: none;
+}
+
+.folder > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 54px;
+  padding: 4px 0 2px;
+}
+
+.folder > summary::after,
+.subfolder > summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--green);
+  background: rgba(57, 255, 99, .08);
+}
+
+.folder[open] > summary::after,
+.subfolder[open] > summary::after {
+  content: "-";
+}
+
+.folder strong {
+  display: block;
+  color: var(--green);
+  font-size: .82rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.folder small {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: .82rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.folder-body {
+  display: grid;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.subfolder {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, .018);
+}
+
+.subfolder > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--muted);
+  font-size: .72rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.subfolder[open] > summary {
+  margin-bottom: 14px;
 }
 
 .grid {
@@ -223,11 +315,19 @@ label {
 }
 
 .card h3 {
-  margin: 0;
+  margin: 0 0 5px;
+  font-size: 1rem;
+  line-height: 1.15;
 }
 
 .muted {
   color: var(--muted);
+  margin: 4px 0 0;
+  line-height: 1.35;
+}
+
+.clamp-url {
+  overflow-wrap: anywhere;
 }
 
 .actions {
@@ -277,23 +377,67 @@ label {
 
 @media (max-width: 760px) {
   .shell {
-    width: min(100% - 24px, 560px);
+    width: min(100% - 18px, 560px);
     padding-top: 22px;
   }
 
   .topbar,
-  .grid,
-  .card {
+  .grid {
     grid-template-columns: 1fr;
     display: grid;
   }
 
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: clamp(2rem, 12vw, 3.2rem);
+    letter-spacing: .16em;
+  }
+
   .section {
-    padding: 16px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .folder > summary {
+    min-height: 48px;
+  }
+
+  .folder strong {
+    font-size: .75rem;
+    letter-spacing: .18em;
+  }
+
+  .card {
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding: 12px;
+  }
+
+  .thumb {
+    width: 54px;
+    height: 54px;
+    border-radius: 11px;
+  }
+
+  .card h3 {
+    font-size: .98rem;
   }
 
   .actions {
+    grid-column: 1 / -1;
     justify-content: flex-start;
+    gap: 7px;
+  }
+
+  button,
+  .button {
+    min-height: 38px;
+    padding: 9px 13px;
+    font-size: .92rem;
   }
 
   .mini-form {
