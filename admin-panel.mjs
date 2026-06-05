@@ -460,8 +460,16 @@ const routes = {
   'POST /api/home-release/add': addHomeRelease,
   'POST /api/home-release/reactivate': reactivateHomeRelease,
   'POST /api/publish': async () => {
-    const { stdout, stderr } = await execFileAsync('./publicar.sh', []);
-    return stdout || stderr;
+    try {
+      const { stdout, stderr } = await execFileAsync('./publicar.sh', []);
+      return stdout || stderr || 'Publicacion terminada.';
+    } catch (error) {
+      const output = [error.stdout, error.stderr, error.message]
+        .filter(Boolean)
+        .join('\n')
+        .trim();
+      throw new Error(`${output}\n\nNo se pudo publicar desde este panel. Si GitHub pide usuario o credenciales, ejecuta en tu terminal:\n\ngit push origin main`);
+    }
   }
 };
 
