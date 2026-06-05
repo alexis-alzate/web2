@@ -1,12 +1,12 @@
 const latestRelease = {
-  title: "Gloria y Honra",
-  trackingTitle: "Gloria y Honra",
-  slug: "gloriayhonra",
+  title: "Predicador",
+  trackingTitle: "Predicador",
+  slug: "predicador",
   artist: 'ZAETTA',
-  cover: "assets/gloriayhonra-cover.jpg",
-  link: "https://too.fm/dewo8xz",
-  shareUrl: "https://www.lujourban.com/lanzamientos/gloriayhonra-v2/",
-  browserTitle: "ZAETTA - Escucha Gloria y Honra",
+  cover: "assets/predicador-cover.jpg",
+  link: "https://open.spotify.com/track/5C52EVyuczyiEvYGr4wDK5?si=tXpu1_WGRriQA3E8-DvPWA",
+  shareUrl: "https://www.lujourban.com/lanzamientos/predicador-v4/",
+  browserTitle: "ZAETTA - Escucha Predicador",
   heroText: "Música con propósito. Sonidos que trascienden."
 };
 
