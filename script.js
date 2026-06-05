@@ -1,12 +1,12 @@
 const latestRelease = {
-  title: "Seguiré",
-  trackingTitle: "Seguiré",
-  slug: "seguire",
+  title: "Gloria y Honra",
+  trackingTitle: "Gloria y Honra",
+  slug: "gloriayhonra",
   artist: 'ZAETTA',
-  cover: "assets/seguire-cover.jpg",
-  link: "https://too.fm/bkyz4mw",
-  shareUrl: "https://www.lujourban.com/lanzamientos/seguire-v1/",
-  browserTitle: "ZAETTA - Escucha Seguiré",
+  cover: "assets/gloriayhonra-cover.jpg",
+  link: "https://too.fm/dewo8xz",
+  shareUrl: "https://www.lujourban.com/lanzamientos/gloriayhonra-v2/",
+  browserTitle: "ZAETTA - Escucha Gloria y Honra",
   heroText: "Música con propósito. Sonidos que trascienden."
 };
 
