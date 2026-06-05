@@ -479,7 +479,7 @@
     z-index: 1;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 0;
     color: #fff;
     font-family: "Barlow Condensed", sans-serif;
     font-size: .72rem;
@@ -530,7 +530,7 @@
   }
   .artists-logo-title img {
     display: block;
-    width: min(180px, 44vw);
+    width: min(230px, 56vw);
     height: auto;
     object-fit: contain;
     object-position: center;
@@ -736,36 +736,36 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 0;
     width: min(100%, 760px);
-    margin: 34px auto 0;
-    padding: 28px 20px 36px;
+    margin: 26px auto 0;
+    padding: 22px 20px 28px;
   }
   .artists-proof div {
-    padding: 0 24px;
+    padding: 0 18px;
     text-align: center;
   }
   .artists-proof div + div {
     border-left: 1px solid rgba(255,255,255,.08);
   }
   .artists-proof svg {
-    width: 38px;
-    height: 38px;
+    width: 31px;
+    height: 31px;
     fill: none;
     stroke: var(--green);
     stroke-width: 1.5;
-    margin-bottom: 16px;
-    filter: drop-shadow(0 0 10px rgba(57,255,99,.62));
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 8px rgba(57,255,99,.46));
   }
   .artists-proof h2 {
     font-family: "Barlow Condensed", sans-serif;
-    font-size: .78rem;
-    letter-spacing: 3.6px;
+    font-size: .64rem;
+    letter-spacing: 2.9px;
     text-transform: uppercase;
   }
   .artists-proof p {
-    margin-top: 10px;
-    color: rgba(255,255,255,.62);
-    font-size: .88rem;
-    line-height: 1.55;
+    margin-top: 8px;
+    color: rgba(255,255,255,.54);
+    font-size: .72rem;
+    line-height: 1.42;
   }
   .artists-label-cta {
     display: grid;
@@ -1018,7 +1018,7 @@ a[href*="spotify"]{
   }
 
   .artists-brand {
-    gap: 9px !important;
+    gap: 0 !important;
     font-size: .68rem !important;
     letter-spacing: 2.8px !important;
   }
@@ -1051,7 +1051,7 @@ a[href*="spotify"]{
   }
 
   .artists-logo-title img {
-    width: min(150px, 42vw) !important;
+    width: min(195px, 55vw) !important;
   }
 
   .artists-glow-line {
@@ -1126,28 +1126,28 @@ a[href*="spotify"]{
 
   .artists-proof {
     grid-template-columns: repeat(3, 1fr) !important;
-    margin-top: 38px !important;
-    padding: 24px 18px 32px !important;
+    margin-top: 30px !important;
+    padding: 20px 18px 26px !important;
   }
 
   .artists-proof div {
-    padding: 0 10px !important;
+    padding: 0 8px !important;
   }
 
   .artists-proof svg {
-    width: 34px !important;
-    height: 34px !important;
-    margin-bottom: 14px !important;
+    width: 28px !important;
+    height: 28px !important;
+    margin-bottom: 11px !important;
   }
 
   .artists-proof h2 {
-    font-size: .64rem !important;
-    letter-spacing: 2.4px !important;
+    font-size: .54rem !important;
+    letter-spacing: 2px !important;
   }
 
   .artists-proof p {
-    font-size: .78rem !important;
-    line-height: 1.45 !important;
+    font-size: .64rem !important;
+    line-height: 1.35 !important;
   }
 
   .artists-label-cta {
