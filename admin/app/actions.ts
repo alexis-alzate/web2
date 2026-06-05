@@ -3,6 +3,15 @@
 import { revalidatePath } from 'next/cache';
 import { isAuthenticated } from '@/lib/auth';
 import { commitFiles, readFile, readJson } from '@/lib/github';
+import {
+  type Artist,
+  type ArtistData,
+  type ArtistRelease,
+  type ArtistReleaseHistory,
+  buildArtistFiles,
+  compactArtistName,
+  slugify as slugifyArtist
+} from '@/lib/artist-renderer';
 
 type Release = {
   title: string;
@@ -38,6 +47,36 @@ const replaceRequired = (source: string, pattern: RegExp, replacement: string, l
 
 const requireAdmin = async () => {
   if (!(await isAuthenticated())) throw new Error('No autenticado.');
+};
+
+const cleanLinks = (formData: FormData) => {
+  const links: Record<string, string> = {};
+  ['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp'].forEach(key => {
+    const value = String(formData.get(key) || '').trim();
+    if (value) links[key] = value;
+  });
+  return links;
+};
+
+const normalizeOptional = (value: FormDataEntryValue | null) => {
+  const text = String(value || '').trim();
+  return text || '';
+};
+
+const readArtistBuildInputs = async () => Promise.all([
+  readJson<ArtistData>('artist-data.json', { artists: [] }),
+  readFile('sitemap.xml')
+]);
+
+const commitArtistBuild = async (data: ArtistData, sitemap: string, message: string) => {
+  await commitFiles(buildArtistFiles(data, sitemap), message);
+  revalidatePath('/');
+};
+
+const findArtist = (data: ArtistData, slug: string) => {
+  const artist = data.artists.find(item => item.slug === slug);
+  if (!artist) throw new Error('No encontre ese artista.');
+  return artist;
 };
 
 const applyHomeRelease = async (selected: Release) => {
@@ -193,4 +232,142 @@ export const createHomeReleaseAction = async (formData: FormData) => {
   ], `Set ${title} as latest release`);
 
   revalidatePath('/');
+};
+
+export const saveArtistAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const originalSlug = normalizeOptional(formData.get('originalSlug'));
+  const name = normalizeOptional(formData.get('name'));
+  const slug = slugifyArtist(normalizeOptional(formData.get('slug')) || name);
+  if (!name) throw new Error('El nombre artistico es obligatorio.');
+  if (!slug) throw new Error('El slug del artista es obligatorio.');
+
+  const role = normalizeOptional(formData.get('role')) || 'Artista oficial';
+  const cardName = normalizeOptional(formData.get('cardName')) || compactArtistName(name);
+  const tagline = normalizeOptional(formData.get('tagline')) || 'Música con identidad, visión y propósito.';
+  const bio = normalizeOptional(formData.get('bio')) || `Perfil oficial de ${name} dentro del ecosistema Lujo Urban.`;
+  const photo = normalizeOptional(formData.get('photo'));
+  const beatsEmbed = normalizeOptional(formData.get('beatsEmbed'));
+  const productionsEmbed = normalizeOptional(formData.get('productionsEmbed'));
+  const contactLabel = normalizeOptional(formData.get('contactLabel'));
+  const contactUrl = normalizeOptional(formData.get('contactUrl'));
+
+  const [data, sitemap] = await readArtistBuildInputs();
+  const existingIndex = originalSlug
+    ? data.artists.findIndex(artist => artist.slug === originalSlug)
+    : data.artists.findIndex(artist => artist.slug === slug);
+  const existingArtist = existingIndex >= 0 ? data.artists[existingIndex] : null;
+
+  const nextArtist: Artist = {
+    name,
+    cardName,
+    slug,
+    role,
+    tagline,
+    bio,
+    photo,
+    links: cleanLinks(formData),
+    release: existingArtist?.release || null,
+    beatsEmbed,
+    productionsEmbed,
+    contact: contactUrl ? { label: contactLabel || 'Booking', url: contactUrl } : null
+  };
+
+  if (existingIndex >= 0) data.artists[existingIndex] = nextArtist;
+  else data.artists.push(nextArtist);
+
+  await commitArtistBuild(data, sitemap, existingArtist ? `Update artist ${name}` : `Create artist ${name}`);
+};
+
+export const moveArtistAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const slug = normalizeOptional(formData.get('slug'));
+  const direction = normalizeOptional(formData.get('direction'));
+  const [data, sitemap] = await readArtistBuildInputs();
+  const fromIndex = data.artists.findIndex(artist => artist.slug === slug);
+  if (fromIndex < 0) throw new Error('No encontre ese artista.');
+
+  const toIndex = direction === 'up'
+    ? Math.max(0, fromIndex - 1)
+    : Math.min(data.artists.length - 1, fromIndex + 1);
+
+  if (toIndex === fromIndex) return;
+  const [artist] = data.artists.splice(fromIndex, 1);
+  data.artists.splice(toIndex, 0, artist);
+
+  await commitArtistBuild(data, sitemap, `Move artist ${artist.name}`);
+};
+
+export const deleteArtistAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const slug = normalizeOptional(formData.get('slug'));
+  const confirmation = normalizeOptional(formData.get('confirmation'));
+  if (confirmation !== 'BORRAR') throw new Error('Para borrar escribe BORRAR.');
+
+  const [data, sitemap] = await readArtistBuildInputs();
+  const artist = findArtist(data, slug);
+  data.artists = data.artists.filter(item => item.slug !== slug);
+
+  await commitArtistBuild(data, sitemap, `Delete artist ${artist.name}`);
+};
+
+export const addArtistReleaseAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const artistSlug = normalizeOptional(formData.get('artistSlug'));
+  const title = normalizeOptional(formData.get('title'));
+  const releaseSlug = slugifyArtist(normalizeOptional(formData.get('slug')) || title);
+  const link = normalizeOptional(formData.get('link'));
+  const cover = normalizeOptional(formData.get('cover'));
+
+  if (!artistSlug) throw new Error('Selecciona un artista.');
+  if (!title) throw new Error('El nombre del lanzamiento es obligatorio.');
+  if (!releaseSlug) throw new Error('El slug del lanzamiento es obligatorio.');
+  if (!link) throw new Error('El link del lanzamiento es obligatorio.');
+
+  const [data, history, sitemap] = await Promise.all([
+    readJson<ArtistData>('artist-data.json', { artists: [] }),
+    readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
+    readFile('sitemap.xml')
+  ]);
+
+  const artist = findArtist(data, artistSlug);
+  const release: ArtistRelease = { title, slug: releaseSlug, link, cover };
+  const releases = Array.isArray(history.artists[artistSlug]) ? history.artists[artistSlug] : [];
+  const releaseIndex = releases.findIndex(item => item.slug === releaseSlug);
+  if (releaseIndex >= 0) releases[releaseIndex] = release;
+  else releases.push(release);
+
+  history.artists[artistSlug] = releases;
+  artist.release = release;
+
+  await commitFiles([
+    ...buildArtistFiles(data, sitemap),
+    { path: 'artist-release-history.json', content: `${JSON.stringify(history, null, 2)}\n` }
+  ], `Set ${title} as latest release for ${artist.name}`);
+
+  revalidatePath('/');
+};
+
+export const reactivateArtistReleaseAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const artistSlug = normalizeOptional(formData.get('artistSlug'));
+  const releaseSlug = normalizeOptional(formData.get('releaseSlug'));
+
+  const [data, history, sitemap] = await Promise.all([
+    readJson<ArtistData>('artist-data.json', { artists: [] }),
+    readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
+    readFile('sitemap.xml')
+  ]);
+
+  const artist = findArtist(data, artistSlug);
+  const selected = (history.artists[artistSlug] || []).find(release => release.slug === releaseSlug);
+  if (!selected) throw new Error('No encontre ese lanzamiento del artista.');
+
+  artist.release = selected;
+  await commitArtistBuild(data, sitemap, `Reactivate ${selected.title} for ${artist.name}`);
 };

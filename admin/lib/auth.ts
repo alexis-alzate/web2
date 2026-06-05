@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
-const cookieName = 'lujo_admin_session';
+export const cookieName = 'lujo_admin_session';
 
 const getSecret = () => {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD;
@@ -15,11 +15,11 @@ export const signSession = (username: string) =>
   createHmac('sha256', getSecret()).update(username).digest('hex');
 
 export const verifyPassword = (username: string, password: string) => {
-  const expectedUser = getAdminUser();
-  const expectedPassword = process.env.ADMIN_PASSWORD;
+  const expectedUser = getAdminUser().trim();
+  const expectedPassword = process.env.ADMIN_PASSWORD?.trim();
   if (!expectedPassword) throw new Error('Falta ADMIN_PASSWORD.');
 
-  return username === expectedUser && password === expectedPassword;
+  return username.trim() === expectedUser && password.trim() === expectedPassword;
 };
 
 export const createSession = async (username: string) => {

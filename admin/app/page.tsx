@@ -1,7 +1,16 @@
 import { readJson } from '@/lib/github';
-import { createHomeReleaseAction, reactivateHomeReleaseAction } from './actions';
+import {
+  addArtistReleaseAction,
+  createHomeReleaseAction,
+  deleteArtistAction,
+  moveArtistAction,
+  reactivateArtistReleaseAction,
+  saveArtistAction,
+  reactivateHomeReleaseAction
+} from './actions';
 import { isAuthenticated } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { SubmitButton } from './components/SubmitButton';
 
 type Artist = {
   name: string;
@@ -9,6 +18,7 @@ type Artist = {
   slug: string;
   role: string;
   tagline: string;
+  bio?: string;
   photo?: string;
   links?: Record<string, string>;
   release?: {
@@ -17,6 +27,9 @@ type Artist = {
     link: string;
     cover?: string;
   } | null;
+  beatsEmbed?: string;
+  productionsEmbed?: string;
+  contact?: { label?: string; url?: string } | null;
 };
 
 type ArtistData = {
@@ -35,6 +48,10 @@ type ReleaseHistory = {
   releases: Release[];
 };
 
+type ArtistReleaseHistory = {
+  artists: Record<string, NonNullable<Artist['release']>[]>;
+};
+
 const initials = (name: string) => name
   .split(/\s+/)
   .filter(Boolean)
@@ -47,11 +64,13 @@ export default async function DashboardPage() {
 
   let artistData: ArtistData;
   let releaseHistory: ReleaseHistory;
+  let artistReleaseHistory: ArtistReleaseHistory;
 
   try {
-    [artistData, releaseHistory] = await Promise.all([
+    [artistData, releaseHistory, artistReleaseHistory] = await Promise.all([
       readJson<ArtistData>('artist-data.json', { artists: [] }),
-      readJson<ReleaseHistory>('release-history.json', { releases: [] })
+      readJson<ReleaseHistory>('release-history.json', { releases: [] }),
+      readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} })
     ]);
   } catch (error) {
     return (
@@ -126,7 +145,9 @@ export default async function DashboardPage() {
             Texto hero
             <input name="heroText" defaultValue="Música con propósito. Sonidos que trascienden." />
           </label>
-          <button className="primary span-2">Crear lanzamiento de Zaetta</button>
+          <SubmitButton className="primary span-2" pendingText="Creando lanzamiento...">
+            Crear lanzamiento de Zaetta
+          </SubmitButton>
         </form>
         <div className="cards">
           {releaseHistory.releases.map(release => (
@@ -145,7 +166,7 @@ export default async function DashboardPage() {
                 <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
                 <form action={reactivateHomeReleaseAction}>
                   <input name="slug" type="hidden" value={release.slug} />
-                  <button>Reactivar</button>
+                  <SubmitButton pendingText="Reactivando...">Reactivar</SubmitButton>
                 </form>
               </div>
             </article>
@@ -155,8 +176,82 @@ export default async function DashboardPage() {
 
       <section className="section">
         <h2>Artistas</h2>
+        <form action={saveArtistAction} className="grid" style={{ marginBottom: 18 }}>
+          <label>
+            Nombre publico
+            <input name="name" placeholder="EL SIERVO JHON" required />
+          </label>
+          <label>
+            Slug
+            <input name="slug" placeholder="siervo-jhon" />
+          </label>
+          <label>
+            Nombre tarjeta
+            <input name="cardName" placeholder="El Siervo Jhon" />
+          </label>
+          <label>
+            Rol
+            <input name="role" defaultValue="Artista oficial" />
+          </label>
+          <label className="span-2">
+            Frase corta
+            <input name="tagline" defaultValue="Música con identidad, visión y propósito." />
+          </label>
+          <label className="span-2">
+            Bio
+            <textarea name="bio" rows={3} placeholder="Perfil oficial dentro del ecosistema Lujo Urban." />
+          </label>
+          <label className="span-2">
+            Foto ya subida
+            <input name="photo" placeholder="assets/artista-photo.jpg" />
+          </label>
+          <label>
+            Spotify
+            <input name="spotify" placeholder="https://open.spotify.com/..." />
+          </label>
+          <label>
+            TikTok
+            <input name="tiktok" placeholder="https://www.tiktok.com/..." />
+          </label>
+          <label>
+            Instagram
+            <input name="instagram" placeholder="https://www.instagram.com/..." />
+          </label>
+          <label>
+            YouTube
+            <input name="youtube" placeholder="https://youtube.com/..." />
+          </label>
+          <label>
+            Facebook
+            <input name="facebook" placeholder="https://facebook.com/..." />
+          </label>
+          <label>
+            WhatsApp
+            <input name="whatsapp" placeholder="https://wa.me/..." />
+          </label>
+          <label className="span-2">
+            Embed beats
+            <input name="beatsEmbed" placeholder="https://open.spotify.com/embed/... o BeatStars" />
+          </label>
+          <label className="span-2">
+            Embed producciones
+            <input name="productionsEmbed" placeholder="https://open.spotify.com/embed/..." />
+          </label>
+          <label>
+            Texto contacto
+            <input name="contactLabel" placeholder="Booking" />
+          </label>
+          <label>
+            Link contacto
+            <input name="contactUrl" placeholder="https://wa.me/..." />
+          </label>
+          <SubmitButton className="primary span-2" pendingText="Guardando artista...">
+            Crear artista
+          </SubmitButton>
+        </form>
+
         <div className="cards">
-          {artistData.artists.map(artist => (
+          {artistData.artists.map((artist, index) => (
             <article className="card" key={artist.slug}>
               {artist.photo ? (
                 <img className="thumb" src={`https://www.lujourban.com/${artist.photo}`} alt="" />
@@ -171,9 +266,149 @@ export default async function DashboardPage() {
               </div>
               <div className="actions">
                 <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Ver</a>
+                <details className="inline-details">
+                  <summary className="button">Editar</summary>
+                  <form action={saveArtistAction} className="mini-form">
+                    <input name="originalSlug" type="hidden" value={artist.slug} />
+                    <label>
+                      Nombre publico
+                      <input name="name" defaultValue={artist.name} required />
+                    </label>
+                    <label>
+                      Slug
+                      <input name="slug" defaultValue={artist.slug} />
+                    </label>
+                    <label>
+                      Nombre tarjeta
+                      <input name="cardName" defaultValue={artist.cardName || ''} />
+                    </label>
+                    <label>
+                      Rol
+                      <input name="role" defaultValue={artist.role} />
+                    </label>
+                    <label>
+                      Frase corta
+                      <input name="tagline" defaultValue={artist.tagline} />
+                    </label>
+                    <label>
+                      Bio
+                      <textarea name="bio" rows={3} defaultValue={artist.bio || ''} />
+                    </label>
+                    <label>
+                      Foto
+                      <input name="photo" defaultValue={artist.photo || ''} />
+                    </label>
+                    {['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp'].map(key => (
+                      <label key={key}>
+                        {key}
+                        <input name={key} defaultValue={artist.links?.[key] || ''} />
+                      </label>
+                    ))}
+                    <label>
+                      Embed beats
+                      <input name="beatsEmbed" defaultValue={artist.beatsEmbed || ''} />
+                    </label>
+                    <label>
+                      Embed producciones
+                      <input name="productionsEmbed" defaultValue={artist.productionsEmbed || ''} />
+                    </label>
+                    <label>
+                      Texto contacto
+                      <input name="contactLabel" defaultValue={artist.contact?.label || ''} />
+                    </label>
+                    <label>
+                      Link contacto
+                      <input name="contactUrl" defaultValue={artist.contact?.url || ''} />
+                    </label>
+                    <SubmitButton className="primary" pendingText="Guardando...">Guardar</SubmitButton>
+                  </form>
+                </details>
+                <form action={moveArtistAction}>
+                  <input name="slug" type="hidden" value={artist.slug} />
+                  <input name="direction" type="hidden" value="up" />
+                  <SubmitButton disabled={index === 0} pendingText="Subiendo...">Subir</SubmitButton>
+                </form>
+                <form action={moveArtistAction}>
+                  <input name="slug" type="hidden" value={artist.slug} />
+                  <input name="direction" type="hidden" value="down" />
+                  <SubmitButton disabled={index === artistData.artists.length - 1} pendingText="Bajando...">Bajar</SubmitButton>
+                </form>
+                <details className="inline-details">
+                  <summary className="button danger">Borrar</summary>
+                  <form action={deleteArtistAction} className="mini-form">
+                    <input name="slug" type="hidden" value={artist.slug} />
+                    <label>
+                      Escribe BORRAR
+                      <input name="confirmation" placeholder="BORRAR" />
+                    </label>
+                    <SubmitButton className="danger" pendingText="Borrando...">Borrar artista</SubmitButton>
+                  </form>
+                </details>
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="section">
+        <h2>Lanzamientos de artistas</h2>
+        <form action={addArtistReleaseAction} className="grid" style={{ marginBottom: 18 }}>
+          <label>
+            Artista
+            <select name="artistSlug" required>
+              <option value="">Seleccionar</option>
+              {artistData.artists.map(artist => (
+                <option key={artist.slug} value={artist.slug}>{artist.cardName || artist.name}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Nombre lanzamiento
+            <input name="title" required />
+          </label>
+          <label>
+            Slug lanzamiento
+            <input name="slug" placeholder="automatico" />
+          </label>
+          <label>
+            Portada ya subida
+            <input name="cover" placeholder="assets/artista-cancion-cover.jpg" />
+          </label>
+          <label className="span-2">
+            Link escuchar
+            <input name="link" placeholder="Spotify, Too Lost, Too.fm..." required />
+          </label>
+          <SubmitButton className="primary span-2" pendingText="Publicando lanzamiento...">
+            Publicar lanzamiento de artista
+          </SubmitButton>
+        </form>
+
+        <div className="cards">
+          {artistData.artists.map(artist => {
+            const releases = artistReleaseHistory.artists[artist.slug] || [];
+            return (
+              <article className="card" key={`${artist.slug}-releases`}>
+                {artist.photo ? (
+                  <img className="thumb" src={`https://www.lujourban.com/${artist.photo}`} alt="" />
+                ) : (
+                  <div className="thumb placeholder">{initials(artist.name)}</div>
+                )}
+                <div>
+                  <h3>{artist.cardName || artist.name}</h3>
+                  <p className="muted">{releases.length ? `${releases.length} lanzamiento(s) guardado(s)` : 'Sin historial de lanzamientos'}</p>
+                </div>
+                <div className="actions">
+                  {releases.map(release => (
+                    <form action={reactivateArtistReleaseAction} key={release.slug || release.title}>
+                      <input name="artistSlug" type="hidden" value={artist.slug} />
+                      <input name="releaseSlug" type="hidden" value={release.slug || ''} />
+                      <SubmitButton pendingText="Reactivando...">{release.title}</SubmitButton>
+                    </form>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
     </main>
