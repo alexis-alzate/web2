@@ -45,10 +45,34 @@ const initials = (name: string) => name
 export default async function DashboardPage() {
   if (!(await isAuthenticated())) redirect('/login');
 
-  const [artistData, releaseHistory] = await Promise.all([
-    readJson<ArtistData>('artist-data.json', { artists: [] }),
-    readJson<ReleaseHistory>('release-history.json', { releases: [] })
-  ]);
+  let artistData: ArtistData;
+  let releaseHistory: ReleaseHistory;
+
+  try {
+    [artistData, releaseHistory] = await Promise.all([
+      readJson<ArtistData>('artist-data.json', { artists: [] }),
+      readJson<ReleaseHistory>('release-history.json', { releases: [] })
+    ]);
+  } catch (error) {
+    return (
+      <main className="shell">
+        <header className="topbar">
+          <div>
+            <p className="eyebrow">Panel privado</p>
+            <h1 className="title">Lujo Urban</h1>
+          </div>
+        </header>
+        <section className="section">
+          <h2>Configuracion pendiente</h2>
+          <p className="muted">{error instanceof Error ? error.message : 'No se pudo cargar la configuracion.'}</p>
+          <p className="muted" style={{ marginTop: 12 }}>
+            Revisa que exista <code>admin/.env.local</code> con ADMIN_USER, ADMIN_PASSWORD,
+            ADMIN_SESSION_SECRET, GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO y GITHUB_BRANCH.
+          </p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="shell">

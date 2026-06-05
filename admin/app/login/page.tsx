@@ -1,4 +1,6 @@
-export default function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const params = await searchParams;
+
   return (
     <main className="login">
       <section className="section login-card">
@@ -13,7 +15,7 @@ export default function LoginPage({ searchParams }: { searchParams: { error?: st
             Clave
             <input name="password" type="password" autoComplete="current-password" required />
           </label>
-          {searchParams.error ? <p style={{ color: '#ff8b8b' }}>Usuario o clave incorrectos.</p> : null}
+          {params.error ? <p style={{ color: '#ff8b8b' }}>Usuario o clave incorrectos.</p> : null}
           <button className="primary">Entrar</button>
         </form>
       </section>

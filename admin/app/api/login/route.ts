@@ -6,10 +6,14 @@ export async function POST(request: Request) {
   const username = String(form.get('username') || '');
   const password = String(form.get('password') || '');
 
-  if (!verifyPassword(username, password)) {
+  try {
+    if (!verifyPassword(username, password)) {
+      return NextResponse.redirect(new URL('/login?error=1', request.url));
+    }
+
+    await createSession(username);
+  } catch {
     return NextResponse.redirect(new URL('/login?error=1', request.url));
   }
-
-  await createSession(username);
   return NextResponse.redirect(new URL('/', request.url));
 }
