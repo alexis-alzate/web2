@@ -502,7 +502,7 @@
   .artists-back {
     position: relative;
     z-index: 1;
-    color: var(--green);
+    color: #fff;
     font-family: "Barlow Condensed", sans-serif;
     font-size: .7rem;
     font-weight: 700;
