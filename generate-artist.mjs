@@ -409,9 +409,7 @@ ${trackingHead}
 <body class="artists-page">
 ${trackingNoScript}
 <header class="artists-nav">
-  <a href="/" class="artists-brand" data-track-event="artistas_nav_home_click" data-track-label="artists_nav_brand">
-    <img src="../assets/lujo.png" alt="Lujo Urban">
-  </a>
+  <span class="artists-brand-spacer" aria-hidden="true"></span>
   <a href="/" class="artists-back" data-track-event="artistas_nav_volver_click" data-track-label="artists_nav_back">Volver</a>
 </header>
 
