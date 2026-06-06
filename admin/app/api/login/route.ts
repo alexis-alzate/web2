@@ -9,7 +9,18 @@ export async function POST(request: Request) {
   try {
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return NextResponse.redirect(new URL('/login?error=1', request.url), 303);
+    if (error) {
+      const message = error.message.toLowerCase();
+      const code = message.includes('email not confirmed')
+        ? 'unconfirmed'
+        : message.includes('invalid login credentials')
+          ? 'credentials'
+          : message.includes('rate limit')
+            ? 'rate'
+            : 'auth';
+
+      return NextResponse.redirect(new URL(`/login?error=${code}`, request.url), 303);
+    }
   } catch {
     return NextResponse.redirect(new URL('/login?error=config', request.url), 303);
   }

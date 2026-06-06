@@ -1,8 +1,13 @@
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; reset?: string }> }) {
   const params = await searchParams;
-  const errorMessage = params.error === 'config'
-    ? 'Falta configurar Supabase en Vercel.'
-    : 'Correo o clave incorrectos.';
+  const errorMessages: Record<string, string> = {
+    auth: 'Supabase rechazo el acceso. Revisa el usuario en Authentication.',
+    config: 'Falta configurar Supabase en Vercel.',
+    credentials: 'Correo o clave incorrectos.',
+    rate: 'Demasiados intentos. Espera un momento y vuelve a probar.',
+    unconfirmed: 'El correo aun no esta confirmado en Supabase.'
+  };
+  const errorMessage = params.error ? errorMessages[params.error] || errorMessages.auth : '';
 
   return (
     <main className="login">
