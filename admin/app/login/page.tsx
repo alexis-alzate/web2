@@ -27,11 +27,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             {params.reset ? <p className="auth-note">Clave actualizada. Inicia sesion de nuevo.</p> : null}
             <button className="primary login-submit">Ingresar</button>
           </form>
-          <PasskeyLoginButton />
           <div className="login-links">
             <a href="/forgot-password">Olvide mi clave</a>
           </div>
         </section>
+        <PasskeyLoginButton />
       </div>
     </main>
   );
