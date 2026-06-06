@@ -21,6 +21,7 @@ type Release = {
   browserTitle: string;
   heroText: string;
   shareUrl: string;
+  statusUrl?: string;
 };
 
 type ReleaseHistory = {
@@ -182,11 +183,13 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 
   const coverPath = `assets/${slug}-cover.jpg`;
   const shareDirectory = `lanzamientos/${slug}-v${version}`;
+  const statusDirectory = `estados/${slug}-v${version}`;
   const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
+  const statusUrl = `https://www.lujourban.com/${statusDirectory}/`;
   const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - ${socialArtist}`;
-  const release = { title, slug, cover: coverPath, link: listenUrl, browserTitle, heroText, shareUrl };
+  const release = { title, slug, cover: coverPath, link: listenUrl, browserTitle, heroText, shareUrl, statusUrl };
   const releaseIndex = history.releases.findIndex(item => item.slug === slug);
   if (releaseIndex === -1) history.releases.push(release);
   else history.releases[releaseIndex] = release;
@@ -220,6 +223,35 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 </html>
 `;
 
+  const statusPage = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${statusUrl}">
+<meta property="og:title" content="${escapeHtml(socialTitle)}">
+<meta property="og:description" content="${escapeHtml(socialDescription)}">
+<meta property="og:image" content="${shareImageUrl}">
+<meta property="og:image:secure_url" content="${shareImageUrl}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="300">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${escapeHtml(socialTitle)}">
+<meta name="twitter:description" content="${escapeHtml(socialDescription)}">
+<meta name="twitter:image" content="${shareImageUrl}">
+<meta http-equiv="refresh" content="0;url=/">
+<title>${escapeHtml(socialTitle)}</title>
+<script>window.location.replace('/');</script>
+</head>
+<body>
+<p><a href="/">Ir al sitio oficial de Zaetta</a></p>
+</body>
+</html>
+`;
+
   const files = await applyHomeRelease(release);
   const coverBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
@@ -228,7 +260,8 @@ export const createHomeReleaseAction = async (formData: FormData) => {
     { path: 'script.js', content: files.script },
     { path: 'index.html', content: files.html },
     { path: 'release-history.json', content: `${JSON.stringify(history, null, 2)}\n` },
-    { path: `${shareDirectory}/index.html`, content: sharePage }
+    { path: `${shareDirectory}/index.html`, content: sharePage },
+    { path: `${statusDirectory}/index.html`, content: statusPage }
   ], `Set ${title} as latest release`);
 
   revalidatePath('/');

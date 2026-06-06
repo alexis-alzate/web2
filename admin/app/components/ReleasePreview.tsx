@@ -87,11 +87,12 @@ export function ReleasePreview() {
         <div className="release-preview-copy">
           <strong>{visibleTitle} - {visibleArtist}</strong>
           <p>{preview.description}</p>
-          <small>lujourban.com/lanzamientos/{visibleSlug}-{visibleVersion}/</small>
+          <small>Chat: lujourban.com/lanzamientos/{visibleSlug}-{visibleVersion}/</small>
+          <small>Estado: lujourban.com/estados/{visibleSlug}-{visibleVersion}/</small>
         </div>
       </div>
       <p className="release-preview-note">
-        Al publicar, el panel descarga la portada de Spotify y genera automaticamente la imagen horizontal para WhatsApp.
+        Al publicar, el panel crea un link para chat y otro link separado para estados de WhatsApp.
       </p>
     </aside>
   );

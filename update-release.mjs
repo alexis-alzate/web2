@@ -72,7 +72,9 @@ try {
   const coverFilename = `${slug}-cover.jpg`;
   const coverPath = `assets/${coverFilename}`;
   const shareDirectory = `lanzamientos/${slug}-v${version}`;
+  const statusDirectory = `estados/${slug}-v${version}`;
   const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
+  const statusUrl = `https://www.lujourban.com/${statusDirectory}/`;
   const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - ${socialArtist}`;
@@ -84,6 +86,35 @@ try {
 <meta name="robots" content="noindex, follow">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${shareUrl}">
+<meta property="og:title" content="${escapeHtml(socialTitle)}">
+<meta property="og:description" content="${escapeHtml(socialDescription)}">
+<meta property="og:image" content="${shareImageUrl}">
+<meta property="og:image:secure_url" content="${shareImageUrl}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height" content="300">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${escapeHtml(socialTitle)}">
+<meta name="twitter:description" content="${escapeHtml(socialDescription)}">
+<meta name="twitter:image" content="${shareImageUrl}">
+<meta http-equiv="refresh" content="0;url=/">
+<title>${escapeHtml(socialTitle)}</title>
+<script>window.location.replace('/');</script>
+</head>
+<body>
+<p><a href="/">Ir al sitio oficial de Zaetta</a></p>
+</body>
+</html>
+`;
+
+  const statusPage = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${statusUrl}">
 <meta property="og:title" content="${escapeHtml(socialTitle)}">
 <meta property="og:description" content="${escapeHtml(socialDescription)}">
 <meta property="og:image" content="${shareImageUrl}">
@@ -148,7 +179,7 @@ try {
   nextHtml = replaceRequired(nextHtml, /alt="Portada de [^"]*"/, `alt="Portada de ${escapeHtml(title)}"`, 'texto de portada');
 
   const history = await readFile('release-history.json', 'utf8').then(JSON.parse);
-  const release = { title, slug, cover: coverPath, link: listenUrl, browserTitle, heroText, shareUrl };
+  const release = { title, slug, cover: coverPath, link: listenUrl, browserTitle, heroText, shareUrl, statusUrl };
   const previousReleaseIndex = history.releases.findIndex(item => item.slug === slug);
   if (previousReleaseIndex === -1) {
     history.releases.push(release);
@@ -158,7 +189,8 @@ try {
 
   await Promise.all([
     mkdir('assets', { recursive: true }),
-    mkdir(shareDirectory, { recursive: true })
+    mkdir(shareDirectory, { recursive: true }),
+    mkdir(statusDirectory, { recursive: true })
   ]);
   const coverBuffer = Buffer.from(await imageResponse.arrayBuffer());
   await writeFile(coverPath, coverBuffer);
@@ -167,12 +199,14 @@ try {
     writeFile('script.js', nextScript),
     writeFile('index.html', nextHtml),
     writeFile('release-history.json', `${JSON.stringify(history, null, 2)}\n`),
-    writeFile(`${shareDirectory}/index.html`, sharePage)
+    writeFile(`${shareDirectory}/index.html`, sharePage),
+    writeFile(`${statusDirectory}/index.html`, statusPage)
   ]);
 
   console.log('\nActualizacion terminada.');
   console.log(`Portada guardada: ${coverPath}`);
-  console.log(`Enlace que debes compartir: ${shareUrl}`);
+  console.log(`Enlace para chat: ${shareUrl}`);
+  console.log(`Enlace para estado: ${statusUrl}`);
   console.log('\nAhora publica con:');
   console.log('git add .');
   console.log(`git commit -m "Set ${title} as latest release"`);

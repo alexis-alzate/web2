@@ -46,6 +46,7 @@ type Release = {
   cover: string;
   link: string;
   shareUrl: string;
+  statusUrl?: string;
 };
 
 type ReleaseHistory = {
@@ -291,10 +292,13 @@ export default async function DashboardPage() {
                     <div>
                       <h3>{release.title}</h3>
                       <p className="muted">{release.slug}</p>
-                      <p className="muted clamp-url">{release.shareUrl}</p>
+                      <p className="muted clamp-url">Chat: {release.shareUrl}</p>
+                      <p className="muted clamp-url">Estado: {release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')}</p>
                     </div>
                     <div className="actions">
                       <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
+                      <a className="button" href={release.shareUrl} target="_blank" rel="noreferrer">Chat</a>
+                      <a className="button" href={release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')} target="_blank" rel="noreferrer">Estado</a>
                       <ActionForm
                         action={reactivateHomeReleaseAction}
                         savingMessage={`Reactivando ${release.title} como lanzamiento principal...`}

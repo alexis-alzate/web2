@@ -612,6 +612,7 @@ label {
 
 .release-preview-copy small {
   overflow: hidden;
+  margin-top: 3px;
   color: rgba(255, 255, 255, .46);
   font-size: .76rem;
   text-overflow: ellipsis;

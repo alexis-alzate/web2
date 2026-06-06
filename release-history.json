@@ -7,7 +7,8 @@
       "link": "https://too.fm/bkyz4mw",
       "browserTitle": "ZAETTA - Escucha Seguiré",
       "heroText": "Música con propósito. Sonidos que trascienden.",
-      "shareUrl": "https://www.lujourban.com/lanzamientos/seguire-v1/"
+      "shareUrl": "https://www.lujourban.com/lanzamientos/seguire-v1/",
+      "statusUrl": "https://www.lujourban.com/estados/seguire-v1/"
     },
     {
       "title": "Gloria y Honra",
@@ -16,7 +17,8 @@
       "link": "https://too.fm/dewo8xz",
       "browserTitle": "ZAETTA - Escucha Gloria y Honra",
       "heroText": "Música con propósito. Sonidos que trascienden.",
-      "shareUrl": "https://www.lujourban.com/lanzamientos/gloriayhonra-v2/"
+      "shareUrl": "https://www.lujourban.com/lanzamientos/gloriayhonra-v2/",
+      "statusUrl": "https://www.lujourban.com/estados/gloriayhonra-v2/"
     },
     {
       "title": "Predicador",
@@ -25,7 +27,8 @@
       "link": "https://open.spotify.com/track/5C52EVyuczyiEvYGr4wDK5?si=tXpu1_WGRriQA3E8-DvPWA",
       "browserTitle": "ZAETTA - Escucha Predicador",
       "heroText": "Música con propósito. Sonidos que trascienden.",
-      "shareUrl": "https://www.lujourban.com/lanzamientos/predicador-v4/"
+      "shareUrl": "https://www.lujourban.com/lanzamientos/predicador-v4/",
+      "statusUrl": "https://www.lujourban.com/estados/predicador-v4/"
     }
   ]
 }
