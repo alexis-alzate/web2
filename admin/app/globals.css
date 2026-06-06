@@ -428,6 +428,38 @@ label {
   gap: 15px;
 }
 
+.login-links {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  color: rgba(255, 255, 255, .58);
+  font-size: .78rem;
+}
+
+.login-links a {
+  text-decoration: none;
+}
+
+.login-links a:hover {
+  color: var(--green);
+}
+
+.auth-note,
+.auth-error {
+  margin: 0;
+  font-size: .86rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.auth-note {
+  color: rgba(255, 255, 255, .68);
+}
+
+.auth-error {
+  color: #ff8b8b;
+}
+
 .login-submit {
   justify-self: center;
   width: min(228px, 100%);

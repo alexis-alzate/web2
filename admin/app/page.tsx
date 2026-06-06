@@ -85,8 +85,9 @@ export default async function DashboardPage() {
           <h2>Configuracion pendiente</h2>
           <p className="muted">{error instanceof Error ? error.message : 'No se pudo cargar la configuracion.'}</p>
           <p className="muted" style={{ marginTop: 12 }}>
-            Revisa que exista <code>admin/.env.local</code> con ADMIN_USER, ADMIN_PASSWORD,
-            ADMIN_SESSION_SECRET, GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO y GITHUB_BRANCH.
+            Revisa que existan las variables NEXT_PUBLIC_SUPABASE_URL,
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, GITHUB_TOKEN, GITHUB_OWNER,
+            GITHUB_REPO y GITHUB_BRANCH.
           </p>
         </section>
       </main>

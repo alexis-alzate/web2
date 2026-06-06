@@ -10,17 +10,28 @@ escribe cambios en GitHub usando la API.
 Configura estas variables en Vercel:
 
 ```text
-ADMIN_USER=tu_usuario
-ADMIN_PASSWORD=tu_clave_larga_y_privada
-ADMIN_SESSION_SECRET=otra_clave_larga_para_firmar_cookie
+NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
+ADMIN_SITE_URL=https://panel.lujourban.com
 GITHUB_TOKEN=github_pat_xxx
 GITHUB_OWNER=alexis-alzate
 GITHUB_REPO=web2
 GITHUB_BRANCH=main
 ```
 
+El acceso al panel se administra desde Supabase Auth. Crea el usuario en
+Supabase usando el correo que usaras para entrar al panel.
+
+En Supabase configura estas URLs:
+
+```text
+Site URL: https://panel.lujourban.com
+Redirect URL: https://panel.lujourban.com/auth/callback
+Redirect URL: https://panel.lujourban.com/reset-password
+```
+
 El token de GitHub debe poder leer y escribir contenido del repo.
-La clave del panel se cambia modificando `ADMIN_PASSWORD`. No la subas al repo.
+La clave del panel se cambia desde el flujo de recuperacion de Supabase.
 
 ## Local
 
@@ -72,6 +83,8 @@ No uses este panel para reemplazar la web publica principal. Es un proyecto sepa
 Incluye:
 
 - Login de usuario unico.
+- Login con Supabase Auth.
+- Recuperacion de clave por correo.
 - Panel responsive con secciones desplegables.
 - Lectura y edicion de artistas desde `artist-data.json`.
 - Ordenar artistas del roster.
@@ -87,4 +100,4 @@ Pendiente para la siguiente iteracion:
 
 - Subida de fotos/portadas desde el navegador.
 - Mensajes visuales de exito/error despues de publicar.
-- Dominio privado `admin.lujourban.com`.
+- Dominio privado `panel.lujourban.com`.
