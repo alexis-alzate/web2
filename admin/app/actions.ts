@@ -46,6 +46,22 @@ const replaceRequired = (source: string, pattern: RegExp, replacement: string, l
   return source.replace(pattern, replacement);
 };
 
+const getHighResSpotifyImageUrl = (url: string) => url.replace('0000b273', '00001e02');
+
+const fetchSpotifyCover = async (thumbnailUrl: string) => {
+  const urls = Array.from(new Set([
+    getHighResSpotifyImageUrl(thumbnailUrl),
+    thumbnailUrl
+  ]));
+
+  for (const url of urls) {
+    const response = await fetch(url);
+    if (response.ok) return response;
+  }
+
+  throw new Error('No pude descargar la portada desde Spotify.');
+};
+
 const requireAdmin = async () => {
   if (!(await isAuthenticated())) throw new Error('No autenticado.');
 };
@@ -178,8 +194,7 @@ export const createHomeReleaseAction = async (formData: FormData) => {
   if (!version) throw new Error('La version preview es obligatoria.');
   if (!metadata.thumbnail_url) throw new Error('Spotify no devolvio portada.');
 
-  const imageResponse = await fetch(metadata.thumbnail_url);
-  if (!imageResponse.ok) throw new Error('No pude descargar la portada desde Spotify.');
+  const imageResponse = await fetchSpotifyCover(metadata.thumbnail_url);
 
   const coverPath = `assets/${slug}-cover.jpg`;
   const shareDirectory = `lanzamientos/${slug}-v${version}`;
@@ -207,8 +222,8 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="300">
-<meta property="og:image:height" content="300">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
@@ -236,9 +251,9 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="300">
-<meta property="og:image:height" content="300">
-<meta name="twitter:card" content="summary">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">

@@ -27,6 +27,22 @@ const replaceRequired = (source, pattern, replacement, label) => {
   return source.replace(pattern, replacement);
 };
 
+const getHighResSpotifyImageUrl = url => url.replace('0000b273', '00001e02');
+
+const fetchSpotifyCover = async thumbnailUrl => {
+  const urls = Array.from(new Set([
+    getHighResSpotifyImageUrl(thumbnailUrl),
+    thumbnailUrl
+  ]));
+
+  for (const url of urls) {
+    const response = await fetch(url);
+    if (response.ok) return response;
+  }
+
+  throw new Error('No pude descargar la portada desde Spotify.');
+};
+
 const getNextPreviewVersion = async slug => {
   try {
     const entries = await readdir('lanzamientos', { withFileTypes: true });
@@ -78,6 +94,7 @@ try {
   const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - ${socialArtist}`;
+
   const sharePage = `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -91,8 +108,8 @@ try {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="300">
-<meta property="og:image:height" content="300">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
@@ -120,9 +137,9 @@ try {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="300">
-<meta property="og:image:height" content="300">
-<meta name="twitter:card" content="summary">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
@@ -139,10 +156,8 @@ try {
   const [scriptSource, htmlSource, imageResponse] = await Promise.all([
     readFile('script.js', 'utf8'),
     readFile('index.html', 'utf8'),
-    fetch(metadata.thumbnail_url)
+    fetchSpotifyCover(metadata.thumbnail_url)
   ]);
-
-  if (!imageResponse.ok) throw new Error('No pude descargar la portada desde Spotify.');
 
   const previousConfig = scriptSource.match(/const latestRelease = \{[\s\S]*?\n\};/);
   if (!previousConfig) throw new Error('No encontre latestRelease en script.js.');
