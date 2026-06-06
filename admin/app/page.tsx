@@ -60,6 +60,21 @@ const initials = (name: string) => name
   .map(part => part[0])
   .join('');
 
+const futureModules = [
+  {
+    title: 'Servicios',
+    description: 'Ofertas, paquetes y procesos comerciales'
+  },
+  {
+    title: 'Contenido',
+    description: 'Videos, visualizers y material promocional'
+  },
+  {
+    title: 'Analiticas',
+    description: 'Lecturas rapidas de trafico y conversiones'
+  }
+];
+
 export default async function DashboardPage() {
   if (!(await isAuthenticated())) redirect('/login');
 
@@ -471,6 +486,24 @@ export default async function DashboardPage() {
           </div>
         </details>
       </section>
+
+      {futureModules.map(module => (
+        <section className="section future-section" key={module.title}>
+          <div className="folder future-folder" aria-disabled="true">
+            <div className="future-summary">
+              <span>
+                <strong>{module.title}</strong>
+                <small>{module.description}</small>
+              </span>
+            </div>
+          </div>
+        </section>
+      ))}
+
+      <footer className="admin-footer">
+        <span>Lujo Urban Admin</span>
+        <span>v1</span>
+      </footer>
     </main>
   );
 }

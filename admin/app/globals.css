@@ -269,7 +269,8 @@ label {
   display: none;
 }
 
-.folder > summary {
+.folder > summary,
+.future-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -279,6 +280,7 @@ label {
 }
 
 .folder > summary::after,
+.future-summary::after,
 .subfolder > summary::after {
   content: "+";
   display: grid;
@@ -312,6 +314,38 @@ label {
   font-size: .82rem;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.future-section {
+  border-color: rgba(57, 255, 99, .14);
+  opacity: .78;
+}
+
+.future-summary {
+  cursor: default;
+}
+
+.future-summary::after {
+  color: rgba(57, 255, 99, .44);
+  border-color: rgba(57, 255, 99, .16);
+  background: rgba(57, 255, 99, .035);
+}
+
+.admin-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+  color: rgba(255, 255, 255, .28);
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.admin-footer span + span::before {
+  content: "/";
+  margin-right: 10px;
+  color: rgba(57, 255, 99, .28);
 }
 
 .folder-body {
@@ -692,7 +726,8 @@ label {
     border-radius: 16px;
   }
 
-  .folder > summary {
+  .folder > summary,
+  .future-summary {
     min-height: 48px;
   }
 
@@ -818,12 +853,14 @@ label {
     letter-spacing: .18em;
   }
 
-  .folder > summary {
+  .folder > summary,
+  .future-summary {
     gap: 12px;
     min-height: 44px;
   }
 
   .folder > summary::after,
+  .future-summary::after,
   .subfolder > summary::after {
     width: 28px;
     height: 28px;
