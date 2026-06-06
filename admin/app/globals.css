@@ -574,33 +574,11 @@ label {
   font-size: .76rem;
 }
 
-.status-grid {
+.status-passkey {
   display: grid;
   gap: 12px;
-}
-
-.status-card {
-  display: grid;
-  gap: 7px;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 15px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .025), rgba(255, 255, 255, .012));
-}
-
-.status-card-action {
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 16px;
-}
-
-.status-card strong {
-  display: block;
-  color: var(--text);
-  font-size: .78rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
+  justify-items: start;
+  margin-top: 14px;
 }
 
 .passkey-settings {
@@ -800,11 +778,6 @@ label {
   .login-card .primary {
     min-height: 42px;
     margin-top: 2px;
-  }
-
-  .status-card-action {
-    grid-template-columns: 1fr;
-    align-items: start;
   }
 
   .passkey-settings {
