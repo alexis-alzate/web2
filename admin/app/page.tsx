@@ -298,8 +298,20 @@ export default async function DashboardPage() {
                     </div>
                     <div className="actions">
                       <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
-                      <CopyLinkButton url={release.shareUrl}>Copiar chat</CopyLinkButton>
-                      <CopyLinkButton url={release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')}>Copiar estado</CopyLinkButton>
+                      <CopyLinkButton
+                        url={release.shareUrl}
+                        title={`${release.title} - Zaetta`}
+                        text={`Escucha ${release.title}, el nuevo lanzamiento de Zaetta.`}
+                      >
+                        Compartir chat
+                      </CopyLinkButton>
+                      <CopyLinkButton
+                        url={release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')}
+                        title={`${release.title} - Zaetta`}
+                        text={`Escucha ${release.title}, el nuevo lanzamiento de Zaetta.`}
+                      >
+                        Compartir estado
+                      </CopyLinkButton>
                       <ActionForm
                         action={reactivateHomeReleaseAction}
                         savingMessage={`Reactivando ${release.title} como lanzamiento principal...`}
