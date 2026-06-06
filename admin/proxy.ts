@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_SESSION_COOKIE } from '@/lib/admin-session';
 
 const publicPaths = ['/login', '/forgot-password', '/reset-password', '/auth/callback'];
 
@@ -12,7 +13,10 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/_next') || pathname.startsWith('/api/')) return NextResponse.next();
   if (publicPaths.includes(pathname)) return NextResponse.next();
 
-  if (!hasSupabaseAuthCookie(request)) return NextResponse.redirect(new URL('/login', request.url));
+  const hasAdminSession = request.cookies.get(ADMIN_SESSION_COOKIE)?.value === '1';
+  if (!hasAdminSession || !hasSupabaseAuthCookie(request)) {
+    return NextResponse.redirect(new URL('/login?error=expired', request.url));
+  }
 
   return NextResponse.next();
 }

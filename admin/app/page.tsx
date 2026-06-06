@@ -12,6 +12,7 @@ import { isAuthenticated } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { SubmitButton } from './components/SubmitButton';
 import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
+import { AutoLogoutTimer } from './components/AutoLogoutTimer';
 
 type Artist = {
   name: string;
@@ -112,6 +113,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="shell">
+      <AutoLogoutTimer />
       <header className="topbar">
         <div className="topbar-title">
           <p className="eyebrow">Panel privado</p>
@@ -123,7 +125,7 @@ export default async function DashboardPage() {
       </header>
 
       <section className="section">
-        <details className="folder" open>
+        <details className="folder">
           <summary>
             <span>
               <strong>Estado</strong>
@@ -147,7 +149,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="section">
-        <details className="folder" open>
+        <details className="folder">
           <summary>
             <span>
               <strong>Lanzamientos Zaetta</strong>
@@ -226,7 +228,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="section">
-        <details className="folder" open>
+        <details className="folder">
           <summary>
             <span>
               <strong>Artistas</strong>
@@ -422,7 +424,7 @@ export default async function DashboardPage() {
             </span>
           </summary>
           <div className="folder-body">
-            <details className="subfolder" open>
+            <details className="subfolder">
               <summary>Publicar lanzamiento de artista</summary>
               <form action={addArtistReleaseAction} className="grid">
                 <label>

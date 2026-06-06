@@ -30,6 +30,12 @@ export function PasskeyLoginButton() {
         return;
       }
 
+      const sessionResponse = await fetch('/api/session/activate', { method: 'POST' });
+      if (!sessionResponse.ok) {
+        setMessage('No pude iniciar la sesion del panel.');
+        return;
+      }
+
       window.location.assign('/');
     } catch {
       setMessage('No pude abrir la huella en este dispositivo.');
