@@ -574,21 +574,32 @@ label {
   font-size: .76rem;
 }
 
-.auth-settings {
+.status-grid {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 16px;
-  align-items: center;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, .07);
+  gap: 12px;
 }
 
-.auth-settings strong {
+.status-card {
+  display: grid;
+  gap: 7px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 15px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .025), rgba(255, 255, 255, .012));
+}
+
+.status-card-action {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-card strong {
   display: block;
   color: var(--text);
-  font-size: .88rem;
-  letter-spacing: .14em;
+  font-size: .78rem;
+  letter-spacing: .18em;
   text-transform: uppercase;
 }
 
@@ -791,7 +802,7 @@ label {
     margin-top: 2px;
   }
 
-  .auth-settings {
+  .status-card-action {
     grid-template-columns: 1fr;
     align-items: start;
   }

@@ -109,13 +109,18 @@ export default async function DashboardPage() {
 
       <section className="section">
         <h2>Estado</h2>
-        <p className="muted">Panel online conectado a GitHub. Usuario unico, sin registro publico.</p>
-        <div className="auth-settings">
-          <div>
-            <strong>Huella / Passkey</strong>
-            <p className="muted">Registrala una vez en este celular o computador para entrar mas rapido despues.</p>
+        <div className="status-grid">
+          <div className="status-card">
+            <strong>Panel activo</strong>
+            <p className="muted">Conectado a GitHub. Acceso privado, sin registro publico.</p>
           </div>
-          <PasskeyRegisterButton />
+          <div className="status-card status-card-action">
+            <div>
+              <strong>Huella / Passkey</strong>
+              <p className="muted">Registra este dispositivo para entrar mas rapido despues.</p>
+            </div>
+            <PasskeyRegisterButton />
+          </div>
         </div>
       </section>
 
