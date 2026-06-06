@@ -95,22 +95,22 @@ fbq('track', 'PageView');
 
   <section class="artists-section" aria-label="Roster oficial de artistas">
     <div class="artist-list artist-list--grid" aria-label="Artistas de Lujo Urban">
-    <a href="/artistas/siervo-john/" class="artist-list-card" data-track-event="artista_siervo_john_directorio_click" data-track-label="artist_directory_card" data-track-content="EL SIERVO JHON">
-      <img class="artist-photo-placeholder" src="../assets/siervo-john-photo.jpeg" alt="EL SIERVO JHON">
-      <div class="artist-list-copy">
-        <h2>El Siervo Jhon</h2>
-        <span class="artist-list-accent" aria-hidden="true"></span>
-        <small>Identidad cristiana con visión urbana.</small>
-        <span class="artist-list-cta">Ver perfil</span>
-      </div>
-      <span class="artist-list-arrow" aria-hidden="true">→</span>
-    </a>
     <a href="/artistas/evangelista-gonzalez/" class="artist-list-card" data-track-event="artista_evangelista_gonzalez_directorio_click" data-track-label="artist_directory_card" data-track-content="EL EVANGELISTA GONZALEZ">
       <div class="artist-photo-placeholder" aria-label="Foto pendiente de EL EVANGELISTA GONZALEZ"><span>EE</span></div>
       <div class="artist-list-copy">
         <h2>Evangelista Gonzalez</h2>
         <span class="artist-list-accent" aria-hidden="true"></span>
         <small>Mensaje, fe y propósito.</small>
+        <span class="artist-list-cta">Ver perfil</span>
+      </div>
+      <span class="artist-list-arrow" aria-hidden="true">→</span>
+    </a>
+    <a href="/artistas/siervo-john/" class="artist-list-card" data-track-event="artista_siervo_john_directorio_click" data-track-label="artist_directory_card" data-track-content="EL SIERVO JHON">
+      <img class="artist-photo-placeholder" src="../assets/siervo-john-photo.jpeg" alt="EL SIERVO JHON">
+      <div class="artist-list-copy">
+        <h2>El Siervo Jhon</h2>
+        <span class="artist-list-accent" aria-hidden="true"></span>
+        <small>Identidad cristiana con visión urbana.</small>
         <span class="artist-list-cta">Ver perfil</span>
       </div>
       <span class="artist-list-arrow" aria-hidden="true">→</span>
@@ -187,6 +187,22 @@ fbq('track', 'PageView');
     label: 'time_on_page',
     seconds: 30
   }, true), 30000);
+
+  const fadeElements = document.querySelectorAll('.fade-up');
+  if (fadeElements.length && 'IntersectionObserver' in window) {
+    const fadeObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        entry.target.classList.add('visible');
+        fadeObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.1 });
+
+    fadeElements.forEach(element => fadeObserver.observe(element));
+  } else {
+    fadeElements.forEach(element => element.classList.add('visible'));
+  }
 
   document.querySelectorAll('[data-track-event]').forEach(element => {
     if (element.tagName === 'IFRAME') return;
