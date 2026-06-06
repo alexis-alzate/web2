@@ -430,8 +430,8 @@ label {
 
 .login-submit {
   justify-self: center;
-  width: min(260px, 100%);
-  min-height: 42px;
+  width: min(240px, 100%);
+  min-height: 52px;
   margin-top: 5px;
   border-color: rgba(117, 255, 139, .52);
   border-radius: 999px;
@@ -721,7 +721,7 @@ label {
   }
 
   .login-submit {
-    width: min(230px, 100%);
+    width: min(220px, 100%);
     font-size: .68rem;
     letter-spacing: .24em;
   }
