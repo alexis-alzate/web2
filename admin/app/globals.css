@@ -68,6 +68,14 @@ button,
   color: #ffb7b7;
 }
 
+.premium {
+  border-color: rgba(255, 195, 77, .58);
+  background:
+    linear-gradient(180deg, rgba(255, 197, 82, .2), rgba(171, 118, 24, .16));
+  color: #ffd889;
+  font-weight: 800;
+}
+
 button:hover,
 .button:hover {
   transform: translateY(-1px);
@@ -85,6 +93,13 @@ button:hover,
   border-color: rgba(255, 88, 88, .82);
   background: rgba(255, 88, 88, .16);
   box-shadow: 0 0 18px rgba(255, 88, 88, .14);
+}
+
+.premium:hover {
+  border-color: rgba(255, 209, 104, .9);
+  background:
+    linear-gradient(180deg, rgba(255, 211, 110, .28), rgba(190, 135, 31, .22));
+  box-shadow: 0 0 20px rgba(255, 195, 77, .16);
 }
 
 button:active,
@@ -517,6 +532,57 @@ label {
 
 .clamp-url {
   overflow-wrap: anywhere;
+}
+
+.release-accordion.card {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+
+.release-accordion-summary {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 30px;
+  gap: 14px;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.release-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.release-accordion-summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--green);
+  background: rgba(57, 255, 99, .08);
+}
+
+.release-accordion[open] .release-accordion-summary::after {
+  content: "-";
+}
+
+.release-accordion-copy {
+  min-width: 0;
+}
+
+.release-accordion-panel {
+  padding: 0 12px 12px 90px;
+}
+
+.release-actions-admin {
+  justify-content: flex-start;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
 }
 
 .actions {
@@ -1039,6 +1105,26 @@ label {
     border-radius: 11px;
   }
 
+  .release-accordion-summary {
+    grid-template-columns: 54px minmax(0, 1fr) 28px;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .release-accordion-summary::after {
+    width: 28px;
+    height: 28px;
+  }
+
+  .release-accordion-panel {
+    padding: 0 12px 12px;
+  }
+
+  .release-actions-admin {
+    grid-column: auto;
+    justify-content: flex-start;
+  }
+
   .card h3 {
     font-size: .98rem;
   }
@@ -1237,6 +1323,16 @@ label {
     width: 50px;
     height: 50px;
     border-radius: 10px;
+  }
+
+  .release-accordion-summary {
+    grid-template-columns: 50px minmax(0, 1fr) 28px;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .release-accordion-panel {
+    padding: 0 10px 10px;
   }
 
   .card h3 {

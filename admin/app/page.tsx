@@ -284,44 +284,46 @@ export default async function DashboardPage() {
               <summary>Lanzamientos guardados</summary>
               <div className="cards">
                 {releaseHistory.releases.map(release => (
-                  <article className="card" key={release.slug}>
-                    {release.cover ? (
-                      <img className="thumb" src={`https://www.lujourban.com/${release.cover}`} alt="" />
-                    ) : (
-                      <div className="thumb placeholder">{initials(release.title)}</div>
-                    )}
-                    <div>
-                      <h3>{release.title}</h3>
-                      <p className="muted">{release.slug}</p>
-                      <p className="muted clamp-url">Chat: {release.shareUrl}</p>
-                      <p className="muted clamp-url">Estado: {release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')}</p>
+                  <details className="card release-accordion" key={release.slug}>
+                    <summary className="release-accordion-summary">
+                      {release.cover ? (
+                        <img className="thumb" src={`https://www.lujourban.com/${release.cover}`} alt="" />
+                      ) : (
+                        <div className="thumb placeholder">{initials(release.title)}</div>
+                      )}
+                      <div className="release-accordion-copy">
+                        <h3>{release.title}</h3>
+                        <p className="muted">{release.slug}</p>
+                      </div>
+                    </summary>
+                    <div className="release-accordion-panel">
+                      <div className="actions release-actions-admin">
+                        <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
+                        <CopyLinkButton
+                          url={release.shareUrl}
+                          title={`${release.title} - Zaetta`}
+                          text={`Escucha ${release.title}, el nuevo lanzamiento de Zaetta.`}
+                        >
+                          Compartir chat
+                        </CopyLinkButton>
+                        <CopyLinkButton
+                          url={release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')}
+                          title={`${release.title} - Zaetta`}
+                          text={`Escucha ${release.title}, el nuevo lanzamiento de Zaetta.`}
+                        >
+                          Compartir estado
+                        </CopyLinkButton>
+                        <ActionForm
+                          action={reactivateHomeReleaseAction}
+                          savingMessage={`Reactivando ${release.title} como lanzamiento principal...`}
+                          successMessage={`${release.title} quedo activo como lanzamiento principal.`}
+                        >
+                          <input name="slug" type="hidden" value={release.slug} />
+                          <SubmitButton className="premium" pendingText="Reactivando...">Reactivar</SubmitButton>
+                        </ActionForm>
+                      </div>
                     </div>
-                    <div className="actions">
-                      <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
-                      <CopyLinkButton
-                        url={release.shareUrl}
-                        title={`${release.title} - Zaetta`}
-                        text={`Escucha ${release.title}, el nuevo lanzamiento de Zaetta.`}
-                      >
-                        Compartir chat
-                      </CopyLinkButton>
-                      <CopyLinkButton
-                        url={release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')}
-                        title={`${release.title} - Zaetta`}
-                        text={`Escucha ${release.title}, el nuevo lanzamiento de Zaetta.`}
-                      >
-                        Compartir estado
-                      </CopyLinkButton>
-                      <ActionForm
-                        action={reactivateHomeReleaseAction}
-                        savingMessage={`Reactivando ${release.title} como lanzamiento principal...`}
-                        successMessage={`${release.title} quedo activo como lanzamiento principal.`}
-                      >
-                        <input name="slug" type="hidden" value={release.slug} />
-                        <SubmitButton pendingText="Reactivando...">Reactivar</SubmitButton>
-                      </ActionForm>
-                    </div>
-                  </article>
+                  </details>
                 ))}
               </div>
             </details>
