@@ -11,6 +11,7 @@ import {
 import { isAuthenticated } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { SubmitButton } from './components/SubmitButton';
+import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
 
 type Artist = {
   name: string;
@@ -109,6 +110,13 @@ export default async function DashboardPage() {
       <section className="section">
         <h2>Estado</h2>
         <p className="muted">Panel online conectado a GitHub. Usuario unico, sin registro publico.</p>
+        <div className="auth-settings">
+          <div>
+            <strong>Huella / Passkey</strong>
+            <p className="muted">Registrala una vez en este celular o computador para entrar mas rapido despues.</p>
+          </div>
+          <PasskeyRegisterButton />
+        </div>
       </section>
 
       <section className="section">

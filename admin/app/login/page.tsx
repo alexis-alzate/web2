@@ -1,3 +1,6 @@
+import { PasskeyLoginButton } from '../components/PasskeyLoginButton';
+import { PasswordField } from '../components/PasswordField';
+
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; reset?: string }> }) {
   const params = await searchParams;
   const errorMessages: Record<string, string> = {
@@ -19,14 +22,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               Correo
               <input name="email" type="email" autoComplete="email" required />
             </label>
-            <label>
-              Clave
-              <input name="password" type="password" autoComplete="current-password" required />
-            </label>
+            <PasswordField label="Clave" name="password" autoComplete="current-password" />
             {params.error ? <p className="auth-error">{errorMessage}</p> : null}
             {params.reset ? <p className="auth-note">Clave actualizada. Inicia sesion de nuevo.</p> : null}
             <button className="primary login-submit">Ingresar</button>
           </form>
+          <PasskeyLoginButton />
           <div className="login-links">
             <a href="/forgot-password">Olvide mi clave</a>
           </div>

@@ -8,5 +8,11 @@ export const createSupabaseBrowserClient = () => {
 
   if (!url || !key) throw new Error('Faltan variables publicas de Supabase.');
 
-  return createBrowserClient(url, key);
+  return createBrowserClient(url, key, {
+    auth: {
+      experimental: {
+        passkey: true
+      }
+    }
+  });
 };

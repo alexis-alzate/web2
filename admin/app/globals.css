@@ -131,6 +131,43 @@ select:focus {
   box-shadow: 0 0 0 4px rgba(57, 255, 99, .08);
 }
 
+.password-field {
+  position: relative;
+  display: block;
+}
+
+.password-field input {
+  padding-right: 48px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, .58);
+  transform: translateY(-50%);
+  box-shadow: none;
+}
+
+.password-toggle:hover {
+  color: var(--green);
+  background: rgba(57, 255, 99, .08);
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+
+.password-toggle svg {
+  width: 21px;
+  height: 21px;
+  fill: currentColor;
+}
+
 label {
   display: grid;
   gap: 7px;
@@ -444,6 +481,65 @@ label {
   color: var(--green);
 }
 
+.passkey-area {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.passkey-button {
+  gap: 9px;
+  min-height: 42px;
+  padding-inline: 18px;
+  border-color: rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .035);
+  color: rgba(255, 255, 255, .82);
+  font-size: .78rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.passkey-button svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.passkey-note {
+  max-width: 290px;
+}
+
+.auth-settings {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.auth-settings strong {
+  display: block;
+  color: var(--text);
+  font-size: .88rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.passkey-settings {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.passkey-setup {
+  white-space: nowrap;
+}
+
 .auth-note,
 .auth-error {
   margin: 0;
@@ -601,6 +697,15 @@ label {
   .login-card .primary {
     min-height: 42px;
     margin-top: 2px;
+  }
+
+  .auth-settings {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .passkey-settings {
+    justify-items: start;
   }
 }
 
