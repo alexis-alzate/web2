@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { isAuthenticated } from '@/lib/auth';
 import { commitFiles, readFile, readJson } from '@/lib/github';
+import { buildReleaseOgImage } from '@/lib/og-image';
 import {
   type Artist,
   type ArtistData,
@@ -43,16 +44,6 @@ const escapeHtml = (value: string) => String(value || '')
 const replaceRequired = (source: string, pattern: RegExp, replacement: string, label: string) => {
   if (!pattern.test(source)) throw new Error(`No encontre ${label}.`);
   return source.replace(pattern, replacement);
-};
-
-const repoFileExists = async (path: string) => {
-  try {
-    await readFile(path);
-    return true;
-  } catch (error) {
-    if (String(error).includes('GitHub API 404')) return false;
-    throw error;
-  }
 };
 
 const requireAdmin = async () => {
@@ -194,9 +185,7 @@ export const createHomeReleaseAction = async (formData: FormData) => {
   const ogImagePath = `assets/${slug}-og.jpg`;
   const shareDirectory = `lanzamientos/${slug}-v${version}`;
   const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
-  const socialImagePath = await repoFileExists(ogImagePath) ? ogImagePath : coverPath;
-  const socialImageIsWide = socialImagePath === ogImagePath;
-  const shareImageUrl = `https://www.lujourban.com/${socialImagePath}?v=${version}`;
+  const shareImageUrl = `https://www.lujourban.com/${ogImagePath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - ${socialArtist}`;
   const release = { title, slug, cover: coverPath, link: listenUrl, browserTitle, heroText, shareUrl };
@@ -217,9 +206,9 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="${socialImageIsWide ? '1200' : '300'}">
-<meta property="og:image:height" content="${socialImageIsWide ? '630' : '300'}">
-<meta name="twitter:card" content="${socialImageIsWide ? 'summary_large_image' : 'summary'}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
@@ -234,10 +223,17 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 `;
 
   const files = await applyHomeRelease(release);
-  const coverBase64 = Buffer.from(await imageResponse.arrayBuffer()).toString('base64');
+  const coverBuffer = Buffer.from(await imageResponse.arrayBuffer());
+  const ogImageBuffer = await buildReleaseOgImage({
+    cover: coverBuffer,
+    title,
+    artist: socialArtist,
+    description: heroText
+  });
 
   await commitFiles([
-    { path: coverPath, content: coverBase64, encoding: 'base64' },
+    { path: coverPath, content: coverBuffer.toString('base64'), encoding: 'base64' },
+    { path: ogImagePath, content: ogImageBuffer.toString('base64'), encoding: 'base64' },
     { path: 'script.js', content: files.script },
     { path: 'index.html', content: files.html },
     { path: 'release-history.json', content: `${JSON.stringify(history, null, 2)}\n` },

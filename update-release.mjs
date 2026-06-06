@@ -1,8 +1,13 @@
-import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
 const rl = createInterface({ input, output });
+const execFileAsync = promisify(execFile);
 
 const ask = async (question, fallback = '') => {
   const answer = (await rl.question(`${question}${fallback ? ` [${fallback}]` : ''}: `)).trim();
@@ -27,8 +32,6 @@ const replaceRequired = (source, pattern, replacement, label) => {
   return source.replace(pattern, replacement);
 };
 
-const fileExists = path => access(path).then(() => true).catch(() => false);
-
 const getNextPreviewVersion = async slug => {
   try {
     const entries = await readdir('lanzamientos', { withFileTypes: true });
@@ -41,6 +44,101 @@ const getNextPreviewVersion = async slug => {
     return String(Math.max(0, ...versions) + 1);
   } catch {
     return '1';
+  }
+};
+
+const wrapWords = (value, maxLength, maxLines) => {
+  const words = String(value || '').trim().split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = '';
+
+  words.forEach(word => {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= maxLength) {
+      current = next;
+      return;
+    }
+
+    if (current) lines.push(current);
+    current = word;
+  });
+
+  if (current) lines.push(current);
+  return lines.slice(0, maxLines);
+};
+
+const buildOgSvg = ({ title, artist, description }) => {
+  const titleText = wrapWords(title, 17, 2)
+    .map((line, index) => `<text x="622" y="${266 + index * 62}" class="title">${escapeHtml(line)}</text>`)
+    .join('');
+
+  const descriptionText = wrapWords(description, 31, 2)
+    .map((line, index) => `<text x="622" y="${455 + index * 34}" class="desc">${escapeHtml(line)}</text>`)
+    .join('');
+
+  return `
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shade" x1="0" x2="1">
+      <stop offset="0" stop-color="#020804" stop-opacity="0.42"/>
+      <stop offset="0.55" stop-color="#020804" stop-opacity="0.78"/>
+      <stop offset="1" stop-color="#020804" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .eyebrow { fill: #32ff6a; font: 700 22px Arial, sans-serif; letter-spacing: 8px; }
+      .title { fill: #ffffff; font: 800 58px Arial, sans-serif; letter-spacing: -1px; }
+      .artist { fill: #32ff6a; font: 800 28px Arial, sans-serif; letter-spacing: 8px; }
+      .desc { fill: #d5ddd6; font: 400 28px Arial, sans-serif; }
+      .domain { fill: #ffffff; font: 700 24px Arial, sans-serif; letter-spacing: 4px; }
+    </style>
+  </defs>
+  <rect width="1200" height="630" fill="url(#shade)"/>
+  <rect x="60" y="68" width="520" height="520" rx="34" fill="#031007" opacity="0.7" stroke="#19ff62" stroke-opacity="0.34"/>
+  <rect x="86" y="94" width="472" height="472" rx="20" fill="none" stroke="#f1d9a0" stroke-width="2" opacity="0.8"/>
+  <text x="622" y="162" class="eyebrow" filter="url(#glow)">LUJO URBAN PRESENTA</text>
+  ${titleText}
+  <text x="622" y="386" class="artist">${escapeHtml(artist)}</text>
+  ${descriptionText}
+  <text x="622" y="548" class="domain">LUJOURBAN.COM</text>
+</svg>`;
+};
+
+const generateOgImage = async ({ coverPath, ogImagePath, title, artist, description }) => {
+  const overlayPath = join(tmpdir(), `lujo-og-${Date.now()}-${Math.random().toString(16).slice(2)}.svg`);
+  await writeFile(overlayPath, buildOgSvg({ title, artist, description }));
+
+  try {
+    await execFileAsync('convert', [
+      coverPath,
+      '-resize', '1200x630^',
+      '-gravity', 'center',
+      '-extent', '1200x630',
+      '-blur', '0x24',
+      '-modulate', '48,85',
+      '(',
+      coverPath,
+      '-resize', '470x470^',
+      '-gravity', 'center',
+      '-extent', '470x470',
+      ')',
+      '-geometry', '+87+95',
+      '-composite',
+      overlayPath,
+      '-composite',
+      '-quality', '92',
+      ogImagePath
+    ]);
+  } catch (error) {
+    throw new Error(`No pude generar la imagen social horizontal. Verifica ImageMagick. Detalle: ${error.message}`);
+  } finally {
+    await unlink(overlayPath).catch(() => {});
   }
 };
 
@@ -76,9 +174,7 @@ try {
   const ogImagePath = `assets/${slug}-og.jpg`;
   const shareDirectory = `lanzamientos/${slug}-v${version}`;
   const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
-  const socialImagePath = await fileExists(ogImagePath) ? ogImagePath : coverPath;
-  const socialImageIsWide = socialImagePath === ogImagePath;
-  const shareImageUrl = `https://www.lujourban.com/${socialImagePath}?v=${version}`;
+  const shareImageUrl = `https://www.lujourban.com/${ogImagePath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - ${socialArtist}`;
   const sharePage = `<!DOCTYPE html>
@@ -94,9 +190,9 @@ try {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="${socialImageIsWide ? '1200' : '300'}">
-<meta property="og:image:height" content="${socialImageIsWide ? '630' : '300'}">
-<meta name="twitter:card" content="${socialImageIsWide ? 'summary_large_image' : 'summary'}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
@@ -165,8 +261,17 @@ try {
     mkdir('assets', { recursive: true }),
     mkdir(shareDirectory, { recursive: true })
   ]);
+  const coverBuffer = Buffer.from(await imageResponse.arrayBuffer());
+  await writeFile(coverPath, coverBuffer);
+  await generateOgImage({
+    coverPath,
+    ogImagePath,
+    title,
+    artist: socialArtist,
+    description: heroText
+  });
+
   await Promise.all([
-    writeFile(coverPath, Buffer.from(await imageResponse.arrayBuffer())),
     writeFile('script.js', nextScript),
     writeFile('index.html', nextHtml),
     writeFile('release-history.json', `${JSON.stringify(history, null, 2)}\n`),
@@ -175,6 +280,7 @@ try {
 
   console.log('\nActualizacion terminada.');
   console.log(`Portada guardada: ${coverPath}`);
+  console.log(`Imagen social guardada: ${ogImagePath}`);
   console.log(`Enlace que debes compartir: ${shareUrl}`);
   console.log('\nAhora publica con:');
   console.log('git add .');
