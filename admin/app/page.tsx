@@ -14,6 +14,7 @@ import { SubmitButton } from './components/SubmitButton';
 import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
 import { AutoLogoutTimer } from './components/AutoLogoutTimer';
 import { ActionForm } from './components/ActionForm';
+import { ReleasePreview } from './components/ReleasePreview';
 
 type Artist = {
   name: string;
@@ -234,6 +235,7 @@ export default async function DashboardPage() {
               <ActionForm
                 action={createHomeReleaseAction}
                 className="grid"
+                data-release-form
                 savingMessage="Creando lanzamiento, generando preview social y publicando en GitHub..."
                 successMessage="Lanzamiento publicado. Vercel empezara a desplegarlo."
                 resetOnSuccess
@@ -270,6 +272,7 @@ export default async function DashboardPage() {
                   Texto hero
                   <input name="heroText" defaultValue="Música con propósito. Sonidos que trascienden." />
                 </label>
+                <ReleasePreview />
                 <SubmitButton className="primary span-2" pendingText="Creando lanzamiento...">
                   Crear lanzamiento de Zaetta
                 </SubmitButton>

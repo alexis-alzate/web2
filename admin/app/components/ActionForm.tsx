@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useRef, useState, useTransition } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import type { FormEvent, FormHTMLAttributes, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
 type ActionFormStatus = {
@@ -14,10 +14,9 @@ type ToastState = {
   message: string;
 };
 
-type ActionFormProps = {
+type ActionFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, 'action' | 'onSubmit'> & {
   action: (formData: FormData) => Promise<unknown>;
   children: ReactNode;
-  className?: string;
   savingMessage?: string;
   successMessage?: string;
   errorMessage?: string;
@@ -35,7 +34,8 @@ export function ActionForm({
   savingMessage = 'Guardando cambios...',
   successMessage = 'Cambios publicados correctamente.',
   errorMessage = 'No se pudo completar la accion.',
-  resetOnSuccess = false
+  resetOnSuccess = false,
+  ...formProps
 }: ActionFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -91,7 +91,7 @@ export function ActionForm({
 
   return (
     <ActionFormContext.Provider value={{ pending }}>
-      <form ref={formRef} className={className} onSubmit={handleSubmit}>
+      <form ref={formRef} className={className} onSubmit={handleSubmit} {...formProps}>
         {children}
       </form>
       {toast ? (
