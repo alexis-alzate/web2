@@ -412,6 +412,42 @@ label {
   margin-top: 14px;
 }
 
+.artist-folders {
+  display: grid;
+  gap: 10px;
+}
+
+.artist-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  text-transform: none;
+}
+
+.artist-summary strong {
+  display: block;
+  color: var(--text);
+  font-size: .94rem;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: none;
+}
+
+.artist-summary small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .78rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.artist-folder-body {
+  display: grid;
+  gap: 12px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -948,6 +984,18 @@ label {
   .subfolder > summary {
     font-size: .68rem;
     letter-spacing: .13em;
+  }
+
+  .artist-summary {
+    gap: 10px;
+  }
+
+  .artist-summary strong {
+    font-size: .9rem;
+  }
+
+  .artist-summary small {
+    font-size: .76rem;
   }
 
   .grid {
