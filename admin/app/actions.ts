@@ -45,6 +45,16 @@ const replaceRequired = (source: string, pattern: RegExp, replacement: string, l
   return source.replace(pattern, replacement);
 };
 
+const repoFileExists = async (path: string) => {
+  try {
+    await readFile(path);
+    return true;
+  } catch (error) {
+    if (String(error).includes('GitHub API 404')) return false;
+    throw error;
+  }
+};
+
 const requireAdmin = async () => {
   if (!(await isAuthenticated())) throw new Error('No autenticado.');
 };
@@ -181,9 +191,12 @@ export const createHomeReleaseAction = async (formData: FormData) => {
   if (!imageResponse.ok) throw new Error('No pude descargar la portada desde Spotify.');
 
   const coverPath = `assets/${slug}-cover.jpg`;
+  const ogImagePath = `assets/${slug}-og.jpg`;
   const shareDirectory = `lanzamientos/${slug}-v${version}`;
   const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
-  const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
+  const socialImagePath = await repoFileExists(ogImagePath) ? ogImagePath : coverPath;
+  const socialImageIsWide = socialImagePath === ogImagePath;
+  const shareImageUrl = `https://www.lujourban.com/${socialImagePath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - ${socialArtist}`;
   const release = { title, slug, cover: coverPath, link: listenUrl, browserTitle, heroText, shareUrl };
@@ -204,9 +217,9 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="300">
-<meta property="og:image:height" content="300">
-<meta name="twitter:card" content="summary">
+<meta property="og:image:width" content="${socialImageIsWide ? '1200' : '300'}">
+<meta property="og:image:height" content="${socialImageIsWide ? '630' : '300'}">
+<meta name="twitter:card" content="${socialImageIsWide ? 'summary_large_image' : 'summary'}">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">

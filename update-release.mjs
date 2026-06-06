@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
@@ -26,6 +26,8 @@ const replaceRequired = (source, pattern, replacement, label) => {
   if (!pattern.test(source)) throw new Error(`No encontre ${label}. No se modificaron los archivos.`);
   return source.replace(pattern, replacement);
 };
+
+const fileExists = path => access(path).then(() => true).catch(() => false);
 
 const getNextPreviewVersion = async slug => {
   try {
@@ -71,9 +73,12 @@ try {
 
   const coverFilename = `${slug}-cover.jpg`;
   const coverPath = `assets/${coverFilename}`;
+  const ogImagePath = `assets/${slug}-og.jpg`;
   const shareDirectory = `lanzamientos/${slug}-v${version}`;
   const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
-  const shareImageUrl = `https://www.lujourban.com/${coverPath}?v=${version}`;
+  const socialImagePath = await fileExists(ogImagePath) ? ogImagePath : coverPath;
+  const socialImageIsWide = socialImagePath === ogImagePath;
+  const shareImageUrl = `https://www.lujourban.com/${socialImagePath}?v=${version}`;
   const browserTitle = `ZAETTA - Escucha ${title}`;
   const socialTitle = `${title} - ${socialArtist}`;
   const sharePage = `<!DOCTYPE html>
@@ -89,9 +94,9 @@ try {
 <meta property="og:image" content="${shareImageUrl}">
 <meta property="og:image:secure_url" content="${shareImageUrl}">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="300">
-<meta property="og:image:height" content="300">
-<meta name="twitter:card" content="summary">
+<meta property="og:image:width" content="${socialImageIsWide ? '1200' : '300'}">
+<meta property="og:image:height" content="${socialImageIsWide ? '630' : '300'}">
+<meta name="twitter:card" content="${socialImageIsWide ? 'summary_large_image' : 'summary'}">
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
