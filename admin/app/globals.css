@@ -14,6 +14,8 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
+  min-height: 100svh;
   background:
     radial-gradient(circle at 50% 0, rgba(57, 255, 99, .14), transparent 34%),
     linear-gradient(180deg, #061008, var(--bg) 52%);
@@ -115,6 +117,18 @@ select {
   color: var(--text);
   padding: 12px;
   min-height: 40px;
+  transition:
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(57, 255, 99, .48);
+  background: rgba(0, 0, 0, .48);
+  box-shadow: 0 0 0 4px rgba(57, 255, 99, .08);
 }
 
 label {
@@ -371,6 +385,7 @@ label {
 
 .login {
   min-height: 100vh;
+  min-height: 100svh;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -378,6 +393,16 @@ label {
 
 .login-card {
   width: min(420px, 100%);
+}
+
+.login-title {
+  font-size: 2.4rem;
+}
+
+.login-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
 }
 
 @media (max-width: 760px) {
@@ -449,5 +474,197 @@ label {
     position: static;
     width: 100%;
     margin-top: 8px;
+  }
+
+  .login {
+    align-items: center;
+    padding: 18px;
+    background:
+      radial-gradient(circle at 50% 8%, rgba(57, 255, 99, .16), transparent 34%),
+      linear-gradient(180deg, #061008 0%, #020302 58%);
+  }
+
+  .login-card {
+    width: min(100%, 390px);
+    padding: 20px 14px 14px;
+    border-radius: 18px;
+    background:
+      linear-gradient(180deg, rgba(8, 14, 9, .76), rgba(2, 3, 2, .96));
+    box-shadow:
+      0 18px 55px rgba(0, 0, 0, .48),
+      0 0 36px rgba(57, 255, 99, .08);
+  }
+
+  .login-card .eyebrow {
+    margin-bottom: 10px;
+    font-size: .9rem;
+  }
+
+  .login-title {
+    width: 100%;
+    font-size: clamp(1.78rem, 8.5vw, 2.28rem);
+    letter-spacing: .2em;
+    line-height: 1.08;
+    text-align: left;
+  }
+
+  .login-form {
+    gap: 13px;
+    margin-top: 20px;
+  }
+
+  .login-card input {
+    min-height: 46px;
+    border-radius: 13px;
+    font-size: 1rem;
+  }
+
+  .login-card .primary {
+    min-height: 48px;
+    margin-top: 2px;
+  }
+}
+
+@media (max-width: 430px) {
+  .shell {
+    width: min(100% - 14px, 560px);
+    padding-top: 14px;
+    padding-bottom: 38px;
+  }
+
+  .topbar {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .eyebrow {
+    margin-bottom: 6px;
+    font-size: .9rem;
+  }
+
+  .title {
+    font-size: clamp(1.42rem, 9vw, 2rem);
+    letter-spacing: .16em;
+  }
+
+  .section {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 15px;
+  }
+
+  .section h2 {
+    font-size: .74rem;
+    letter-spacing: .18em;
+  }
+
+  .folder > summary {
+    gap: 12px;
+    min-height: 44px;
+  }
+
+  .folder > summary::after,
+  .subfolder > summary::after {
+    width: 28px;
+    height: 28px;
+  }
+
+  .folder strong {
+    font-size: .72rem;
+    letter-spacing: .14em;
+  }
+
+  .folder small {
+    margin-top: 5px;
+    font-size: .78rem;
+  }
+
+  .folder-body {
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  .subfolder {
+    padding: 11px;
+    border-radius: 14px;
+  }
+
+  .subfolder > summary {
+    font-size: .68rem;
+    letter-spacing: .13em;
+  }
+
+  .grid {
+    gap: 12px;
+  }
+
+  label {
+    gap: 6px;
+    font-size: .68rem;
+    letter-spacing: .1em;
+  }
+
+  input,
+  textarea,
+  select {
+    min-height: 44px;
+    border-radius: 12px;
+    padding: 11px;
+    font-size: .96rem;
+  }
+
+  .card {
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+    border-radius: 13px;
+  }
+
+  .thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+  }
+
+  .card h3 {
+    font-size: .94rem;
+  }
+
+  .muted {
+    font-size: .84rem;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .actions > *,
+  .actions form,
+  .actions details,
+  .actions button,
+  .actions .button {
+    width: 100%;
+  }
+
+  button,
+  .button {
+    min-height: 40px;
+    padding: 9px 11px;
+    font-size: .86rem;
+  }
+
+  .login {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 18px 13px 13px;
+  }
+
+  .login-title {
+    font-size: clamp(1.65rem, 8.2vw, 2.05rem);
+    letter-spacing: .17em;
   }
 }

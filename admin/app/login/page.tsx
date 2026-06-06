@@ -5,8 +5,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <main className="login">
       <section className="section login-card">
         <p className="eyebrow">Acceso privado</p>
-        <h1 className="title" style={{ fontSize: '2.4rem' }}>Lujo Urban</h1>
-        <form action="/api/login" method="post" style={{ display: 'grid', gap: 14, marginTop: 22 }}>
+        <h1 className="title login-title">Lujo Urban</h1>
+        <form action="/api/login" method="post" className="login-form">
           <label>
             Usuario
             <input name="username" autoComplete="username" required />
