@@ -299,6 +299,37 @@ label {
   content: "-";
 }
 
+.module-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.module-summary > span:last-child {
+  min-width: 0;
+}
+
+.module-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  color: rgba(57, 255, 99, .88);
+  filter: drop-shadow(0 0 12px rgba(57, 255, 99, .18));
+}
+
+.module-icon svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .folder strong {
   display: block;
   color: var(--green);
@@ -736,6 +767,20 @@ label {
     letter-spacing: .18em;
   }
 
+  .module-summary {
+    gap: 12px;
+  }
+
+  .module-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .module-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
   .card {
     grid-template-columns: 54px minmax(0, 1fr);
     gap: 12px;
@@ -869,6 +914,20 @@ label {
   .folder strong {
     font-size: .72rem;
     letter-spacing: .14em;
+  }
+
+  .module-summary {
+    gap: 11px;
+  }
+
+  .module-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .module-icon svg {
+    width: 22px;
+    height: 22px;
   }
 
   .folder small {

@@ -54,6 +54,8 @@ type ArtistReleaseHistory = {
   artists: Record<string, NonNullable<Artist['release']>[]>;
 };
 
+type ModuleIconName = 'shield' | 'music' | 'users' | 'layers' | 'briefcase' | 'video' | 'chart';
+
 const initials = (name: string) => name
   .split(/\s+/)
   .filter(Boolean)
@@ -61,16 +63,79 @@ const initials = (name: string) => name
   .map(part => part[0])
   .join('');
 
+const ModuleIcon = ({ name }: { name: ModuleIconName }) => {
+  const paths: Record<ModuleIconName, JSX.Element> = {
+    shield: (
+      <>
+        <path d="M12 3 5.5 5.4v5.1c0 4.1 2.4 7.9 6.5 9.5 4.1-1.6 6.5-5.4 6.5-9.5V5.4L12 3Z" />
+        <path d="m9.2 11.4 1.9 1.9 3.8-4" />
+      </>
+    ),
+    music: (
+      <>
+        <path d="M9 18.2a2.6 2.6 0 1 1-1.4-2.3L9 15.2V6l9-2v10.2a2.6 2.6 0 1 1-1.4-2.3L18 11.2V4" />
+        <path d="M9 8.2 18 6" />
+      </>
+    ),
+    users: (
+      <>
+        <path d="M8.8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+        <path d="M3.5 19c.5-3 2.4-4.5 5.3-4.5S13.6 16 14.1 19" />
+        <path d="M15.5 11.3a2.4 2.4 0 1 0-1.1-4.6" />
+        <path d="M15.8 14.5c2.3.2 3.8 1.7 4.2 4.5" />
+      </>
+    ),
+    layers: (
+      <>
+        <path d="m12 4 8 4-8 4-8-4 8-4Z" />
+        <path d="m4 12 8 4 8-4" />
+        <path d="m4 16 8 4 8-4" />
+      </>
+    ),
+    briefcase: (
+      <>
+        <path d="M8.5 7V5.8c0-1 .8-1.8 1.8-1.8h3.4c1 0 1.8.8 1.8 1.8V7" />
+        <path d="M4.5 7h15v12h-15V7Z" />
+        <path d="M4.5 11.2h15" />
+      </>
+    ),
+    video: (
+      <>
+        <path d="M4.5 6.5h10v11h-10v-11Z" />
+        <path d="m14.5 10 5-2.8v9.6l-5-2.8" />
+      </>
+    ),
+    chart: (
+      <>
+        <path d="M5 19V9" />
+        <path d="M12 19V5" />
+        <path d="M19 19v-7" />
+      </>
+    )
+  };
+
+  return (
+    <span className="module-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        {paths[name]}
+      </svg>
+    </span>
+  );
+};
+
 const futureModules = [
   {
+    icon: 'briefcase' as const,
     title: 'Servicios',
     description: 'Ofertas, paquetes y procesos comerciales'
   },
   {
+    icon: 'video' as const,
     title: 'Contenido',
     description: 'Videos, visualizers y material promocional'
   },
   {
+    icon: 'chart' as const,
     title: 'Analiticas',
     description: 'Lecturas rapidas de trafico y conversiones'
   }
@@ -127,9 +192,12 @@ export default async function DashboardPage() {
       <section className="section">
         <details className="folder">
           <summary>
-            <span>
-              <strong>Estado</strong>
-              <small>Panel privado activo</small>
+            <span className="module-summary">
+              <ModuleIcon name="shield" />
+              <span>
+                <strong>Estado</strong>
+                <small>Panel privado activo</small>
+              </span>
             </span>
           </summary>
           <div className="folder-body">
@@ -151,9 +219,12 @@ export default async function DashboardPage() {
       <section className="section">
         <details className="folder">
           <summary>
-            <span>
-              <strong>Lanzamientos Zaetta</strong>
-              <small>{releaseHistory.releases.length} lanzamiento(s) guardado(s)</small>
+            <span className="module-summary">
+              <ModuleIcon name="music" />
+              <span>
+                <strong>Lanzamientos Zaetta</strong>
+                <small>{releaseHistory.releases.length} lanzamiento(s) guardado(s)</small>
+              </span>
             </span>
           </summary>
           <div className="folder-body">
@@ -230,9 +301,12 @@ export default async function DashboardPage() {
       <section className="section">
         <details className="folder">
           <summary>
-            <span>
-              <strong>Artistas</strong>
-              <small>{artistData.artists.length} artista(s) en el roster</small>
+            <span className="module-summary">
+              <ModuleIcon name="users" />
+              <span>
+                <strong>Artistas</strong>
+                <small>{artistData.artists.length} artista(s) en el roster</small>
+              </span>
             </span>
           </summary>
           <div className="folder-body">
@@ -418,9 +492,12 @@ export default async function DashboardPage() {
       <section className="section">
         <details className="folder">
           <summary>
-            <span>
-              <strong>Lanzamientos de artistas</strong>
-              <small>Publicar o reactivar canciones del roster</small>
+            <span className="module-summary">
+              <ModuleIcon name="layers" />
+              <span>
+                <strong>Lanzamientos de artistas</strong>
+                <small>Publicar o reactivar canciones del roster</small>
+              </span>
             </span>
           </summary>
           <div className="folder-body">
@@ -493,9 +570,12 @@ export default async function DashboardPage() {
         <section className="section future-section" key={module.title}>
           <div className="folder future-folder" aria-disabled="true">
             <div className="future-summary">
-              <span>
-                <strong>{module.title}</strong>
-                <small>{module.description}</small>
+              <span className="module-summary">
+                <ModuleIcon name={module.icon} />
+                <span>
+                  <strong>{module.title}</strong>
+                  <small>{module.description}</small>
+                </span>
               </span>
             </div>
           </div>
