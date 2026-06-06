@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseRouteClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -7,9 +7,10 @@ export async function GET(request: Request) {
   const next = url.searchParams.get('next') || '/';
 
   if (code) {
-    const supabase = await createSupabaseServerClient();
+    const response = NextResponse.redirect(new URL(next, request.url));
+    const supabase = createSupabaseRouteClient(request, response);
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(next, request.url));
+    if (!error) return response;
   }
 
   return NextResponse.redirect(new URL('/login?error=auth', request.url));

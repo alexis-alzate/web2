@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseRouteClient } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {
   const form = await request.formData();
@@ -7,7 +7,8 @@ export async function POST(request: Request) {
   const password = String(form.get('password') || '');
 
   try {
-    const supabase = await createSupabaseServerClient();
+    const response = NextResponse.redirect(new URL('/', request.url), 303);
+    const supabase = createSupabaseRouteClient(request, response);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       const message = error.message.toLowerCase();
@@ -21,9 +22,8 @@ export async function POST(request: Request) {
 
       return NextResponse.redirect(new URL(`/login?error=${code}`, request.url), 303);
     }
+    return response;
   } catch {
     return NextResponse.redirect(new URL('/login?error=config', request.url), 303);
   }
-
-  return NextResponse.redirect(new URL('/', request.url), 303);
 }

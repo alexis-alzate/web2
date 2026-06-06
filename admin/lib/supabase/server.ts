@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import type { NextResponse } from 'next/server';
 
 const getSupabaseUrl = () => {
   const value = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -36,3 +37,20 @@ export const createSupabaseServerClient = async () => {
     }
   });
 };
+
+export const createSupabaseRouteClient = (request: Request, response: NextResponse) =>
+  createServerClient(getSupabaseUrl(), getSupabaseKey(), {
+    cookies: {
+      getAll() {
+        return request.headers.get('cookie')?.split(';').map(cookie => {
+          const [name, ...rest] = cookie.trim().split('=');
+          return { name, value: rest.join('=') };
+        }).filter(cookie => cookie.name) || [];
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+      }
+    }
+  });
