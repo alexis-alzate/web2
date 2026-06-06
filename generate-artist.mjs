@@ -143,6 +143,22 @@ const trackingBodyScript = `<script>
     seconds: 30
   }, true), 30000);
 
+  const fadeElements = document.querySelectorAll('.fade-up');
+  if (fadeElements.length && 'IntersectionObserver' in window) {
+    const fadeObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        entry.target.classList.add('visible');
+        fadeObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.1 });
+
+    fadeElements.forEach(element => fadeObserver.observe(element));
+  } else {
+    fadeElements.forEach(element => element.classList.add('visible'));
+  }
+
   document.querySelectorAll('[data-track-event]').forEach(element => {
     if (element.tagName === 'IFRAME') return;
 
@@ -375,7 +391,6 @@ ${renderEmbedSection('Beats', 'Catálogo de beats', artist.beatsEmbed, `artista_
 ${renderEmbedSection('Producciones', 'Producciones destacadas', artist.productionsEmbed, `artista_${eventSlug}_producciones_visto`)}
 ${renderContact(artist)}
 </main>
-<script src="../../script.js"></script>
 ${trackingBodyScript}
 </body>
 </html>
