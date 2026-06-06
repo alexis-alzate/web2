@@ -15,6 +15,7 @@ import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
 import { AutoLogoutTimer } from './components/AutoLogoutTimer';
 import { ActionForm } from './components/ActionForm';
 import { ReleasePreview } from './components/ReleasePreview';
+import { CopyLinkButton } from './components/CopyLinkButton';
 
 type Artist = {
   name: string;
@@ -297,8 +298,8 @@ export default async function DashboardPage() {
                     </div>
                     <div className="actions">
                       <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
-                      <a className="button" href={release.shareUrl} target="_blank" rel="noreferrer">Chat</a>
-                      <a className="button" href={release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')} target="_blank" rel="noreferrer">Estado</a>
+                      <CopyLinkButton url={release.shareUrl}>Copiar chat</CopyLinkButton>
+                      <CopyLinkButton url={release.statusUrl || release.shareUrl.replace('/lanzamientos/', '/estados/')}>Copiar estado</CopyLinkButton>
                       <ActionForm
                         action={reactivateHomeReleaseAction}
                         savingMessage={`Reactivando ${release.title} como lanzamiento principal...`}
