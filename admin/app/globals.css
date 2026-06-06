@@ -184,11 +184,38 @@ label {
 }
 
 .topbar {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 22px;
+}
+
+.topbar-title {
+  min-width: 0;
+}
+
+.logout-form {
+  flex: 0 0 auto;
+}
+
+.logout-button {
+  min-height: 34px;
+  padding: 8px 13px;
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .025);
+  color: rgba(255, 255, 255, .62);
+  font-size: .75rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.logout-button:hover {
+  border-color: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .045);
+  color: rgba(255, 255, 255, .86);
+  box-shadow: 0 0 18px rgba(255, 255, 255, .045);
 }
 
 .eyebrow {
@@ -314,6 +341,10 @@ label {
 
 .subfolder[open] > summary {
   margin-bottom: 14px;
+}
+
+.subfolder > .cards {
+  margin-top: 14px;
 }
 
 .grid {
@@ -629,12 +660,42 @@ label {
   }
 
   .topbar {
-    align-items: flex-start;
+    align-items: center;
+    justify-items: center;
+    padding-top: 32px;
+  }
+
+  .topbar-title {
+    width: 100%;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .topbar .eyebrow {
+    font-size: .78rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .logout-form {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .logout-button {
+    min-height: 32px;
+    padding: 7px 11px;
+    font-size: .66rem;
+    letter-spacing: .14em;
   }
 
   .title {
     font-size: clamp(1.65rem, 8vw, 2.55rem);
     letter-spacing: .22em;
+    text-align: center;
+    text-indent: .22em;
   }
 
   .section {

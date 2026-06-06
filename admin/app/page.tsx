@@ -98,12 +98,12 @@ export default async function DashboardPage() {
   return (
     <main className="shell">
       <header className="topbar">
-        <div>
+        <div className="topbar-title">
           <p className="eyebrow">Panel privado</p>
           <h1 className="title">Lujo Urban</h1>
         </div>
-        <form action="/api/logout" method="post">
-          <button>Salir</button>
+        <form action="/api/logout" method="post" className="logout-form">
+          <button className="logout-button">Salir</button>
         </form>
       </header>
 
@@ -168,29 +168,32 @@ export default async function DashboardPage() {
                 </SubmitButton>
               </form>
             </details>
-            <div className="cards">
-              {releaseHistory.releases.map(release => (
-                <article className="card" key={release.slug}>
-                  {release.cover ? (
-                    <img className="thumb" src={`https://www.lujourban.com/${release.cover}`} alt="" />
-                  ) : (
-                    <div className="thumb placeholder">{initials(release.title)}</div>
-                  )}
-                  <div>
-                    <h3>{release.title}</h3>
-                    <p className="muted">{release.slug}</p>
-                    <p className="muted clamp-url">{release.shareUrl}</p>
-                  </div>
-                  <div className="actions">
-                    <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
-                    <form action={reactivateHomeReleaseAction}>
-                      <input name="slug" type="hidden" value={release.slug} />
-                      <SubmitButton pendingText="Reactivando...">Reactivar</SubmitButton>
-                    </form>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <details className="subfolder">
+              <summary>Lanzamientos guardados</summary>
+              <div className="cards">
+                {releaseHistory.releases.map(release => (
+                  <article className="card" key={release.slug}>
+                    {release.cover ? (
+                      <img className="thumb" src={`https://www.lujourban.com/${release.cover}`} alt="" />
+                    ) : (
+                      <div className="thumb placeholder">{initials(release.title)}</div>
+                    )}
+                    <div>
+                      <h3>{release.title}</h3>
+                      <p className="muted">{release.slug}</p>
+                      <p className="muted clamp-url">{release.shareUrl}</p>
+                    </div>
+                    <div className="actions">
+                      <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
+                      <form action={reactivateHomeReleaseAction}>
+                        <input name="slug" type="hidden" value={release.slug} />
+                        <SubmitButton pendingText="Reactivando...">Reactivar</SubmitButton>
+                      </form>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </details>
           </div>
         </details>
       </section>
