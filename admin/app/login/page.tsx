@@ -4,7 +4,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="login">
       <div className="login-shell">
-        <img className="login-mark" src="/assets/lujo.png" alt="" aria-hidden="true" />
+        <img className="login-mark" src="/assets/lujo-mark.png" alt="" aria-hidden="true" />
         <h1 className="title login-title">Lujo Urban</h1>
         <section className="section login-card">
           <p className="eyebrow">Acceso privado</p>
