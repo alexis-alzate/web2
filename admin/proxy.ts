@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const publicPaths = ['/login'];
+const publicPaths = ['/login', '/forgot-password', '/reset-password', '/auth/callback'];
+
+const hasSupabaseAuthCookie = (request: NextRequest) =>
+  request.cookies.getAll().some(cookie =>
+    cookie.name.startsWith('sb-') && cookie.name.endsWith('-auth-token') && cookie.value
+  );
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith('/_next') || pathname.startsWith('/api/login')) return NextResponse.next();
+  if (pathname.startsWith('/_next') || pathname.startsWith('/api/')) return NextResponse.next();
   if (publicPaths.includes(pathname)) return NextResponse.next();
 
-  const session = request.cookies.get('lujo_admin_session')?.value;
-  if (!session) return NextResponse.redirect(new URL('/login', request.url));
+  if (!hasSupabaseAuthCookie(request)) return NextResponse.redirect(new URL('/login', request.url));
 
   return NextResponse.next();
 }
