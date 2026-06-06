@@ -395,12 +395,22 @@ label {
   width: min(430px, 100%);
   display: grid;
   justify-items: center;
-  gap: 22px;
+  gap: 14px;
   transform: translateY(-1vh);
+}
+
+.login-logo {
+  width: min(178px, 48vw);
+  height: auto;
+  opacity: .86;
+  filter:
+    drop-shadow(0 0 12px rgba(255, 255, 255, .1))
+    drop-shadow(0 0 18px rgba(57, 255, 99, .06));
 }
 
 .login-card {
   width: 100%;
+  margin-top: 7px;
   padding: 24px 22px 22px;
   border-color: rgba(57, 255, 99, .18);
   background:
@@ -538,11 +548,16 @@ label {
 
   .login-shell {
     width: min(100%, 370px);
-    gap: 18px;
+    gap: 12px;
     transform: translateY(-.5vh);
   }
 
+  .login-logo {
+    width: min(154px, 48vw);
+  }
+
   .login-card {
+    margin-top: 6px;
     padding: 20px 16px 16px;
     border-radius: 18px;
     box-shadow:
@@ -707,10 +722,15 @@ label {
   }
 
   .login-shell {
-    gap: 15px;
+    gap: 11px;
+  }
+
+  .login-logo {
+    width: min(140px, 52vw);
   }
 
   .login-card {
+    margin-top: 5px;
     padding: 18px 14px 14px;
   }
 

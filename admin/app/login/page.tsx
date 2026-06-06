@@ -4,6 +4,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="login">
       <div className="login-shell">
+        <img className="login-logo" src="/assets/zaetta-music-mark.png" alt="Zaetta Music" />
         <h1 className="title login-title">Lujo Urban</h1>
         <section className="section login-card">
           <form action="/api/login" method="post" className="login-form">
