@@ -13,6 +13,7 @@ import { redirect } from 'next/navigation';
 import { SubmitButton } from './components/SubmitButton';
 import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
 import { AutoLogoutTimer } from './components/AutoLogoutTimer';
+import { ActionForm } from './components/ActionForm';
 
 type Artist = {
   name: string;
@@ -230,7 +231,13 @@ export default async function DashboardPage() {
           <div className="folder-body">
             <details className="subfolder">
               <summary>Crear nuevo lanzamiento</summary>
-              <form action={createHomeReleaseAction} className="grid">
+              <ActionForm
+                action={createHomeReleaseAction}
+                className="grid"
+                savingMessage="Creando lanzamiento, generando preview social y publicando en GitHub..."
+                successMessage="Lanzamiento publicado. Vercel empezara a desplegarlo."
+                resetOnSuccess
+              >
                 <label className="span-2">
                   Spotify de la cancion
                   <input name="spotifyUrl" placeholder="https://open.spotify.com/track/..." required />
@@ -266,7 +273,7 @@ export default async function DashboardPage() {
                 <SubmitButton className="primary span-2" pendingText="Creando lanzamiento...">
                   Crear lanzamiento de Zaetta
                 </SubmitButton>
-              </form>
+              </ActionForm>
             </details>
             <details className="subfolder">
               <summary>Lanzamientos guardados</summary>
@@ -285,10 +292,14 @@ export default async function DashboardPage() {
                     </div>
                     <div className="actions">
                       <a className="button" href={release.link} target="_blank" rel="noreferrer">Abrir</a>
-                      <form action={reactivateHomeReleaseAction}>
+                      <ActionForm
+                        action={reactivateHomeReleaseAction}
+                        savingMessage={`Reactivando ${release.title} como lanzamiento principal...`}
+                        successMessage={`${release.title} quedo activo como lanzamiento principal.`}
+                      >
                         <input name="slug" type="hidden" value={release.slug} />
                         <SubmitButton pendingText="Reactivando...">Reactivar</SubmitButton>
-                      </form>
+                      </ActionForm>
                     </div>
                   </article>
                 ))}
@@ -312,7 +323,13 @@ export default async function DashboardPage() {
           <div className="folder-body">
             <details className="subfolder">
               <summary>Crear nuevo artista</summary>
-              <form action={saveArtistAction} className="grid">
+              <ActionForm
+                action={saveArtistAction}
+                className="grid"
+                savingMessage="Creando artista y publicando su pagina..."
+                successMessage="Artista creado y publicado correctamente."
+                resetOnSuccess
+              >
                 <label>
                   Nombre publico
                   <input name="name" placeholder="EL SIERVO JHON" required />
@@ -384,7 +401,7 @@ export default async function DashboardPage() {
                 <SubmitButton className="primary span-2" pendingText="Guardando artista...">
                   Crear artista
                 </SubmitButton>
-              </form>
+              </ActionForm>
             </details>
 
             <details className="subfolder">
@@ -412,7 +429,12 @@ export default async function DashboardPage() {
                         <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Ver</a>
                         <details className="inline-details">
                           <summary className="button">Editar</summary>
-                          <form action={saveArtistAction} className="mini-form">
+                          <ActionForm
+                            action={saveArtistAction}
+                            className="mini-form"
+                            savingMessage={`Guardando cambios de ${artist.cardName || artist.name}...`}
+                            successMessage="Artista actualizado correctamente."
+                          >
                             <input name="originalSlug" type="hidden" value={artist.slug} />
                             <label>
                               Nombre publico
@@ -465,28 +487,41 @@ export default async function DashboardPage() {
                               <input name="contactUrl" defaultValue={artist.contact?.url || ''} />
                             </label>
                             <SubmitButton className="primary" pendingText="Guardando...">Guardar</SubmitButton>
-                          </form>
+                          </ActionForm>
                         </details>
-                        <form action={moveArtistAction}>
+                        <ActionForm
+                          action={moveArtistAction}
+                          savingMessage={`Subiendo ${artist.cardName || artist.name} en el roster...`}
+                          successMessage="Orden actualizado."
+                        >
                           <input name="slug" type="hidden" value={artist.slug} />
                           <input name="direction" type="hidden" value="up" />
                           <SubmitButton disabled={index === 0} pendingText="Subiendo...">Subir</SubmitButton>
-                        </form>
-                        <form action={moveArtistAction}>
+                        </ActionForm>
+                        <ActionForm
+                          action={moveArtistAction}
+                          savingMessage={`Bajando ${artist.cardName || artist.name} en el roster...`}
+                          successMessage="Orden actualizado."
+                        >
                           <input name="slug" type="hidden" value={artist.slug} />
                           <input name="direction" type="hidden" value="down" />
                           <SubmitButton disabled={index === artistData.artists.length - 1} pendingText="Bajando...">Bajar</SubmitButton>
-                        </form>
+                        </ActionForm>
                         <details className="inline-details">
                           <summary className="button danger">Borrar</summary>
-                          <form action={deleteArtistAction} className="mini-form">
+                          <ActionForm
+                            action={deleteArtistAction}
+                            className="mini-form"
+                            savingMessage={`Eliminando ${artist.cardName || artist.name} del roster...`}
+                            successMessage="Artista eliminado correctamente."
+                          >
                             <input name="slug" type="hidden" value={artist.slug} />
                             <label>
                               Escribe BORRAR
                               <input name="confirmation" placeholder="BORRAR" />
                             </label>
                             <SubmitButton className="danger" pendingText="Borrando...">Borrar artista</SubmitButton>
-                          </form>
+                          </ActionForm>
                         </details>
                       </div>
                     </div>
@@ -512,7 +547,13 @@ export default async function DashboardPage() {
           <div className="folder-body">
             <details className="subfolder">
               <summary>Publicar lanzamiento de artista</summary>
-              <form action={addArtistReleaseAction} className="grid">
+              <ActionForm
+                action={addArtistReleaseAction}
+                className="grid"
+                savingMessage="Publicando lanzamiento del artista..."
+                successMessage="Lanzamiento del artista publicado correctamente."
+                resetOnSuccess
+              >
                 <label>
                   Artista
                   <select name="artistSlug" required>
@@ -541,7 +582,7 @@ export default async function DashboardPage() {
                 <SubmitButton className="primary span-2" pendingText="Publicando lanzamiento...">
                   Publicar lanzamiento de artista
                 </SubmitButton>
-              </form>
+              </ActionForm>
             </details>
 
             <div className="cards">
@@ -560,11 +601,16 @@ export default async function DashboardPage() {
                     </div>
                     <div className="actions">
                       {releases.map(release => (
-                        <form action={reactivateArtistReleaseAction} key={release.slug || release.title}>
+                        <ActionForm
+                          action={reactivateArtistReleaseAction}
+                          key={release.slug || release.title}
+                          savingMessage={`Reactivando ${release.title}...`}
+                          successMessage={`${release.title} quedo activo para este artista.`}
+                        >
                           <input name="artistSlug" type="hidden" value={artist.slug} />
                           <input name="releaseSlug" type="hidden" value={release.slug || ''} />
                           <SubmitButton pendingText="Reactivando...">{release.title}</SubmitButton>
-                        </form>
+                        </ActionForm>
                       ))}
                     </div>
                   </article>
