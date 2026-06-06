@@ -395,32 +395,12 @@ label {
   width: min(430px, 100%);
   display: grid;
   justify-items: center;
-  gap: 12px;
+  gap: 22px;
   transform: translateY(-1vh);
-}
-
-.login-mark {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  color: transparent;
-  background:
-    linear-gradient(180deg, #fff4ad 0%, #d89b24 46%, #7a4d08 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 2.25rem;
-  font-weight: 700;
-  line-height: 1;
-  text-shadow:
-    0 0 16px rgba(216, 155, 36, .18),
-    0 0 28px rgba(255, 225, 128, .08);
 }
 
 .login-card {
   width: 100%;
-  margin-top: 12px;
   padding: 24px 22px 22px;
   border-color: rgba(57, 255, 99, .18);
   background:
@@ -446,7 +426,6 @@ label {
 .login-form {
   display: grid;
   gap: 15px;
-  margin-top: 17px;
 }
 
 .login-submit {
@@ -559,27 +538,16 @@ label {
 
   .login-shell {
     width: min(100%, 370px);
-    gap: 10px;
+    gap: 18px;
     transform: translateY(-.5vh);
   }
 
-  .login-mark {
-    width: 34px;
-    height: 34px;
-    font-size: 2rem;
-  }
-
   .login-card {
-    margin-top: 10px;
     padding: 20px 16px 16px;
     border-radius: 18px;
     box-shadow:
       0 18px 55px rgba(0, 0, 0, .48),
       0 0 28px rgba(57, 255, 99, .06);
-  }
-
-  .login-card .eyebrow {
-    font-size: .9rem;
   }
 
   .login-title {
@@ -590,7 +558,6 @@ label {
 
   .login-form {
     gap: 13px;
-    margin-top: 20px;
   }
 
   .login-card input {
@@ -740,17 +707,10 @@ label {
   }
 
   .login-shell {
-    gap: 9px;
-  }
-
-  .login-mark {
-    width: 30px;
-    height: 30px;
-    font-size: 1.78rem;
+    gap: 15px;
   }
 
   .login-card {
-    margin-top: 8px;
     padding: 18px 14px 14px;
   }
 
