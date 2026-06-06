@@ -19,6 +19,9 @@ GITHUB_REPO=web2
 GITHUB_BRANCH=main
 ```
 
+Tambien puedes usar `SUPABASE_URL` y `SUPABASE_ANON_KEY` si copiaste los
+nombres clasicos del panel de Supabase.
+
 El acceso al panel se administra desde Supabase Auth. Crea el usuario en
 Supabase usando el correo que usaras para entrar al panel.
 

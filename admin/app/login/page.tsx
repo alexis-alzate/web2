@@ -1,5 +1,8 @@
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; reset?: string }> }) {
   const params = await searchParams;
+  const errorMessage = params.error === 'config'
+    ? 'Falta configurar Supabase en Vercel.'
+    : 'Correo o clave incorrectos.';
 
   return (
     <main className="login">
@@ -15,7 +18,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               Clave
               <input name="password" type="password" autoComplete="current-password" required />
             </label>
-            {params.error ? <p className="auth-error">Correo o clave incorrectos.</p> : null}
+            {params.error ? <p className="auth-error">{errorMessage}</p> : null}
             {params.reset ? <p className="auth-note">Clave actualizada. Inicia sesion de nuevo.</p> : null}
             <button className="primary login-submit">Ingresar</button>
           </form>
