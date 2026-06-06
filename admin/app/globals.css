@@ -415,6 +415,7 @@ label {
 .artist-folders {
   display: grid;
   gap: 10px;
+  margin-top: 14px;
 }
 
 .artist-summary {

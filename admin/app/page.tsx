@@ -387,110 +387,113 @@ export default async function DashboardPage() {
               </form>
             </details>
 
-            <div className="artist-folders">
-              {artistData.artists.map((artist, index) => (
-                <details className="subfolder artist-folder" key={artist.slug}>
-                  <summary>
-                    <span className="artist-summary">
-                      {artist.photo ? (
-                        <img className="thumb" src={`https://www.lujourban.com/${artist.photo}`} alt="" />
-                      ) : (
-                        <span className="thumb placeholder">{initials(artist.name)}</span>
-                      )}
-                      <span>
-                        <strong>{artist.cardName || artist.name}</strong>
-                        <small>{artist.slug}</small>
+            <details className="subfolder">
+              <summary>Artistas guardados</summary>
+              <div className="artist-folders">
+                {artistData.artists.map((artist, index) => (
+                  <details className="subfolder artist-folder" key={artist.slug}>
+                    <summary>
+                      <span className="artist-summary">
+                        {artist.photo ? (
+                          <img className="thumb" src={`https://www.lujourban.com/${artist.photo}`} alt="" />
+                        ) : (
+                          <span className="thumb placeholder">{initials(artist.name)}</span>
+                        )}
+                        <span>
+                          <strong>{artist.cardName || artist.name}</strong>
+                          <small>{artist.slug}</small>
+                        </span>
                       </span>
-                    </span>
-                  </summary>
-                  <div className="artist-folder-body">
-                    <p className="muted">{artist.tagline}</p>
-                    {artist.release ? <p className="muted">Release activo: {artist.release.title}</p> : null}
-                    <div className="actions">
-                      <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Ver</a>
-                      <details className="inline-details">
-                        <summary className="button">Editar</summary>
-                        <form action={saveArtistAction} className="mini-form">
-                          <input name="originalSlug" type="hidden" value={artist.slug} />
-                          <label>
-                            Nombre publico
-                            <input name="name" defaultValue={artist.name} required />
-                          </label>
-                          <label>
-                            Slug
-                            <input name="slug" defaultValue={artist.slug} />
-                          </label>
-                          <label>
-                            Nombre tarjeta
-                            <input name="cardName" defaultValue={artist.cardName || ''} />
-                          </label>
-                          <label>
-                            Rol
-                            <input name="role" defaultValue={artist.role} />
-                          </label>
-                          <label>
-                            Frase corta
-                            <input name="tagline" defaultValue={artist.tagline} />
-                          </label>
-                          <label>
-                            Bio
-                            <textarea name="bio" rows={3} defaultValue={artist.bio || ''} />
-                          </label>
-                          <label>
-                            Foto
-                            <input name="photo" defaultValue={artist.photo || ''} />
-                          </label>
-                          {['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp'].map(key => (
-                            <label key={key}>
-                              {key}
-                              <input name={key} defaultValue={artist.links?.[key] || ''} />
+                    </summary>
+                    <div className="artist-folder-body">
+                      <p className="muted">{artist.tagline}</p>
+                      {artist.release ? <p className="muted">Release activo: {artist.release.title}</p> : null}
+                      <div className="actions">
+                        <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Ver</a>
+                        <details className="inline-details">
+                          <summary className="button">Editar</summary>
+                          <form action={saveArtistAction} className="mini-form">
+                            <input name="originalSlug" type="hidden" value={artist.slug} />
+                            <label>
+                              Nombre publico
+                              <input name="name" defaultValue={artist.name} required />
                             </label>
-                          ))}
-                          <label>
-                            Embed beats
-                            <input name="beatsEmbed" defaultValue={artist.beatsEmbed || ''} />
-                          </label>
-                          <label>
-                            Embed producciones
-                            <input name="productionsEmbed" defaultValue={artist.productionsEmbed || ''} />
-                          </label>
-                          <label>
-                            Texto contacto
-                            <input name="contactLabel" defaultValue={artist.contact?.label || ''} />
-                          </label>
-                          <label>
-                            Link contacto
-                            <input name="contactUrl" defaultValue={artist.contact?.url || ''} />
-                          </label>
-                          <SubmitButton className="primary" pendingText="Guardando...">Guardar</SubmitButton>
-                        </form>
-                      </details>
-                      <form action={moveArtistAction}>
-                        <input name="slug" type="hidden" value={artist.slug} />
-                        <input name="direction" type="hidden" value="up" />
-                        <SubmitButton disabled={index === 0} pendingText="Subiendo...">Subir</SubmitButton>
-                      </form>
-                      <form action={moveArtistAction}>
-                        <input name="slug" type="hidden" value={artist.slug} />
-                        <input name="direction" type="hidden" value="down" />
-                        <SubmitButton disabled={index === artistData.artists.length - 1} pendingText="Bajando...">Bajar</SubmitButton>
-                      </form>
-                      <details className="inline-details">
-                        <summary className="button danger">Borrar</summary>
-                        <form action={deleteArtistAction} className="mini-form">
+                            <label>
+                              Slug
+                              <input name="slug" defaultValue={artist.slug} />
+                            </label>
+                            <label>
+                              Nombre tarjeta
+                              <input name="cardName" defaultValue={artist.cardName || ''} />
+                            </label>
+                            <label>
+                              Rol
+                              <input name="role" defaultValue={artist.role} />
+                            </label>
+                            <label>
+                              Frase corta
+                              <input name="tagline" defaultValue={artist.tagline} />
+                            </label>
+                            <label>
+                              Bio
+                              <textarea name="bio" rows={3} defaultValue={artist.bio || ''} />
+                            </label>
+                            <label>
+                              Foto
+                              <input name="photo" defaultValue={artist.photo || ''} />
+                            </label>
+                            {['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp'].map(key => (
+                              <label key={key}>
+                                {key}
+                                <input name={key} defaultValue={artist.links?.[key] || ''} />
+                              </label>
+                            ))}
+                            <label>
+                              Embed beats
+                              <input name="beatsEmbed" defaultValue={artist.beatsEmbed || ''} />
+                            </label>
+                            <label>
+                              Embed producciones
+                              <input name="productionsEmbed" defaultValue={artist.productionsEmbed || ''} />
+                            </label>
+                            <label>
+                              Texto contacto
+                              <input name="contactLabel" defaultValue={artist.contact?.label || ''} />
+                            </label>
+                            <label>
+                              Link contacto
+                              <input name="contactUrl" defaultValue={artist.contact?.url || ''} />
+                            </label>
+                            <SubmitButton className="primary" pendingText="Guardando...">Guardar</SubmitButton>
+                          </form>
+                        </details>
+                        <form action={moveArtistAction}>
                           <input name="slug" type="hidden" value={artist.slug} />
-                          <label>
-                            Escribe BORRAR
-                            <input name="confirmation" placeholder="BORRAR" />
-                          </label>
-                          <SubmitButton className="danger" pendingText="Borrando...">Borrar artista</SubmitButton>
+                          <input name="direction" type="hidden" value="up" />
+                          <SubmitButton disabled={index === 0} pendingText="Subiendo...">Subir</SubmitButton>
                         </form>
-                      </details>
+                        <form action={moveArtistAction}>
+                          <input name="slug" type="hidden" value={artist.slug} />
+                          <input name="direction" type="hidden" value="down" />
+                          <SubmitButton disabled={index === artistData.artists.length - 1} pendingText="Bajando...">Bajar</SubmitButton>
+                        </form>
+                        <details className="inline-details">
+                          <summary className="button danger">Borrar</summary>
+                          <form action={deleteArtistAction} className="mini-form">
+                            <input name="slug" type="hidden" value={artist.slug} />
+                            <label>
+                              Escribe BORRAR
+                              <input name="confirmation" placeholder="BORRAR" />
+                            </label>
+                            <SubmitButton className="danger" pendingText="Borrando...">Borrar artista</SubmitButton>
+                          </form>
+                        </details>
+                      </div>
                     </div>
-                  </div>
-                </details>
-              ))}
-            </div>
+                  </details>
+                ))}
+              </div>
+            </details>
           </div>
         </details>
       </section>
