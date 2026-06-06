@@ -4,7 +4,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="login">
       <div className="login-shell">
-        <span className="login-mark" aria-hidden="true">L</span>
         <h1 className="title login-title">Lujo Urban</h1>
         <section className="section login-card">
           <form action="/api/login" method="post" className="login-form">
