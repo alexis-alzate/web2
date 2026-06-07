@@ -16,6 +16,8 @@ import { AutoLogoutTimer } from './components/AutoLogoutTimer';
 import { ActionForm } from './components/ActionForm';
 import { ReleasePreview } from './components/ReleasePreview';
 import { CopyLinkButton } from './components/CopyLinkButton';
+import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/analytics';
 
 type Artist = {
   name: string;
@@ -57,6 +59,24 @@ type ReleaseHistory = {
 type ArtistReleaseHistory = {
   artists: Record<string, NonNullable<Artist['release']>[]>;
 };
+
+const emptyAnalyticsSummary = (error?: string): ReleaseAnalyticsSummary => ({
+  totals: {
+    view: 0,
+    chat_click: 0,
+    status_click: 0
+  },
+  interactionsTotal: 0,
+  topViews: [],
+  topChatClicks: [],
+  distribution: [
+    { type: 'view', count: 0 },
+    { type: 'chat_click', count: 0 },
+    { type: 'status_click', count: 0 }
+  ],
+  hasData: false,
+  error
+});
 
 type ModuleIconName = 'shield' | 'music' | 'users' | 'layers' | 'briefcase' | 'video' | 'chart';
 
@@ -137,11 +157,6 @@ const futureModules = [
     icon: 'video' as const,
     title: 'Contenido',
     description: 'Videos, visualizers y material promocional'
-  },
-  {
-    icon: 'chart' as const,
-    title: 'Analiticas',
-    description: 'Lecturas rapidas de trafico y conversiones'
   }
 ];
 
@@ -151,6 +166,7 @@ export default async function DashboardPage() {
   let artistData: ArtistData;
   let releaseHistory: ReleaseHistory;
   let artistReleaseHistory: ArtistReleaseHistory;
+  let analyticsSummary: ReleaseAnalyticsSummary = emptyAnalyticsSummary();
 
   try {
     [artistData, releaseHistory, artistReleaseHistory] = await Promise.all([
@@ -158,6 +174,7 @@ export default async function DashboardPage() {
       readJson<ReleaseHistory>('release-history.json', { releases: [] }),
       readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} })
     ]);
+    analyticsSummary = await getReleaseAnalyticsSummary();
   } catch (error) {
     return (
       <main className="shell">
@@ -639,6 +656,23 @@ export default async function DashboardPage() {
                 );
               })}
             </div>
+          </div>
+        </details>
+      </section>
+
+      <section className="section">
+        <details className="folder">
+          <summary>
+            <span className="module-summary">
+              <ModuleIcon name="chart" />
+              <span>
+                <strong>Analiticas</strong>
+                <small>Visitas, clics y conversiones de lanzamientos</small>
+              </span>
+            </span>
+          </summary>
+          <div className="folder-body">
+            <AnalyticsDashboard summary={analyticsSummary} releases={releaseHistory.releases} />
           </div>
         </details>
       </section>

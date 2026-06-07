@@ -63,8 +63,50 @@ document.querySelectorAll('[data-release-view]').forEach(element => {
   element.dataset.viewLabel = `release_${releaseSlug}`;
 });
 
+const releaseAnalyticsEndpoint = 'https://admin.lujourban.com/api/analytics/release-event';
+const releaseAnalyticsSent = new Set();
+
+const detectAnalyticsDevice = () => {
+  const text = navigator.userAgent.toLowerCase();
+  if (/ipad|tablet|kindle|playbook/.test(text)) return 'tablet';
+  if (/mobi|android|iphone|ipod/.test(text)) return 'mobile';
+  return 'desktop';
+};
+
+const sendReleaseAnalyticsEvent = (eventType, onceKey = '') => {
+  if (!latestRelease.slug || !['view', 'chat_click', 'status_click'].includes(eventType)) return;
+
+  const key = onceKey || `${eventType}:${latestRelease.slug}`;
+  if (releaseAnalyticsSent.has(key)) return;
+  releaseAnalyticsSent.add(key);
+
+  const payload = {
+    release_slug: latestRelease.slug,
+    event_type: eventType,
+    source_url: window.location.href,
+    referrer: document.referrer || '',
+    device_type: detectAnalyticsDevice()
+  };
+
+  try {
+    window.fetch(releaseAnalyticsEndpoint, {
+      method: 'POST',
+      mode: 'cors',
+      keepalive: true,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+  } catch {
+    // Analytics must never block the public landing.
+  }
+};
+
 document.querySelectorAll('[data-share-button]').forEach(button => {
   button.addEventListener('click', async () => {
+    sendReleaseAnalyticsEvent('chat_click', `chat_click:${latestRelease.slug}`);
+
     const shareData = {
       title: latestRelease.browserTitle,
       text: latestRelease.heroText,
@@ -87,6 +129,14 @@ document.querySelectorAll('[data-share-button]').forEach(button => {
       window.prompt('Copia el enlace del lanzamiento:', latestRelease.shareUrl);
     }
   });
+});
+
+document.querySelectorAll('[data-analytics-event="chat_click"]').forEach(element => {
+  element.addEventListener('click', () => sendReleaseAnalyticsEvent('chat_click'));
+});
+
+document.querySelectorAll('[data-analytics-event="status_click"], [data-release-status-link]').forEach(element => {
+  element.addEventListener('click', () => sendReleaseAnalyticsEvent('status_click'));
 });
 
 // Fade-up on scroll
@@ -253,6 +303,10 @@ if (trackedViews.length) {
       if (!entry.isIntersecting) return;
 
       const element = entry.target;
+      if (element.dataset.releaseView === 'visto') {
+        sendReleaseAnalyticsEvent('view', `view:${latestRelease.slug}`);
+      }
+
       trackMetaEventOnce(element.dataset.viewEvent, {
         label: element.dataset.viewLabel || '',
         section: element.querySelector('.section-label')?.textContent.trim() || ''
