@@ -3,6 +3,7 @@ import type { ReleaseAnalyticsSummary, ReleaseEventType, DailyStat } from '@/lib
 type Release = {
   title: string;
   slug: string;
+  cover?: string;
 };
 
 type AnalyticsDashboardProps = {
@@ -18,8 +19,8 @@ const labels: Record<ReleaseEventType, string> = {
 
 const formatNumber = (value: number) => new Intl.NumberFormat('es-CO').format(value);
 
-const releaseName = (slug: string, releases: Release[]) =>
-  releases.find(release => release.slug === slug)?.title || slug;
+const findRelease = (slug: string, releases: Release[]) =>
+  releases.find(release => release.slug === slug);
 
 const KPICard = ({ 
   label, 
@@ -44,11 +45,11 @@ const KPICard = ({
 );
 
 const TrendLine = ({ data }: { data: DailyStat[] }) => {
-  const points = data.slice(-14); // Ultimos 14 dias para visibilidad
+  const points = data.slice(-14);
   const max = Math.max(1, ...points.map(d => Math.max(d.view, d.interaction)));
   const width = 1000;
-  const height = 200;
-  const padding = 20;
+  const height = 120; // Reduced height for density
+  const padding = 10;
   
   const getX = (i: number) => (i / (points.length - 1)) * width;
   const getY = (val: number) => height - ((val / max) * (height - padding * 2) + padding);
@@ -59,9 +60,9 @@ const TrendLine = ({ data }: { data: DailyStat[] }) => {
   const areaPath = `${viewPath} L ${getX(points.length - 1)} ${height} L 0 ${height} Z`;
 
   return (
-    <article className="analytics-panel trend-panel">
+    <article className="analytics-panel trend-panel compact">
       <div className="panel-header">
-        <h3>Tendencia Diaria (14d)</h3>
+        <h3>Tendencia Diaria</h3>
         <div className="panel-legend">
           <span className="legend-item views">Visitas</span>
           <span className="legend-item interactions">Interacciones</span>
@@ -71,13 +72,13 @@ const TrendLine = ({ data }: { data: DailyStat[] }) => {
         <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
           <defs>
             <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(57, 255, 99, 0.15)" />
+              <stop offset="0%" stopColor="rgba(57, 255, 99, 0.12)" />
               <stop offset="100%" stopColor="transparent" />
             </linearGradient>
           </defs>
           <path d={areaPath} fill="url(#areaGradient)" />
-          <path d={viewPath} fill="none" stroke="#39ff63" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={interactionPath} fill="none" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="2" strokeDasharray="4 4" />
+          <path d={viewPath} fill="none" stroke="#39ff63" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={interactionPath} fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="1.5" strokeDasharray="3 3" />
         </svg>
       </div>
     </article>
@@ -98,27 +99,33 @@ const HeroBarList = ({
   const max = Math.max(1, ...items.map(item => item.count));
 
   return (
-    <article className="analytics-panel hero-bars">
+    <article className="analytics-panel hero-bars compact">
       <h3>{title}</h3>
       <div className="hero-bar-stack">
-        {items.map((item, i) => (
-          <div className="hero-bar-row" key={item.slug} style={{ animationDelay: `${i * 0.05}s` }}>
-            <div className="hero-bar-label">
-              <span className="hero-bar-index">{i + 1}</span>
-              <span className="hero-bar-name">{releaseName(item.slug, releases)}</span>
-              <strong className="hero-bar-value">{formatNumber(item.count)}</strong>
+        {items.map((item, i) => {
+          const rel = findRelease(item.slug, releases);
+          return (
+            <div className="hero-bar-row" key={item.slug} style={{ animationDelay: `${i * 0.04}s` }}>
+              <div className="hero-bar-meta">
+                <span className="hero-bar-index">{i + 1}</span>
+                {rel?.cover && (
+                  <img src={rel.cover} alt="" className="hero-bar-thumb" />
+                )}
+                <span className="hero-bar-name">{rel?.title || item.slug}</span>
+                <strong className="hero-bar-value">{formatNumber(item.count)}</strong>
+              </div>
+              <div className="hero-bar-track">
+                <div 
+                  className="hero-bar-fill" 
+                  style={{ 
+                    width: `${(item.count / max) * 100}%`,
+                    backgroundColor: color
+                  }} 
+                />
+              </div>
             </div>
-            <div className="hero-bar-track">
-              <div 
-                className="hero-bar-fill" 
-                style={{ 
-                  width: `${(item.count / max) * 100}%`,
-                  backgroundColor: color
-                }} 
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </article>
   );
@@ -126,7 +133,7 @@ const HeroBarList = ({
 
 const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
   const total = summary.totals.view + summary.interactionsTotal;
-  const radius = 70;
+  const radius = 80; // Bigger donut
   const circumference = 2 * Math.PI * radius;
   let offset = 0;
 
@@ -146,12 +153,11 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
   });
 
   return (
-    <article className="analytics-panel donut-panel">
-      <h3>Distribucion de Trafico</h3>
+    <article className="analytics-panel donut-panel compact">
       <div className="donut-content">
         <div className="donut-svg-wrap">
           <svg viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r={radius} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
+            <circle cx="100" cy="100" r={radius} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="14" />
             {segments.map(seg => (
               <circle
                 key={seg.type}
@@ -160,7 +166,7 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
                 r={radius}
                 fill="none"
                 stroke={seg.color}
-                strokeWidth="12"
+                strokeWidth="14"
                 strokeDasharray={seg.strokeDasharray}
                 strokeDashoffset={seg.strokeDashoffset}
                 strokeLinecap="round"
@@ -171,7 +177,7 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
             <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="donut-total">
               {formatNumber(summary.totals.view)}
             </text>
-            <text x="50%" y="62%" dominantBaseline="middle" textAnchor="middle" className="donut-sub">
+            <text x="50%" y="64%" dominantBaseline="middle" textAnchor="middle" className="donut-sub">
               Visitas
             </text>
           </svg>
@@ -191,23 +197,22 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
 };
 
 const FutureMetrics = () => (
-  <article className="analytics-panel future-panel">
-    <h3>Insights Avanzados</h3>
+  <article className="analytics-panel future-panel compact">
+    <h3>Insights</h3>
     <div className="future-grid">
       <div className="future-card">
         <span className="icon">🌍</span>
-        <strong>Paises y Ciudades</strong>
-        <p>Proximamente</p>
+        <div>
+          <strong>Geografia</strong>
+          <p>Próximamente</p>
+        </div>
       </div>
       <div className="future-card">
         <span className="icon">📱</span>
-        <strong>Dispositivos</strong>
-        <p>Proximamente</p>
-      </div>
-      <div className="future-card">
-        <span className="icon">🔗</span>
-        <strong>Canales (IG/TikTok)</strong>
-        <p>Proximamente</p>
+        <div>
+          <strong>Dispositivos</strong>
+          <p>Próximamente</p>
+        </div>
       </div>
     </div>
   </article>
@@ -218,50 +223,50 @@ export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProp
   const topReleaseTitle = releases.find(r => r.slug === topReleaseSlug)?.title || 'Ninguno';
 
   return (
-    <div className="analytics-container fade-in">
+    <div className="analytics-container compact fade-in">
       {summary.error && (
         <div className="analytics-error-toast">
           <p>⚠️ {summary.error}</p>
         </div>
       )}
 
-      <section className="analytics-hero-metrics">
-        <KPICard label="Visitas Totales" value={summary.totals.view} tone="green" />
+      <section className="analytics-hero-metrics compact">
+        <KPICard label="Visitas" value={summary.totals.view} tone="green" />
         <KPICard label="Interacciones" value={summary.interactionsTotal} tone="cyan" />
-        <KPICard label="Lanzamiento Top" value={topReleaseTitle} tone="gold" />
-        <KPICard label="Conversion" value={summary.conversionRate.toFixed(1)} suffix="%" tone="gold" />
+        <KPICard label="Conversión" value={summary.conversionRate.toFixed(1)} suffix="%" tone="gold" />
+        <KPICard label="Top Release" value={topReleaseTitle} tone="gold" />
       </section>
 
       {!summary.hasData && !summary.error ? (
         <div className="analytics-empty-state">
           <h2>Dashboard en espera de datos</h2>
-          <p>Cuando los fans empiecen a interactuar con los lanzamientos, veras la magia aqui.</p>
+          <p>La magia musical aparecerá pronto.</p>
         </div>
       ) : (
         <>
           <TrendLine data={summary.dailyStats} />
           
-          <div className="analytics-main-grid">
+          <div className="analytics-main-grid compact">
             <HeroBarList 
-              title="Top Lanzamientos (Visitas)" 
+              title="Top Lanzamientos" 
               items={summary.topViews} 
               releases={releases} 
             />
-            <div className="analytics-side-stack">
+            <div className="analytics-side-stack compact">
               <ModernDonut summary={summary} />
               <FutureMetrics />
             </div>
           </div>
           
-          <div className="analytics-secondary-grid">
+          <div className="analytics-secondary-grid compact">
             <HeroBarList 
-              title="Clics en Chat" 
+              title="Engagement: Chat" 
               items={summary.topChatClicks} 
               releases={releases}
               color="#d4af37"
             />
             <HeroBarList 
-              title="Clics en Estado" 
+              title="Engagement: Estado" 
               items={summary.topStatusClicks} 
               releases={releases}
               color="#00e5ff"
