@@ -257,12 +257,15 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
-<meta http-equiv="refresh" content="0;url=/">
 <title>${escapeHtml(socialTitle)}</title>
-<script>window.location.replace('/');</script>
 </head>
-<body>
-<p><a href="/">Ir al sitio oficial de Zaetta</a></p>
+<body style="margin:0;background:#020302;color:#fff;font-family:Arial,sans-serif;">
+<main style="min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center;">
+<a href="/" style="color:inherit;text-decoration:none;">
+<img src="${shareImageUrl}" alt="${escapeHtml(socialTitle)}" style="display:block;width:min(100%,1200px);height:auto;border:0;">
+<p>Ir al sitio oficial de Zaetta</p>
+</a>
+</main>
 </body>
 </html>
 `;
