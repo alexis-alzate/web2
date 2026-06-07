@@ -50,8 +50,8 @@ const TrendLine = ({ data }: { data: DailyStat[] }) => {
   const points = data.slice(-14);
   const max = Math.max(1, ...points.map(d => Math.max(d.view, d.interaction)));
   const width = 1000;
-  const height = 60; // Further reduced height (~40% reduction)
-  const padding = 5;
+  const height = 40; // Reduced height by ~35% (from 60 to 40)
+  const padding = 4;
   
   const getX = (i: number) => (i / (points.length - 1)) * width;
   const getY = (val: number) => height - ((val / max) * (height - padding * 2) + padding);
