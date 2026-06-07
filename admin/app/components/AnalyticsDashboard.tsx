@@ -1,4 +1,4 @@
-import type { ReleaseAnalyticsSummary, ReleaseEventType } from '@/lib/analytics';
+import type { ReleaseAnalyticsSummary, ReleaseEventType, DailyStat } from '@/lib/analytics';
 
 type Release = {
   title: string;
@@ -16,93 +16,172 @@ const labels: Record<ReleaseEventType, string> = {
   status_click: 'Estado'
 };
 
-const eventClasses: Record<ReleaseEventType, string> = {
-  view: 'views',
-  chat_click: 'chat',
-  status_click: 'status'
-};
-
 const formatNumber = (value: number) => new Intl.NumberFormat('es-CO').format(value);
 
 const releaseName = (slug: string, releases: Release[]) =>
   releases.find(release => release.slug === slug)?.title || slug;
 
-const MetricCard = ({ label, value, tone }: { label: string; value: number; tone: string }) => (
-  <article className={`analytics-metric ${tone}`}>
-    <span>{label}</span>
-    <strong>{formatNumber(value)}</strong>
+const KPICard = ({ 
+  label, 
+  value, 
+  suffix = '', 
+  tone = 'default' 
+}: { 
+  label: string; 
+  value: string | number; 
+  suffix?: string;
+  tone?: 'default' | 'green' | 'gold' | 'cyan'
+}) => (
+  <article className={`analytics-kpi-card ${tone}`}>
+    <div className="analytics-kpi-content">
+      <span className="analytics-kpi-label">{label}</span>
+      <strong className="analytics-kpi-value">
+        {typeof value === 'number' ? formatNumber(value) : value}{suffix}
+      </strong>
+    </div>
+    <div className="analytics-kpi-glow" />
   </article>
 );
 
-const BarList = ({
+const TrendLine = ({ data }: { data: DailyStat[] }) => {
+  const points = data.slice(-14); // Ultimos 14 dias para visibilidad
+  const max = Math.max(1, ...points.map(d => Math.max(d.view, d.interaction)));
+  const width = 1000;
+  const height = 200;
+  const padding = 20;
+  
+  const getX = (i: number) => (i / (points.length - 1)) * width;
+  const getY = (val: number) => height - ((val / max) * (height - padding * 2) + padding);
+
+  const viewPath = points.map((d, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(d.view)}`).join(' ');
+  const interactionPath = points.map((d, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(d.interaction)}`).join(' ');
+
+  const areaPath = `${viewPath} L ${getX(points.length - 1)} ${height} L 0 ${height} Z`;
+
+  return (
+    <article className="analytics-panel trend-panel">
+      <div className="panel-header">
+        <h3>Tendencia Diaria (14d)</h3>
+        <div className="panel-legend">
+          <span className="legend-item views">Visitas</span>
+          <span className="legend-item interactions">Interacciones</span>
+        </div>
+      </div>
+      <div className="svg-container">
+        <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(57, 255, 99, 0.15)" />
+              <stop offset="100%" stopColor="transparent" />
+            </linearGradient>
+          </defs>
+          <path d={areaPath} fill="url(#areaGradient)" />
+          <path d={viewPath} fill="none" stroke="#39ff63" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={interactionPath} fill="none" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="2" strokeDasharray="4 4" />
+        </svg>
+      </div>
+    </article>
+  );
+};
+
+const HeroBarList = ({
   title,
   items,
-  releases
+  releases,
+  color = '#39ff63'
 }: {
   title: string;
   items: Array<{ slug: string; count: number }>;
   releases: Release[];
+  color?: string;
 }) => {
   const max = Math.max(1, ...items.map(item => item.count));
 
   return (
-    <article className="analytics-panel">
+    <article className="analytics-panel hero-bars">
       <h3>{title}</h3>
-      {items.length ? (
-        <div className="analytics-bars">
-          {items.map(item => (
-            <div className="analytics-bar-row" key={item.slug}>
-              <div className="analytics-bar-meta">
-                <span>{releaseName(item.slug, releases)}</span>
-                <strong>{formatNumber(item.count)}</strong>
-              </div>
-              <div className="analytics-bar-track" aria-hidden="true">
-                <span style={{ width: `${Math.max(8, (item.count / max) * 100)}%` }} />
-              </div>
+      <div className="hero-bar-stack">
+        {items.map((item, i) => (
+          <div className="hero-bar-row" key={item.slug} style={{ animationDelay: `${i * 0.05}s` }}>
+            <div className="hero-bar-label">
+              <span className="hero-bar-index">{i + 1}</span>
+              <span className="hero-bar-name">{releaseName(item.slug, releases)}</span>
+              <strong className="hero-bar-value">{formatNumber(item.count)}</strong>
             </div>
-          ))}
-        </div>
-      ) : (
-        <p className="analytics-empty-text">Aun no hay datos para esta grafica.</p>
-      )}
+            <div className="hero-bar-track">
+              <div 
+                className="hero-bar-fill" 
+                style={{ 
+                  width: `${(item.count / max) * 100}%`,
+                  backgroundColor: color
+                }} 
+              />
+            </div>
+          </div>
+        ))}
+      </div>
     </article>
   );
 };
 
-const InteractionDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
-  const total = Math.max(0, summary.interactionsTotal);
+const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
+  const total = summary.totals.view + summary.interactionsTotal;
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius;
   let offset = 0;
 
-  const gradient = total
-    ? summary.distribution
-      .filter(item => item.count > 0)
-      .map(item => {
-        const start = offset;
-        const end = offset + (item.count / total) * 100;
-        offset = end;
-        const color = item.type === 'view'
-          ? '#39ff63'
-          : item.type === 'chat_click'
-            ? '#9dffb1'
-            : '#ffd46b';
-        return `${color} ${start}% ${end}%`;
-      })
-      .join(', ')
-    : 'rgba(255,255,255,.08) 0 100%';
+  const segments = summary.distribution.filter(d => d.count > 0).map(d => {
+    const percent = (d.count / total) * 100;
+    const strokeDasharray = `${(percent / 100) * circumference} ${circumference}`;
+    const strokeDashoffset = -offset;
+    offset += (percent / 100) * circumference;
+
+    const colors: Record<ReleaseEventType, string> = {
+      view: '#39ff63',
+      chat_click: '#d4af37',
+      status_click: '#00e5ff'
+    };
+
+    return { ...d, strokeDasharray, strokeDashoffset, color: colors[d.type as ReleaseEventType] };
+  });
 
   return (
-    <article className="analytics-panel">
-      <h3>Distribucion de interacciones</h3>
-      <div className="analytics-donut-wrap">
-        <div className="analytics-donut" style={{ background: `conic-gradient(${gradient})` }}>
-          <span>{formatNumber(total)}</span>
+    <article className="analytics-panel donut-panel">
+      <h3>Distribucion de Trafico</h3>
+      <div className="donut-content">
+        <div className="donut-svg-wrap">
+          <svg viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r={radius} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
+            {segments.map(seg => (
+              <circle
+                key={seg.type}
+                cx="100"
+                cy="100"
+                r={radius}
+                fill="none"
+                stroke={seg.color}
+                strokeWidth="12"
+                strokeDasharray={seg.strokeDasharray}
+                strokeDashoffset={seg.strokeDashoffset}
+                strokeLinecap="round"
+                transform="rotate(-90 100 100)"
+                style={{ transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)' }}
+              />
+            ))}
+            <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="donut-total">
+              {formatNumber(summary.totals.view)}
+            </text>
+            <text x="50%" y="62%" dominantBaseline="middle" textAnchor="middle" className="donut-sub">
+              Visitas
+            </text>
+          </svg>
         </div>
-        <div className="analytics-legend">
-          {summary.distribution.map(item => (
-            <div className="analytics-legend-item" key={item.type}>
-              <span className={`analytics-dot ${eventClasses[item.type]}`} />
-              <span>{labels[item.type]}</span>
-              <strong>{formatNumber(item.count)}</strong>
+        <div className="donut-legend">
+          {summary.distribution.map(d => (
+            <div className="donut-legend-item" key={d.type}>
+              <span className={`dot ${d.type}`} />
+              <span className="label">{labels[d.type as ReleaseEventType]}</span>
+              <strong className="value">{formatNumber(d.count)}</strong>
             </div>
           ))}
         </div>
@@ -111,35 +190,85 @@ const InteractionDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => 
   );
 };
 
-export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProps) {
-  return (
-    <div className="analytics-dashboard">
-      {summary.error ? (
-        <div className="analytics-empty">
-          <strong>Analiticas pendientes</strong>
-          <p>{summary.error}</p>
-        </div>
-      ) : null}
-
-      <div className="analytics-metrics">
-        <MetricCard label="Visitas totales" value={summary.totals.view} tone="views" />
-        <MetricCard label="Clics en chat" value={summary.totals.chat_click} tone="chat" />
-        <MetricCard label="Clics en estado" value={summary.totals.status_click} tone="status" />
-        <MetricCard label="Interacciones" value={summary.interactionsTotal} tone="total" />
+const FutureMetrics = () => (
+  <article className="analytics-panel future-panel">
+    <h3>Insights Avanzados</h3>
+    <div className="future-grid">
+      <div className="future-card">
+        <span className="icon">🌍</span>
+        <strong>Paises y Ciudades</strong>
+        <p>Proximamente</p>
       </div>
+      <div className="future-card">
+        <span className="icon">📱</span>
+        <strong>Dispositivos</strong>
+        <p>Proximamente</p>
+      </div>
+      <div className="future-card">
+        <span className="icon">🔗</span>
+        <strong>Canales (IG/TikTok)</strong>
+        <p>Proximamente</p>
+      </div>
+    </div>
+  </article>
+);
+
+export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProps) {
+  const topReleaseSlug = summary.topViews[0]?.slug;
+  const topReleaseTitle = releases.find(r => r.slug === topReleaseSlug)?.title || 'Ninguno';
+
+  return (
+    <div className="analytics-container fade-in">
+      {summary.error && (
+        <div className="analytics-error-toast">
+          <p>⚠️ {summary.error}</p>
+        </div>
+      )}
+
+      <section className="analytics-hero-metrics">
+        <KPICard label="Visitas Totales" value={summary.totals.view} tone="green" />
+        <KPICard label="Interacciones" value={summary.interactionsTotal} tone="cyan" />
+        <KPICard label="Lanzamiento Top" value={topReleaseTitle} tone="gold" />
+        <KPICard label="Conversion" value={summary.conversionRate.toFixed(1)} suffix="%" tone="gold" />
+      </section>
 
       {!summary.hasData && !summary.error ? (
-        <div className="analytics-empty">
-          <strong>Aun no hay eventos registrados</strong>
-          <p>Cuando la landing empiece a recibir visitas y clics, este panel mostrara los datos reales.</p>
+        <div className="analytics-empty-state">
+          <h2>Dashboard en espera de datos</h2>
+          <p>Cuando los fans empiecen a interactuar con los lanzamientos, veras la magia aqui.</p>
         </div>
-      ) : null}
-
-      <div className="analytics-grid">
-        <BarList title="Lanzamientos mas vistos" items={summary.topViews} releases={releases} />
-        <BarList title="Mas clics en chat" items={summary.topChatClicks} releases={releases} />
-        <InteractionDonut summary={summary} />
-      </div>
+      ) : (
+        <>
+          <TrendLine data={summary.dailyStats} />
+          
+          <div className="analytics-main-grid">
+            <HeroBarList 
+              title="Top Lanzamientos (Visitas)" 
+              items={summary.topViews} 
+              releases={releases} 
+            />
+            <div className="analytics-side-stack">
+              <ModernDonut summary={summary} />
+              <FutureMetrics />
+            </div>
+          </div>
+          
+          <div className="analytics-secondary-grid">
+            <HeroBarList 
+              title="Clics en Chat" 
+              items={summary.topChatClicks} 
+              releases={releases}
+              color="#d4af37"
+            />
+            <HeroBarList 
+              title="Clics en Estado" 
+              items={summary.topStatusClicks} 
+              releases={releases}
+              color="#00e5ff"
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }

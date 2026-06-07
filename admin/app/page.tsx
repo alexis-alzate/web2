@@ -67,13 +67,16 @@ const emptyAnalyticsSummary = (error?: string): ReleaseAnalyticsSummary => ({
     status_click: 0
   },
   interactionsTotal: 0,
+  conversionRate: 0,
   topViews: [],
   topChatClicks: [],
+  topStatusClicks: [],
   distribution: [
     { type: 'view', count: 0 },
     { type: 'chat_click', count: 0 },
     { type: 'status_click', count: 0 }
   ],
+  dailyStats: [],
   hasData: false,
   error
 });
