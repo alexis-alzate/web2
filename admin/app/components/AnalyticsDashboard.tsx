@@ -100,18 +100,23 @@ const HeroBarList = ({
 
   return (
     <article className="analytics-panel hero-bars compact">
-      <h3>{title}</h3>
+      <div className="panel-header-simple">
+        <h3>{title}</h3>
+        <span className="panel-badge">{items.length}</span>
+      </div>
       <div className="hero-bar-stack">
         {items.map((item, i) => {
           const rel = findRelease(item.slug, releases);
           return (
             <div className="hero-bar-row" key={item.slug} style={{ animationDelay: `${i * 0.04}s` }}>
               <div className="hero-bar-meta">
-                <span className="hero-bar-index">{i + 1}</span>
-                {rel?.cover && (
-                  <img src={rel.cover} alt="" className="hero-bar-thumb" />
-                )}
-                <span className="hero-bar-name">{rel?.title || item.slug}</span>
+                <div className="hero-bar-info">
+                  <span className="hero-bar-index">{String(i + 1).padStart(2, '0')}</span>
+                  {rel?.cover && (
+                    <img src={rel.cover} alt="" className="hero-bar-thumb" />
+                  )}
+                  <span className="hero-bar-name">{rel?.title || item.slug}</span>
+                </div>
                 <strong className="hero-bar-value">{formatNumber(item.count)}</strong>
               </div>
               <div className="hero-bar-track">
@@ -133,7 +138,7 @@ const HeroBarList = ({
 
 const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
   const total = summary.totals.view + summary.interactionsTotal;
-  const radius = 80; // Bigger donut
+  const radius = 82; // Slightly bigger
   const circumference = 2 * Math.PI * radius;
   let offset = 0;
 
@@ -154,10 +159,11 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
 
   return (
     <article className="analytics-panel donut-panel compact">
+      <h3>Distribución de Tráfico</h3>
       <div className="donut-content">
         <div className="donut-svg-wrap">
           <svg viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r={radius} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="14" />
+            <circle cx="100" cy="100" r={radius} fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="16" />
             {segments.map(seg => (
               <circle
                 key={seg.type}
@@ -166,19 +172,19 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
                 r={radius}
                 fill="none"
                 stroke={seg.color}
-                strokeWidth="14"
+                strokeWidth="16"
                 strokeDasharray={seg.strokeDasharray}
                 strokeDashoffset={seg.strokeDashoffset}
                 strokeLinecap="round"
                 transform="rotate(-90 100 100)"
-                style={{ transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                style={{ transition: 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
               />
             ))}
-            <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="donut-total">
+            <text x="50%" y="48%" dominantBaseline="middle" textAnchor="middle" className="donut-total">
               {formatNumber(summary.totals.view)}
             </text>
-            <text x="50%" y="64%" dominantBaseline="middle" textAnchor="middle" className="donut-sub">
-              Visitas
+            <text x="50%" y="62%" dominantBaseline="middle" textAnchor="middle" className="donut-sub">
+              VISITAS TOTALES
             </text>
           </svg>
         </div>
@@ -186,8 +192,10 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
           {summary.distribution.map(d => (
             <div className="donut-legend-item" key={d.type}>
               <span className={`dot ${d.type}`} />
-              <span className="label">{labels[d.type as ReleaseEventType]}</span>
-              <strong className="value">{formatNumber(d.count)}</strong>
+              <div className="legend-label-group">
+                <span className="label">{labels[d.type as ReleaseEventType]}</span>
+                <strong className="value">{formatNumber(d.count)}</strong>
+              </div>
             </div>
           ))}
         </div>
@@ -198,20 +206,20 @@ const ModernDonut = ({ summary }: { summary: ReleaseAnalyticsSummary }) => {
 
 const FutureMetrics = () => (
   <article className="analytics-panel future-panel compact">
-    <h3>Insights</h3>
+    <h3>Insights del Roster</h3>
     <div className="future-grid">
       <div className="future-card">
-        <span className="icon">🌍</span>
-        <div>
-          <strong>Geografia</strong>
-          <p>Próximamente</p>
+        <div className="future-icon-wrap">🌍</div>
+        <div className="future-text">
+          <strong>Geografía Global</strong>
+          <p>Países y Ciudades</p>
         </div>
       </div>
       <div className="future-card">
-        <span className="icon">📱</span>
-        <div>
-          <strong>Dispositivos</strong>
-          <p>Próximamente</p>
+        <div className="future-icon-wrap">📱</div>
+        <div className="future-text">
+          <strong>Tecnología</strong>
+          <p>Dispositivos y OS</p>
         </div>
       </div>
     </div>
