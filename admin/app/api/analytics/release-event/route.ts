@@ -59,6 +59,7 @@ export const POST = async (request: Request) => {
 
   const body = payload && typeof payload === 'object' ? payload as Record<string, unknown> : {};
   const releaseSlug = cleanText(body.release_slug, 90);
+  const artistSlug = cleanText(body.artist_slug, 90);
   const eventType = cleanText(body.event_type, 32) as ReleaseEventType;
   const userAgent = cleanText(request.headers.get('user-agent'), 500);
 
@@ -72,6 +73,7 @@ export const POST = async (request: Request) => {
 
   const row = {
     release_slug: releaseSlug,
+    artist_slug: artistSlug || null,
     event_type: eventType,
     source_url: cleanText(body.source_url, 500),
     referrer: cleanText(body.referrer, 500),
