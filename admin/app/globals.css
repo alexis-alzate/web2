@@ -696,6 +696,29 @@ label {
   color: rgba(255,255,255,0.4);
 }
 
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-icon {
+  font-size: 0.9rem;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+}
+
+.hero-bar-thumb-empty {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
 .analytics-panel h3 {
   margin: 0 0 12px 0;
   font-size: 0.62rem;

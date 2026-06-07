@@ -89,31 +89,46 @@ const HeroBarList = ({
   title,
   items,
   releases,
-  color = '#39ff63'
+  color = '#39ff63',
+  icon
 }: {
   title: string;
   items: Array<{ slug: string; count: number }>;
   releases: Release[];
   color?: string;
+  icon?: string;
 }) => {
   const max = Math.max(1, ...items.map(item => item.count));
+  const mainSiteUrl = 'https://www.lujourban.com/';
 
   return (
     <article className="analytics-panel hero-bars compact">
       <div className="panel-header-simple">
-        <h3>{title}</h3>
+        <div className="title-with-icon">
+          {icon && <span className="title-icon">{icon}</span>}
+          <h3>{title}</h3>
+        </div>
         <span className="panel-badge">{items.length}</span>
       </div>
       <div className="hero-bar-stack">
         {items.map((item, i) => {
           const rel = findRelease(item.slug, releases);
+          let coverUrl = rel?.cover;
+          if (coverUrl && !coverUrl.startsWith('http') && !coverUrl.startsWith('/')) {
+            coverUrl = mainSiteUrl + coverUrl;
+          }
+
           return (
             <div className="hero-bar-row" key={item.slug} style={{ animationDelay: `${i * 0.04}s` }}>
               <div className="hero-bar-meta">
                 <div className="hero-bar-info">
                   <span className="hero-bar-index">{String(i + 1).padStart(2, '0')}</span>
-                  {rel?.cover && (
-                    <img src={rel.cover} alt="" className="hero-bar-thumb" />
+                  {coverUrl ? (
+                    <img src={coverUrl} alt="" className="hero-bar-thumb" onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }} />
+                  ) : (
+                    <div className="hero-bar-thumb-empty">♪</div>
                   )}
                   <span className="hero-bar-name">{rel?.title || item.slug}</span>
                 </div>
@@ -259,6 +274,7 @@ export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProp
               title="Top Lanzamientos" 
               items={summary.topViews} 
               releases={releases} 
+              icon="🔥"
             />
             <div className="analytics-side-stack compact">
               <ModernDonut summary={summary} />
@@ -272,12 +288,14 @@ export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProp
               items={summary.topChatClicks} 
               releases={releases}
               color="#d4af37"
+              icon="💬"
             />
             <HeroBarList 
               title="Engagement: Estado" 
               items={summary.topStatusClicks} 
               releases={releases}
               color="#00e5ff"
+              icon="📱"
             />
           </div>
         </>
