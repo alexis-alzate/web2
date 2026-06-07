@@ -660,6 +660,56 @@ label {
 .analytics-trend-badge.down { color: #f08b8b; }
 .analytics-trend-badge.flat { color: rgba(255, 255, 255, 0.4); }
 
+.analytics-interaction-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.analytics-interaction-bar {
+  display: flex;
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.analytics-interaction-segment {
+  height: 100%;
+}
+
+.analytics-interaction-segment.chat { background: #6fe39a; }
+.analytics-interaction-segment.status { background: #ffd889; }
+
+.analytics-interaction-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.66rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.analytics-interaction-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.analytics-interaction-legend .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  font-style: normal;
+}
+
+.analytics-interaction-legend .dot.chat { background: #6fe39a; }
+.analytics-interaction-legend .dot.status { background: #ffd889; }
+
 .analytics-sparkline {
   display: block;
   width: 100%;
@@ -715,6 +765,32 @@ label {
   width: 16px;
   flex-shrink: 0;
   text-align: center;
+}
+
+.analytics-release-rank.is-top {
+  color: #ffd889;
+  font-size: 0.78rem;
+}
+
+.analytics-release-bar-track {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.analytics-release-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.analytics-release-bar-fill.is-top {
+  background: #ffd889;
 }
 
 .analytics-release-cover {
