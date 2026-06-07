@@ -68,14 +68,7 @@ const emptyAnalyticsSummary = (error?: string): ReleaseAnalyticsSummary => ({
   },
   interactionsTotal: 0,
   conversionRate: 0,
-  topViews: [],
-  topChatClicks: [],
-  topStatusClicks: [],
-  distribution: [
-    { type: 'view', count: 0 },
-    { type: 'chat_click', count: 0 },
-    { type: 'status_click', count: 0 }
-  ],
+  releases: [],
   dailyStats: [],
   hasData: false,
   error

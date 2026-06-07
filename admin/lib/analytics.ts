@@ -8,14 +8,18 @@ export type DailyStat = {
   interaction: number;
 };
 
+export type ReleaseStat = {
+  slug: string;
+  views: number;
+  interactions: number;
+  conversionRate: number;
+};
+
 export type ReleaseAnalyticsSummary = {
   totals: Record<ReleaseEventType, number>;
   interactionsTotal: number;
   conversionRate: number;
-  topViews: Array<{ slug: string; count: number }>;
-  topChatClicks: Array<{ slug: string; count: number }>;
-  topStatusClicks: Array<{ slug: string; count: number }>;
-  distribution: Array<{ type: ReleaseEventType; count: number }>;
+  releases: ReleaseStat[];
   dailyStats: DailyStat[];
   hasData: boolean;
   error?: string;
@@ -55,21 +59,22 @@ export const createAnalyticsSupabaseClient = () =>
     }
   });
 
-const incrementBySlug = (map: Map<string, number>, slug: string) => {
-  map.set(slug, (map.get(slug) || 0) + 1);
-};
+type ReleaseAccumulator = { views: number; interactions: number };
 
-const sortTop = (map: Map<string, number>) =>
+const buildReleaseStats = (map: Map<string, ReleaseAccumulator>): ReleaseStat[] =>
   Array.from(map.entries())
-    .map(([slug, count]) => ({ slug, count }))
-    .sort((left, right) => right.count - left.count)
-    .slice(0, 10);
+    .map(([slug, { views, interactions }]) => ({
+      slug,
+      views,
+      interactions,
+      conversionRate: views > 0 ? (interactions / views) * 100 : 0
+    }))
+    .sort((left, right) => right.views - left.views)
+    .slice(0, 20);
 
 export const getReleaseAnalyticsSummary = async (): Promise<ReleaseAnalyticsSummary> => {
   const totals = emptyTotals();
-  const topViews = new Map<string, number>();
-  const topChatClicks = new Map<string, number>();
-  const topStatusClicks = new Map<string, number>();
+  const releaseMap = new Map<string, ReleaseAccumulator>();
   const dailyMap = new Map<string, DailyStat>();
 
   // Generar ultimos 30 dias para el mapa
@@ -99,9 +104,11 @@ export const getReleaseAnalyticsSummary = async (): Promise<ReleaseAnalyticsSumm
       if (!slug || !validEventTypes.includes(eventType)) return;
 
       totals[eventType] += 1;
-      if (eventType === 'view') incrementBySlug(topViews, slug);
-      if (eventType === 'chat_click') incrementBySlug(topChatClicks, slug);
-      if (eventType === 'status_click') incrementBySlug(topStatusClicks, slug);
+
+      const releaseEntry = releaseMap.get(slug) || { views: 0, interactions: 0 };
+      if (eventType === 'view') releaseEntry.views += 1;
+      else releaseEntry.interactions += 1;
+      releaseMap.set(slug, releaseEntry);
 
       // Procesar estadisticas diarias
       if (createdAt) {
@@ -121,10 +128,7 @@ export const getReleaseAnalyticsSummary = async (): Promise<ReleaseAnalyticsSumm
       totals,
       interactionsTotal: 0,
       conversionRate: 0,
-      topViews: [],
-      topChatClicks: [],
-      topStatusClicks: [],
-      distribution: validEventTypes.map(type => ({ type, count: 0 })),
+      releases: [],
       dailyStats: Array.from(dailyMap.values()),
       hasData: false,
       error: error instanceof Error ? error.message : 'No se pudieron cargar las analiticas.'
@@ -138,10 +142,7 @@ export const getReleaseAnalyticsSummary = async (): Promise<ReleaseAnalyticsSumm
     totals,
     interactionsTotal,
     conversionRate,
-    topViews: sortTop(topViews),
-    topChatClicks: sortTop(topChatClicks),
-    topStatusClicks: sortTop(topStatusClicks),
-    distribution: validEventTypes.map(type => ({ type, count: totals[type] })),
+    releases: buildReleaseStats(releaseMap),
     dailyStats: Array.from(dailyMap.values()),
     hasData: (totals.view + interactionsTotal) > 0
   };
