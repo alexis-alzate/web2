@@ -248,7 +248,7 @@ export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProp
   const topReleaseTitle = releases.find(r => r.slug === topReleaseSlug)?.title || 'Ninguno';
 
   return (
-    <div className="analytics-container compact fade-in">
+    <div className="analytics-container compact fade-in analytics-premium">
       {summary.error && (
         <div className="analytics-error-toast">
           <p>⚠️ {summary.error}</p>
