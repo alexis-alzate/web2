@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReleaseAnalyticsSummary, ReleaseEventType, DailyStat } from '@/lib/analytics';
 
 type Release = {
