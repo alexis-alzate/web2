@@ -3,7 +3,6 @@ const latestRelease = {
   trackingTitle: "Gloria y Honra",
   slug: "gloriayhonra",
   artist: 'ZAETTA',
-  artistSlug: 'zaetta',
   cover: "assets/gloriayhonra-cover.jpg",
   link: "https://too.fm/dewo8xz",
   shareUrl: "https://www.lujourban.com/lanzamientos/gloriayhonra-v2/",
