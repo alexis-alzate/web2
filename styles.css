@@ -19,6 +19,39 @@
     --lux-label-font: .66rem;
     --lux-copy-muted: rgba(255,255,255,.68);
   }
+  /* Enlace flotante hacia LUJO URBAN — discreto, presente en todas las páginas del sello */
+  .lujourban-home-link {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(227, 184, 115, 0.32);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #e3b873;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  }
+
+  .lujourban-home-link:hover {
+    border-color: rgba(227, 184, 115, 0.6);
+    background: rgba(0, 0, 0, 0.75);
+    transform: translateY(-1px);
+  }
+
+  .lujourban-home-link svg { width: 12px; height: 12px; opacity: 0.85; }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body { background: var(--black); color: #fff; font-family: "Barlow", sans-serif; overflow-x: hidden; }

@@ -373,6 +373,12 @@ const renderArtistPage = artist => {
 ${trackingHead}
 </head>
 <body class="artist-page">
+
+<a href="https://casa.lujourban.com" class="lujourban-home-link" data-track-event="artista_${eventSlug}_lujourban_casa_click" data-track-label="lujourban_home_link" data-track-content="LUJO URBAN">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+  LUJO URBAN
+</a>
+
 ${trackingNoScript}
 <main>
 ${renderHeroPhoto(artist)}
