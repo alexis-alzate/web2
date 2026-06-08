@@ -671,10 +671,31 @@ const renderVisionPersonRow = (person: VisionPerson) => `    <a class="people-ro
       </div>
     </a>`;
 
+const visionStarPosition = (index: number) => ({
+  top: index * 150 + (index % 2 === 1 ? 70 : 0),
+  left: 4 + Math.round((index * 61.8) % 80)
+});
+
+const renderConstellationLines = (people: VisionPerson[], height: number) => {
+  if (people.length < 2) return '';
+
+  const points = people.map((_, index) => {
+    const { top, left } = visionStarPosition(index);
+    return { x: left + 4, y: top + 50 };
+  });
+
+  const segments = points.slice(1).map((point, index) =>
+    `    <line x1="${points[index].x}" y1="${points[index].y}" x2="${point.x}" y2="${point.y}" />`
+  ).join('\n');
+
+  return `  <svg class="constellation-lines" viewBox="0 0 100 ${height}" preserveAspectRatio="none" aria-hidden="true">
+${segments}
+  </svg>`;
+};
+
 const renderVisionStar = (person: VisionPerson, index: number) => {
   const isActive = index === 0;
-  const top = index * 150 + (index % 2 === 1 ? 70 : 0);
-  const left = 4 + Math.round((index * 61.8) % 80);
+  const { top, left } = visionStarPosition(index);
   const glow = visionGlowPalette[index % visionGlowPalette.length];
   const photoOrEmpty = person.photo
     ? `<img src="${escapeHtml(person.photo)}" alt="${escapeHtml(person.name)}">`
@@ -714,7 +735,7 @@ export const updateVisionContent = (
   next = replaceVisionBlock(
     next,
     /<div class="constellation"[^>]*>[\s\S]*?<\/div>\n<\/section>/,
-    `<div class="constellation" style="min-height: ${constellationHeight}px;">\n${constellationPeople.map(renderVisionStar).join('\n')}\n  </div>\n</section>`,
+    `<div class="constellation" style="min-height: ${constellationHeight}px;">\n${renderConstellationLines(constellationPeople, constellationHeight)}\n${constellationPeople.map(renderVisionStar).join('\n')}\n  </div>\n</section>`,
     'la sección "constellation"'
   );
 

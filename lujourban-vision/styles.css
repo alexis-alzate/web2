@@ -530,15 +530,35 @@ img { display: block; max-width: 100%; }
   inset: 0;
   z-index: 0;
   background-image:
-    radial-gradient(1.5px 1.5px at 12% 18%, rgba(244, 239, 231, 0.5) 50%, transparent 52%),
-    radial-gradient(1px 1px at 28% 64%, rgba(244, 239, 231, 0.35) 50%, transparent 52%),
-    radial-gradient(1.5px 1.5px at 46% 30%, rgba(244, 239, 231, 0.4) 50%, transparent 52%),
-    radial-gradient(1px 1px at 62% 78%, rgba(244, 239, 231, 0.3) 50%, transparent 52%),
-    radial-gradient(1.5px 1.5px at 78% 22%, rgba(227, 184, 115, 0.4) 50%, transparent 52%),
-    radial-gradient(1px 1px at 88% 58%, rgba(244, 239, 231, 0.32) 50%, transparent 52%),
-    radial-gradient(1.5px 1.5px at 36% 88%, rgba(244, 239, 231, 0.28) 50%, transparent 52%),
-    radial-gradient(1px 1px at 8% 70%, rgba(227, 184, 115, 0.3) 50%, transparent 52%);
-  opacity: 0.7;
+    radial-gradient(2px 2px at 12% 18%, rgba(244, 239, 231, 0.8) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 28% 64%, rgba(244, 239, 231, 0.6) 50%, transparent 52%),
+    radial-gradient(2px 2px at 46% 30%, rgba(244, 239, 231, 0.7) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 62% 78%, rgba(244, 239, 231, 0.55) 50%, transparent 52%),
+    radial-gradient(2.5px 2.5px at 78% 22%, rgba(227, 184, 115, 0.65) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 88% 58%, rgba(244, 239, 231, 0.55) 50%, transparent 52%),
+    radial-gradient(2px 2px at 36% 88%, rgba(244, 239, 231, 0.5) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 8% 70%, rgba(227, 184, 115, 0.55) 50%, transparent 52%),
+    radial-gradient(1px 1px at 20% 42%, rgba(244, 239, 231, 0.4) 50%, transparent 52%),
+    radial-gradient(1px 1px at 54% 12%, rgba(227, 184, 115, 0.45) 50%, transparent 52%),
+    radial-gradient(1px 1px at 70% 92%, rgba(244, 239, 231, 0.4) 50%, transparent 52%),
+    radial-gradient(1px 1px at 94% 38%, rgba(244, 239, 231, 0.4) 50%, transparent 52%);
+  opacity: 0.95;
+}
+
+.constellation-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.constellation-lines line {
+  stroke: rgba(227, 184, 115, 0.16);
+  stroke-width: 1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .constellation > * {
@@ -644,6 +664,10 @@ img { display: block; max-width: 100%; }
     top: auto !important;
     left: auto !important;
     width: 104px;
+  }
+
+  .constellation-lines {
+    display: none;
   }
 }
 
