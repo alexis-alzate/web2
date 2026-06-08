@@ -192,6 +192,13 @@ label {
   text-transform: uppercase;
 }
 
+label small {
+  font-size: .7rem;
+  letter-spacing: normal;
+  text-transform: none;
+  opacity: .65;
+}
+
 .shell {
   width: min(1080px, calc(100% - 34px));
   margin: 0 auto;

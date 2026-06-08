@@ -392,6 +392,7 @@ export default async function DashboardPage() {
                 <label className="span-2">
                   Subir foto
                   <input name="photoFile" type="file" accept="image/*" />
+                  <small>Usa una foto cuadrada (ej. 1000x1000px) para que se vea perfecta en todas las secciones.</small>
                 </label>
                 <label className="span-2">
                   Foto ya subida (si no subes una nueva)
@@ -502,6 +503,7 @@ export default async function DashboardPage() {
                             <label>
                               Subir foto nueva
                               <input name="photoFile" type="file" accept="image/*" />
+                              <small>Usa una foto cuadrada (ej. 1000x1000px) para que se vea perfecta en todas las secciones.</small>
                             </label>
                             <label>
                               Foto (si no subes una nueva)
