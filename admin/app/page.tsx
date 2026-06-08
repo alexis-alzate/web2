@@ -1,10 +1,13 @@
 import { readJson } from '@/lib/github';
 import {
   addArtistReleaseAction,
+  addCasaCatalogPickAction,
   createHomeReleaseAction,
   deleteArtistAction,
   moveArtistAction,
+  moveCasaCatalogPickAction,
   reactivateArtistReleaseAction,
+  removeCasaCatalogPickAction,
   saveArtistAction,
   reactivateHomeReleaseAction
 } from './actions';
@@ -60,6 +63,16 @@ type ArtistReleaseHistory = {
   artists: Record<string, NonNullable<Artist['release']>[]>;
 };
 
+type CasaCatalogPick = {
+  source: 'zaetta' | 'artist';
+  artistSlug?: string;
+  releaseSlug: string;
+};
+
+type CasaCatalogConfig = {
+  picks: CasaCatalogPick[];
+};
+
 const emptyAnalyticsSummary = (error?: string): ReleaseAnalyticsSummary => ({
   totals: {
     view: 0,
@@ -82,6 +95,30 @@ const initials = (name: string) => name
   .slice(0, 2)
   .map(part => part[0])
   .join('');
+
+const resolveCasaCatalogPickLabel = (
+  pick: CasaCatalogPick,
+  artistData: ArtistData,
+  releaseHistory: ReleaseHistory,
+  artistReleaseHistory: ArtistReleaseHistory
+) => {
+  if (pick.source === 'artist') {
+    const artist = artistData.artists.find(item => item.slug === pick.artistSlug);
+    const release = (artistReleaseHistory.artists[pick.artistSlug || ''] || []).find(item => item.slug === pick.releaseSlug);
+    return {
+      title: release?.title || pick.releaseSlug,
+      cover: release?.cover ? `https://www.lujourban.com/${release.cover.replace(/^\/+/, '')}` : '',
+      sourceName: artist ? (artist.cardName || artist.name) : 'Artista'
+    };
+  }
+
+  const release = releaseHistory.releases.find(item => item.slug === pick.releaseSlug);
+  return {
+    title: release?.title || pick.releaseSlug,
+    cover: release?.cover ? `https://www.lujourban.com/${release.cover.replace(/^\/+/, '')}` : '',
+    sourceName: 'Zaetta'
+  };
+};
 
 const ModuleIcon = ({ name }: { name: ModuleIconName }) => {
   const paths: Record<ModuleIconName, JSX.Element> = {
@@ -162,13 +199,15 @@ export default async function DashboardPage() {
   let artistData: ArtistData;
   let releaseHistory: ReleaseHistory;
   let artistReleaseHistory: ArtistReleaseHistory;
+  let casaCatalog: CasaCatalogConfig;
   let analyticsSummary: ReleaseAnalyticsSummary = emptyAnalyticsSummary();
 
   try {
-    [artistData, releaseHistory, artistReleaseHistory] = await Promise.all([
+    [artistData, releaseHistory, artistReleaseHistory, casaCatalog] = await Promise.all([
       readJson<ArtistData>('artist-data.json', { artists: [] }),
       readJson<ReleaseHistory>('release-history.json', { releases: [] }),
-      readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} })
+      readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
+      readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] })
     ]);
     analyticsSummary = await getReleaseAnalyticsSummary();
   } catch (error) {
@@ -662,6 +701,113 @@ export default async function DashboardPage() {
                 );
               })}
             </div>
+          </div>
+        </details>
+      </section>
+
+      <section className="section">
+        <details className="folder">
+          <summary>
+            <span className="module-summary">
+              <ModuleIcon name="music" />
+              <span>
+                <strong>El catalogo (Casa)</strong>
+                <small>Elige y ordena lo que aparece en "El catalogo" de la pagina Casa</small>
+              </span>
+            </span>
+          </summary>
+          <div className="folder-body">
+            <p className="muted">
+              Fija aqui, en orden, los lanzamientos que quieres mostrar en las tarjetas del catalogo
+              (tuyos o del roster). Los espacios libres se completan automaticamente con tus
+              lanzamientos mas recientes.
+            </p>
+
+            {casaCatalog.picks.length > 0 && (
+              <ol className="cards catalog-picks">
+                {casaCatalog.picks.map((pick, index) => {
+                  const label = resolveCasaCatalogPickLabel(pick, artistData, releaseHistory, artistReleaseHistory);
+                  return (
+                    <li className="card" key={`${pick.source}-${pick.artistSlug || 'zaetta'}-${pick.releaseSlug}`}>
+                      {label.cover ? (
+                        <img className="thumb" src={label.cover} alt="" />
+                      ) : (
+                        <div className="thumb placeholder">{initials(label.title)}</div>
+                      )}
+                      <div>
+                        <h3>{`${index + 1}. ${label.title}`}</h3>
+                        <p className="muted">{label.sourceName}</p>
+                      </div>
+                      <div className="actions">
+                        <ActionForm
+                          action={moveCasaCatalogPickAction}
+                          savingMessage="Moviendo lanzamiento..."
+                          successMessage="Orden del catalogo actualizado."
+                        >
+                          <input name="index" type="hidden" value={index} />
+                          <input name="direction" type="hidden" value="up" />
+                          <SubmitButton pendingText="..." disabled={index === 0}>↑ Subir</SubmitButton>
+                        </ActionForm>
+                        <ActionForm
+                          action={moveCasaCatalogPickAction}
+                          savingMessage="Moviendo lanzamiento..."
+                          successMessage="Orden del catalogo actualizado."
+                        >
+                          <input name="index" type="hidden" value={index} />
+                          <input name="direction" type="hidden" value="down" />
+                          <SubmitButton pendingText="..." disabled={index === casaCatalog.picks.length - 1}>↓ Bajar</SubmitButton>
+                        </ActionForm>
+                        <ActionForm
+                          action={removeCasaCatalogPickAction}
+                          savingMessage="Quitando del catalogo..."
+                          successMessage={`${label.title} ya no esta fijo en el catalogo.`}
+                        >
+                          <input name="index" type="hidden" value={index} />
+                          <SubmitButton className="danger" pendingText="Quitando...">Quitar</SubmitButton>
+                        </ActionForm>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+
+            <details className="subfolder">
+              <summary>Fijar lanzamiento en el catalogo</summary>
+              <ActionForm
+                action={addCasaCatalogPickAction}
+                className="grid"
+                savingMessage="Fijando lanzamiento en el catalogo..."
+                successMessage="Lanzamiento fijado en el catalogo."
+                resetOnSuccess
+              >
+                <label className="span-2">
+                  Lanzamiento
+                  <select name="pick" required>
+                    <option value="">Seleccionar</option>
+                    <optgroup label="Zaetta">
+                      {releaseHistory.releases.map(release => (
+                        <option key={`zaetta-${release.slug}`} value={`zaetta||${release.slug}`}>{release.title}</option>
+                      ))}
+                    </optgroup>
+                    {artistData.artists.map(artist => {
+                      const releases = artistReleaseHistory.artists[artist.slug] || [];
+                      if (!releases.length) return null;
+                      return (
+                        <optgroup key={artist.slug} label={artist.cardName || artist.name}>
+                          {releases.map(release => (
+                            <option key={`${artist.slug}-${release.slug}`} value={`artist|${artist.slug}|${release.slug}`}>{release.title}</option>
+                          ))}
+                        </optgroup>
+                      );
+                    })}
+                  </select>
+                </label>
+                <SubmitButton className="primary span-2" pendingText="Fijando...">
+                  Fijar en el catalogo
+                </SubmitButton>
+              </ActionForm>
+            </details>
           </div>
         </details>
       </section>

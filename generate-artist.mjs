@@ -592,6 +592,31 @@ const releaseToVisionEntry = release => ({
   link: release.link
 });
 
+const resolveCasaCatalogPick = (pick, zaettaReleases, artistReleases) => {
+  const release = pick.source === 'artist'
+    ? (pick.artistSlug ? (artistReleases[pick.artistSlug] || []).find(item => item.slug === pick.releaseSlug) : null)
+    : zaettaReleases.find(item => item.slug === pick.releaseSlug);
+
+  return release && release.cover ? releaseToVisionEntry(release) : null;
+};
+
+const resolveCasaCatalog = (zaettaReleases, artistReleases, catalog) => {
+  const picked = catalog.picks
+    .map(pick => resolveCasaCatalogPick(pick, zaettaReleases, artistReleases))
+    .filter(Boolean);
+
+  if (picked.length >= VISION_MAX_CRATE) return picked.slice(0, VISION_MAX_CRATE);
+
+  const usedZaettaSlugs = new Set(catalog.picks.filter(pick => pick.source === 'zaetta').map(pick => pick.releaseSlug));
+  const fallback = zaettaReleases
+    .filter(release => !usedZaettaSlugs.has(release.slug || ''))
+    .slice(-(VISION_MAX_CRATE - picked.length))
+    .reverse()
+    .map(releaseToVisionEntry);
+
+  return [...picked, ...fallback];
+};
+
 const replaceVisionBlock = (source, pattern, replacement, label) => {
   if (!pattern.test(source)) throw new Error(`No encontre ${label} en lujourban-vision/index.html.`);
   return source.replace(pattern, replacement);
@@ -626,7 +651,7 @@ const renderVisionCrateItem = release => `    <a class="crate-cover" href="${esc
       <span class="crate-label">${escapeHtml(release.title)}</span>
     </a>`;
 
-const updateVisionContent = (source, data, releases) => {
+const updateVisionContent = (source, data, releases, artistReleases, catalog) => {
   const recentArtists = data.artists.slice(-2).reverse();
   const featuredPeople = [ZAETTA_VISION_PERSON, ...recentArtists.map(artistToVisionPerson)];
 
@@ -647,7 +672,7 @@ const updateVisionContent = (source, data, releases) => {
     'la sección "constellation"'
   );
 
-  const crateReleases = releases.slice(-VISION_MAX_CRATE).reverse().map(releaseToVisionEntry);
+  const crateReleases = resolveCasaCatalog(releases, artistReleases, catalog);
 
   next = replaceVisionBlock(
     next,
@@ -660,12 +685,14 @@ const updateVisionContent = (source, data, releases) => {
 };
 
 const updateVisionPage = async data => {
-  const [source, history] = await Promise.all([
+  const [source, history, artistHistory, catalog] = await Promise.all([
     readFile('lujourban-vision/index.html', 'utf8'),
-    readFile('release-history.json', 'utf8').then(JSON.parse).catch(() => ({ releases: [] }))
+    readFile('release-history.json', 'utf8').then(JSON.parse).catch(() => ({ releases: [] })),
+    readFile('artist-release-history.json', 'utf8').then(JSON.parse).catch(() => ({ artists: {} })),
+    readFile('casa-catalog.json', 'utf8').then(JSON.parse).catch(() => ({ picks: [] }))
   ]);
 
-  await writeFile('lujourban-vision/index.html', updateVisionContent(source, data, history.releases || []));
+  await writeFile('lujourban-vision/index.html', updateVisionContent(source, data, history.releases || [], artistHistory.artists || {}, catalog));
 };
 
 const buildArtists = async data => {

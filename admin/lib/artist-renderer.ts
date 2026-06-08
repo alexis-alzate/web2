@@ -571,12 +571,23 @@ type VisionRelease = {
 };
 
 const VISION_MAX_STARS = 8;
-const VISION_MAX_CRATE = 6;
+export const VISION_MAX_CRATE = 6;
 
 export type VisionCatalogEntry = {
   title: string;
   cover: string;
   link: string;
+  slug?: string;
+};
+
+export type CasaCatalogPick = {
+  source: 'zaetta' | 'artist';
+  artistSlug?: string;
+  releaseSlug: string;
+};
+
+export type CasaCatalogConfig = {
+  picks: CasaCatalogPick[];
 };
 
 const visionGlowPalette = [
@@ -613,6 +624,39 @@ const releaseToVisionEntry = (release: VisionCatalogEntry): VisionRelease => ({
   link: release.link
 });
 
+const resolveCasaCatalogPick = (
+  pick: CasaCatalogPick,
+  zaettaReleases: VisionCatalogEntry[],
+  artistReleases: Record<string, ArtistRelease[]>
+): VisionRelease | null => {
+  const release = pick.source === 'artist'
+    ? (pick.artistSlug ? (artistReleases[pick.artistSlug] || []).find(item => item.slug === pick.releaseSlug) : null)
+    : zaettaReleases.find(item => item.slug === pick.releaseSlug);
+
+  return release && release.cover ? releaseToVisionEntry(release as VisionCatalogEntry) : null;
+};
+
+const resolveCasaCatalog = (
+  zaettaReleases: VisionCatalogEntry[],
+  artistReleases: Record<string, ArtistRelease[]>,
+  catalog: CasaCatalogConfig
+): VisionRelease[] => {
+  const picked = catalog.picks
+    .map(pick => resolveCasaCatalogPick(pick, zaettaReleases, artistReleases))
+    .filter((entry): entry is VisionRelease => Boolean(entry));
+
+  if (picked.length >= VISION_MAX_CRATE) return picked.slice(0, VISION_MAX_CRATE);
+
+  const usedZaettaSlugs = new Set(catalog.picks.filter(pick => pick.source === 'zaetta').map(pick => pick.releaseSlug));
+  const fallback = zaettaReleases
+    .filter(release => !usedZaettaSlugs.has(release.slug || ''))
+    .slice(-(VISION_MAX_CRATE - picked.length))
+    .reverse()
+    .map(releaseToVisionEntry);
+
+  return [...picked, ...fallback];
+};
+
 const replaceVisionBlock = (source: string, pattern: RegExp, replacement: string, label: string) => {
   if (!pattern.test(source)) throw new Error(`No encontre ${label} en lujourban-vision/index.html.`);
   return source.replace(pattern, replacement);
@@ -647,7 +691,13 @@ const renderVisionCrateItem = (release: VisionRelease) => `    <a class="crate-c
       <span class="crate-label">${escapeHtml(release.title)}</span>
     </a>`;
 
-export const updateVisionContent = (source: string, data: ArtistData, releases: VisionCatalogEntry[]) => {
+export const updateVisionContent = (
+  source: string,
+  data: ArtistData,
+  releases: VisionCatalogEntry[],
+  artistReleases: Record<string, ArtistRelease[]>,
+  catalog: CasaCatalogConfig
+) => {
   const recentArtists = data.artists.slice(-2).reverse();
   const featuredPeople = [ZAETTA_VISION_PERSON, ...recentArtists.map(artistToVisionPerson)];
 
@@ -668,7 +718,7 @@ export const updateVisionContent = (source: string, data: ArtistData, releases: 
     'la sección "constellation"'
   );
 
-  const crateReleases = releases.slice(-VISION_MAX_CRATE).reverse().map(releaseToVisionEntry);
+  const crateReleases = resolveCasaCatalog(releases, artistReleases, catalog);
 
   next = replaceVisionBlock(
     next,
@@ -680,7 +730,14 @@ export const updateVisionContent = (source: string, data: ArtistData, releases: 
   return next;
 };
 
-export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: { source: string; releases: VisionCatalogEntry[] }) => [
+export type VisionBuildInputs = {
+  source: string;
+  releases: VisionCatalogEntry[];
+  artistReleases: Record<string, ArtistRelease[]>;
+  catalog: CasaCatalogConfig;
+};
+
+export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: VisionBuildInputs) => [
   { path: 'artist-data.json', content: `${JSON.stringify(data, null, 2)}\n` },
   { path: 'artistas/index.html', content: renderDirectory(data.artists) },
   { path: 'sitemap.xml', content: updateSitemapContent(sitemap, data.artists) },
@@ -688,5 +745,8 @@ export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: { s
     path: `artistas/${artist.slug}/index.html`,
     content: renderArtistPage(artist)
   })),
-  ...(vision ? [{ path: 'lujourban-vision/index.html', content: updateVisionContent(vision.source, data, vision.releases) }] : [])
+  ...(vision ? [{
+    path: 'lujourban-vision/index.html',
+    content: updateVisionContent(vision.source, data, vision.releases, vision.artistReleases, vision.catalog)
+  }] : [])
 ];

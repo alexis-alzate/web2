@@ -599,6 +599,12 @@ label small {
   justify-content: flex-end;
 }
 
+.catalog-picks {
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
 /* Analytics Dashboard — LUJO URBAN (mobile-first, sin efectos decorativos) */
 
 .analytics-container {

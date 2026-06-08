@@ -8,9 +8,13 @@ import {
   type ArtistData,
   type ArtistRelease,
   type ArtistReleaseHistory,
+  type CasaCatalogConfig,
+  type CasaCatalogPick,
   buildArtistFiles,
   compactArtistName,
-  slugify as slugifyArtist
+  slugify as slugifyArtist,
+  updateVisionContent,
+  VISION_MAX_CRATE
 } from '@/lib/artist-renderer';
 
 type Release = {
@@ -86,12 +90,40 @@ const readArtistBuildInputs = async () => Promise.all([
 ]);
 
 const readVisionBuildInputs = async () => {
-  const [source, history] = await Promise.all([
+  const [source, history, artistHistory, catalog] = await Promise.all([
     readFile('lujourban-vision/index.html'),
-    readJson<ReleaseHistory>('release-history.json', { releases: [] })
+    readJson<ReleaseHistory>('release-history.json', { releases: [] }),
+    readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
+    readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] })
   ]);
-  return { source, releases: history.releases };
+  return { source, releases: history.releases, artistReleases: artistHistory.artists, catalog };
 };
+
+const readCasaCatalog = () => readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] });
+
+const rebuildCasaCatalog = async (catalog: CasaCatalogConfig, message: string) => {
+  const [data, vision] = await Promise.all([
+    readJson<ArtistData>('artist-data.json', { artists: [] }),
+    readVisionBuildInputs()
+  ]);
+
+  await commitFiles([
+    { path: 'lujourban-vision/index.html', content: updateVisionContent(vision.source, data, vision.releases, vision.artistReleases, catalog) },
+    { path: 'casa-catalog.json', content: `${JSON.stringify(catalog, null, 2)}\n` }
+  ], message);
+  revalidatePath('/');
+};
+
+const parseCasaCatalogPick = (value: string): CasaCatalogPick | null => {
+  const [source, artistSlug, releaseSlug] = String(value || '').split('|');
+  if (!releaseSlug) return null;
+  if (source === 'artist' && artistSlug) return { source: 'artist', artistSlug, releaseSlug };
+  if (source === 'zaetta') return { source: 'zaetta', releaseSlug };
+  return null;
+};
+
+const samePick = (a: CasaCatalogPick, b: CasaCatalogPick) =>
+  a.source === b.source && a.artistSlug === b.artistSlug && a.releaseSlug === b.releaseSlug;
 
 type UploadedFile = { path: string; content: string; encoding: 'base64' };
 
@@ -453,4 +485,44 @@ export const reactivateArtistReleaseAction = async (formData: FormData) => {
 
   artist.release = selected;
   await commitArtistBuild(data, sitemap, `Reactivate ${selected.title} for ${artist.name}`);
+};
+
+export const addCasaCatalogPickAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const pick = parseCasaCatalogPick(String(formData.get('pick') || ''));
+  if (!pick) throw new Error('Selecciona un lanzamiento valido.');
+
+  const catalog = await readCasaCatalog();
+  if (catalog.picks.some(item => samePick(item, pick))) throw new Error('Ese lanzamiento ya esta fijado en el catalogo.');
+  if (catalog.picks.length >= VISION_MAX_CRATE) throw new Error(`Solo puedes fijar hasta ${VISION_MAX_CRATE} lanzamientos.`);
+
+  catalog.picks.push(pick);
+  await rebuildCasaCatalog(catalog, 'Pin release to Casa catalog');
+};
+
+export const removeCasaCatalogPickAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const index = Number(formData.get('index'));
+  const catalog = await readCasaCatalog();
+  if (!Number.isInteger(index) || index < 0 || index >= catalog.picks.length) throw new Error('No encontre esa posicion del catalogo.');
+
+  catalog.picks.splice(index, 1);
+  await rebuildCasaCatalog(catalog, 'Unpin release from Casa catalog');
+};
+
+export const moveCasaCatalogPickAction = async (formData: FormData) => {
+  await requireAdmin();
+
+  const index = Number(formData.get('index'));
+  const direction = String(formData.get('direction') || '');
+  const catalog = await readCasaCatalog();
+  if (!Number.isInteger(index) || index < 0 || index >= catalog.picks.length) throw new Error('No encontre esa posicion del catalogo.');
+
+  const targetIndex = direction === 'up' ? index - 1 : index + 1;
+  if (targetIndex < 0 || targetIndex >= catalog.picks.length) return;
+
+  [catalog.picks[index], catalog.picks[targetIndex]] = [catalog.picks[targetIndex], catalog.picks[index]];
+  await rebuildCasaCatalog(catalog, 'Reorder Casa catalog');
 };
