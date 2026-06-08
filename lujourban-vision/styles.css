@@ -793,8 +793,13 @@ img { display: block; max-width: 100%; }
 
   .people-list { flex-direction: row; }
   .people-row { flex: 1; flex-direction: column; align-items: flex-start; gap: 14px; }
-  .people-row img,
-  .people-empty { width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 12px; }
+  .people-row img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+
+  .people-empty { width: 100%; height: 200px; border-radius: 12px; }
 
   .constellation { min-height: 520px; }
   .star-a { top: 10px; left: 8%; }
