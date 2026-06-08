@@ -581,6 +581,14 @@ img { display: block; max-width: 100%; }
     drop-shadow(0 0 2px rgba(248, 220, 168, 0.6))
     drop-shadow(0 0 6px rgba(227, 184, 115, 0.25));
   animation: v-line-shimmer 5s linear infinite;
+  transition: filter 0.3s ease, stroke 0.3s ease;
+}
+
+.constellation:has(.star:hover) .constellation-lines line {
+  stroke: rgba(248, 220, 168, 0.8);
+  filter:
+    drop-shadow(0 0 3px rgba(248, 220, 168, 1))
+    drop-shadow(0 0 10px rgba(227, 184, 115, 0.6));
 }
 
 @keyframes v-line-shimmer {
