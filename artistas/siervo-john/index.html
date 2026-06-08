@@ -136,6 +136,47 @@ fbq('track', 'PageView');
     window.clarity('event', eventName);
   };
 
+  const releaseAnalyticsEndpoint = 'https://admin.lujourban.com/api/analytics/release-event';
+  const releaseAnalyticsSent = new Set();
+
+  const detectAnalyticsDevice = () => {
+    const text = navigator.userAgent.toLowerCase();
+    if (/ipad|tablet|kindle|playbook/.test(text)) return 'tablet';
+    if (/mobi|android|iphone|ipod/.test(text)) return 'mobile';
+    return 'desktop';
+  };
+
+  const sendReleaseAnalyticsEvent = (releaseSlug, artistSlug, eventType, onceKey = '') => {
+    if (!releaseSlug || !['view', 'chat_click', 'status_click'].includes(eventType)) return;
+
+    const key = onceKey || (eventType + ':' + releaseSlug);
+    if (releaseAnalyticsSent.has(key)) return;
+    releaseAnalyticsSent.add(key);
+
+    const payload = {
+      release_slug: releaseSlug,
+      artist_slug: artistSlug || null,
+      event_type: eventType,
+      source_url: window.location.href,
+      referrer: document.referrer || '',
+      device_type: detectAnalyticsDevice()
+    };
+
+    try {
+      window.fetch(releaseAnalyticsEndpoint, {
+        method: 'POST',
+        mode: 'cors',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+    } catch {
+      // Analytics must never block the artist profile.
+    }
+  };
+
   const trackedOnce = new Set();
   const trackEvent = (eventName, params = {}, once = false) => {
     const key = eventName + ':' + (params.label || params.section || params.content_name || '');
@@ -211,6 +252,11 @@ fbq('track', 'PageView');
         if (!entry.isIntersecting) return;
 
         const element = entry.target;
+        const releaseSlug = element.dataset.releaseSlug || '';
+        if (releaseSlug) {
+          sendReleaseAnalyticsEvent(releaseSlug, element.dataset.artistSlug || '', 'view', 'view:' + releaseSlug);
+        }
+
         trackEvent(element.dataset.viewEvent, {
           label: element.dataset.viewLabel || '',
           section: element.querySelector('.section-label, h1, h2')?.textContent.trim() || ''

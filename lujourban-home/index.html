@@ -10,11 +10,64 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VGKG8CCY6L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VGKG8CCY6L');
+</script>
+<!-- End Google Analytics -->
+<!-- Microsoft Clarity -->
+<script>
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "wziogq92mh");
+</script>
+<!-- End Microsoft Clarity -->
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '670742718071367');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
+<!-- TikTok Pixel Code -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;
+  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+  n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;
+  e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D857IOBC77U70JIQN4BG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- End TikTok Pixel Code -->
 </head>
 <body>
+<noscript>
+  <img height="1" width="1" style="display:none" alt=""
+    src="https://www.facebook.com/tr?id=670742718071367&ev=PageView&noscript=1">
+</noscript>
 
 <!-- UMBRAL -->
-<section class="threshold">
+<section class="threshold" data-view-event="casa_hero_visto" data-view-label="casa_hero">
   <span class="threshold-halo" aria-hidden="true"></span>
   <div class="threshold-content">
     <p class="threshold-wordmark"><span>LUJO</span><span>URBAN</span></p>
@@ -23,12 +76,12 @@
 </section>
 
 <!-- PULSO -->
-<section class="lh-section">
+<section class="lh-section" data-view-event="casa_pulso_visto" data-view-label="casa_pulso">
   <p class="section-tag">El pulso</p>
   <h2 class="section-title">Lo que está sonando ahora</h2>
 
   <div class="pulse-grid">
-    <a class="pulse-feature" href="../lanzamientos/seguire-v1/">
+    <a class="pulse-feature" href="../lanzamientos/seguire-v1/" data-track-event="casa_pulso_seguire_click" data-track-label="casa_pulso_feature" data-track-content="Seguiré">
       <img src="../assets/seguire-cover.jpg" alt="Portada de Seguiré">
       <div class="pulse-feature-info">
         <span class="pulse-feature-label">Último lanzamiento</span>
@@ -37,11 +90,11 @@
     </a>
 
     <div class="pulse-secondary">
-      <a class="pulse-card" href="../lanzamientos/gloriayhonra-v2/">
+      <a class="pulse-card" href="../lanzamientos/gloriayhonra-v2/" data-track-event="casa_pulso_gloriayhonra_click" data-track-label="casa_pulso_card" data-track-content="Gloria y Honra">
         <img src="../assets/gloriayhonra-cover.jpg" alt="Portada de Gloria y Honra">
         <span>Gloria y Honra</span>
       </a>
-      <a class="pulse-card" href="../lanzamientos/predicador-v4/">
+      <a class="pulse-card" href="../lanzamientos/predicador-v4/" data-track-event="casa_pulso_predicador_click" data-track-label="casa_pulso_card" data-track-content="Predicador">
         <img src="../assets/predicador-cover.jpg" alt="Portada de Predicador">
         <span>Predicador</span>
       </a>
@@ -52,7 +105,7 @@
 <div class="lh-divider"></div>
 
 <!-- ZAETTA MUSIC -->
-<section class="lh-section">
+<section class="lh-section" data-view-event="casa_sello_visto" data-view-label="casa_sello">
   <div class="label-section">
     <div class="label-mark">
       <img src="../assets/zaetta-music-logo.jpg" alt="ZAETTA MUSIC">
@@ -68,12 +121,12 @@
 <div class="lh-divider"></div>
 
 <!-- ROSTER -->
-<section class="lh-section">
+<section class="lh-section" data-view-event="casa_roster_visto" data-view-label="casa_roster">
   <p class="section-tag">El roster</p>
   <h2 class="section-title">Las voces de la casa</h2>
 
   <div class="roster-grid">
-    <a class="roster-card" href="../index.html">
+    <a class="roster-card" href="../index.html" data-track-event="casa_roster_zaetta_click" data-track-label="casa_roster_card" data-track-content="ZAETTA">
       <img src="../assets/hero.jpg" alt="ZAETTA">
       <div class="roster-card-info">
         <span class="roster-name">ZAETTA</span>
@@ -81,7 +134,7 @@
       </div>
     </a>
 
-    <a class="roster-card" href="../artistas/siervo-john/">
+    <a class="roster-card" href="../artistas/siervo-john/" data-track-event="casa_roster_siervo_john_click" data-track-label="casa_roster_card" data-track-content="El Siervo Jhon">
       <img src="../assets/siervo-john-photo.jpeg" alt="El Siervo Jhon">
       <div class="roster-card-info">
         <span class="roster-name">El Siervo Jhon</span>
@@ -89,7 +142,7 @@
       </div>
     </a>
 
-    <a class="roster-card" href="../artistas/evangelista-gonzalez/">
+    <a class="roster-card" href="../artistas/evangelista-gonzalez/" data-track-event="casa_roster_evangelista_gonzalez_click" data-track-label="casa_roster_card" data-track-content="Evangelista Gonzalez">
       <span class="roster-card-empty">♪</span>
       <div class="roster-card-info">
         <span class="roster-name">Evangelista Gonzalez</span>
@@ -102,16 +155,88 @@
 <div class="lh-divider"></div>
 
 <!-- INVITACIÓN FINAL -->
-<section class="lh-section invite-section">
+<section class="lh-section invite-section" data-view-event="casa_invitacion_visto" data-view-label="casa_invitacion">
   <p class="section-tag">Sigue cerca</p>
   <h2 class="section-title">La puerta sigue abierta</h2>
   <p class="invite-text">Si quieres ser parte del movimiento — como oyente, como colaborador o como artista — este es el lugar para empezar la conversación.</p>
-  <a class="invite-button" href="mailto:zaetaalex@gmail.com">Escribir correo</a>
+  <a class="invite-button" href="mailto:zaetaalex@gmail.com" data-track-event="casa_invitacion_correo_click" data-track-label="casa_invitacion_cta" data-track-content="Escribir correo">Escribir correo</a>
 </section>
 
 <footer class="lh-footer">
   LUJO URBAN — vista experimental local · no publicada · no indexada
 </footer>
+
+<script>
+  const trackMetaEvent = (eventName, params = {}) => {
+    if (typeof window.fbq !== 'function') return;
+    window.fbq('trackCustom', eventName, params);
+  };
+
+  const trackTikTokEvent = (eventName, params = {}) => {
+    if (!window.ttq || typeof window.ttq.track !== 'function') return;
+    window.ttq.track(eventName, params);
+  };
+
+  const trackGoogleEvent = (eventName, params = {}) => {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', eventName, params);
+  };
+
+  const trackClarityEvent = eventName => {
+    if (typeof window.clarity !== 'function') return;
+    window.clarity('event', eventName);
+  };
+
+  const trackedOnce = new Set();
+  const trackEvent = (eventName, params = {}, once = false) => {
+    const key = eventName + ':' + (params.label || params.section || params.content_name || '');
+    if (once && trackedOnce.has(key)) return;
+    if (once) trackedOnce.add(key);
+
+    trackMetaEvent(eventName, params);
+    trackTikTokEvent(eventName, params);
+    trackGoogleEvent(eventName, params);
+    trackClarityEvent(eventName);
+  };
+
+  window.setTimeout(() => trackEvent('casa_interes_10s', {
+    label: 'time_on_page',
+    seconds: 10
+  }, true), 10000);
+
+  window.setTimeout(() => trackEvent('casa_interes_30s', {
+    label: 'time_on_page',
+    seconds: 30
+  }, true), 30000);
+
+  document.querySelectorAll('[data-track-event]').forEach(element => {
+    element.addEventListener('click', () => {
+      trackEvent(element.dataset.trackEvent, {
+        label: element.dataset.trackLabel || '',
+        content_name: element.dataset.trackContent || element.textContent.trim(),
+        destination: element.href || ''
+      });
+    });
+  });
+
+  const trackedViews = document.querySelectorAll('[data-view-event]');
+  if (trackedViews.length && 'IntersectionObserver' in window) {
+    const viewObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const element = entry.target;
+        trackEvent(element.dataset.viewEvent, {
+          label: element.dataset.viewLabel || '',
+          section: element.querySelector('.section-title, h1, h2')?.textContent.trim() || ''
+        }, true);
+        viewObserver.unobserve(element);
+      });
+    }, { threshold: 0.35 });
+
+    trackedViews.forEach(element => viewObserver.observe(element));
+  }
+</script>
 
 </body>
 </html>
