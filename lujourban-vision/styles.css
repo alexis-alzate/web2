@@ -588,7 +588,6 @@ img { display: block; max-width: 100%; }
 }
 
 .constellation > * {
-  position: relative;
   z-index: 1;
 }
 
