@@ -10,6 +10,55 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=18">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VGKG8CCY6L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VGKG8CCY6L');
+</script>
+<!-- End Google Analytics -->
+<!-- Microsoft Clarity -->
+<script>
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "wziogq92mh");
+</script>
+<!-- End Microsoft Clarity -->
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '670742718071367');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
+<!-- TikTok Pixel Code -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;
+  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._o=ttq._o||{},ttq._o[e]=n||{};
+  n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;
+  e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D857IOBC77U70JIQN4BG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- End TikTok Pixel Code -->
 <script>
   try {
     var hour = new Date().getHours();
@@ -39,9 +88,13 @@
 </script>
 </head>
 <body id="top">
+<noscript>
+  <img height="1" width="1" style="display:none" alt=""
+    src="https://www.facebook.com/tr?id=670742718071367&ev=PageView&noscript=1">
+</noscript>
 
 <!-- APERTURA: el instante antes de ver algo -->
-<section class="vision-open">
+<section class="vision-open" data-view-event="casa_apertura_vista" data-view-label="casa_apertura">
   <span class="vision-stars" aria-hidden="true"></span>
   <span class="vision-shooting-star" aria-hidden="true"></span>
   <img class="vision-fly vision-fly-1" src="https://lujourban.com/assets/predicador-cover.jpg" alt="" aria-hidden="true">
@@ -59,13 +112,13 @@
 </section>
 
 <!-- LA GENTE DEL SELLO -->
-<section class="vision-section">
+<section class="vision-section" data-view-event="casa_gente_vista" data-view-label="casa_gente">
   <p class="vision-tag">Quiénes están detrás</p>
   <h2 class="vision-title">La gente del sello</h2>
   <p class="vision-intro">No hace falta inventar nada — esto es, simplemente, quién hace parte de la casa.</p>
 
   <div class="people-list">
-    <a class="people-row" href="https://lujourban.com/index.html">
+    <a class="people-row" href="https://lujourban.com/index.html" data-track-event="casa_gente_click" data-track-label="casa_gente_card" data-track-content="ZAETTA">
       <img src="https://lujourban.com/assets/hero.jpg" alt="ZAETTA">
       <div class="people-info">
         <span class="people-name">ZAETTA</span>
@@ -74,7 +127,7 @@
       </div>
     </a>
 
-    <a class="people-row" href="https://lujourban.com/artistas/siervo-john/">
+    <a class="people-row" href="https://lujourban.com/artistas/siervo-john/" data-track-event="casa_gente_click" data-track-label="casa_gente_card" data-track-content="El Siervo Jhon">
       <img src="https://lujourban.com/assets/siervo-john-photo.jpeg" alt="El Siervo Jhon">
       <div class="people-info">
         <span class="people-name">El Siervo Jhon</span>
@@ -83,7 +136,7 @@
       </div>
     </a>
 
-    <a class="people-row" href="https://lujourban.com/artistas/evangelista-gonzalez/">
+    <a class="people-row" href="https://lujourban.com/artistas/evangelista-gonzalez/" data-track-event="casa_gente_click" data-track-label="casa_gente_card" data-track-content="Evangelista Gonzalez">
       <span class="people-empty" aria-hidden="true">♪</span>
       <div class="people-info">
         <span class="people-name">Evangelista Gonzalez</span>
@@ -92,10 +145,12 @@
       </div>
     </a>
   </div>
+
+  <p class="vision-intro"><a href="https://lujourban.com/artistas/" class="vision-loop" data-track-event="casa_gente_vertodo_click" data-track-label="casa_gente_link" data-track-content="Ver todos los artistas">Ver todos los artistas →</a></p>
 </section>
 
 <!-- LA VOZ DE LA CASA -->
-<section class="voice-section">
+<section class="voice-section" data-view-event="casa_voz_vista" data-view-label="casa_voz">
   <p class="vision-tag">Lo que creemos</p>
   <p class="voice-line">No hacemos contenido.<br><strong>Hacemos memoria.</strong></p>
   <p class="voice-line">No perseguimos tendencias.<br><strong>Construimos una casa.</strong></p>
@@ -103,23 +158,23 @@
 </section>
 
 <!-- CONSTELACIÓN DEL ROSTER -->
-<section class="vision-section">
+<section class="vision-section" data-view-event="casa_constelacion_vista" data-view-label="casa_constelacion">
   <p class="vision-tag">El roster</p>
   <h2 class="vision-title">Una constelación, no una lista</h2>
   <p class="vision-intro">Cada artista ocupa su propio espacio, con su propia luz y su propio color — y, sin embargo, todos pertenecen al mismo cielo.</p>
 
   <div class="constellation">
-    <a class="star star-a is-active" href="https://lujourban.com/index.html">
+    <a class="star star-a is-active" href="https://lujourban.com/index.html" data-track-event="casa_constelacion_click" data-track-label="casa_constelacion_star" data-track-content="ZAETTA">
       <span class="star-active-mark" aria-hidden="true"></span>
       <img src="https://lujourban.com/assets/hero.jpg" alt="ZAETTA">
       <span>ZAETTA</span>
       <span class="star-active-label">sonando ahora</span>
     </a>
-    <a class="star star-b" href="https://lujourban.com/artistas/siervo-john/">
+    <a class="star star-b" href="https://lujourban.com/artistas/siervo-john/" data-track-event="casa_constelacion_click" data-track-label="casa_constelacion_star" data-track-content="El Siervo Jhon">
       <img src="https://lujourban.com/assets/siervo-john-photo.jpeg" alt="El Siervo Jhon">
       <span>El Siervo Jhon</span>
     </a>
-    <a class="star star-c" href="https://lujourban.com/artistas/evangelista-gonzalez/">
+    <a class="star star-c" href="https://lujourban.com/artistas/evangelista-gonzalez/" data-track-event="casa_constelacion_click" data-track-label="casa_constelacion_star" data-track-content="Evangelista Gonzalez">
       <span class="star-empty">♪</span>
       <span>Evangelista Gonzalez</span>
     </a>
@@ -127,42 +182,43 @@
 </section>
 
 <!-- UN LUGAR CON NOMBRE PROPIO -->
-<section class="vision-section place-section">
+<section class="vision-section place-section" data-view-event="casa_origen_vista" data-view-label="casa_origen">
   <p class="vision-tag">El origen</p>
   <h2 class="vision-title">Esto nace en Cali</h2>
   <p class="vision-intro">No en cualquier ciudad — en una que tiene su propio calor, su propio ritmo, su propia forma de contar las cosas. Esa ciudad está en cada lanzamiento, en cada decisión, en cada rincón de esta casa, aunque no siempre se note a simple vista. LUJO URBAN no podría existir en ningún otro lugar.</p>
 </section>
 
 <!-- EL SONIDO DETRÁS DEL SILENCIO -->
-<section class="vision-brewing">
+<section class="vision-brewing" data-view-event="casa_cocinando_vista" data-view-label="casa_cocinando">
   <p class="brewing-text">Ahora mismo, en algún cuarto de la casa, algo se está cocinando.<br>Todavía no tiene nombre. Todavía no es una fecha. Pero ya está sonando.</p>
 </section>
 
 <!-- ARCHIVO VIVO / CATÁLOGO -->
-<section class="vision-section">
+<section class="vision-section" data-view-event="casa_catalogo_vista" data-view-label="casa_catalogo">
   <p class="vision-tag">El catálogo</p>
   <h2 class="vision-title">Un archivo que sigue creciendo</h2>
   <p class="vision-intro">No es una lista de canciones para reproducir — es una colección que se ha ido formando, lanzamiento tras lanzamiento, como una crate que alguien ha cuidado durante años.</p>
 
   <div class="crate">
-    <a class="crate-cover" href="https://lujourban.com/lanzamientos/predicador-v4/">
+    <a class="crate-cover" href="https://lujourban.com/lanzamientos/predicador-v4/" data-track-event="casa_catalogo_click" data-track-label="casa_catalogo_cover" data-track-content="Predicador">
       <img src="https://lujourban.com/assets/predicador-cover.jpg" alt="Predicador">
       <span class="crate-label">Predicador</span>
     </a>
-    <a class="crate-cover" href="https://lujourban.com/lanzamientos/gloriayhonra-v2/">
+    <a class="crate-cover" href="https://lujourban.com/lanzamientos/gloriayhonra-v2/" data-track-event="casa_catalogo_click" data-track-label="casa_catalogo_cover" data-track-content="Gloria y Honra">
       <img src="https://lujourban.com/assets/gloriayhonra-cover.jpg" alt="Gloria y Honra">
       <span class="crate-label">Gloria y Honra</span>
     </a>
-    <a class="crate-cover" href="https://lujourban.com/lanzamientos/seguire-v1/">
+    <a class="crate-cover" href="https://lujourban.com/lanzamientos/seguire-v1/" data-track-event="casa_catalogo_click" data-track-label="casa_catalogo_cover" data-track-content="Seguiré">
       <img src="https://lujourban.com/assets/seguire-cover.jpg" alt="Seguiré">
       <span class="crate-label">Seguiré</span>
     </a>
   </div>
   <p class="crate-hint">Cada portada guarda un nombre — pasa el cursor para verlo.</p>
+  <p class="vision-intro"><a href="https://lujourban.com/artistas/" class="vision-loop" data-track-event="casa_catalogo_vertodo_click" data-track-label="casa_catalogo_link" data-track-content="Ver todo el catálogo">Ver todo el catálogo →</a></p>
 </section>
 
 <!-- VOCES DE ADENTRO -->
-<section class="vision-section">
+<section class="vision-section" data-view-event="casa_voces_vista" data-view-label="casa_voces">
   <p class="vision-tag">Voces de adentro</p>
   <h2 class="vision-title">Lo que dicen quienes ya están dentro</h2>
 
@@ -185,22 +241,94 @@
 </section>
 
 <!-- EL GESTO HUMANO -->
-<section class="vision-gesture">
+<section class="vision-gesture" data-view-event="casa_gesto_vista" data-view-label="casa_gesto">
   <p class="gesture-text">Si llegaste hasta aquí, ya viste más de lo que ve la mayoría.<br>Eso, de alguna forma, también te hace parte de esto.</p>
 </section>
 
 <!-- CIERRE EN ESPIRAL -->
-<section class="vision-section vision-close">
+<section class="vision-section vision-close" data-view-event="casa_cierre_vista" data-view-label="casa_cierre">
   <p class="vision-tag">Esto apenas empieza</p>
   <h2 class="vision-title">La conversación sigue abierta</h2>
   <p class="vision-intro">No hay un punto final aquí — apenas una pausa, de esas que dejas a propósito cuando todavía queda algo por decir. Lo que sigue, todavía se está escribiendo.</p>
   <p class="return-note" id="return-note" hidden></p>
-  <p class="vision-intro"><a href="#top" class="vision-loop">Vuelve al principio ↑</a></p>
+  <p class="vision-intro"><a href="#top" class="vision-loop" data-track-event="casa_volver_click" data-track-label="casa_cierre_link" data-track-content="Vuelve al principio">Vuelve al principio ↑</a></p>
 </section>
 
 <footer class="vision-footer">
   LUJO URBAN — exploración conceptual sin restricciones · contenido ilustrativo · vista local no publicada
 </footer>
+
+<script>
+  const trackMetaEvent = (eventName, params = {}) => {
+    if (typeof window.fbq !== 'function') return;
+    window.fbq('trackCustom', eventName, params);
+  };
+
+  const trackTikTokEvent = (eventName, params = {}) => {
+    if (!window.ttq || typeof window.ttq.track !== 'function') return;
+    window.ttq.track(eventName, params);
+  };
+
+  const trackGoogleEvent = (eventName, params = {}) => {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', eventName, params);
+  };
+
+  const trackClarityEvent = eventName => {
+    if (typeof window.clarity !== 'function') return;
+    window.clarity('event', eventName);
+  };
+
+  const trackedOnce = new Set();
+  const trackEvent = (eventName, params = {}, once = false) => {
+    const key = eventName + ':' + (params.label || params.section || params.content_name || '');
+    if (once && trackedOnce.has(key)) return;
+    if (once) trackedOnce.add(key);
+
+    trackMetaEvent(eventName, params);
+    trackTikTokEvent(eventName, params);
+    trackGoogleEvent(eventName, params);
+    trackClarityEvent(eventName);
+  };
+
+  window.setTimeout(() => trackEvent('casa_interes_10s', {
+    label: 'time_on_page',
+    seconds: 10
+  }, true), 10000);
+
+  window.setTimeout(() => trackEvent('casa_interes_30s', {
+    label: 'time_on_page',
+    seconds: 30
+  }, true), 30000);
+
+  document.querySelectorAll('[data-track-event]').forEach(element => {
+    element.addEventListener('click', () => {
+      trackEvent(element.dataset.trackEvent, {
+        label: element.dataset.trackLabel || '',
+        content_name: element.dataset.trackContent || element.textContent.trim(),
+        destination: element.href || ''
+      });
+    });
+  });
+
+  const trackedViews = document.querySelectorAll('[data-view-event]');
+  if (trackedViews.length && 'IntersectionObserver' in window) {
+    const viewObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const element = entry.target;
+        trackEvent(element.dataset.viewEvent, {
+          label: element.dataset.viewLabel || '',
+          section: element.querySelector('.vision-title, h1, h2')?.textContent.trim() || ''
+        }, true);
+        viewObserver.unobserve(element);
+      });
+    }, { threshold: 0.35 });
+
+    trackedViews.forEach(element => viewObserver.observe(element));
+  }
+</script>
 
 </body>
 </html>

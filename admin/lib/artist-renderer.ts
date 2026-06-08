@@ -556,12 +556,147 @@ export const updateSitemapContent = (source: string, artists: Artist[]) => {
   return cleaned.replace('\n</urlset>', `\n${artistUrls.join('\n')}\n</urlset>`);
 };
 
-export const buildArtistFiles = (data: ArtistData, sitemap: string) => [
+type VisionPerson = {
+  name: string;
+  role: string;
+  tagline: string;
+  photo: string;
+  link: string;
+};
+
+type VisionRelease = {
+  title: string;
+  cover: string;
+  link: string;
+};
+
+const VISION_MAX_STARS = 8;
+
+const visionGlowPalette = [
+  'rgba(227, 184, 115, 0.45)',
+  'rgba(217, 143, 106, 0.45)',
+  'rgba(157, 182, 199, 0.45)',
+  'rgba(176, 161, 211, 0.45)',
+  'rgba(149, 199, 168, 0.45)'
+];
+
+const prefixVisionAsset = (path: string) => path.startsWith('http')
+  ? path
+  : `https://lujourban.com/${path.replace(/^\/+/, '')}`;
+
+const ZAETTA_VISION_PERSON: VisionPerson = {
+  name: 'ZAETTA',
+  role: 'Artista · Productor',
+  tagline: 'Música con propósito. Sonidos que trascienden.',
+  photo: 'https://lujourban.com/assets/hero.jpg',
+  link: 'https://lujourban.com/index.html'
+};
+
+const artistToVisionPerson = (artist: Artist): VisionPerson => ({
+  name: artist.cardName || artist.name,
+  role: artist.role,
+  tagline: artist.tagline,
+  photo: artist.photo ? prefixVisionAsset(artist.photo) : '',
+  link: `https://lujourban.com/artistas/${artist.slug}/`
+});
+
+const parseLatestRelease = (scriptSource: string): VisionRelease | null => {
+  const block = scriptSource.match(/const latestRelease = \{[\s\S]*?\n\};/)?.[0];
+  if (!block) return null;
+
+  const title = block.match(/title:\s*['"]([^'"]+)['"]/)?.[1];
+  const cover = block.match(/cover:\s*['"]([^'"]+)['"]/)?.[1];
+  const link = block.match(/link:\s*['"]([^'"]+)['"]/)?.[1];
+  if (!title || !cover || !link) return null;
+
+  return { title, cover: prefixVisionAsset(cover), link };
+};
+
+const replaceVisionBlock = (source: string, pattern: RegExp, replacement: string, label: string) => {
+  if (!pattern.test(source)) throw new Error(`No encontre ${label} en lujourban-vision/index.html.`);
+  return source.replace(pattern, replacement);
+};
+
+const renderVisionPersonRow = (person: VisionPerson) => `    <a class="people-row" href="${escapeHtml(person.link)}" data-track-event="casa_gente_click" data-track-label="casa_gente_card" data-track-content="${escapeHtml(person.name)}">
+      ${person.photo ? `<img src="${escapeHtml(person.photo)}" alt="${escapeHtml(person.name)}">` : `<span class="people-empty" aria-hidden="true">♪</span>`}
+      <div class="people-info">
+        <span class="people-name">${escapeHtml(person.name)}</span>
+        <span class="people-role">${escapeHtml(person.role)}</span>
+        <span class="people-tagline">${escapeHtml(person.tagline)}</span>
+      </div>
+    </a>`;
+
+const renderVisionStar = (person: VisionPerson, index: number) => {
+  const isActive = index === 0;
+  const top = index * 150 + (index % 2 === 1 ? 70 : 0);
+  const left = 4 + Math.round((index * 61.8) % 80);
+  const glow = visionGlowPalette[index % visionGlowPalette.length];
+  const photoOrEmpty = person.photo
+    ? `<img src="${escapeHtml(person.photo)}" alt="${escapeHtml(person.name)}">`
+    : `<span class="star-empty">♪</span>`;
+
+  return `    <a class="star${isActive ? ' is-active' : ''}" style="top: ${top}px; left: ${left}%; --glow-color: ${glow};" href="${escapeHtml(person.link)}" data-track-event="casa_constelacion_click" data-track-label="casa_constelacion_star" data-track-content="${escapeHtml(person.name)}">
+${isActive ? `      <span class="star-active-mark" aria-hidden="true"></span>\n` : ''}      ${photoOrEmpty}
+      <span>${escapeHtml(person.name)}</span>${isActive ? `\n      <span class="star-active-label">sonando ahora</span>` : ''}
+    </a>`;
+};
+
+const renderVisionCrateItem = (release: VisionRelease) => `    <a class="crate-cover" href="${escapeHtml(release.link)}" target="_blank" rel="noopener" data-track-event="casa_catalogo_click" data-track-label="casa_catalogo_cover" data-track-content="${escapeHtml(release.title)}">
+      <img src="${escapeHtml(release.cover)}" alt="${escapeHtml(release.title)}">
+      <span class="crate-label">${escapeHtml(release.title)}</span>
+    </a>`;
+
+export const updateVisionContent = (source: string, data: ArtistData, scriptSource: string) => {
+  const recentArtists = data.artists.slice(-2).reverse();
+  const featuredPeople = [ZAETTA_VISION_PERSON, ...recentArtists.map(artistToVisionPerson)];
+
+  let next = replaceVisionBlock(
+    source,
+    /<div class="people-list">[\s\S]*?<\/section>/,
+    `<div class="people-list">\n${featuredPeople.map(renderVisionPersonRow).join('\n\n')}\n  </div>\n\n  <p class="vision-intro"><a href="https://lujourban.com/artistas/" class="vision-loop" data-track-event="casa_gente_vertodo_click" data-track-label="casa_gente_link" data-track-content="Ver todos los artistas">Ver todos los artistas →</a></p>\n</section>`,
+    'la sección "people-list"'
+  );
+
+  const constellationArtists = data.artists.slice(-(VISION_MAX_STARS - 1)).reverse();
+  const constellationPeople = [ZAETTA_VISION_PERSON, ...constellationArtists.map(artistToVisionPerson)];
+  const constellationHeight = Math.max(620, (constellationPeople.length - 1) * 150 + 320);
+  next = replaceVisionBlock(
+    next,
+    /<div class="constellation">[\s\S]*?<\/div>\n<\/section>/,
+    `<div class="constellation" style="min-height: ${constellationHeight}px;">\n${constellationPeople.map(renderVisionStar).join('\n')}\n  </div>\n</section>`,
+    'la sección "constellation"'
+  );
+
+  const zaettaRelease = parseLatestRelease(scriptSource);
+  const crateReleases: VisionRelease[] = [];
+  if (zaettaRelease) crateReleases.push(zaettaRelease);
+  recentArtists.forEach(artist => {
+    if (artist.release?.title && artist.release?.cover && artist.release?.link) {
+      crateReleases.push({
+        title: artist.release.title,
+        cover: prefixVisionAsset(artist.release.cover),
+        link: artist.release.link
+      });
+    }
+  });
+
+  next = replaceVisionBlock(
+    next,
+    /<div class="crate">[\s\S]*?<\/div>(?=\n\s*<p class="crate-hint">)/,
+    `<div class="crate">\n${crateReleases.map(renderVisionCrateItem).join('\n')}\n  </div>`,
+    'la sección "crate"'
+  );
+
+  return next;
+};
+
+export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: { source: string; script: string }) => [
   { path: 'artist-data.json', content: `${JSON.stringify(data, null, 2)}\n` },
   { path: 'artistas/index.html', content: renderDirectory(data.artists) },
   { path: 'sitemap.xml', content: updateSitemapContent(sitemap, data.artists) },
   ...data.artists.map(artist => ({
     path: `artistas/${artist.slug}/index.html`,
     content: renderArtistPage(artist)
-  }))
+  })),
+  ...(vision ? [{ path: 'lujourban-vision/index.html', content: updateVisionContent(vision.source, data, vision.script) }] : [])
 ];

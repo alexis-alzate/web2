@@ -390,7 +390,11 @@ export default async function DashboardPage() {
                   <textarea name="bio" rows={3} placeholder="Perfil oficial dentro del ecosistema Lujo Urban." />
                 </label>
                 <label className="span-2">
-                  Foto ya subida
+                  Subir foto
+                  <input name="photoFile" type="file" accept="image/*" />
+                </label>
+                <label className="span-2">
+                  Foto ya subida (si no subes una nueva)
                   <input name="photo" placeholder="assets/artista-photo.jpg" />
                 </label>
                 <label>
@@ -496,7 +500,11 @@ export default async function DashboardPage() {
                               <textarea name="bio" rows={3} defaultValue={artist.bio || ''} />
                             </label>
                             <label>
-                              Foto
+                              Subir foto nueva
+                              <input name="photoFile" type="file" accept="image/*" />
+                            </label>
+                            <label>
+                              Foto (si no subes una nueva)
                               <input name="photo" defaultValue={artist.photo || ''} />
                             </label>
                             {['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp'].map(key => (

@@ -85,8 +85,32 @@ const readArtistBuildInputs = async () => Promise.all([
   readFile('sitemap.xml')
 ]);
 
-const commitArtistBuild = async (data: ArtistData, sitemap: string, message: string) => {
-  await commitFiles(buildArtistFiles(data, sitemap), message);
+const readVisionBuildInputs = async () => {
+  const [source, script] = await Promise.all([
+    readFile('lujourban-vision/index.html'),
+    readFile('script.js')
+  ]);
+  return { source, script };
+};
+
+type UploadedFile = { path: string; content: string; encoding: 'base64' };
+
+const readUploadedImage = async (formData: FormData, field: string, slug: string, suffix: string) => {
+  const file = formData.get(field);
+  if (!(file instanceof File) || file.size === 0) return null;
+
+  const extension = (file.type.split('/')[1] || file.name.split('.').pop() || 'jpg')
+    .toLowerCase()
+    .replace('jpeg', 'jpg');
+  const path = `assets/${slug}-${suffix}.${extension}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  return { path, content: buffer.toString('base64'), encoding: 'base64' as const };
+};
+
+const commitArtistBuild = async (data: ArtistData, sitemap: string, message: string, extraFiles: UploadedFile[] = []) => {
+  const vision = await readVisionBuildInputs();
+  await commitFiles([...buildArtistFiles(data, sitemap, vision), ...extraFiles], message);
   revalidatePath('/');
 };
 
@@ -298,11 +322,13 @@ export const saveArtistAction = async (formData: FormData) => {
   const cardName = normalizeOptional(formData.get('cardName')) || compactArtistName(name);
   const tagline = normalizeOptional(formData.get('tagline')) || 'Música con identidad, visión y propósito.';
   const bio = normalizeOptional(formData.get('bio')) || `Perfil oficial de ${name} dentro del ecosistema Lujo Urban.`;
-  const photo = normalizeOptional(formData.get('photo'));
   const beatsEmbed = normalizeOptional(formData.get('beatsEmbed'));
   const productionsEmbed = normalizeOptional(formData.get('productionsEmbed'));
   const contactLabel = normalizeOptional(formData.get('contactLabel'));
   const contactUrl = normalizeOptional(formData.get('contactUrl'));
+
+  const uploadedPhoto = await readUploadedImage(formData, 'photoFile', slug, 'photo');
+  const photo = uploadedPhoto ? uploadedPhoto.path : normalizeOptional(formData.get('photo'));
 
   const [data, sitemap] = await readArtistBuildInputs();
   const existingIndex = originalSlug
@@ -328,7 +354,12 @@ export const saveArtistAction = async (formData: FormData) => {
   if (existingIndex >= 0) data.artists[existingIndex] = nextArtist;
   else data.artists.push(nextArtist);
 
-  await commitArtistBuild(data, sitemap, existingArtist ? `Update artist ${name}` : `Create artist ${name}`);
+  await commitArtistBuild(
+    data,
+    sitemap,
+    existingArtist ? `Update artist ${name}` : `Create artist ${name}`,
+    uploadedPhoto ? [uploadedPhoto] : []
+  );
 };
 
 export const moveArtistAction = async (formData: FormData) => {
@@ -379,10 +410,11 @@ export const addArtistReleaseAction = async (formData: FormData) => {
   if (!releaseSlug) throw new Error('El slug del lanzamiento es obligatorio.');
   if (!link) throw new Error('El link del lanzamiento es obligatorio.');
 
-  const [data, history, sitemap] = await Promise.all([
+  const [data, history, sitemap, vision] = await Promise.all([
     readJson<ArtistData>('artist-data.json', { artists: [] }),
     readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
-    readFile('sitemap.xml')
+    readFile('sitemap.xml'),
+    readVisionBuildInputs()
   ]);
 
   const artist = findArtist(data, artistSlug);
@@ -396,7 +428,7 @@ export const addArtistReleaseAction = async (formData: FormData) => {
   artist.release = release;
 
   await commitFiles([
-    ...buildArtistFiles(data, sitemap),
+    ...buildArtistFiles(data, sitemap, vision),
     { path: 'artist-release-history.json', content: `${JSON.stringify(history, null, 2)}\n` }
   ], `Set ${title} as latest release for ${artist.name}`);
 
