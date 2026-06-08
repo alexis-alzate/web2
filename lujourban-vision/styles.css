@@ -114,6 +114,7 @@ img { display: block; max-width: 100%; }
   height: 110px;
   border-radius: 50%;
   overflow: hidden;
+  background: #0d0d0d;
   border: 1px solid rgba(227, 184, 115, 0.65);
   box-shadow:
     0 0 16px rgba(227, 184, 115, 0.5),
@@ -136,8 +137,9 @@ img { display: block; max-width: 100%; }
 .sello-mark img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  padding: 18px;
+  box-sizing: border-box;
 }
 
 /* ---------- APERTURA: el instante antes de ver algo ---------- */
