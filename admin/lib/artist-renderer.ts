@@ -662,7 +662,7 @@ export const updateVisionContent = (source: string, data: ArtistData, scriptSour
   const constellationHeight = Math.max(620, (constellationPeople.length - 1) * 150 + 320);
   next = replaceVisionBlock(
     next,
-    /<div class="constellation">[\s\S]*?<\/div>\n<\/section>/,
+    /<div class="constellation"[^>]*>[\s\S]*?<\/div>\n<\/section>/,
     `<div class="constellation" style="min-height: ${constellationHeight}px;">\n${constellationPeople.map(renderVisionStar).join('\n')}\n  </div>\n</section>`,
     'la sección "constellation"'
   );
