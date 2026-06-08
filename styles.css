@@ -19,38 +19,53 @@
     --lux-label-font: .66rem;
     --lux-copy-muted: rgba(255,255,255,.68);
   }
-  /* Enlace flotante hacia LUJO URBAN — discreto, presente en todas las páginas del sello */
+  /* Enlace flotante hacia LUJO URBAN — una firma, no un botón: lleva a la casa con elegancia */
   .lujourban-home-link {
     position: fixed;
-    top: 16px;
-    right: 16px;
+    top: 18px;
+    right: 18px;
     z-index: 40;
     display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(227, 184, 115, 0.32);
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    color: #e3b873;
-    font-family: "Barlow Condensed", sans-serif;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    align-items: baseline;
+    gap: 7px;
     text-decoration: none;
-    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transition: opacity 0.25s ease;
   }
 
-  .lujourban-home-link:hover {
-    border-color: rgba(227, 184, 115, 0.6);
-    background: rgba(0, 0, 0, 0.75);
-    transform: translateY(-1px);
+  .lujourban-home-link span {
+    position: relative;
+    text-shadow: 0 0 18px rgba(227, 184, 115, 0.22);
+    background: linear-gradient(110deg, #b9874a 28%, #e3b873 42%, #fff3d9 50%, #e3b873 58%, #b9874a 72%);
+    background-size: 280% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: lujourban-link-shine 6.5s ease-in-out infinite;
   }
 
-  .lujourban-home-link svg { width: 12px; height: 12px; opacity: 0.85; }
+  .lujourban-home-link::after {
+    content: "→";
+    font-weight: 400;
+    letter-spacing: 0;
+    color: rgba(227, 184, 115, 0.7);
+    transition: transform 0.25s ease, color 0.25s ease;
+  }
+
+  .lujourban-home-link:hover::after {
+    transform: translateX(3px);
+    color: #e3b873;
+  }
+
+  @keyframes lujourban-link-shine {
+    0%, 38%   { background-position: 100% 0; }
+    62%, 100% { background-position: -80% 0; }
+  }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
