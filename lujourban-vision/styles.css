@@ -640,7 +640,7 @@ img { display: block; max-width: 100%; }
   }
 
   .star {
-    position: static !important;
+    position: relative !important;
     top: auto !important;
     left: auto !important;
     width: 104px;
