@@ -86,11 +86,11 @@ const readArtistBuildInputs = async () => Promise.all([
 ]);
 
 const readVisionBuildInputs = async () => {
-  const [source, script] = await Promise.all([
+  const [source, history] = await Promise.all([
     readFile('lujourban-vision/index.html'),
-    readFile('script.js')
+    readJson<ReleaseHistory>('release-history.json', { releases: [] })
   ]);
-  return { source, script };
+  return { source, releases: history.releases };
 };
 
 type UploadedFile = { path: string; content: string; encoding: 'base64' };

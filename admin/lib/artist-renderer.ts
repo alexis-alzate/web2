@@ -571,6 +571,13 @@ type VisionRelease = {
 };
 
 const VISION_MAX_STARS = 8;
+const VISION_MAX_CRATE = 6;
+
+export type VisionCatalogEntry = {
+  title: string;
+  cover: string;
+  link: string;
+};
 
 const visionGlowPalette = [
   'rgba(227, 184, 115, 0.45)',
@@ -600,17 +607,11 @@ const artistToVisionPerson = (artist: Artist): VisionPerson => ({
   link: `https://lujourban.com/artistas/${artist.slug}/`
 });
 
-const parseLatestRelease = (scriptSource: string): VisionRelease | null => {
-  const block = scriptSource.match(/const latestRelease = \{[\s\S]*?\n\};/)?.[0];
-  if (!block) return null;
-
-  const title = block.match(/title:\s*['"]([^'"]+)['"]/)?.[1];
-  const cover = block.match(/cover:\s*['"]([^'"]+)['"]/)?.[1];
-  const link = block.match(/link:\s*['"]([^'"]+)['"]/)?.[1];
-  if (!title || !cover || !link) return null;
-
-  return { title, cover: prefixVisionAsset(cover), link };
-};
+const releaseToVisionEntry = (release: VisionCatalogEntry): VisionRelease => ({
+  title: release.title,
+  cover: prefixVisionAsset(release.cover),
+  link: release.link
+});
 
 const replaceVisionBlock = (source: string, pattern: RegExp, replacement: string, label: string) => {
   if (!pattern.test(source)) throw new Error(`No encontre ${label} en lujourban-vision/index.html.`);
@@ -646,7 +647,7 @@ const renderVisionCrateItem = (release: VisionRelease) => `    <a class="crate-c
       <span class="crate-label">${escapeHtml(release.title)}</span>
     </a>`;
 
-export const updateVisionContent = (source: string, data: ArtistData, scriptSource: string) => {
+export const updateVisionContent = (source: string, data: ArtistData, releases: VisionCatalogEntry[]) => {
   const recentArtists = data.artists.slice(-2).reverse();
   const featuredPeople = [ZAETTA_VISION_PERSON, ...recentArtists.map(artistToVisionPerson)];
 
@@ -667,18 +668,7 @@ export const updateVisionContent = (source: string, data: ArtistData, scriptSour
     'la sección "constellation"'
   );
 
-  const zaettaRelease = parseLatestRelease(scriptSource);
-  const crateReleases: VisionRelease[] = [];
-  if (zaettaRelease) crateReleases.push(zaettaRelease);
-  recentArtists.forEach(artist => {
-    if (artist.release?.title && artist.release?.cover && artist.release?.link) {
-      crateReleases.push({
-        title: artist.release.title,
-        cover: prefixVisionAsset(artist.release.cover),
-        link: artist.release.link
-      });
-    }
-  });
+  const crateReleases = releases.slice(-VISION_MAX_CRATE).reverse().map(releaseToVisionEntry);
 
   next = replaceVisionBlock(
     next,
@@ -690,7 +680,7 @@ export const updateVisionContent = (source: string, data: ArtistData, scriptSour
   return next;
 };
 
-export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: { source: string; script: string }) => [
+export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: { source: string; releases: VisionCatalogEntry[] }) => [
   { path: 'artist-data.json', content: `${JSON.stringify(data, null, 2)}\n` },
   { path: 'artistas/index.html', content: renderDirectory(data.artists) },
   { path: 'sitemap.xml', content: updateSitemapContent(sitemap, data.artists) },
@@ -698,5 +688,5 @@ export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: { s
     path: `artistas/${artist.slug}/index.html`,
     content: renderArtistPage(artist)
   })),
-  ...(vision ? [{ path: 'lujourban-vision/index.html', content: updateVisionContent(vision.source, data, vision.script) }] : [])
+  ...(vision ? [{ path: 'lujourban-vision/index.html', content: updateVisionContent(vision.source, data, vision.releases) }] : [])
 ];

@@ -556,6 +556,7 @@ const updateSitemap = async artists => {
 };
 
 const VISION_MAX_STARS = 8;
+const VISION_MAX_CRATE = 6;
 
 const visionGlowPalette = [
   'rgba(227, 184, 115, 0.45)',
@@ -585,17 +586,11 @@ const artistToVisionPerson = artist => ({
   link: `https://lujourban.com/artistas/${artist.slug}/`
 });
 
-const parseLatestRelease = scriptSource => {
-  const block = scriptSource.match(/const latestRelease = \{[\s\S]*?\n\};/)?.[0];
-  if (!block) return null;
-
-  const title = block.match(/title:\s*['"]([^'"]+)['"]/)?.[1];
-  const cover = block.match(/cover:\s*['"]([^'"]+)['"]/)?.[1];
-  const link = block.match(/link:\s*['"]([^'"]+)['"]/)?.[1];
-  if (!title || !cover || !link) return null;
-
-  return { title, cover: prefixVisionAsset(cover), link };
-};
+const releaseToVisionEntry = release => ({
+  title: release.title,
+  cover: prefixVisionAsset(release.cover),
+  link: release.link
+});
 
 const replaceVisionBlock = (source, pattern, replacement, label) => {
   if (!pattern.test(source)) throw new Error(`No encontre ${label} en lujourban-vision/index.html.`);
@@ -631,7 +626,7 @@ const renderVisionCrateItem = release => `    <a class="crate-cover" href="${esc
       <span class="crate-label">${escapeHtml(release.title)}</span>
     </a>`;
 
-const updateVisionContent = (source, data, scriptSource) => {
+const updateVisionContent = (source, data, releases) => {
   const recentArtists = data.artists.slice(-2).reverse();
   const featuredPeople = [ZAETTA_VISION_PERSON, ...recentArtists.map(artistToVisionPerson)];
 
@@ -652,18 +647,7 @@ const updateVisionContent = (source, data, scriptSource) => {
     'la sección "constellation"'
   );
 
-  const zaettaRelease = parseLatestRelease(scriptSource);
-  const crateReleases = [];
-  if (zaettaRelease) crateReleases.push(zaettaRelease);
-  recentArtists.forEach(artist => {
-    if (artist.release?.title && artist.release?.cover && artist.release?.link) {
-      crateReleases.push({
-        title: artist.release.title,
-        cover: prefixVisionAsset(artist.release.cover),
-        link: artist.release.link
-      });
-    }
-  });
+  const crateReleases = releases.slice(-VISION_MAX_CRATE).reverse().map(releaseToVisionEntry);
 
   next = replaceVisionBlock(
     next,
@@ -676,12 +660,12 @@ const updateVisionContent = (source, data, scriptSource) => {
 };
 
 const updateVisionPage = async data => {
-  const [source, scriptSource] = await Promise.all([
+  const [source, history] = await Promise.all([
     readFile('lujourban-vision/index.html', 'utf8'),
-    readFile('script.js', 'utf8')
+    readFile('release-history.json', 'utf8').then(JSON.parse).catch(() => ({ releases: [] }))
   ]);
 
-  await writeFile('lujourban-vision/index.html', updateVisionContent(source, data, scriptSource));
+  await writeFile('lujourban-vision/index.html', updateVisionContent(source, data, history.releases || []));
 };
 
 const buildArtists = async data => {

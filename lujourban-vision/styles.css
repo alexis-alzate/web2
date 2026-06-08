@@ -629,6 +629,24 @@ img { display: block; max-width: 100%; }
 .star-b { --glow-color: rgba(217, 143, 106, 0.45); top: 230px; left: 52%; }
 .star-c { --glow-color: rgba(157, 182, 199, 0.45); top: 460px; left: 14%; }
 
+@media (max-width: 639px) {
+  .constellation {
+    min-height: auto !important;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 28px 18px;
+    padding: 28px 16px;
+  }
+
+  .star {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: 104px;
+  }
+}
+
 /* ---------- EL SONIDO DETRÁS DEL SILENCIO ---------- */
 
 .vision-brewing {
