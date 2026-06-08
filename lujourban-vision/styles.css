@@ -104,6 +104,10 @@ img { display: block; max-width: 100%; }
   margin-right: auto;
 }
 
+.gente-section .people-info {
+  text-align: left;
+}
+
 .sello-mark {
   display: block;
   width: 110px;
