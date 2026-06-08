@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>LUJO URBAN — Exploración conceptual sin restricciones</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=17">
+<script>
+  try {
+    var hour = new Date().getHours();
+    var timeClass = (hour >= 6 && hour < 19) ? "lv-day" : "lv-night";
+    document.documentElement.classList.add(timeClass);
+
+    if (timeClass === "lv-night") {
+      document.addEventListener("DOMContentLoaded", function () {
+        var line = document.getElementById("open-line");
+        if (line) line.textContent = "A esta hora, la casa sigue despierta.";
+      });
+    }
+
+    var seen = localStorage.getItem("lv_seen");
+    if (seen) {
+      document.addEventListener("DOMContentLoaded", function () {
+        var el = document.getElementById("return-note");
+        if (el) {
+          el.textContent = "Sigues aquí. Eso, por sí solo, ya dice algo.";
+          el.hidden = false;
+        }
+      });
+    } else {
+      localStorage.setItem("lv_seen", "1");
+    }
+  } catch (e) {}
+</script>
+</head>
+<body id="top">
+
+<!-- APERTURA: el instante antes de ver algo -->
+<section class="vision-open">
+  <span class="vision-stars" aria-hidden="true"></span>
+  <span class="vision-shooting-star" aria-hidden="true"></span>
+  <img class="vision-fly vision-fly-1" src="../assets/predicador-cover.jpg" alt="" aria-hidden="true">
+  <img class="vision-fly vision-fly-2" src="../assets/gloriayhonra-cover.jpg" alt="" aria-hidden="true">
+  <img class="vision-fly vision-fly-3" src="../assets/seguire-cover.jpg" alt="" aria-hidden="true">
+  <span class="vision-pulse" aria-hidden="true"></span>
+  <div class="vision-open-content">
+    <p class="vision-wordmark"><span>LUJO</span><span>URBAN</span></p>
+    <p class="vision-open-line" id="open-line">Antes de que vieras esto, ya estaba sonando.</p>
+  </div>
+  <span class="vision-scroll-cue" aria-hidden="true">
+    <span class="vision-scroll-line"></span>
+    <span class="vision-scroll-text">sigue explorando</span>
+  </span>
+</section>
+
+<!-- LA GENTE DEL SELLO -->
+<section class="vision-section">
+  <p class="vision-tag">Quiénes están detrás</p>
+  <h2 class="vision-title">La gente del sello</h2>
+  <p class="vision-intro">No hace falta inventar nada — esto es, simplemente, quién hace parte de la casa.</p>
+
+  <div class="people-list">
+    <a class="people-row" href="../index.html">
+      <img src="../assets/hero.jpg" alt="ZAETTA">
+      <div class="people-info">
+        <span class="people-name">ZAETTA</span>
+        <span class="people-role">Artista · Productor</span>
+        <span class="people-tagline">Música con propósito. Sonidos que trascienden.</span>
+      </div>
+    </a>
+
+    <a class="people-row" href="../artistas/siervo-john/">
+      <img src="../assets/siervo-john-photo.jpeg" alt="El Siervo Jhon">
+      <div class="people-info">
+        <span class="people-name">El Siervo Jhon</span>
+        <span class="people-role">Artista oficial</span>
+        <span class="people-tagline">Identidad cristiana con visión urbana.</span>
+      </div>
+    </a>
+
+    <a class="people-row" href="../artistas/evangelista-gonzalez/">
+      <span class="people-empty" aria-hidden="true">♪</span>
+      <div class="people-info">
+        <span class="people-name">Evangelista Gonzalez</span>
+        <span class="people-role">Artista oficial</span>
+        <span class="people-tagline">Mensaje, fe y propósito.</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- LA VOZ DE LA CASA -->
+<section class="voice-section">
+  <p class="vision-tag">Lo que creemos</p>
+  <p class="voice-line">No hacemos contenido.<br><strong>Hacemos memoria.</strong></p>
+  <p class="voice-line">No perseguimos tendencias.<br><strong>Construimos una casa.</strong></p>
+  <p class="voice-line">No somos un catálogo.<br><strong>Somos un lugar al que se vuelve.</strong></p>
+</section>
+
+<!-- CONSTELACIÓN DEL ROSTER -->
+<section class="vision-section">
+  <p class="vision-tag">El roster</p>
+  <h2 class="vision-title">Una constelación, no una lista</h2>
+  <p class="vision-intro">Cada artista ocupa su propio espacio, con su propia luz y su propio color — y, sin embargo, todos pertenecen al mismo cielo.</p>
+
+  <div class="constellation">
+    <a class="star star-a is-active" href="../index.html">
+      <span class="star-active-mark" aria-hidden="true"></span>
+      <img src="../assets/hero.jpg" alt="ZAETTA">
+      <span>ZAETTA</span>
+      <span class="star-active-label">sonando ahora</span>
+    </a>
+    <a class="star star-b" href="../artistas/siervo-john/">
+      <img src="../assets/siervo-john-photo.jpeg" alt="El Siervo Jhon">
+      <span>El Siervo Jhon</span>
+    </a>
+    <a class="star star-c" href="../artistas/evangelista-gonzalez/">
+      <span class="star-empty">♪</span>
+      <span>Evangelista Gonzalez</span>
+    </a>
+  </div>
+</section>
+
+<!-- UN LUGAR CON NOMBRE PROPIO -->
+<section class="vision-section place-section">
+  <p class="vision-tag">El origen</p>
+  <h2 class="vision-title">Esto nace en Cali</h2>
+  <p class="vision-intro">No en cualquier ciudad — en una que tiene su propio calor, su propio ritmo, su propia forma de contar las cosas. Esa ciudad está en cada lanzamiento, en cada decisión, en cada rincón de esta casa, aunque no siempre se note a simple vista. LUJO URBAN no podría existir en ningún otro lugar.</p>
+</section>
+
+<!-- EL SONIDO DETRÁS DEL SILENCIO -->
+<section class="vision-brewing">
+  <p class="brewing-text">Ahora mismo, en algún cuarto de la casa, algo se está cocinando.<br>Todavía no tiene nombre. Todavía no es una fecha. Pero ya está sonando.</p>
+</section>
+
+<!-- ARCHIVO VIVO / CATÁLOGO -->
+<section class="vision-section">
+  <p class="vision-tag">El catálogo</p>
+  <h2 class="vision-title">Un archivo que sigue creciendo</h2>
+  <p class="vision-intro">No es una lista de canciones para reproducir — es una colección que se ha ido formando, lanzamiento tras lanzamiento, como una crate que alguien ha cuidado durante años.</p>
+
+  <div class="crate">
+    <a class="crate-cover" href="../lanzamientos/predicador-v4/">
+      <img src="../assets/predicador-cover.jpg" alt="Predicador">
+      <span class="crate-label">Predicador</span>
+    </a>
+    <a class="crate-cover" href="../lanzamientos/gloriayhonra-v2/">
+      <img src="../assets/gloriayhonra-cover.jpg" alt="Gloria y Honra">
+      <span class="crate-label">Gloria y Honra</span>
+    </a>
+    <a class="crate-cover" href="../lanzamientos/seguire-v1/">
+      <img src="../assets/seguire-cover.jpg" alt="Seguiré">
+      <span class="crate-label">Seguiré</span>
+    </a>
+  </div>
+  <p class="crate-hint">Cada portada guarda un nombre — pasa el cursor para verlo.</p>
+</section>
+
+<!-- VOCES DE ADENTRO -->
+<section class="vision-section">
+  <p class="vision-tag">Voces de adentro</p>
+  <h2 class="vision-title">Lo que dicen quienes ya están dentro</h2>
+
+  <div class="voices-grid">
+    <blockquote class="voice-card">
+      <p>“Esto no se trata solo de hacer música — se trata de construir algo que valga la pena dejar.”</p>
+      <cite>ZAETTA</cite>
+    </blockquote>
+    <blockquote class="voice-card">
+      <p>“Aquí encontré un lugar donde mi mensaje y mi sonido podían convivir, sin tener que elegir entre los dos.”</p>
+      <cite>El Siervo Jhon</cite>
+    </blockquote>
+    <blockquote class="voice-card">
+      <p>“No es solo un sello — es una casa que cree en lo que hago, incluso en los días en que yo dudo.”</p>
+      <cite>Evangelista Gonzalez</cite>
+    </blockquote>
+  </div>
+
+  <p class="vision-note">* Voces ilustrativas — así se sentiría escuchar a quienes forman parte de la casa contar, en sus propias palabras, lo que significa estar aquí. No son citas verificadas.</p>
+</section>
+
+<!-- EL GESTO HUMANO -->
+<section class="vision-gesture">
+  <p class="gesture-text">Si llegaste hasta aquí, ya viste más de lo que ve la mayoría.<br>Eso, de alguna forma, también te hace parte de esto.</p>
+</section>
+
+<!-- CIERRE EN ESPIRAL -->
+<section class="vision-section vision-close">
+  <p class="vision-tag">Esto apenas empieza</p>
+  <h2 class="vision-title">La conversación sigue abierta</h2>
+  <p class="vision-intro">No hay un punto final aquí — apenas una pausa, de esas que dejas a propósito cuando todavía queda algo por decir. Lo que sigue, todavía se está escribiendo.</p>
+  <p class="return-note" id="return-note" hidden></p>
+  <p class="vision-intro"><a href="#top" class="vision-loop">Vuelve al principio ↑</a></p>
+</section>
+
+<footer class="vision-footer">
+  LUJO URBAN — exploración conceptual sin restricciones · contenido ilustrativo · vista local no publicada
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "_nota": "Referencia de contenido para la exploracion conceptual /lujourban-vision/. No se carga desde el navegador (cero fetch, cero JS). El roster y el catalogo usan datos reales de artist-data.json y release-history.json; los 'momentos del muro de historia' son contenido ILUSTRATIVO que muestra la FORMA en que se contaria la historia real del sello una vez que exista, no hechos verificados.",
+  "roster_real": [
+    { "name": "ZAETTA", "url": "../index.html" },
+    { "name": "El Siervo Jhon", "url": "../artistas/siervo-john/" },
+    { "name": "Evangelista Gonzalez", "url": "../artistas/evangelista-gonzalez/" }
+  ],
+  "catalogo_real": ["Seguiré", "Gloria y Honra", "Predicador"],
+  "momentos_ilustrativos": [
+    "El primer cuarto prestado",
+    "La primera vez que sonó en la radio",
+    "La noche que grabamos hasta el amanecer",
+    "El día que el estudio por fin tuvo luz propia"
+  ]
+}
