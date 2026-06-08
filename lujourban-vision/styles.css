@@ -116,6 +116,8 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   background: #0d0d0d;
   border: 1px solid rgba(227, 184, 115, 0.65);
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
   box-shadow:
     0 0 16px rgba(227, 184, 115, 0.5),
     0 0 40px rgba(227, 184, 115, 0.2),
