@@ -621,10 +621,9 @@ ${isActive ? `      <span class="star-active-mark" aria-hidden="true"></span>\n`
     </a>`;
 };
 
-const renderVisionCrateItem = (release, index) => `    <a class="crate-cover${index === 0 ? ' is-latest' : ''}" href="${escapeHtml(release.link)}" target="_blank" rel="noopener" data-track-event="casa_catalogo_click" data-track-label="casa_catalogo_cover" data-track-content="${escapeHtml(release.title)}">
-      <span class="crate-index">${String(index + 1).padStart(2, '0')}</span>
+const renderVisionCrateItem = release => `    <a class="crate-cover" href="${escapeHtml(release.link)}" target="_blank" rel="noopener" data-track-event="casa_catalogo_click" data-track-label="casa_catalogo_cover" data-track-content="${escapeHtml(release.title)}">
       <img src="${escapeHtml(release.cover)}" alt="${escapeHtml(release.title)}">
-      <span class="crate-label">${escapeHtml(release.title)}${index === 0 ? '<small>Lo más reciente del archivo</small>' : ''}</span>
+      <span class="crate-label">${escapeHtml(release.title)}</span>
     </a>`;
 
 const updateVisionContent = (source, data, releases) => {
@@ -653,7 +652,7 @@ const updateVisionContent = (source, data, releases) => {
   next = replaceVisionBlock(
     next,
     /<div class="crate">[\s\S]*?<\/div>(?=\n\s*<p class="crate-hint">)/,
-    `<div class="crate">\n${crateReleases.map((release, index) => renderVisionCrateItem(release, index)).join('\n')}\n  </div>`,
+    `<div class="crate">\n${crateReleases.map(renderVisionCrateItem).join('\n')}\n  </div>`,
     'la sección "crate"'
   );
 
