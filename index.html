@@ -51,18 +51,60 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "MusicGroup",
-  "name": "ZAETTA",
-  "alternateName": "ZAETTA MUSIC",
-  "description": "Artista y productor de música urbana cristiana independiente desde Cali, Colombia.",
-  "genre": ["Música urbana cristiana", "Urbano latino"],
-  "image": "https://www.lujourban.com/assets/hero.jpg",
-  "sameAs": [
-    "https://open.spotify.com/intl-es/artist/0AbJWz3DlXPzBCjR4bMH7H?si=9_vBjBJzTBuqbF90x8Io1A",
-    "https://www.tiktok.com/@zaetamusic7",
-    "https://www.instagram.com/zaettamusic?igsh=MzNzbGNlY3h5eW4z",
-    "https://youtube.com/@zaetamusicinc?si=qpoJSAeHoKgBYhgw",
-    "https://www.facebook.com/share/1H8fJLyAAt/"
+  "@graph": [
+    {
+      "@type": "MusicGroup",
+      "name": "Zaetta",
+      "alternateName": "Zaetta Music",
+      "url": "https://www.lujourban.com",
+      "description": "Cantante, rapero y productor de música urbana cristiana originario de Cali, Colombia. Géneros: rap, drill, trap y reggaetón con mensajes de fe.",
+      "genre": ["Rap", "Drill", "Trap", "Reggaetón", "Música urbana cristiana"],
+      "foundingLocation": {"@type": "Place", "name": "Cali, Colombia"},
+      "image": "https://www.lujourban.com/assets/hero.jpg",
+      "sameAs": [
+        "https://open.spotify.com/artist/0AbJWz3DlXPzBCjR4bMH7H",
+        "https://www.instagram.com/zaettamusic",
+        "https://www.tiktok.com/@zaetamusic7",
+        "https://youtube.com/@zaetamusicinc",
+        "https://www.facebook.com/share/1H8fJLyAAt/"
+      ]
+    },
+    {
+      "@type": "MusicRecording",
+      "name": "Tengo una Reina Valera",
+      "isrcCode": "QZMEQ2258072",
+      "byArtist": [
+        {"@type": "MusicGroup", "name": "Julián Ramos"},
+        {"@type": "MusicGroup", "name": "Zaetta"}
+      ],
+      "producer": {"@type": "Person", "name": "Zaetta"},
+      "genre": ["Rap", "Música urbana cristiana"]
+    },
+    {
+      "@type": "MusicRecording",
+      "name": "Mano Arriba",
+      "byArtist": {"@type": "MusicGroup", "name": "Julián Ramos"},
+      "producer": {"@type": "Person", "name": "Zaetta"},
+      "genre": ["Rap", "Música urbana cristiana"]
+    },
+    {
+      "@type": "MusicRecording",
+      "name": "No Please",
+      "byArtist": {"@type": "MusicGroup", "name": "Gran Figura"},
+      "producer": {"@type": "Person", "name": "Zaetta"},
+      "genre": ["Urbano latino"]
+    },
+    {
+      "@type": "MusicRecording",
+      "name": "Predicador",
+      "byArtist": [
+        {"@type": "MusicGroup", "name": "Zaetta"},
+        {"@type": "MusicGroup", "name": "Julián Ramos"},
+        {"@type": "MusicGroup", "name": "Alex Rodríguez"}
+      ],
+      "producer": {"@type": "Person", "name": "Zaetta"},
+      "genre": ["Rap", "Música urbana cristiana"]
+    }
   ]
 }
 </script>
