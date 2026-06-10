@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Escucha la música, lanzamientos, beats y producciones de ZAETTA.">
+<meta name="description" content="Escucha la música, lanzamientos, beats y producciones de Zaetta.">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#000000">
-<meta name="author" content="ZAETTA MUSIC">
+<meta name="author" content="Zaetta Music">
 <link rel="canonical" href="https://www.lujourban.com/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.lujourban.com/">
 <meta property="og:locale" content="es_CO">
-<meta property="og:site_name" content="ZAETTA MUSIC">
+<meta property="og:site_name" content="Zaetta Music">
 <meta property="og:title" content="Zaetta - Artista & Productor">
 <meta property="og:description" content="Escucha música, lanzamientos y beats de Zaetta.">
 <meta property="og:image" content="https://www.lujourban.com/assets/hero.jpg?v=2">
@@ -54,13 +54,35 @@
   "@graph": [
     {
       "@type": "MusicGroup",
+      "@id": "https://www.lujourban.com/#zaetta",
       "name": "Zaetta",
       "alternateName": "Zaetta Music",
       "url": "https://www.lujourban.com",
-      "description": "Cantante, rapero y productor de música urbana cristiana originario de Cali, Colombia. Géneros: rap, drill, trap y reggaetón con mensajes de fe.",
+      "description": "Zaetta es un cantante, rapero, compositor y productor de música urbana cristiana originario de Cali, Colombia. Su sonido mezcla rap, drill, trap y reggaetón con mensajes de fe y propósito.",
       "genre": ["Rap", "Drill", "Trap", "Reggaetón", "Música urbana cristiana"],
       "foundingLocation": {"@type": "Place", "name": "Cali, Colombia"},
       "image": "https://www.lujourban.com/assets/hero.jpg",
+      "member": {"@id": "https://www.lujourban.com/#zaetta-person"},
+      "sameAs": [
+        "https://open.spotify.com/artist/0AbJWz3DlXPzBCjR4bMH7H",
+        "https://www.instagram.com/zaettamusic",
+        "https://www.tiktok.com/@zaetamusic7",
+        "https://youtube.com/@zaetamusicinc",
+        "https://www.facebook.com/share/1H8fJLyAAt/"
+      ]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://www.lujourban.com/#zaetta-person",
+      "name": "Zaetta",
+      "alternateName": "Zaetta Music",
+      "url": "https://www.lujourban.com",
+      "description": "Zaetta es cantante, compositor y productor musical de música urbana cristiana, radicado en Cali, Colombia.",
+      "jobTitle": ["Cantante", "Compositor", "Productor musical"],
+      "image": "https://www.lujourban.com/assets/hero.jpg",
+      "memberOf": {"@id": "https://www.lujourban.com/#zaetta"},
+      "homeLocation": {"@type": "Place", "name": "Cali, Colombia"},
+      "nationality": {"@type": "Country", "name": "Colombia"},
       "sameAs": [
         "https://open.spotify.com/artist/0AbJWz3DlXPzBCjR4bMH7H",
         "https://www.instagram.com/zaettamusic",
@@ -75,34 +97,34 @@
       "isrcCode": "QZMEQ2258072",
       "byArtist": [
         {"@type": "MusicGroup", "name": "Julián Ramos"},
-        {"@type": "MusicGroup", "name": "Zaetta"}
+        {"@id": "https://www.lujourban.com/#zaetta"}
       ],
-      "producer": {"@type": "Person", "name": "Zaetta"},
+      "producer": {"@id": "https://www.lujourban.com/#zaetta-person"},
       "genre": ["Rap", "Música urbana cristiana"]
     },
     {
       "@type": "MusicRecording",
       "name": "Mano Arriba",
       "byArtist": {"@type": "MusicGroup", "name": "Julián Ramos"},
-      "producer": {"@type": "Person", "name": "Zaetta"},
+      "producer": {"@id": "https://www.lujourban.com/#zaetta-person"},
       "genre": ["Rap", "Música urbana cristiana"]
     },
     {
       "@type": "MusicRecording",
       "name": "No Please",
       "byArtist": {"@type": "MusicGroup", "name": "Gran Figura"},
-      "producer": {"@type": "Person", "name": "Zaetta"},
+      "producer": {"@id": "https://www.lujourban.com/#zaetta-person"},
       "genre": ["Urbano latino"]
     },
     {
       "@type": "MusicRecording",
       "name": "Predicador",
       "byArtist": [
-        {"@type": "MusicGroup", "name": "Zaetta"},
+        {"@id": "https://www.lujourban.com/#zaetta"},
         {"@type": "MusicGroup", "name": "Julián Ramos"},
         {"@type": "MusicGroup", "name": "Alex Rodríguez"}
       ],
-      "producer": {"@type": "Person", "name": "Zaetta"},
+      "producer": {"@id": "https://www.lujourban.com/#zaetta-person"},
       "genre": ["Rap", "Música urbana cristiana"]
     }
   ]
@@ -278,9 +300,9 @@ fbq('track', 'PageView');
 
 <div class="divider divider-section-shift"></div>
 
-<!-- ZAETTA MUSIC -->
+<!-- Zaetta Music -->
 <section class="fade-up">
-  <p class="section-label">ZAETTA MUSIC</p>
+  <p class="section-label">Zaetta Music</p>
   <div class="label-card">
     <div class="label-headline">Somos más que música,<br><span>somos movimiento.</span></div>
     <p class="label-sub">Música urbana cristiana independiente. Impulsamos talento, creamos sonidos y construimos legado desde Cali, Colombia.</p>
@@ -331,7 +353,7 @@ fbq('track', 'PageView');
       <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
     </a>
   </div>
-  <p class="footer-copy">© 2026 ZAETTA MUSIC. Todos los derechos reservados.</p>
+  <p class="footer-copy">© 2026 Zaetta Music. Todos los derechos reservados.</p>
 </footer>
 
 <a href="https://too.fm/dewo8xz" target="_blank" rel="noopener" class="floating-listen" data-release-link data-track-event="flotante_click_escuchar" data-track-label="floating_smart_link" data-track-content="Gloria y Honra">

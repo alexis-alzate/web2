@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Compra beats de Zaetta — licencias básica, premium y exclusiva.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://www.lujourban.com/tienda/">
+<title>Tienda de Beats — Zaetta</title>
+<link rel="icon" href="../assets/hero.jpg" type="image/jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a href="/" class="lujourban-home-link" data-track-event="tienda_volver_inicio"><span>← ZAETTA</span></a>
+
+<section class="fade-up">
+  <p class="section-label">Tienda de Beats</p>
+  <p class="tienda-intro">Beats originales de Zaetta. Escucha el preview, elige tu licencia y descarga al instante.</p>
+</section>
+
+<section class="fade-up">
+  <div id="beatsGrid" class="beats-grid">
+    <p class="beats-loading">Cargando beats...</p>
+  </div>
+</section>
+
+<!-- MODAL DE LICENCIAS -->
+<div id="licenseModal" class="modal-overlay" hidden>
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="modalClose" aria-label="Cerrar">×</button>
+    <h2 id="modalTitle" class="modal-title"></h2>
+    <p id="modalMeta" class="modal-meta"></p>
+
+    <div class="modal-player">
+      <button type="button" id="modalPlayBtn" class="play-btn" aria-label="Reproducir preview">▶</button>
+      <div class="modal-progress"><div id="modalProgressBar" class="modal-progress-bar"></div></div>
+    </div>
+
+    <div class="license-options" id="licenseOptions">
+      <!-- generado por JS -->
+    </div>
+
+    <label class="email-label" for="buyerEmail">Tu correo (para enviarte la descarga)</label>
+    <input type="email" id="buyerEmail" class="email-input" placeholder="tucorreo@email.com" required>
+
+    <button type="button" id="buyButton" class="btn-primary buy-button">Comprar</button>
+    <p id="buyError" class="buy-error" hidden></p>
+  </div>
+</div>
+
+<audio id="previewPlayer" preload="none"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+</body>
+</html>
