@@ -25,6 +25,7 @@ body {
 
 a {
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button,
@@ -47,6 +48,7 @@ button,
   text-decoration: none;
   cursor: pointer;
   min-height: 40px;
+  -webkit-tap-highlight-color: transparent;
   transition:
     transform .18s ease,
     border-color .18s ease,
@@ -110,6 +112,7 @@ button:active,
 
 button:focus-visible,
 .button:focus-visible,
+a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
