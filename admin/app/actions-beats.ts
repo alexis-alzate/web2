@@ -131,6 +131,19 @@ export const deleteBeatAction = async (formData: FormData) => {
   if (error) throw new Error(`No se pudo eliminar el beat: ${error.message}`);
 };
 
+export const toggleDemoBeatsAction = async (formData: FormData) => {
+  await requireAuth();
+  const supabase = createSupabaseAdminClient();
+
+  const current = formData.get('current') as string;
+  const nextValue = current !== 'true';
+
+  const { error } = await supabase
+    .from('app_settings')
+    .upsert({ key: 'show_demo_beats', value: nextValue });
+  if (error) throw new Error(`No se pudo actualizar la configuracion: ${error.message}`);
+};
+
 export const toggleBeatStatusAction = async (formData: FormData) => {
   await requireAuth();
   const supabase = createSupabaseAdminClient();

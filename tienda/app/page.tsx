@@ -19,9 +19,16 @@ export default async function HomePage({
 
   let beats: Beat[] = error ? [] : (data as Beat[]);
 
+  const { data: setting } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'show_demo_beats')
+    .maybeSingle();
+  const showDemoBeats = setting?.value !== false;
+
   // TEMPORAL: duplicar el catálogo para previsualizar la vitrina llena.
-  // Quitar este bloque cuando ya no se necesite.
-  if (beats.length) {
+  // Se desactiva desde el panel admin (Tienda de beats > "Ocultar beats de prueba").
+  if (showDemoBeats && beats.length) {
     const base = beats[0];
     const genres = ['Afrobeat', 'Reggaeton', 'Dancehall', 'Trap', 'Afro Pop'];
     const tagSets = [

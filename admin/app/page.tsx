@@ -21,7 +21,7 @@ import { ReleasePreview } from './components/ReleasePreview';
 import { CopyLinkButton } from './components/CopyLinkButton';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/analytics';
-import { createBeatAction, deleteBeatAction, toggleBeatStatusAction } from './actions-beats';
+import { createBeatAction, deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction } from './actions-beats';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { beatCoverUrl, type Beat } from '@/lib/beats';
 
@@ -207,6 +207,7 @@ export default async function DashboardPage() {
   let casaCatalog: CasaCatalogConfig;
   let analyticsSummary: ReleaseAnalyticsSummary = emptyAnalyticsSummary();
   let beats: Beat[] = [];
+  let showDemoBeats = true;
 
   try {
     const supabaseAdmin = createSupabaseAdminClient();
@@ -215,6 +216,13 @@ export default async function DashboardPage() {
       .select('*')
       .order('created_at', { ascending: false });
     beats = (beatsData as Beat[]) || [];
+
+    const { data: settingData } = await supabaseAdmin
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'show_demo_beats')
+      .maybeSingle();
+    showDemoBeats = settingData?.value !== false;
   } catch {
     beats = [];
   }
@@ -841,6 +849,22 @@ export default async function DashboardPage() {
             </span>
           </summary>
           <div className="folder-body">
+            <ActionForm
+              action={toggleDemoBeatsAction}
+              savingMessage="Actualizando vitrina..."
+              successMessage="Configuracion de la vitrina actualizada."
+            >
+              <input name="current" type="hidden" value={String(showDemoBeats)} />
+              <p className="muted">
+                {showDemoBeats
+                  ? 'La tienda esta mostrando 19 beats de prueba (duplicados de demostracion) ademas de los reales.'
+                  : 'Los beats de prueba estan ocultos. La tienda solo muestra los beats reales publicados.'}
+              </p>
+              <SubmitButton pendingText="...">
+                {showDemoBeats ? 'Ocultar beats de prueba' : 'Mostrar beats de prueba'}
+              </SubmitButton>
+            </ActionForm>
+
             {beats.length > 0 && (
               <ol className="cards catalog-picks">
                 {beats.map((beat) => (
