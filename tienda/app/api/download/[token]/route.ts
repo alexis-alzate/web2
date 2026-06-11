@@ -34,9 +34,11 @@ export async function GET(
     return NextResponse.json({ error: 'El archivo de este beat no está disponible.' }, { status: 404 });
   }
 
+  const downloadName = `${orderItem.beats.title} - Licencia ${orderItem.license_type}${filePath.match(/\.[^.]+$/)?.[0] ?? ''}`;
+
   const { data: signed, error: signedError } = await supabase.storage
     .from('beats-files')
-    .createSignedUrl(filePath, 60);
+    .createSignedUrl(filePath, 60, { download: downloadName });
 
   if (signedError || !signed) {
     return NextResponse.json({ error: 'No se pudo generar el enlace de descarga.' }, { status: 500 });

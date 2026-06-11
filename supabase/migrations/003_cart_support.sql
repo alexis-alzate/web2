@@ -3,6 +3,7 @@
 -- (no hay ordenes reales todavia, asi que recreamos orders/downloads desde cero)
 
 drop table if exists downloads;
+drop table if exists order_items;
 drop table if exists orders;
 
 create table orders (
