@@ -21,6 +21,9 @@ import { ReleasePreview } from './components/ReleasePreview';
 import { CopyLinkButton } from './components/CopyLinkButton';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/analytics';
+import { createBeatAction, deleteBeatAction, toggleBeatStatusAction } from './actions-beats';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
+import { beatCoverUrl, type Beat } from '@/lib/beats';
 
 type Artist = {
   name: string;
@@ -95,6 +98,8 @@ const initials = (name: string) => name
   .slice(0, 2)
   .map(part => part[0])
   .join('');
+
+const formatCOP = (value: number) => '$' + Number(value).toLocaleString('es-CO');
 
 const resolveCasaCatalogPickLabel = (
   pick: CasaCatalogPick,
@@ -201,6 +206,18 @@ export default async function DashboardPage() {
   let artistReleaseHistory: ArtistReleaseHistory;
   let casaCatalog: CasaCatalogConfig;
   let analyticsSummary: ReleaseAnalyticsSummary = emptyAnalyticsSummary();
+  let beats: Beat[] = [];
+
+  try {
+    const supabaseAdmin = createSupabaseAdminClient();
+    const { data: beatsData } = await supabaseAdmin
+      .from('beats')
+      .select('*')
+      .order('created_at', { ascending: false });
+    beats = (beatsData as Beat[]) || [];
+  } catch {
+    beats = [];
+  }
 
   try {
     [artistData, releaseHistory, artistReleaseHistory, casaCatalog] = await Promise.all([
@@ -805,6 +822,134 @@ export default async function DashboardPage() {
                 </label>
                 <SubmitButton className="primary span-2" pendingText="Fijando...">
                   Fijar en el catalogo
+                </SubmitButton>
+              </ActionForm>
+            </details>
+          </div>
+        </details>
+      </section>
+
+      <section className="section">
+        <details className="folder">
+          <summary>
+            <span className="module-summary">
+              <ModuleIcon name="briefcase" />
+              <span>
+                <strong>Tienda de beats</strong>
+                <small>{beats.length} beat(s) publicado(s)</small>
+              </span>
+            </span>
+          </summary>
+          <div className="folder-body">
+            {beats.length > 0 && (
+              <ol className="cards catalog-picks">
+                {beats.map((beat) => (
+                  <li className="card" key={beat.id}>
+                    {beat.cover_url ? (
+                      <img className="thumb" src={beatCoverUrl(beat.cover_url)} alt="" />
+                    ) : (
+                      <div className="thumb placeholder">{initials(beat.title)}</div>
+                    )}
+                    <div>
+                      <h3>{beat.title}</h3>
+                      <p className="muted">
+                        {[beat.genre, beat.bpm ? `${beat.bpm} BPM` : null, beat.key]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                      <p className="muted">
+                        Básica {formatCOP(beat.price_basic)} · Premium {formatCOP(beat.price_premium)} · Exclusiva {formatCOP(beat.price_exclusive)}
+                      </p>
+                    </div>
+                    <div className="actions">
+                      <ActionForm
+                        action={toggleBeatStatusAction}
+                        savingMessage="Actualizando estado..."
+                        successMessage="Estado del beat actualizado."
+                      >
+                        <input name="id" type="hidden" value={beat.id} />
+                        <input name="status" type="hidden" value={beat.status} />
+                        <SubmitButton pendingText="...">
+                          {beat.status === 'available' ? 'Marcar vendido (exclusiva)' : 'Marcar disponible'}
+                        </SubmitButton>
+                      </ActionForm>
+                      <ActionForm
+                        action={deleteBeatAction}
+                        savingMessage="Eliminando beat..."
+                        successMessage="Beat eliminado."
+                      >
+                        <input name="id" type="hidden" value={beat.id} />
+                        <SubmitButton className="danger" pendingText="Eliminando...">Eliminar</SubmitButton>
+                      </ActionForm>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            <details className="subfolder">
+              <summary>Agregar beat nuevo</summary>
+              <ActionForm
+                action={createBeatAction}
+                className="grid"
+                savingMessage="Subiendo archivos y publicando el beat..."
+                successMessage="Beat publicado en la tienda."
+                resetOnSuccess
+              >
+                <label className="span-2">
+                  Título
+                  <input name="title" required placeholder="Nombre del beat" />
+                </label>
+                <label>
+                  BPM
+                  <input name="bpm" type="number" placeholder="88" />
+                </label>
+                <label>
+                  Tonalidad (key)
+                  <input name="key" placeholder="C minor" />
+                </label>
+                <label>
+                  Género
+                  <input name="genre" placeholder="Afrobeat" />
+                </label>
+                <label>
+                  Tags (separados por coma)
+                  <input name="tags" placeholder="afro dancehall, type beat" />
+                </label>
+                <label>
+                  Precio licencia básica (COP)
+                  <input name="price_basic" type="number" required placeholder="100000" />
+                </label>
+                <label>
+                  Precio licencia premium (COP)
+                  <input name="price_premium" type="number" required placeholder="200000" />
+                </label>
+                <label>
+                  Precio licencia exclusiva (COP)
+                  <input name="price_exclusive" type="number" required placeholder="400000" />
+                </label>
+                <label className="span-2">
+                  Carátula (imagen)
+                  <input name="cover" type="file" accept="image/*" />
+                </label>
+                <label className="span-2">
+                  Preview de audio
+                  <input name="preview" type="file" accept="audio/*" />
+                </label>
+                <label>
+                  Archivo licencia básica
+                  <input name="file_basic" type="file" />
+                </label>
+                <label>
+                  Archivo licencia premium
+                  <input name="file_premium" type="file" />
+                </label>
+                <label>
+                  Archivo licencia exclusiva
+                  <input name="file_exclusive" type="file" />
+                </label>
+                <SubmitButton className="primary span-2" pendingText="Publicando...">
+                  Publicar beat
                 </SubmitButton>
               </ActionForm>
             </details>
