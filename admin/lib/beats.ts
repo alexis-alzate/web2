@@ -20,6 +20,12 @@ export type Beat = {
   created_at: string;
 };
 
+export const LICENSE_LABELS: Record<LicenseType, { name: string }> = {
+  basic: { name: 'Básica' },
+  premium: { name: 'Premium' },
+  exclusive: { name: 'Exclusiva' }
+};
+
 const DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g');
 
 export const slugify = (value: string) =>

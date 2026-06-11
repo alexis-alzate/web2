@@ -44,10 +44,15 @@ export async function GET(
     return NextResponse.json({ error: 'No se pudo generar el enlace de descarga.' }, { status: 500 });
   }
 
-  await supabase
-    .from('downloads')
-    .update({ download_count: download.download_count + 1, used_at: new Date().toISOString() })
-    .eq('id', download.id);
+  // Incremento atomico: chequea el limite y consume un uso en una sola
+  // operacion, sin carrera entre descargas simultaneas del mismo token.
+  const { data: consumed, error: consumeError } = await supabase.rpc('consume_download', {
+    p_id: download.id
+  });
+
+  if (consumeError || !consumed) {
+    return NextResponse.json({ error: 'Alcanzaste el límite de descargas para este enlace.' }, { status: 410 });
+  }
 
   return NextResponse.redirect(signed.signedUrl);
 }

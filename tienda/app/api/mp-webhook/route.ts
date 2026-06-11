@@ -44,12 +44,27 @@ export async function POST(request: Request) {
   const payment = await paymentRes.json();
   const orderId: string | undefined = payment.external_reference;
 
-  if (!orderId || payment.status !== 'approved') {
+  if (!orderId) {
     return NextResponse.json({ ok: true });
   }
 
   const supabase = createSupabaseAdminClient();
-  await approveOrder(supabase, orderId, String(payment.id));
+
+  if (payment.status === 'approved') {
+    await approveOrder(supabase, orderId, String(payment.id));
+    return NextResponse.json({ ok: true });
+  }
+
+  // Pago rechazado o cancelado: marcar la orden solo si sigue pendiente.
+  // Si el comprador reintenta y un pago posterior queda aprobado, approveOrder
+  // puede pasar la orden de rejected a approved sin problema.
+  if (payment.status === 'rejected' || payment.status === 'cancelled') {
+    await supabase
+      .from('orders')
+      .update({ status: 'rejected', mp_payment_id: String(payment.id) })
+      .eq('id', orderId)
+      .eq('status', 'pending');
+  }
 
   return NextResponse.json({ ok: true });
 }

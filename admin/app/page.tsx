@@ -22,8 +22,24 @@ import { CopyLinkButton } from './components/CopyLinkButton';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/analytics';
 import { createBeatAction, deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction } from './actions-beats';
+import { resendOrderEmailAction } from './actions-orders';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
-import { beatCoverUrl, type Beat } from '@/lib/beats';
+import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType } from '@/lib/beats';
+
+type BeatOrder = {
+  id: string;
+  buyer_email: string;
+  total_amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  order_items: { license_type: LicenseType; amount: number; beats: { title: string } | null }[];
+};
+
+const ORDER_STATUS_LABELS: Record<BeatOrder['status'], string> = {
+  pending: 'Pendiente',
+  approved: 'Aprobada',
+  rejected: 'Rechazada'
+};
 
 type Artist = {
   name: string;
@@ -208,6 +224,7 @@ export default async function DashboardPage() {
   let analyticsSummary: ReleaseAnalyticsSummary = emptyAnalyticsSummary();
   let beats: Beat[] = [];
   let showDemoBeats = true;
+  let beatOrders: BeatOrder[] = [];
 
   try {
     const supabaseAdmin = createSupabaseAdminClient();
@@ -223,6 +240,13 @@ export default async function DashboardPage() {
       .eq('key', 'show_demo_beats')
       .maybeSingle();
     showDemoBeats = settingData?.value !== false;
+
+    const { data: ordersData } = await supabaseAdmin
+      .from('orders')
+      .select('id, buyer_email, total_amount, status, created_at, order_items(license_type, amount, beats(title))')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    beatOrders = (ordersData as unknown as BeatOrder[]) || [];
   } catch {
     beats = [];
   }
@@ -977,6 +1001,49 @@ export default async function DashboardPage() {
                   Publicar beat
                 </SubmitButton>
               </ActionForm>
+            </details>
+
+            <details className="subfolder">
+              <summary>Órdenes y ventas ({beatOrders.length})</summary>
+              {beatOrders.length === 0 ? (
+                <p className="muted">Todavía no hay órdenes registradas.</p>
+              ) : (
+                <ol className="cards">
+                  {beatOrders.map((order) => (
+                    <li className="card" key={order.id}>
+                      <div>
+                        <h3>
+                          {formatCOP(order.total_amount)} — {ORDER_STATUS_LABELS[order.status]}
+                        </h3>
+                        <p className="muted">
+                          {order.buyer_email} ·{' '}
+                          {new Date(order.created_at).toLocaleString('es-CO', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                          })}
+                        </p>
+                        <p className="muted">
+                          {order.order_items
+                            .map((item) => `${item.beats?.title ?? 'Beat eliminado'} (${LICENSE_LABELS[item.license_type].name})`)
+                            .join(' · ')}
+                        </p>
+                      </div>
+                      {order.status === 'approved' && (
+                        <div className="actions">
+                          <ActionForm
+                            action={resendOrderEmailAction}
+                            savingMessage="Reenviando correo de descarga..."
+                            successMessage="Correo de descarga reenviado."
+                          >
+                            <input name="id" type="hidden" value={order.id} />
+                            <SubmitButton pendingText="Enviando...">Reenviar correo de descarga</SubmitButton>
+                          </ActionForm>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              )}
             </details>
           </div>
         </details>

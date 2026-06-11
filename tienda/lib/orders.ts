@@ -5,13 +5,15 @@ import type { Beat, LicenseType } from '@/lib/types';
 type SupabaseAdmin = ReturnType<typeof createSupabaseAdminClient>;
 
 export async function approveOrder(supabase: SupabaseAdmin, orderId: string, paymentId: string) {
-  // Idempotencia atomica: solo una llamada logra pasar la orden de pending a
-  // approved; webhooks duplicados o concurrentes no generan tokens ni emails extra.
+  // Idempotencia atomica: solo una llamada logra pasar la orden a approved;
+  // webhooks duplicados o concurrentes no generan tokens ni emails extra.
+  // Se acepta desde pending o rejected (un pago reintentado puede aprobarse
+  // despues de un intento rechazado).
   const { data: updated, error: updateError } = await supabase
     .from('orders')
     .update({ status: 'approved', mp_payment_id: paymentId })
     .eq('id', orderId)
-    .eq('status', 'pending')
+    .neq('status', 'approved')
     .select();
 
   if (updateError || !updated || updated.length === 0) return;

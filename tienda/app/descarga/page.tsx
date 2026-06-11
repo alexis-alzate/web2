@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AutoRefresh from './AutoRefresh';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import { approveOrder } from '@/lib/orders';
 import { formatCOP } from '@/lib/format';
@@ -59,9 +60,10 @@ export default async function DescargaPage({
   if (order.status === 'pending') {
     return (
       <main className="descarga-page">
+        <AutoRefresh seconds={5} />
         <h1 className="descarga-title">Procesando tu pago…</h1>
         <p className="descarga-text">
-          Estamos confirmando tu pago con MercadoPago. Recargá esta página en unos segundos —
+          Estamos confirmando tu pago con MercadoPago. Esta página se actualiza sola —
           cuando se confirme vas a poder descargar tus beats acá.
         </p>
       </main>
