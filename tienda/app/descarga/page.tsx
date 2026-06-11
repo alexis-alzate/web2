@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import { approveOrder } from '@/lib/orders';
 import { formatCOP } from '@/lib/format';
@@ -107,6 +108,10 @@ export default async function DescargaPage({
           );
         })}
       </ul>
+
+      <Link href="/" className="descarga-volver">
+        Volver a la tienda
+      </Link>
     </main>
   );
 }
