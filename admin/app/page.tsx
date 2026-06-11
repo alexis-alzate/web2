@@ -937,16 +937,17 @@ export default async function DashboardPage() {
                   <input name="preview" type="file" accept="audio/*" />
                 </label>
                 <label>
-                  Archivo licencia básica
-                  <input name="file_basic" type="file" />
+                  Archivo licencia básica (MP3)
+                  <input name="file_basic" type="file" accept="audio/*" />
                 </label>
                 <label>
-                  Archivo licencia premium
-                  <input name="file_premium" type="file" />
+                  Archivo licencia premium (WAV)
+                  <input name="file_premium" type="file" accept="audio/*" />
                 </label>
                 <label>
-                  Archivo licencia exclusiva
-                  <input name="file_exclusive" type="file" />
+                  Archivo licencia exclusiva (.zip con stems)
+                  <input name="file_exclusive" type="file" accept=".zip,.rar,application/zip,application/x-zip-compressed" />
+                  <small className="muted">Sube un comprimido con todos los tracks/stems del beat.</small>
                 </label>
                 <SubmitButton className="primary span-2" pendingText="Publicando...">
                   Publicar beat
