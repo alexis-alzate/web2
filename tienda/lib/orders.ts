@@ -5,28 +5,32 @@ import type { Beat, LicenseType } from '@/lib/types';
 type SupabaseAdmin = ReturnType<typeof createSupabaseAdminClient>;
 
 export async function approveOrder(supabase: SupabaseAdmin, orderId: string, paymentId: string) {
-  const { data: order, error: orderError } = await supabase
+  // Idempotencia atomica: solo una llamada logra pasar la orden de pending a
+  // approved; webhooks duplicados o concurrentes no generan tokens ni emails extra.
+  const { data: updated, error: updateError } = await supabase
     .from('orders')
-    .select('*')
+    .update({ status: 'approved', mp_payment_id: paymentId })
     .eq('id', orderId)
-    .single();
+    .eq('status', 'pending')
+    .select();
 
-  if (orderError || !order) return;
-
-  // Idempotencia: si ya quedo aprobada, no duplicar tokens de descarga
-  if (order.status === 'approved') return;
+  if (updateError || !updated || updated.length === 0) return;
+  const order = updated[0];
 
   const { data: orderItems, error: itemsError } = await supabase
     .from('order_items')
-    .select('id, license_type, amount, beats(*)')
+    .select('id, beat_id, license_type, amount, beats(*)')
     .eq('order_id', orderId);
 
   if (itemsError || !orderItems) return;
 
-  await supabase
-    .from('orders')
-    .update({ status: 'approved', mp_payment_id: paymentId })
-    .eq('id', orderId);
+  // Una licencia exclusiva retira el beat de la venta automaticamente
+  const exclusiveBeatIds = orderItems
+    .filter((item) => item.license_type === 'exclusive')
+    .map((item) => item.beat_id as string);
+  if (exclusiveBeatIds.length) {
+    await supabase.from('beats').update({ status: 'sold_exclusive' }).in('id', exclusiveBeatIds);
+  }
 
   const { data: downloads, error: downloadsError } = await supabase
     .from('downloads')

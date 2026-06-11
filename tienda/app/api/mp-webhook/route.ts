@@ -31,8 +31,14 @@ export async function POST(request: Request) {
     headers: { Authorization: `Bearer ${accessToken}` }
   });
 
-  if (!paymentRes.ok) {
+  // Pago inexistente (id falso o de otra cuenta): responder 200 para no generar reintentos
+  if (paymentRes.status === 404) {
     return NextResponse.json({ ok: true });
+  }
+
+  // Fallo transitorio consultando el pago: responder 500 para que MercadoPago reintente
+  if (!paymentRes.ok) {
+    return NextResponse.json({ error: 'No se pudo consultar el pago.' }, { status: 500 });
   }
 
   const payment = await paymentRes.json();

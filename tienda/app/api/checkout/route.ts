@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
-import { LICENSE_LABELS, priceForLicense, type Beat, type LicenseType } from '@/lib/types';
+import { LICENSE_LABELS, priceForLicense, filePathForLicense, type Beat, type LicenseType } from '@/lib/types';
 
 type CheckoutItem = { beat_id: string; license_type: LicenseType };
 
@@ -32,10 +32,34 @@ export async function POST(request: Request) {
   }
 
   const beatById = new Map<string, Beat>(beats.map((b: Beat) => [b.id, b]));
+  const validLicenses: LicenseType[] = ['basic', 'premium', 'exclusive'];
+
+  // Validar cada item antes de crear la orden: que el beat exista, siga
+  // disponible y tenga archivo para la licencia elegida (no cobrar sin poder entregar).
+  for (const it of items) {
+    const beat = beatById.get(realBeatId(it.beat_id));
+    if (!beat) {
+      return NextResponse.json({ error: 'Uno de los beats del carrito ya no existe.' }, { status: 400 });
+    }
+    if (!validLicenses.includes(it.license_type)) {
+      return NextResponse.json({ error: 'Tipo de licencia inválido.' }, { status: 400 });
+    }
+    if (beat.status !== 'available') {
+      return NextResponse.json(
+        { error: `"${beat.title}" ya no está disponible (su licencia exclusiva fue vendida).` },
+        { status: 400 }
+      );
+    }
+    if (!filePathForLicense(beat, it.license_type)) {
+      return NextResponse.json(
+        { error: `"${beat.title}" no tiene archivo cargado para la licencia ${LICENSE_LABELS[it.license_type].name}.` },
+        { status: 400 }
+      );
+    }
+  }
 
   const orderItems = items.map((it) => {
-    const beat = beatById.get(realBeatId(it.beat_id));
-    if (!beat) throw new Error(`Beat no encontrado: ${it.beat_id}`);
+    const beat = beatById.get(realBeatId(it.beat_id))!;
     return {
       beat,
       license_type: it.license_type,
