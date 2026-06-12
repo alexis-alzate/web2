@@ -8,6 +8,8 @@ import {
   CheckIcon,
   ListIcon,
   NextTrackIcon,
+  PauseIcon,
+  PlayIcon,
   PrevTrackIcon,
   RepeatIcon,
   ShareIcon,
@@ -104,7 +106,7 @@ export default function PlayerBar() {
             onClick={togglePlayPause}
             aria-label="Reproducir/Pausar"
           >
-            {isPlaying ? '❚❚' : '▶'}
+            {isPlaying ? <PauseIcon /> : <PlayIcon />}
           </button>
           <button
             type="button"

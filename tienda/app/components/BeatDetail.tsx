@@ -6,7 +6,7 @@ import { LICENSE_LABELS, priceForLicense } from '@/lib/types';
 import { formatCOP, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
-import { CartIcon, CheckIcon } from './Icons';
+import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
 
 const LICENSES: LicenseType[] = ['basic', 'premium', 'exclusive'];
 
@@ -54,7 +54,7 @@ export default function BeatDetail({ beat }: { beat: Beat }) {
             onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic })}
             aria-label="Reproducir preview"
           >
-            {isActive && isPlaying ? '❚❚' : '▶'}
+            {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
           </button>
         )}
       </div>

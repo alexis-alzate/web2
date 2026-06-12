@@ -5,10 +5,10 @@ import type { Beat } from '@/lib/types';
 import { publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import BeatRow from './BeatRow';
+import FeaturedBeat from './FeaturedBeat';
 
 export default function BeatCatalog({ beats }: { beats: Beat[] }) {
   const [activeGenre, setActiveGenre] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
   const { setQueue } = usePlayer();
 
   const genres = useMemo(() => {
@@ -41,58 +41,36 @@ export default function BeatCatalog({ beats }: { beats: Beat[] }) {
   }, [filtered, setQueue]);
 
   return (
-    <>
-      <section className="tienda-section">
-        <div className="beats-toolbar">
-          <button type="button" className="toolbar-btn">
-            <span className="toolbar-btn-icon">🏷</span> Ofertas
+    <section className="tienda-section">
+      {beats.length > 0 && <FeaturedBeat beat={beats[0]} />}
+
+      {!!genres.length && (
+        <div className="beats-filters">
+          <button
+            type="button"
+            className={`filter-pill ${activeGenre === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveGenre('all')}
+          >
+            Todos
           </button>
-          {!!genres.length && (
-            <button type="button" className="toolbar-btn" onClick={() => setShowFilters((v) => !v)}>
-              Filtros <span className="toolbar-btn-icon">☰</span>
-            </button>
-          )}
-        </div>
-
-        {!!genres.length && showFilters && (
-          <div className="beats-filters">
+          {genres.map((g) => (
             <button
+              key={g}
               type="button"
-              className={`filter-pill ${activeGenre === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveGenre('all')}
+              className={`filter-pill ${activeGenre === g ? 'active' : ''}`}
+              onClick={() => setActiveGenre(g)}
             >
-              Todos
+              {g}
             </button>
-            {genres.map((g) => (
-              <button
-                key={g}
-                type="button"
-                className={`filter-pill ${activeGenre === g ? 'active' : ''}`}
-                onClick={() => setActiveGenre(g)}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="beats-list-header">
-          <span className="beats-list-header-cell"></span>
-          <span className="beats-list-header-cell">Título</span>
-          <span className="beats-list-header-cell beats-col-time">Tiempo</span>
-          <span className="beats-list-header-cell beats-col-bpm">BPM</span>
-          <span className="beats-list-header-cell beats-col-tags">Tags</span>
-          <span className="beats-list-header-cell beats-col-share"></span>
-          <span className="beats-list-header-cell beats-col-price">Precio</span>
-          <span className="beats-list-header-cell"></span>
+          ))}
         </div>
+      )}
 
-        <div className="beats-list">
-          {filtered.length
-            ? filtered.map((beat) => <BeatRow key={beat.id} beat={beat} />)
-            : <p className="beats-loading">Pronto nuevos beats.</p>}
-        </div>
-      </section>
-    </>
+      <div className="beats-list">
+        {filtered.length
+          ? filtered.map((beat) => <BeatRow key={beat.id} beat={beat} />)
+          : <p className="beats-loading">Pronto nuevos beats.</p>}
+      </div>
+    </section>
   );
 }

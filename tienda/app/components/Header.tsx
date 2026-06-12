@@ -5,7 +5,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useCart } from '../providers/CartProvider';
 import { formatCOP } from '@/lib/format';
-import { CartIcon } from './Icons';
+import { CartIcon, SearchIcon } from './Icons';
 
 export default function Header() {
   const router = useRouter();
@@ -42,10 +42,12 @@ export default function Header() {
 
   return (
     <header className="site-header">
-      <Link href="/" className="store-mark" aria-label="Inicio">🎧</Link>
+      <Link href="/" className="brand-mark" aria-label="Inicio">
+        LUJO<span>URBAN</span>
+      </Link>
 
       <div className="site-search">
-        <span className="site-search-icon">⌕</span>
+        <span className="site-search-icon"><SearchIcon /></span>
         <input
           type="search"
           placeholder="Buscar beats, géneros, tags..."
