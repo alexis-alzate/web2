@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     }
     if (beat.status !== 'available') {
       return NextResponse.json(
-        { error: `"${beat.title}" ya no está disponible (su licencia exclusiva fue vendida).` },
+        { error: `"${beat.title}" ya no está disponible.` },
         { status: 400 }
       );
     }

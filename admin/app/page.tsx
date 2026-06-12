@@ -906,7 +906,7 @@ export default async function DashboardPage() {
                           .join(' · ')}
                       </p>
                       <p className="muted">
-                        Básica {formatCOP(beat.price_basic)} · Premium {formatCOP(beat.price_premium)} · Exclusiva {formatCOP(beat.price_exclusive)}
+                        Básica {formatCOP(beat.price_basic)} · Premium {formatCOP(beat.price_premium)} · Ilimitada {formatCOP(beat.price_exclusive)}
                       </p>
                     </div>
                     <div className="actions">
@@ -918,7 +918,7 @@ export default async function DashboardPage() {
                         <input name="id" type="hidden" value={beat.id} />
                         <input name="status" type="hidden" value={beat.status} />
                         <SubmitButton pendingText="...">
-                          {beat.status === 'available' ? 'Marcar vendido (exclusiva)' : 'Marcar disponible'}
+                          {beat.status === 'available' ? 'Marcar vendido (exclusiva negociada)' : 'Marcar disponible'}
                         </SubmitButton>
                       </ActionForm>
                       <ActionForm
@@ -973,7 +973,7 @@ export default async function DashboardPage() {
                   <input name="price_premium" type="number" required placeholder="200000" />
                 </label>
                 <label>
-                  Precio licencia exclusiva (COP)
+                  Precio licencia ilimitada (COP)
                   <input name="price_exclusive" type="number" required placeholder="400000" />
                 </label>
                 <label className="span-2">
@@ -993,7 +993,7 @@ export default async function DashboardPage() {
                   <input name="file_premium" type="file" accept="audio/*" />
                 </label>
                 <label>
-                  Archivo licencia exclusiva (.zip con stems)
+                  Archivo licencia ilimitada (.zip con stems)
                   <input name="file_exclusive" type="file" accept=".zip,.rar,application/zip,application/x-zip-compressed" />
                   <small className="muted">Sube un comprimido con todos los tracks/stems del beat.</small>
                 </label>

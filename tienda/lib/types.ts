@@ -23,7 +23,7 @@ export type Beat = {
 export const LICENSE_LABELS: Record<LicenseType, { name: string; desc: string }> = {
   basic: { name: 'Básica', desc: 'MP3, uso no exclusivo' },
   premium: { name: 'Premium', desc: 'WAV, uso no exclusivo' },
-  exclusive: { name: 'Exclusiva', desc: 'WAV + stems, derechos exclusivos' }
+  exclusive: { name: 'Ilimitada', desc: 'WAV + stems, uso no exclusivo' }
 };
 
 export const priceForLicense = (beat: Beat, license: LicenseType) => {

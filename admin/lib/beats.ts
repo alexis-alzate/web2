@@ -23,7 +23,7 @@ export type Beat = {
 export const LICENSE_LABELS: Record<LicenseType, { name: string }> = {
   basic: { name: 'Básica' },
   premium: { name: 'Premium' },
-  exclusive: { name: 'Exclusiva' }
+  exclusive: { name: 'Ilimitada' }
 };
 
 const DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g');
