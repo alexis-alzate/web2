@@ -48,25 +48,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
               <div className="marketplace-marquee" aria-hidden="true">
                 <div className="marketplace-marquee-track">
-                  <span>Beats</span>
+                  <span>Vista previa gratis antes de comprar</span>
                   <i />
-                  <span>Sonido urbano</span>
+                  <span>Producción lista para grabar</span>
                   <i />
-                  <span>Licencias</span>
+                  <span>Soporte directo por WhatsApp</span>
+                  <strong>Hecho para artistas urbanos</strong>
+                  <span>Catálogo en crecimiento cada semana</span>
                 </div>
               </div>
 
               <section className="marketplace-hero" aria-labelledby="marketplace-title">
                 <div className="marketplace-hero-inner">
-                  <h1 id="marketplace-title">Marca tu ritmo</h1>
-                  <p>Beats urbanos listos para tu próxima canción.</p>
+                  <h1 id="marketplace-title">Marcando el ritmo de tu próximo hit</h1>
+                  <p>Escoge tus ritmos, revisalos y en minutos los tienes en tu correo, listos para usar.</p>
                   <a href="https://wa.me/573002400084?text=Hola%20Zaetta%2C%20busco%20un%20ritmo%20especifico." className="marketplace-help-link" target="_blank" rel="noopener">
                     ¿Buscas un ritmo especifico?
                   </a>
                   <div className="marketplace-offers" aria-label="Beneficios">
-                    <a href="#tienda"><span><MailIcon /></span>Entrega</a>
-                    <a href="#tienda"><span><TagIcon /></span>Licencias</a>
-                    <a href="#tienda"><span><ShieldCheckIcon /></span>Pago seguro</a>
+                    <a href="#tienda"><span><MailIcon /></span>Entrega inmediata por correo</a>
+                    <a href="#tienda"><span><TagIcon /></span>Licencias básica, premium y exclusiva</a>
+                    <a href="#tienda"><span><ShieldCheckIcon /></span>Pago 100% seguro con MercadoPago</a>
                   </div>
                 </div>
               </section>
