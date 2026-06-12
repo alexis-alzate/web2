@@ -140,28 +140,29 @@ export default function AudioWaveform({
         liveEnergyRef.current = liveEnergyRef.current.map((value) => value * 0.9);
       }
 
-      const gap = Math.max(2, Math.floor(width / BAR_COUNT * 0.28));
+      const gap = Math.max(2, Math.floor(width / BAR_COUNT * 0.3));
       const barWidth = Math.max(2, (width - gap * (BAR_COUNT - 1)) / BAR_COUNT);
+      const bottomPad = 10 * dpr;
       const playedIndex = Math.round((Math.min(100, Math.max(0, progress)) / 100) * BAR_COUNT);
 
       barsRef.current.forEach((value, index) => {
         const live = active && playing ? liveEnergyRef.current[index] || 0 : 0;
-        const mixed = Math.min(1, value * (1 + live * 0.72));
-        const barHeight = Math.max(6 * dpr, mixed * height * 0.92);
+        const mixed = Math.min(1, value * (0.78 + live * 0.66));
+        const barHeight = Math.max(5 * dpr, mixed * (height - bottomPad) * 0.72);
         const x = index * (barWidth + gap);
-        const y = (height - barHeight) / 2;
+        const y = height - barHeight - bottomPad;
         const isPlayed = active && index <= playedIndex;
 
         const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
         if (isPlayed) {
-          gradient.addColorStop(0, 'rgba(245, 220, 139, 0.98)');
-          gradient.addColorStop(0.52, 'rgba(201, 168, 76, 0.9)');
-          gradient.addColorStop(1, 'rgba(201, 168, 76, 0.38)');
-          ctx.shadowColor = 'rgba(201, 168, 76, 0.35)';
-          ctx.shadowBlur = active && playing ? 10 * dpr : 4 * dpr;
+          gradient.addColorStop(0, 'rgba(245, 220, 139, 0.96)');
+          gradient.addColorStop(0.58, 'rgba(201, 168, 76, 0.84)');
+          gradient.addColorStop(1, 'rgba(201, 168, 76, 0.22)');
+          ctx.shadowColor = 'rgba(201, 168, 76, 0.28)';
+          ctx.shadowBlur = active && playing ? 7 * dpr : 3 * dpr;
         } else {
-          gradient.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
-          gradient.addColorStop(1, 'rgba(255, 255, 255, 0.16)');
+          gradient.addColorStop(0, 'rgba(255, 255, 255, 0.34)');
+          gradient.addColorStop(1, 'rgba(255, 255, 255, 0.09)');
           ctx.shadowBlur = 0;
         }
 
