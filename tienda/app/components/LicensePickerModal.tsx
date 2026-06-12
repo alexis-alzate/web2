@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { Beat, LicenseType } from '@/lib/types';
 import { LICENSE_LABELS, priceForLicense } from '@/lib/types';
 import { formatCOP } from '@/lib/format';
@@ -31,6 +31,15 @@ export default function LicensePickerModal({
   onClose,
   onChoose
 }: LicensePickerModalProps) {
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [amount, setAmount] = useState('');
+  const [message, setMessage] = useState('');
+  const [offerError, setOfferError] = useState<string | null>(null);
+  const [offerSent, setOfferSent] = useState(false);
+  const [sendingOffer, setSendingOffer] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -41,6 +50,40 @@ export default function LicensePickerModal({
   }, [onClose, open]);
 
   if (!open) return null;
+
+  const sendOffer = async () => {
+    if (!fullName.trim() || !email.includes('@') || !amount.trim()) {
+      setOfferError('Completa nombre, correo y monto de oferta.');
+      return;
+    }
+
+    setSendingOffer(true);
+    setOfferError(null);
+
+    try {
+      const response = await fetch('/api/beat-offer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          beat_id: beat.id,
+          beat_title: beat.title,
+          beat_slug: beat.slug,
+          full_name: fullName,
+          email,
+          amount,
+          message
+        })
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.error || 'No se pudo enviar la oferta.');
+      setOfferSent(true);
+    } catch (error) {
+      console.error(error);
+      setOfferError('No se pudo enviar la oferta. Intenta de nuevo.');
+    } finally {
+      setSendingOffer(false);
+    }
+  };
 
   return (
     <div className="license-modal-backdrop" role="presentation" onMouseDown={onClose}>
@@ -76,7 +119,8 @@ export default function LicensePickerModal({
           </div>
         </div>
 
-        <div className="license-modal-grid">
+        {!offerOpen && (
+          <div className="license-modal-grid">
           {LICENSES.map((license) => {
             const display = licenseDisplay[license];
             const inCart = isInCart(beat.id, license);
@@ -98,7 +142,63 @@ export default function LicensePickerModal({
               </button>
             );
           })}
-        </div>
+            <button
+              type="button"
+              className="license-card offer"
+              onClick={() => setOfferOpen(true)}
+            >
+              <span className="license-card-name">EXCLUSIVA</span>
+              <strong>~</strong>
+              <small>Make an offer</small>
+              <span className="license-card-detail">Negocia una licencia exclusiva personalizada</span>
+              <span className="license-card-action">Enviar oferta</span>
+            </button>
+          </div>
+        )}
+
+        {offerOpen && (
+          <div className="offer-form-panel">
+            <div className="offer-form-head">
+              <div>
+                <span className="license-modal-kicker">Make an offer</span>
+                <h3>{beat.title}</h3>
+              </div>
+              <button type="button" className="offer-back-btn" onClick={() => setOfferOpen(false)}>
+                Volver
+              </button>
+            </div>
+
+            {offerSent ? (
+              <div className="offer-success">
+                <strong>Oferta enviada</strong>
+                <p>Recibimos tu propuesta. Te responderemos al correo que dejaste.</p>
+              </div>
+            ) : (
+              <div className="offer-form-grid">
+                <label>
+                  Nombre completo
+                  <input value={fullName} onChange={(event) => setFullName(event.target.value)} />
+                </label>
+                <label>
+                  E-mail
+                  <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+                </label>
+                <label>
+                  Monto de oferta
+                  <input value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="Ej: $500.000 COP" />
+                </label>
+                <label className="offer-message-field">
+                  Mensaje
+                  <textarea value={message} onChange={(event) => setMessage(event.target.value)} />
+                </label>
+                <button type="button" className="offer-submit-btn" onClick={sendOffer} disabled={sendingOffer}>
+                  {sendingOffer ? 'Enviando...' : 'Send Offer'}
+                </button>
+                {offerError && <p className="offer-error">{offerError}</p>}
+              </div>
+            )}
+          </div>
+        )}
       </section>
     </div>
   );

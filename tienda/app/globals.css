@@ -1719,6 +1719,164 @@ body:has(.descarga-page) .tienda-frame {
   color: var(--t-gold);
 }
 
+.license-card.offer {
+  border-color: rgba(var(--t-gold-rgb), .2);
+  background:
+    radial-gradient(180px 90px at 50% 0%, rgba(255,255,255,.08), transparent 72%),
+    rgba(0,0,0,.7);
+}
+
+.license-card.offer strong {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 3.35rem;
+  letter-spacing: 0;
+}
+
+.offer-form-panel {
+  padding: 22px 30px 30px;
+}
+
+.offer-form-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.offer-form-head h3 {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(1.45rem, 4vw, 2.35rem);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -.4px;
+  text-transform: uppercase;
+}
+
+.offer-back-btn {
+  border: 1px solid rgba(var(--t-gold-rgb), .3);
+  border-radius: 999px;
+  background: rgba(0,0,0,.38);
+  color: rgba(255,255,255,.72);
+  padding: 8px 14px;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.offer-back-btn:hover {
+  color: var(--t-gold);
+  border-color: rgba(var(--t-gold-rgb), .58);
+}
+
+.offer-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.offer-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: rgba(255,255,255,.56);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.offer-form-grid input,
+.offer-form-grid textarea {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,.035);
+  color: #fff;
+  font-family: var(--font-inter), sans-serif;
+  font-size: .95rem;
+  padding: 13px 14px;
+  outline: none;
+  transition: border-color .2s var(--t-ease), box-shadow .2s var(--t-ease), background .2s var(--t-ease);
+}
+
+.offer-form-grid input:focus,
+.offer-form-grid textarea:focus {
+  border-color: rgba(var(--t-gold-rgb), .64);
+  background: rgba(255,255,255,.055);
+  box-shadow: 0 0 0 3px rgba(var(--t-gold-rgb), .09);
+}
+
+.offer-message-field {
+  grid-column: 1 / -1;
+}
+
+.offer-form-grid textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.offer-submit-btn {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(var(--t-gold-rgb), .96), rgba(159, 121, 37, .96));
+  color: #080705;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .82rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(var(--t-gold-rgb), .2);
+}
+
+.offer-submit-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 0 16px 38px rgba(var(--t-gold-rgb), .3);
+}
+
+.offer-submit-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.offer-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #ffb3b3;
+  font-size: .86rem;
+}
+
+.offer-success {
+  border: 1px solid rgba(var(--t-gold-rgb), .32);
+  border-radius: 8px;
+  background: rgba(var(--t-gold-rgb), .06);
+  padding: 22px;
+}
+
+.offer-success strong {
+  display: block;
+  color: var(--t-gold);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.offer-success p {
+  margin: 8px 0 0;
+  color: rgba(255,255,255,.7);
+}
+
 @media (max-width: 760px) {
   .license-modal-backdrop {
     align-items: flex-end;
@@ -1760,6 +1918,14 @@ body:has(.descarga-page) .tienda-frame {
   .license-card {
     min-height: 128px;
     padding: 16px;
+  }
+
+  .offer-form-panel {
+    padding: 16px;
+  }
+
+  .offer-form-grid {
+    grid-template-columns: 1fr;
   }
 }
 
