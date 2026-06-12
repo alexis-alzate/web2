@@ -61,6 +61,7 @@ export default function AudioWaveform({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const levelsRef = useRef<number[]>(Array.from({ length: BAR_COUNT }, (_, index) => deterministicIdle(index)));
   const peaksRef = useRef<number[]>(Array.from({ length: BAR_COUNT }, () => 0));
+  const tickRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -89,13 +90,15 @@ export default function AudioWaveform({
       ctx.fillStyle = gradientBg;
       ctx.fillRect(0, 0, width, height);
 
+      tickRef.current += playing ? 0.085 : 0.018;
       const snapshot = active && playing ? getSpectrumSnapshot() : null;
+      const hasEnergy = !!snapshot?.data.some((value) => value > 2);
       const nextLevels = levelsRef.current;
 
       for (let index = 0; index < BAR_COUNT; index++) {
         let target = deterministicIdle(index) * 0.34;
 
-        if (snapshot?.data.length) {
+        if (snapshot?.data.length && hasEnergy) {
           const frequency = barFrequency(index);
           const center = frequencyToIndex(frequency, snapshot.sampleRate, snapshot.data.length);
           const spread = index < 36 ? 3.8 : index < 108 ? 2.4 : 1.35;
@@ -106,6 +109,17 @@ export default function AudioWaveform({
 
           const shaped = Math.pow(clamp(raw * bandWeight(index)), 0.62);
           target = clamp(shaped);
+        } else if (active && playing) {
+          const bassShape = Math.max(0, 1 - index / 52);
+          const midShape = Math.max(0, 1 - Math.abs(index - 72) / 46);
+          const highShape = Math.max(0, 1 - Math.abs(index - 126) / 34);
+          const t = tickRef.current;
+          target = clamp(
+            deterministicIdle(index) * 0.16 +
+            bassShape * Math.abs(Math.sin(t * 1.85 + index * 0.09)) * 0.62 +
+            midShape * Math.abs(Math.sin(t * 3.15 + index * 0.17)) * 0.42 +
+            highShape * Math.abs(Math.sin(t * 5.4 + index * 0.29)) * 0.28
+          );
         }
 
         const previous = nextLevels[index] || 0;

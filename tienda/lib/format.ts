@@ -9,6 +9,9 @@ export const formatTime = (seconds: number) => {
 
 export const publicUrl = (bucket: string, path: string | null) => {
   if (!path) return '';
+  if (bucket === 'beats-previews') {
+    return `/api/preview/${path.split('/').map(encodeURIComponent).join('/')}`;
+  }
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   return `${base}/storage/v1/object/public/${bucket}/${path}`;
 };
