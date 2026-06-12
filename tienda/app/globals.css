@@ -85,7 +85,7 @@ a { color: inherit; text-decoration: none; }
 /* ===== CABECERA MARKETPLACE ===== */
 .marketplace-top {
   position: relative;
-  min-height: min(820px, 92vh);
+  min-height: min(680px, 82vh);
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(0,0,0,0.68), rgba(0,0,0,0.58) 42%, rgba(0,0,0,0.92) 100%),
@@ -175,36 +175,40 @@ a { color: inherit; text-decoration: none; }
   position: relative;
   z-index: 2;
   overflow: hidden;
-  background: rgba(var(--t-gold-rgb), 0.07);
-  color: rgba(255,255,255,0.9);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.025), rgba(var(--t-gold-rgb),0.075) 50%, rgba(255,255,255,0.025));
+  color: rgba(255,255,255,0.78);
   border-top: 1px solid rgba(var(--t-gold-rgb), 0.16);
   border-bottom: 1px solid rgba(var(--t-gold-rgb), 0.12);
+  backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 28px rgba(var(--t-gold-rgb), 0.06);
 }
 .marketplace-marquee-track {
   display: flex;
   align-items: center;
-  gap: 16px;
-  width: max-content;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
   min-width: 100%;
-  padding: 7px 0;
+  padding: 7px 18px;
   font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: clamp(.9rem, 1.3vw, 1.15rem);
+  font-size: clamp(.78rem, 1vw, .98rem);
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 2.2px;
   text-transform: uppercase;
   white-space: nowrap;
-  animation: marketplace-marquee 24s linear infinite;
+  animation: none;
 }
 .marketplace-marquee-track span,
 .marketplace-marquee-track strong {
   display: inline-flex;
 }
 .marketplace-marquee-track i {
-  width: 18px;
-  height: 18px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.75), #40394a 45%, #17121d 72%);
-  box-shadow: 0 0 10px rgba(0,0,0,0.35);
+  background: rgba(var(--t-gold-rgb), 0.72);
+  box-shadow: 0 0 10px rgba(var(--t-gold-rgb), 0.32);
 }
 @keyframes marketplace-marquee {
   from { transform: translateX(0); }
@@ -214,10 +218,10 @@ a { color: inherit; text-decoration: none; }
 .marketplace-hero {
   position: relative;
   z-index: 1;
-  min-height: 520px;
+  min-height: 430px;
   display: grid;
   place-items: center;
-  padding: 60px 22px 80px;
+  padding: 48px 22px 78px;
   text-align: center;
 }
 .marketplace-hero-inner {
@@ -227,18 +231,19 @@ a { color: inherit; text-decoration: none; }
 .marketplace-hero h1 {
   margin: 0;
   font-family: var(--font-inter), sans-serif;
-  font-size: clamp(3rem, 6.8vw, 6.5rem);
-  line-height: .95;
-  letter-spacing: -1px;
+  font-size: clamp(2.5rem, 5vw, 4.9rem);
+  line-height: 1;
+  letter-spacing: -.5px;
+  font-weight: 700;
   color: var(--t-text);
-  text-shadow: 0 18px 70px rgba(0,0,0,0.58);
+  text-shadow: 0 14px 58px rgba(0,0,0,0.62);
 }
 .marketplace-hero p {
-  margin: 20px auto 14px;
+  margin: 14px auto 14px;
   max-width: 860px;
-  color: rgba(255,255,255,0.78);
-  font-size: clamp(1rem, 1.55vw, 1.35rem);
-  font-weight: 600;
+  color: rgba(255,255,255,0.68);
+  font-size: clamp(.95rem, 1.22vw, 1.08rem);
+  font-weight: 500;
 }
 .marketplace-help-link {
   display: inline-flex;
@@ -277,47 +282,49 @@ a { color: inherit; text-decoration: none; }
 .marketplace-offers {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-top: 36px;
+  margin-top: 28px;
 }
 .marketplace-offers a {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-width: min(240px, 100%);
-  min-height: 60px;
-  padding: 12px 20px;
+  gap: 9px;
+  min-width: auto;
+  min-height: 44px;
+  padding: 9px 15px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(20,20,20,0.85);
-  color: rgba(255,255,255,0.92);
+  border: 1px solid rgba(var(--t-gold-rgb), 0.14);
+  background: rgba(20,20,20,0.52);
+  color: rgba(255,255,255,0.72);
+  backdrop-filter: blur(10px);
   font-family: var(--font-inter), sans-serif;
-  font-size: clamp(.85rem, 1.05vw, .98rem);
+  font-size: .82rem;
   font-weight: 600;
   line-height: 1.2;
   text-align: left;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
   transition: transform .2s var(--t-ease), border-color .2s var(--t-ease);
 }
 .marketplace-offers a:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: rgba(var(--t-gold-rgb), 0.38);
+  color: rgba(255,255,255,0.9);
 }
 .marketplace-offers span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: rgba(var(--t-gold-rgb), 0.12);
+  background: rgba(var(--t-gold-rgb), 0.1);
   color: var(--t-gold);
 }
 .marketplace-offers span svg {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
 }
 
 body:has(.descarga-page) .marketplace-top {
@@ -353,7 +360,7 @@ body:has(.descarga-page) .tienda-frame {
 
 @media (max-width: 540px) {
   .marketplace-top {
-    min-height: 680px;
+    min-height: 600px;
   }
 
   .marketplace-nav {
@@ -383,33 +390,34 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .marketplace-marquee-track {
-    font-size: .85rem;
-    letter-spacing: 1.5px;
+    font-size: .75rem;
+    letter-spacing: 1.4px;
+    gap: 10px;
   }
 
   .marketplace-hero {
-    min-height: 480px;
-    padding: 50px 18px 70px;
+    min-height: 400px;
+    padding: 42px 18px 64px;
   }
 
   .marketplace-hero h1 {
-    font-size: clamp(3rem, 17vw, 4.6rem);
+    font-size: clamp(2.5rem, 13vw, 3.7rem);
     letter-spacing: 0;
   }
 
   .marketplace-hero p {
-    font-size: 1rem;
+    font-size: .95rem;
   }
 
   .marketplace-offers {
-    margin-top: 46px;
-    gap: 10px;
+    margin-top: 26px;
+    gap: 8px;
   }
 
   .marketplace-offers a {
-    width: min(310px, 100%);
-    min-height: 56px;
-    padding: 12px 18px;
+    width: auto;
+    min-height: 40px;
+    padding: 8px 12px;
   }
 
   .tienda-frame {
