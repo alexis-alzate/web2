@@ -6,6 +6,7 @@ import { PlayerProvider } from './providers/PlayerProvider';
 import Header from './components/Header';
 import CartDrawer from './components/CartDrawer';
 import PlayerBar from './components/PlayerBar';
+import { MailIcon, TagIcon, ShieldCheckIcon } from './components/Icons';
 import './globals.css';
 
 const bebas = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-bebas' });
@@ -47,13 +48,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
               <div className="marketplace-marquee" aria-hidden="true">
                 <div className="marketplace-marquee-track">
-                  <span>Compra 2 y llevate 1 gratis</span>
+                  <span>Vista previa gratis antes de comprar</span>
                   <i />
-                  <span>Compra 3 y llevate 2 gratis</span>
+                  <span>Producción lista para grabar</span>
                   <i />
-                  <span>Compra 4 y llevate 3 gratis</span>
-                  <strong>Aprovecha tu momento</strong>
-                  <span>Haz mas musica por menos</span>
+                  <span>Soporte directo por WhatsApp</span>
+                  <strong>Hecho para artistas urbanos</strong>
+                  <span>Catálogo en crecimiento cada semana</span>
                 </div>
               </div>
 
@@ -64,10 +65,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <a href="https://wa.me/573002400084?text=Hola%20Zaetta%2C%20busco%20un%20ritmo%20especifico." className="marketplace-help-link" target="_blank" rel="noopener">
                     ¿Buscas un ritmo especifico?
                   </a>
-                  <div className="marketplace-offers" aria-label="Promociones">
-                    <a href="#tienda"><span>🏷</span>Compra 2+1 gratis</a>
-                    <a href="#tienda"><span>🏷</span>Compra 3+2 gratis</a>
-                    <a href="#tienda"><span>🏷</span>Compra 4+3 gratis</a>
+                  <div className="marketplace-offers" aria-label="Beneficios">
+                    <a href="#tienda"><span><MailIcon /></span>Entrega inmediata por correo</a>
+                    <a href="#tienda"><span><TagIcon /></span>Licencias básica, premium y exclusiva</a>
+                    <a href="#tienda"><span><ShieldCheckIcon /></span>Pago 100% seguro con MercadoPago</a>
                   </div>
                 </div>
               </section>

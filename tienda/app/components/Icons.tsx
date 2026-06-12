@@ -142,6 +142,33 @@ export function ListIcon({ className }: { className?: string }) {
   );
 }
 
+export function MailIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} {...iconProps}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M22 6 12 13 2 6" />
+    </svg>
+  );
+}
+
+export function TagIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} {...iconProps}>
+      <path d="M20.59 13.41 13 21 3 11V3h8z" />
+      <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function ShieldCheckIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} {...iconProps}>
+      <path d="M12 2 20 5v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V5z" />
+      <polyline points="9 12 11 14 15 10" />
+    </svg>
+  );
+}
+
 export function VolumeIcon({ className, muted }: { className?: string; muted: boolean }) {
   if (muted) {
     return (

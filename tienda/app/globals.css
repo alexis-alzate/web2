@@ -315,8 +315,20 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 22px 50px rgba(0,0,0,0.5), 0 0 34px rgba(var(--t-gold-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .marketplace-offers span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(var(--t-gold-rgb), 0.12);
   color: var(--t-gold);
   filter: drop-shadow(0 0 10px rgba(var(--t-gold-rgb), 0.32));
+}
+.marketplace-offers span svg {
+  width: 20px;
+  height: 20px;
 }
 
 body:has(.descarga-page) .marketplace-top {
