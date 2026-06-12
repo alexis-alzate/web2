@@ -66,6 +66,16 @@ export default function BeatCatalog({ beats }: { beats: Beat[] }) {
         </div>
       )}
 
+      <div className="beats-table-head" aria-hidden="true">
+        <span />
+        <span>Title</span>
+        <span>Time</span>
+        <span>BPM</span>
+        <span>Tags</span>
+        <span />
+        <span>Price</span>
+      </div>
+
       <div className="beats-list">
         {filtered.length
           ? filtered.map((beat) => <BeatRow key={beat.id} beat={beat} />)

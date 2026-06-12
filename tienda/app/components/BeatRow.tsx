@@ -84,6 +84,9 @@ export default function BeatRow({ beat }: { beat: Beat }) {
         )}
       </div>
 
+      <span className="beat-row-time">{duration || '--:--'}</span>
+      <span className="beat-row-bpm">{beat.bpm || '—'}</span>
+
       <span className="beat-row-tags">
         {beat.tags && beat.tags.length ? beat.tags.slice(0, 3).join(' · ') : ''}
       </span>
