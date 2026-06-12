@@ -10,7 +10,7 @@ import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
 import AudioWaveform from './AudioWaveform';
 
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
-  const { track, isPlaying, progress, toggle, seekToPercent } = usePlayer();
+  const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot } = usePlayer();
   const { addItem, removeItem, isInCart } = useCart();
   const [duration, setDuration] = useState<string>('');
 
@@ -132,10 +132,11 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
 
       {previewUrl && (
         <AudioWaveform
-          src={previewUrl}
           active={isActive}
+          playing={playingThis}
           progress={isActive ? progress : 0}
           onSeek={seekToPercent}
+          getSpectrumSnapshot={getSpectrumSnapshot}
         />
       )}
     </section>

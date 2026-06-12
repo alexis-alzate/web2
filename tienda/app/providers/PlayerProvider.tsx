@@ -14,6 +14,15 @@ export type PlayerTrack = {
 
 type RepeatMode = 'off' | 'all' | 'one';
 
+type AudioWindow = Window & typeof globalThis & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
+type SpectrumSnapshot = {
+  data: number[];
+  sampleRate: number;
+};
+
 type PlayerContextValue = {
   track: PlayerTrack | null;
   isPlaying: boolean;
@@ -33,12 +42,17 @@ type PlayerContextValue = {
   toggleMute: () => void;
   cycleRepeat: () => void;
   seekToPercent: (percent: number) => void;
+  getSpectrumSnapshot: () => SpectrumSnapshot | null;
 };
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const frequencyDataRef = useRef<Uint8Array | null>(null);
   const queueRef = useRef<PlayerTrack[]>([]);
   const trackRef = useRef<PlayerTrack | null>(null);
   const repeatRef = useRef<RepeatMode>('off');
@@ -59,15 +73,50 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     repeatRef.current = repeat;
   }, [repeat]);
 
+  const ensureAnalyser = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || typeof window === 'undefined') return null;
+
+    const AudioContextClass = window.AudioContext || (window as AudioWindow).webkitAudioContext;
+    if (!AudioContextClass) return null;
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContextClass();
+    }
+
+    if (!analyserRef.current) {
+      const analyser = audioContextRef.current.createAnalyser();
+      analyser.fftSize = 4096;
+      analyser.smoothingTimeConstant = 0.68;
+      analyser.minDecibels = -92;
+      analyser.maxDecibels = -18;
+      analyserRef.current = analyser;
+      frequencyDataRef.current = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    if (!sourceNodeRef.current) {
+      sourceNodeRef.current = audioContextRef.current.createMediaElementSource(audio);
+      sourceNodeRef.current.connect(analyserRef.current);
+      analyserRef.current.connect(audioContextRef.current.destination);
+    }
+
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume().catch(() => {});
+    }
+
+    return analyserRef.current;
+  }, []);
+
   const playTrack = useCallback((newTrack: PlayerTrack) => {
     const audio = audioRef.current;
     if (!audio) return;
+    ensureAnalyser();
     audio.src = newTrack.previewUrl;
     audio.play();
     setTrack(newTrack);
     setIsPlaying(true);
     setProgress(0);
-  }, []);
+  }, [ensureAnalyser]);
 
   const advance = useCallback((direction: 1 | -1) => {
     const queue = queueRef.current;
@@ -123,6 +172,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('ended', onEnded);
       audio.pause();
+      sourceNodeRef.current?.disconnect();
+      analyserRef.current?.disconnect();
+      audioContextRef.current?.close().catch(() => {});
     };
   }, [advance]);
 
@@ -132,6 +184,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     if (trackRef.current?.beatId === newTrack.beatId) {
       if (audio.paused) {
+        ensureAnalyser();
         audio.play();
         setIsPlaying(true);
       } else {
@@ -142,19 +195,20 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
 
     playTrack(newTrack);
-  }, [playTrack]);
+  }, [ensureAnalyser, playTrack]);
 
   const togglePlayPause = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || !trackRef.current) return;
     if (audio.paused) {
+      ensureAnalyser();
       audio.play();
       setIsPlaying(true);
     } else {
       audio.pause();
       setIsPlaying(false);
     }
-  }, []);
+  }, [ensureAnalyser]);
 
   const close = useCallback(() => {
     const audio = audioRef.current;
@@ -204,6 +258,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     setProgress(clamped);
   }, []);
 
+  const getSpectrumSnapshot = useCallback(() => {
+    const analyser = analyserRef.current;
+    const data = frequencyDataRef.current;
+    const audioContext = audioContextRef.current;
+    if (!analyser || !data || !audioContext) return null;
+    analyser.getByteFrequencyData(data);
+    return {
+      data: Array.from(data),
+      sampleRate: audioContext.sampleRate
+    };
+  }, []);
+
   const { hasNext, hasPrev } = useMemo(() => {
     const queue = queueRef.current;
     const currentIndex = track ? queue.findIndex((t) => t.beatId === track.beatId) : -1;
@@ -234,7 +300,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setVolume,
         toggleMute,
         cycleRepeat,
-        seekToPercent
+        seekToPercent,
+        getSpectrumSnapshot
       }}
     >
       {children}
