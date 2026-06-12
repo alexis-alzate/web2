@@ -1,19 +1,63 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import { approveOrder } from '@/lib/orders';
 
-async function getPaymentId(request: Request): Promise<string | null> {
-  const url = new URL(request.url);
+function getPaymentId(url: URL, body: unknown): string | null {
   const topic = url.searchParams.get('topic') ?? url.searchParams.get('type');
   const idFromQuery = url.searchParams.get('id') ?? url.searchParams.get('data.id');
 
   if (topic === 'payment' && idFromQuery) return idFromQuery;
 
-  const body = await request.json().catch(() => null);
-  if (body?.type === 'payment' && body?.data?.id) return String(body.data.id);
-  if (body?.topic === 'payment' && body?.resource) return String(body.resource).split('/').pop() ?? null;
+  const payload = body && typeof body === 'object' ? body as Record<string, unknown> : {};
+  const data = payload.data && typeof payload.data === 'object'
+    ? payload.data as Record<string, unknown>
+    : {};
+
+  if (payload.type === 'payment' && data.id) return String(data.id);
+  if (payload.topic === 'payment' && payload.resource) return String(payload.resource).split('/').pop() ?? null;
 
   return null;
+}
+
+const parseSignatureHeader = (value: string | null) => {
+  const parts = new Map<string, string>();
+  value?.split(',').forEach((part) => {
+    const [key, signatureValue] = part.split('=').map((item) => item.trim());
+    if (key && signatureValue) parts.set(key, signatureValue);
+  });
+  return parts;
+};
+
+const parseBody = (bodyText: string) => {
+  if (!bodyText) return null;
+  try {
+    return JSON.parse(bodyText);
+  } catch {
+    return null;
+  }
+};
+
+function isValidWebhookSignature(request: Request, paymentId: string) {
+  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  if (!secret) {
+    console.warn('MERCADOPAGO_WEBHOOK_SECRET no configurado; webhook sin validacion de firma.');
+    return true;
+  }
+
+  const requestId = request.headers.get('x-request-id');
+  const signature = parseSignatureHeader(request.headers.get('x-signature'));
+  const timestamp = signature.get('ts');
+  const receivedHash = signature.get('v1');
+
+  if (!requestId || !timestamp || !receivedHash) return false;
+
+  const manifest = `id:${paymentId};request-id:${requestId};ts:${timestamp};`;
+  const expectedHash = createHmac('sha256', secret).update(manifest).digest('hex');
+  const expected = Buffer.from(expectedHash);
+  const received = Buffer.from(receivedHash);
+
+  return expected.length === received.length && timingSafeEqual(expected, received);
 }
 
 export async function POST(request: Request) {
@@ -22,9 +66,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Falta configurar MercadoPago.' }, { status: 500 });
   }
 
-  const paymentId = await getPaymentId(request);
+  const url = new URL(request.url);
+  const bodyText = await request.text().catch(() => '');
+  const body = parseBody(bodyText);
+  const paymentId = getPaymentId(url, body);
   if (!paymentId) {
     return NextResponse.json({ ok: true });
+  }
+
+  if (!isValidWebhookSignature(request, paymentId)) {
+    return NextResponse.json({ error: 'Firma invalida.' }, { status: 401 });
   }
 
   const paymentRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {

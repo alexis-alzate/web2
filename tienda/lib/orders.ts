@@ -4,57 +4,75 @@ import type { Beat, LicenseType } from '@/lib/types';
 
 type SupabaseAdmin = ReturnType<typeof createSupabaseAdminClient>;
 
+type DownloadRow = {
+  token: string;
+  expires_at: string;
+  download_count: number;
+  max_downloads: number;
+};
+
+type OrderItemRow = {
+  id: string;
+  license_type: LicenseType;
+  amount: number;
+  beats: Beat;
+  downloads: DownloadRow[];
+};
+
+type ApprovalResult = {
+  should_send_email?: boolean;
+};
+
+const isUsableDownload = (download: DownloadRow) =>
+  new Date(download.expires_at) > new Date() && download.download_count < download.max_downloads;
+
 export async function approveOrder(supabase: SupabaseAdmin, orderId: string, paymentId: string) {
-  // Idempotencia atomica: solo una llamada logra pasar la orden a approved;
-  // webhooks duplicados o concurrentes no generan tokens ni emails extra.
-  // Se acepta desde pending o rejected (un pago reintentado puede aprobarse
-  // despues de un intento rechazado).
-  const { data: updated, error: updateError } = await supabase
+  // La RPC bloquea la orden en Postgres, crea descargas faltantes y solo al
+  // final marca la orden como aprobada. Webhooks duplicados no duplican tokens.
+  const { data: approval, error: approvalError } = await supabase
+    .rpc('approve_order_safely', { p_order_id: orderId, p_payment_id: paymentId })
+    .maybeSingle();
+
+  if (approvalError) throw approvalError;
+  if (!(approval as ApprovalResult | null)?.should_send_email) return;
+
+  const { data: order, error: orderError } = await supabase
     .from('orders')
-    .update({ status: 'approved', mp_payment_id: paymentId })
+    .select('id, buyer_email')
     .eq('id', orderId)
-    .neq('status', 'approved')
-    .select();
+    .single();
 
-  if (updateError || !updated || updated.length === 0) return;
-  const order = updated[0];
+  if (orderError || !order) throw orderError ?? new Error('No se encontro la orden aprobada.');
 
-  const { data: orderItems, error: itemsError } = await supabase
+  const { data: rawItems, error: itemsError } = await supabase
     .from('order_items')
-    .select('id, beat_id, license_type, amount, beats(*)')
+    .select('id, license_type, amount, beats(*), downloads(token, expires_at, download_count, max_downloads)')
     .eq('order_id', orderId);
 
-  if (itemsError || !orderItems) return;
+  if (itemsError || !rawItems?.length) throw itemsError ?? new Error('La orden aprobada no tiene items.');
 
-  // Una licencia exclusiva retira el beat de la venta automaticamente
-  const exclusiveBeatIds = orderItems
-    .filter((item) => item.license_type === 'exclusive')
-    .map((item) => item.beat_id as string);
-  if (exclusiveBeatIds.length) {
-    await supabase.from('beats').update({ status: 'sold_exclusive' }).in('id', exclusiveBeatIds);
-  }
-
-  const { data: downloads, error: downloadsError } = await supabase
-    .from('downloads')
-    .insert(orderItems.map((item) => ({ order_item_id: item.id })))
-    .select('order_item_id, token');
-
-  if (downloadsError || !downloads) return;
-
-  const tokenByItemId = new Map(downloads.map((d) => [d.order_item_id, d.token]));
-
-  const emailItems = orderItems
+  const emailItems = (rawItems as unknown as OrderItemRow[])
     .map((item) => {
-      const token = tokenByItemId.get(item.id);
-      if (!token) return null;
+      const download = item.downloads?.find(isUsableDownload);
+      if (!download) return null;
       return {
-        beat: item.beats as unknown as Beat,
-        license_type: item.license_type as LicenseType,
-        amount: item.amount as number,
-        token
+        beat: item.beats,
+        license_type: item.license_type,
+        amount: item.amount,
+        token: download.token
       };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
 
+  if (emailItems.length !== rawItems.length) {
+    throw new Error('La orden aprobada no tiene descargas utilizables para todos los items.');
+  }
+
   await sendDownloadEmail(order.buyer_email, emailItems);
+
+  await supabase
+    .from('orders')
+    .update({ download_email_sent_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .is('download_email_sent_at', null);
 }
