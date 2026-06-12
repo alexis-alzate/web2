@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Beat } from '@/lib/types';
-import { formatCOP, publicUrl } from '@/lib/format';
+import { formatCOP, formatTime, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
 import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
@@ -16,6 +17,7 @@ const barHeight = (i: number) =>
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
   const { track, isPlaying, toggle } = usePlayer();
   const { addItem, removeItem, isInCart } = useCart();
+  const [duration, setDuration] = useState<string>('');
 
   const coverUrl = publicUrl('beats-covers', beat.cover_url);
   const previewUrl = publicUrl('beats-previews', beat.preview_url);
@@ -25,10 +27,27 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
   const inCart = isInCart(beat.id, 'basic');
 
   const meta = [
-    beat.genre && beat.genre.toLowerCase() !== beat.title.toLowerCase() ? beat.genre : null,
-    beat.bpm ? `${beat.bpm} BPM` : null,
-    beat.key
-  ].filter(Boolean).join(' · ');
+    beat.bpm ? { label: 'BPM', value: String(beat.bpm) } : null,
+    duration ? { label: 'TIME', value: duration } : null,
+    beat.key ? { label: 'KEY', value: beat.key } : null,
+    beat.genre && beat.genre.toLowerCase() !== beat.title.toLowerCase()
+      ? { label: 'STYLE', value: beat.genre }
+      : null
+  ].filter((item): item is { label: string; value: string } => item !== null);
+
+  useEffect(() => {
+    if (!previewUrl) {
+      setDuration('');
+      return;
+    }
+
+    const probe = new Audio();
+    probe.preload = 'metadata';
+    probe.src = previewUrl;
+    const onLoaded = () => setDuration(formatTime(probe.duration));
+    probe.addEventListener('loadedmetadata', onLoaded);
+    return () => probe.removeEventListener('loadedmetadata', onLoaded);
+  }, [previewUrl]);
 
   const play = () => {
     if (!previewUrl) return;
@@ -78,7 +97,16 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
         <div className="featured-info">
           <span className="featured-eyebrow">Beat destacado</span>
           <Link href={`/${beat.slug}`} className="featured-title">{beat.title}</Link>
-          {meta && <p className="featured-meta">{meta}</p>}
+          {!!meta.length && (
+            <div className="featured-meta">
+              {meta.map((item) => (
+                <span key={item.label} className="featured-meta-pill">
+                  <small>{item.label}</small>
+                  {item.value}
+                </span>
+              ))}
+            </div>
+          )}
           {beat.tags && beat.tags.length > 0 && (
             <div className="featured-tags">
               {beat.tags.slice(0, 4).map((tag) => (
