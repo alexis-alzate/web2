@@ -1726,6 +1726,10 @@ body:has(.descarga-page) .tienda-frame {
     rgba(0,0,0,.7);
 }
 
+.license-card.offer .license-card-name {
+  color: var(--t-gold);
+}
+
 .license-card.offer strong {
   font-family: var(--font-inter), sans-serif;
   font-size: 3.35rem;
