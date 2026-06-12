@@ -81,8 +81,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     if (!analyserRef.current) {
       const analyser = audioContextRef.current.createAnalyser();
-      analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.82;
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.58;
       analyserRef.current = analyser;
       frequencyDataRef.current = new Uint8Array(analyser.frequencyBinCount);
     }

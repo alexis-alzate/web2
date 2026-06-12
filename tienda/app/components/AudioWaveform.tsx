@@ -15,7 +15,7 @@ type AudioWaveformProps = {
   getFrequencySnapshot: () => number[];
 };
 
-const BAR_COUNT = 112;
+const BAR_COUNT = 236;
 
 const emptyBars = Array.from({ length: BAR_COUNT }, () => 0.08);
 
@@ -36,7 +36,16 @@ const average = (values: Float32Array, from: number, to: number) => {
 
 const normalizeBars = (bars: number[]) => {
   const max = Math.max(...bars, 0.01);
-  return bars.map((value) => Math.max(0.06, Math.min(1, value / max)));
+  return bars.map((value) => Math.max(0.04, Math.min(1, value / max)));
+};
+
+const frequencyAt = (values: number[], index: number) => {
+  if (!values.length) return 0;
+  const position = Math.pow(index / Math.max(1, BAR_COUNT - 1), 1.45) * (values.length - 1);
+  const lower = Math.floor(position);
+  const upper = Math.min(values.length - 1, lower + 1);
+  const mix = position - lower;
+  return ((values[lower] || 0) * (1 - mix) + (values[upper] || 0) * mix) / 255;
 };
 
 export default function AudioWaveform({
@@ -129,26 +138,28 @@ export default function AudioWaveform({
 
       const rawFrequency = active && playing ? getFrequencySnapshot() : [];
       if (rawFrequency.length) {
-        const bucketSize = Math.max(1, Math.floor(rawFrequency.length / BAR_COUNT));
         liveEnergyRef.current = liveEnergyRef.current.map((previous, index) => {
-          const from = index * bucketSize;
-          const bucket = rawFrequency.slice(from, from + bucketSize);
-          const value = bucket.reduce((sum, item) => sum + item, 0) / Math.max(1, bucket.length) / 255;
-          return previous * 0.72 + value * 0.28;
+          const direct = frequencyAt(rawFrequency, index);
+          const left = frequencyAt(rawFrequency, Math.max(0, index - 2));
+          const right = frequencyAt(rawFrequency, Math.min(BAR_COUNT - 1, index + 2));
+          const value = Math.min(1, direct * 0.72 + left * 0.14 + right * 0.14);
+          return previous * 0.42 + Math.pow(value, 0.72) * 0.58;
         });
       } else {
-        liveEnergyRef.current = liveEnergyRef.current.map((value) => value * 0.9);
+        liveEnergyRef.current = liveEnergyRef.current.map((value) => value * 0.82);
       }
 
-      const gap = Math.max(2, Math.floor(width / BAR_COUNT * 0.3));
-      const barWidth = Math.max(2, (width - gap * (BAR_COUNT - 1)) / BAR_COUNT);
-      const bottomPad = 10 * dpr;
+      const gap = Math.max(1.25 * dpr, Math.min(3 * dpr, width / BAR_COUNT * 0.32));
+      const barWidth = Math.max(1.6 * dpr, (width - gap * (BAR_COUNT - 1)) / BAR_COUNT);
+      const bottomPad = 8 * dpr;
       const playedIndex = Math.round((Math.min(100, Math.max(0, progress)) / 100) * BAR_COUNT);
 
       barsRef.current.forEach((value, index) => {
         const live = active && playing ? liveEnergyRef.current[index] || 0 : 0;
-        const mixed = Math.min(1, value * (0.78 + live * 0.66));
-        const barHeight = Math.max(5 * dpr, mixed * (height - bottomPad) * 0.72);
+        const base = value * 0.45;
+        const pulse = live * (0.72 + value * 0.36);
+        const mixed = Math.min(1, active && playing ? Math.max(base, pulse) : value * 0.66);
+        const barHeight = Math.max(3 * dpr, mixed * (height - bottomPad) * 0.88);
         const x = index * (barWidth + gap);
         const y = height - barHeight - bottomPad;
         const isPlayed = active && index <= playedIndex;
