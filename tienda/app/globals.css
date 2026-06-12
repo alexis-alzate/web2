@@ -1613,7 +1613,7 @@ body:has(.descarga-page) .tienda-frame {
 
 .license-modal-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   padding: 20px 30px 30px;
 }
@@ -1879,6 +1879,12 @@ body:has(.descarga-page) .tienda-frame {
 .offer-success p {
   margin: 8px 0 0;
   color: rgba(255,255,255,.7);
+}
+
+@media (max-width: 980px) {
+  .license-modal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {

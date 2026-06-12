@@ -15,12 +15,12 @@ type LicensePickerModalProps = {
   onChoose: (license: LicenseType) => void;
 };
 
-const LICENSES: LicenseType[] = ['basic', 'premium'];
+const LICENSES: LicenseType[] = ['basic', 'premium', 'exclusive'];
 
 const licenseDisplay: Record<LicenseType, { name: string; format: string; detail: string }> = {
   basic: { name: 'MP3', format: 'MP3', detail: LICENSE_LABELS.basic.desc },
   premium: { name: 'WAV', format: 'WAV + MP3', detail: LICENSE_LABELS.premium.desc },
-  exclusive: { name: 'EXCLUSIVA', format: 'Make an offer', detail: 'Negocia una licencia exclusiva personalizada' }
+  exclusive: { name: 'EXCLUSIVA', format: 'WAV + MP3', detail: LICENSE_LABELS.exclusive.desc }
 };
 
 export default function LicensePickerModal({
