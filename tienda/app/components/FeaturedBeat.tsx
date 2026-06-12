@@ -7,15 +7,10 @@ import { formatCOP, formatTime, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
 import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
-
-const BAR_COUNT = 56;
-
-// Alturas deterministas (mismo render en server y cliente, sin hydration mismatch)
-const barHeight = (i: number) =>
-  18 + Math.round(Math.abs(Math.sin(i * 2.7) * Math.cos(i * 0.83)) * 78);
+import AudioWaveform from './AudioWaveform';
 
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
-  const { track, isPlaying, toggle } = usePlayer();
+  const { track, isPlaying, progress, toggle, seekToPercent, getFrequencySnapshot } = usePlayer();
   const { addItem, removeItem, isInCart } = useCart();
   const [duration, setDuration] = useState<string>('');
 
@@ -135,14 +130,16 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
         </div>
       </div>
 
-      <div className={`wave-bars ${playingThis ? 'playing' : ''}`} aria-hidden="true">
-        {Array.from({ length: BAR_COUNT }, (_, i) => (
-          <span
-            key={i}
-            style={{ height: `${barHeight(i)}%`, animationDelay: `${(i % 9) * 0.11}s` }}
-          />
-        ))}
-      </div>
+      {previewUrl && (
+        <AudioWaveform
+          src={previewUrl}
+          active={isActive}
+          playing={playingThis}
+          progress={isActive ? progress : 0}
+          onSeek={seekToPercent}
+          getFrequencySnapshot={getFrequencySnapshot}
+        />
+      )}
     </section>
   );
 }

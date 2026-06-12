@@ -1868,6 +1868,22 @@ body:has(.descarga-page) .tienda-frame {
   background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(var(--t-gold-rgb), .18));
 }
 
+.audio-waveform {
+  display: block;
+  width: min(760px, 100%);
+  height: 96px;
+  margin: 22px 0 0 202px;
+  cursor: pointer;
+  border-radius: 2px;
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,.38));
+}
+
+.audio-waveform:hover {
+  filter:
+    drop-shadow(0 10px 22px rgba(0,0,0,.38))
+    drop-shadow(0 0 18px rgba(var(--t-gold-rgb), .12));
+}
+
 .beats-filters {
   margin-top: 20px;
 }
@@ -1993,6 +2009,12 @@ body:has(.descarga-page) .tienda-frame {
 
   .featured-title {
     font-size: clamp(1.45rem, 8vw, 2.15rem);
+  }
+
+  .audio-waveform {
+    width: 100%;
+    height: 64px;
+    margin: 14px 0 0;
   }
 
   .featured-meta-pill:nth-child(n + 3),
