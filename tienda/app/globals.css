@@ -1476,6 +1476,293 @@ body:has(.descarga-page) .tienda-frame {
   white-space: nowrap;
 }
 
+.license-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.license-modal {
+  position: relative;
+  width: min(1060px, 100%);
+  max-height: min(86vh, 760px);
+  overflow: auto;
+  border: 1px solid rgba(var(--t-gold-rgb), 0.34);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), transparent 34%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 8px),
+    #070706;
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.78),
+    0 0 0 1px rgba(255,255,255,.05) inset,
+    0 0 46px rgba(var(--t-gold-rgb), .12);
+}
+
+.license-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  background: rgba(0,0,0,.42);
+  color: rgba(255,255,255,.82);
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .2s var(--t-ease), border-color .2s var(--t-ease), box-shadow .2s var(--t-ease), transform .18s var(--t-ease);
+}
+
+.license-modal-close:hover {
+  color: var(--t-gold);
+  border-color: rgba(var(--t-gold-rgb), .42);
+  box-shadow: 0 0 24px rgba(var(--t-gold-rgb), .14);
+  transform: translateY(-1px);
+}
+
+.license-modal-head {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 22px;
+  padding: 28px 30px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.license-modal-cover {
+  width: 170px;
+  aspect-ratio: 1 / 1;
+  border: 1px solid rgba(var(--t-gold-rgb), .3);
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255,255,255,.04);
+  box-shadow: 0 18px 44px rgba(0,0,0,.5);
+}
+
+.license-modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.license-modal-titlebox {
+  min-width: 0;
+  padding-right: 42px;
+}
+
+.license-modal-kicker {
+  display: block;
+  margin-bottom: 7px;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--t-gold);
+}
+
+.license-modal-titlebox h2 {
+  margin: 0;
+  max-width: 860px;
+  color: var(--t-text);
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(2rem, 5vw, 3.9rem);
+  line-height: .95;
+  font-weight: 900;
+  letter-spacing: -.8px;
+  text-transform: uppercase;
+}
+
+.license-modal-meta,
+.license-modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.license-modal-meta span,
+.license-modal-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--t-gold-rgb), .28);
+  border-radius: 2px;
+  background: rgba(0,0,0,.42);
+  color: rgba(255,255,255,.82);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+
+.license-modal-tags span {
+  color: rgba(255,255,255,.58);
+}
+
+.license-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 20px 30px 30px;
+}
+
+.license-card {
+  position: relative;
+  min-height: 178px;
+  padding: 20px 18px 18px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 6px;
+  background:
+    radial-gradient(180px 90px at 50% 0%, rgba(var(--t-gold-rgb), .09), transparent 72%),
+    rgba(0,0,0,.58);
+  color: var(--t-text);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color .22s var(--t-ease), transform .18s var(--t-ease), box-shadow .22s var(--t-ease), background .22s var(--t-ease);
+}
+
+.license-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(var(--t-gold-rgb), .75), transparent);
+  opacity: .42;
+}
+
+.license-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(var(--t-gold-rgb), .58);
+  box-shadow: 0 16px 42px rgba(0,0,0,.42), 0 0 30px rgba(var(--t-gold-rgb), .13);
+}
+
+.license-card.in-cart {
+  border-color: rgba(var(--t-gold-rgb), .72);
+  background:
+    radial-gradient(180px 90px at 50% 0%, rgba(var(--t-gold-rgb), .17), transparent 72%),
+    rgba(var(--t-gold-rgb), .06);
+}
+
+.license-card-name {
+  display: block;
+  color: var(--t-gold);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.license-card strong {
+  display: block;
+  margin-top: 16px;
+  color: #fff;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: clamp(2.1rem, 5vw, 3.15rem);
+  line-height: .9;
+  letter-spacing: 1px;
+  text-shadow: 0 18px 40px rgba(0,0,0,.6);
+}
+
+.license-card small,
+.license-card-detail {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255,255,255,.48);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+
+.license-card-detail {
+  min-height: 20px;
+  margin-top: 4px;
+  color: rgba(255,255,255,.36);
+  font-size: .68rem;
+  letter-spacing: 1.2px;
+}
+
+.license-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  min-height: 32px;
+  padding: 8px 11px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(var(--t-gold-rgb), .95), rgba(159, 121, 37, .95));
+  color: #090806;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.license-card.in-cart .license-card-action {
+  background: rgba(255,255,255,.08);
+  color: var(--t-gold);
+}
+
+@media (max-width: 760px) {
+  .license-modal-backdrop {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .license-modal {
+    max-height: 92vh;
+    border-radius: 12px;
+  }
+
+  .license-modal-head {
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 14px;
+    padding: 18px 16px 14px;
+  }
+
+  .license-modal-cover {
+    width: 84px;
+  }
+
+  .license-modal-titlebox {
+    padding-right: 36px;
+  }
+
+  .license-modal-titlebox h2 {
+    font-size: clamp(1.55rem, 8vw, 2.35rem);
+  }
+
+  .license-modal-tags {
+    display: none;
+  }
+
+  .license-modal-grid {
+    grid-template-columns: 1fr;
+    padding: 14px 16px 18px;
+  }
+
+  .license-card {
+    min-height: 128px;
+    padding: 16px;
+  }
+}
+
 .email-label {
   display: block;
   font-family: var(--font-barlow-condensed), sans-serif;

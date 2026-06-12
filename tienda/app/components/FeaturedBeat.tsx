@@ -2,24 +2,27 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import type { Beat } from '@/lib/types';
+import type { Beat, LicenseType } from '@/lib/types';
+import { priceForLicense } from '@/lib/types';
 import { formatCOP, formatTime, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
 import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
 import AudioWaveform from './AudioWaveform';
+import LicensePickerModal from './LicensePickerModal';
 
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
   const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot } = usePlayer();
-  const { addItem, removeItem, isInCart } = useCart();
+  const { items, addItem, removeItem, isInCart } = useCart();
   const [duration, setDuration] = useState<string>('');
+  const [licenseModalOpen, setLicenseModalOpen] = useState(false);
 
   const coverUrl = publicUrl('beats-covers', beat.cover_url);
   const previewUrl = publicUrl('beats-previews', beat.preview_url);
   const isActive = track?.beatId === beat.id;
   const playingThis = isActive && isPlaying;
   const isSold = beat.status === 'sold_exclusive';
-  const inCart = isInCart(beat.id, 'basic');
+  const inCart = items.some((item) => item.beatId === beat.id);
 
   const meta = [
     beat.bpm ? { label: 'BPM', value: String(beat.bpm) } : null,
@@ -57,9 +60,9 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
     });
   };
 
-  const toggleCart = () => {
-    if (inCart) {
-      removeItem(beat.id, 'basic');
+  const chooseLicense = (license: LicenseType) => {
+    if (isInCart(beat.id, license)) {
+      removeItem(beat.id, license);
       return;
     }
     addItem({
@@ -67,9 +70,10 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       slug: beat.slug,
       title: beat.title,
       coverUrl,
-      license: 'basic',
-      price: beat.price_basic
+      license,
+      price: priceForLicense(beat, license)
     });
+    setLicenseModalOpen(false);
   };
 
   return (
@@ -119,10 +123,10 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
               <button
                 type="button"
                 className={`beat-row-btn ${inCart ? 'in-cart' : ''}`}
-                onClick={toggleCart}
+                onClick={() => setLicenseModalOpen(true)}
               >
                 <span className="beat-row-btn-icon">{inCart ? <CheckIcon /> : <CartIcon />}</span>
-                {inCart ? 'EN CARRITO' : 'ADD'}
+                {inCart ? 'VER' : 'ADD'}
               </button>
             </div>
           )}
@@ -139,6 +143,15 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
           getSpectrumSnapshot={getSpectrumSnapshot}
         />
       )}
+
+      <LicensePickerModal
+        beat={beat}
+        coverUrl={coverUrl}
+        open={licenseModalOpen}
+        isInCart={isInCart}
+        onClose={() => setLicenseModalOpen(false)}
+        onChoose={chooseLicense}
+      />
     </section>
   );
 }
