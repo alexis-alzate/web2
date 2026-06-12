@@ -30,6 +30,49 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <PlayerProvider>
           <CartProvider>
+            <div className="marketplace-top">
+              <nav className="marketplace-nav" aria-label="Navegacion principal">
+                <a href="https://www.lujourban.com" className="marketplace-logo" aria-label="Lujo Urban Beats">
+                  <span className="marketplace-logo-mark">LU</span>
+                  <span>BEATS</span>
+                </a>
+                <div className="marketplace-links">
+                  <a href="#tienda">Licencias</a>
+                  <a href="https://www.lujourban.com/servicios/">Servicios</a>
+                  <a href="https://www.lujourban.com">Blog</a>
+                  <a href="mailto:zaetaalex@gmail.com">Contacto</a>
+                </div>
+                <a href="#tienda" className="marketplace-buy-link">Comprar beats</a>
+              </nav>
+
+              <div className="marketplace-marquee" aria-hidden="true">
+                <div className="marketplace-marquee-track">
+                  <span>Compra 2 y llevate 1 gratis</span>
+                  <i />
+                  <span>Compra 3 y llevate 2 gratis</span>
+                  <i />
+                  <span>Compra 4 y llevate 3 gratis</span>
+                  <strong>Aprovecha tu momento</strong>
+                  <span>Haz mas musica por menos</span>
+                </div>
+              </div>
+
+              <section className="marketplace-hero" aria-labelledby="marketplace-title">
+                <div className="marketplace-hero-inner">
+                  <h1 id="marketplace-title">¡Le pongo ritmo a tu sueño!</h1>
+                  <p>Escoge tus ritmos, revisalos y en minutos los tienes en tu correo, listos para usar.</p>
+                  <a href="https://wa.me/573002400084?text=Hola%20Zaetta%2C%20busco%20un%20ritmo%20especifico." className="marketplace-help-link" target="_blank" rel="noopener">
+                    ¿Buscas un ritmo especifico?
+                  </a>
+                  <div className="marketplace-offers" aria-label="Promociones">
+                    <a href="#tienda"><span>🏷</span>Compra 2+1 gratis</a>
+                    <a href="#tienda"><span>🏷</span>Compra 3+2 gratis</a>
+                    <a href="#tienda"><span>🏷</span>Compra 4+3 gratis</a>
+                  </div>
+                </div>
+              </section>
+            </div>
+
             <div id="tienda" className="tienda-frame">
               <Suspense fallback={null}>
                 <Header />

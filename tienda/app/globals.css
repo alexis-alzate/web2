@@ -82,12 +82,247 @@ body::after {
 
 a { color: inherit; text-decoration: none; }
 
+/* ===== CABECERA MARKETPLACE ===== */
+.marketplace-top {
+  position: relative;
+  min-height: min(820px, 92vh);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.68), rgba(0,0,0,0.58) 42%, rgba(0,0,0,0.92) 100%),
+    radial-gradient(900px 520px at 50% 78%, rgba(var(--t-gold-rgb), 0.08), transparent 70%),
+    url("https://www.lujourban.com/assets/hero.jpg") center / cover no-repeat;
+}
+.marketplace-top::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.82), transparent 24%, transparent 76%, rgba(0,0,0,0.82)),
+    radial-gradient(520px 180px at 50% 76%, rgba(255,255,255,0.08), transparent 70%);
+}
+
+.marketplace-nav {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 118px;
+  padding: 24px clamp(22px, 4vw, 64px);
+  background: rgba(0, 0, 0, 0.82);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.marketplace-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: 1px;
+  color: var(--t-text);
+}
+.marketplace-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--t-text);
+  border-radius: 999px;
+  color: var(--t-text);
+  font-size: 1.05rem;
+  letter-spacing: 0;
+}
+.marketplace-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 3vw, 48px);
+  margin-left: auto;
+  color: rgba(255,255,255,0.62);
+  font-weight: 700;
+}
+.marketplace-links a,
+.marketplace-buy-link {
+  transition: color .2s var(--t-ease), border-color .2s var(--t-ease), background .2s var(--t-ease), box-shadow .22s var(--t-ease), transform .18s var(--t-ease);
+}
+.marketplace-links a:hover {
+  color: var(--t-text);
+}
+.marketplace-buy-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 24px;
+  border: 1px solid rgba(255,255,255,0.78);
+  border-radius: 8px;
+  color: var(--t-text);
+  font-weight: 800;
+  background: rgba(255,255,255,0.015);
+}
+.marketplace-buy-link:hover {
+  border-color: var(--t-gold);
+  color: var(--t-gold);
+  background: rgba(var(--t-gold-rgb), 0.07);
+  box-shadow: 0 0 28px rgba(var(--t-gold-rgb), 0.16);
+  transform: translateY(-1px);
+}
+
+.marketplace-marquee {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  background: #078b94;
+  color: #020202;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(0,0,0,0.24);
+}
+.marketplace-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: max-content;
+  min-width: 100%;
+  padding: 9px 0;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: clamp(.98rem, 1.5vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: 2.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: marketplace-marquee 24s linear infinite;
+}
+.marketplace-marquee-track span,
+.marketplace-marquee-track strong {
+  display: inline-flex;
+}
+.marketplace-marquee-track i {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.75), #40394a 45%, #17121d 72%);
+  box-shadow: 0 0 10px rgba(0,0,0,0.35);
+}
+@keyframes marketplace-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-34%); }
+}
+
+.marketplace-hero {
+  position: relative;
+  z-index: 1;
+  min-height: 610px;
+  display: grid;
+  place-items: center;
+  padding: 72px 22px 140px;
+  text-align: center;
+}
+.marketplace-hero-inner {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+.marketplace-hero h1 {
+  margin: 0;
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(3rem, 6.8vw, 6.5rem);
+  line-height: .95;
+  letter-spacing: -1px;
+  color: var(--t-text);
+  text-shadow: 0 18px 70px rgba(0,0,0,0.58);
+}
+.marketplace-hero p {
+  margin: 20px auto 14px;
+  max-width: 860px;
+  color: rgba(255,255,255,0.78);
+  font-size: clamp(1rem, 1.55vw, 1.35rem);
+  font-weight: 600;
+}
+.marketplace-help-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,0.78);
+  border-radius: 5px;
+  color: var(--t-text);
+  font-size: .88rem;
+  font-weight: 800;
+  background: rgba(0,0,0,0.22);
+  transition: color .2s var(--t-ease), border-color .2s var(--t-ease), box-shadow .2s var(--t-ease), transform .18s var(--t-ease);
+}
+.marketplace-help-link::before {
+  content: "i";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  margin-right: 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+.marketplace-help-link:hover {
+  color: var(--t-gold);
+  border-color: rgba(var(--t-gold-rgb), 0.72);
+  box-shadow: 0 0 24px rgba(var(--t-gold-rgb), 0.14);
+  transform: translateY(-1px);
+}
+.marketplace-offers {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 62px;
+}
+.marketplace-offers a {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-width: min(260px, 100%);
+  min-height: 86px;
+  padding: 18px 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background:
+    radial-gradient(120px 42px at 70% 0%, rgba(255,255,255,0.18), transparent 70%),
+    linear-gradient(180deg, rgba(34,34,34,0.94), rgba(24,24,24,0.94));
+  color: rgba(255,255,255,0.92);
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  font-weight: 900;
+  line-height: 1.18;
+  text-transform: uppercase;
+  text-align: left;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: transform .2s var(--t-ease), box-shadow .24s var(--t-ease), border-color .2s var(--t-ease);
+}
+.marketplace-offers a:hover {
+  transform: translateY(-3px);
+  border-color: rgba(var(--t-gold-rgb), 0.38);
+  box-shadow: 0 22px 50px rgba(0,0,0,0.5), 0 0 34px rgba(var(--t-gold-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.marketplace-offers span {
+  color: #078b94;
+  filter: drop-shadow(0 0 10px rgba(7,139,148,0.32));
+}
+
+body:has(.descarga-page) .marketplace-top {
+  display: none;
+}
+
 /* ===== MARCO GENERAL DE LA TIENDA (app shell) =====
    La tienda es una "mini app" embebida: un frame flotante que ocupa el
    viewport con un margen fino; solo el contenido interior scrollea. */
 .tienda-frame {
   max-width: 1180px;
-  margin: 14px auto;
+  margin: -72px auto 14px;
   border: 1px solid var(--t-border);
   border-radius: 18px;
   background:
@@ -101,11 +336,77 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+  z-index: 3;
+}
+
+body:has(.descarga-page) .tienda-frame {
+  margin: 14px auto;
 }
 
 @media (max-width: 540px) {
+  .marketplace-top {
+    min-height: 800px;
+  }
+
+  .marketplace-nav {
+    min-height: 82px;
+    padding: 16px 18px;
+    gap: 12px;
+  }
+
+  .marketplace-logo {
+    font-size: 1.2rem;
+  }
+
+  .marketplace-logo-mark {
+    width: 32px;
+    height: 32px;
+    font-size: .88rem;
+  }
+
+  .marketplace-links {
+    display: none;
+  }
+
+  .marketplace-buy-link {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: .9rem;
+  }
+
+  .marketplace-marquee-track {
+    font-size: .98rem;
+    letter-spacing: 2px;
+  }
+
+  .marketplace-hero {
+    min-height: 610px;
+    padding: 58px 18px 120px;
+  }
+
+  .marketplace-hero h1 {
+    font-size: clamp(3rem, 17vw, 4.6rem);
+    letter-spacing: 0;
+  }
+
+  .marketplace-hero p {
+    font-size: 1rem;
+  }
+
+  .marketplace-offers {
+    margin-top: 46px;
+    gap: 10px;
+  }
+
+  .marketplace-offers a {
+    width: min(310px, 100%);
+    min-height: 70px;
+    padding: 14px 22px;
+  }
+
   .tienda-frame {
-    margin: 0;
+    margin: -62px 0 0;
     border: none;
     border-radius: 0;
     height: 100vh;
