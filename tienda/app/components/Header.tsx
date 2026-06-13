@@ -11,7 +11,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { count, total, openCart } = useCart();
+  const { count, total, openCartPreview } = useCart();
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const [, startTransition] = useTransition();
   const [mounted, setMounted] = useState(false);
@@ -50,13 +50,13 @@ export default function Header() {
         <span className="site-search-icon"><SearchIcon /></span>
         <input
           type="search"
-          placeholder="Buscar beats, géneros, tags..."
+          placeholder="Buscar beats..."
           value={query}
           onChange={(e) => onSearch(e.target.value)}
         />
       </div>
 
-      <button type="button" className="cart-toggle" onClick={openCart} aria-label="Abrir carrito">
+      <button type="button" className="cart-toggle" onClick={openCartPreview} aria-label="Abrir carrito">
         <span className={`cart-toggle-icon ${bump ? 'bump' : ''}`}>
           <CartIcon />
           {mounted && count > 0 && <span className="cart-toggle-badge">{count}</span>}

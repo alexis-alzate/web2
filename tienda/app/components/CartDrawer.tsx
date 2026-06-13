@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCart } from '../providers/CartProvider';
 import { LICENSE_LABELS } from '@/lib/types';
 import { formatCOP } from '@/lib/format';
 
 export default function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, total, clear } = useCart();
+  const { items, isOpen, isPreviewOpen, openCart, closeCart, closeCartPreview, removeItem, total, clear } = useCart();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,8 +43,44 @@ export default function CartDrawer() {
     }
   };
 
+  useEffect(() => {
+    if (!isPreviewOpen) return;
+    const timer = window.setTimeout(closeCartPreview, 4500);
+    return () => window.clearTimeout(timer);
+  }, [closeCartPreview, isPreviewOpen, items, total]);
+
   return (
     <>
+      {!!items.length && isPreviewOpen && !isOpen && (
+        <aside className="cart-preview" aria-label="Vista rápida del carrito">
+          <div className="cart-preview-items">
+            {items.slice(0, 3).map((item) => (
+              <div key={`${item.beatId}-${item.license}`} className="cart-preview-item">
+                <div className="cart-preview-cover">
+                  {item.coverUrl && <img src={item.coverUrl} alt={item.title} />}
+                </div>
+                <div className="cart-preview-info">
+                  <p>{item.title}</p>
+                  <span>{LICENSE_LABELS[item.license].name}</span>
+                  <strong>{formatCOP(item.price)}</strong>
+                </div>
+                <button
+                  type="button"
+                  className="cart-preview-remove"
+                  onClick={() => removeItem(item.beatId, item.license)}
+                  aria-label="Quitar del carrito"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {items.length > 3 && <p className="cart-preview-more">+{items.length - 3} más en el carrito</p>}
+          </div>
+          <button type="button" className="cart-preview-checkout" onClick={openCart}>
+            Finalizar compra
+          </button>
+        </aside>
+      )}
       <div className={`cart-overlay ${isOpen ? 'open' : ''}`} onClick={closeCart} />
       <aside className={`cart-drawer ${isOpen ? 'open' : ''}`}>
         <div className="cart-drawer-header">

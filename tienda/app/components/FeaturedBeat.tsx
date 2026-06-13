@@ -13,9 +13,10 @@ import LicensePickerModal from './LicensePickerModal';
 
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
   const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot } = usePlayer();
-  const { items, addItem, removeItem, isInCart } = useCart();
+  const { items, addItem, isInCart } = useCart();
   const [duration, setDuration] = useState<string>('');
   const [licenseModalOpen, setLicenseModalOpen] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   const coverUrl = publicUrl('beats-covers', beat.cover_url);
   const previewUrl = publicUrl('beats-previews', beat.preview_url);
@@ -61,10 +62,6 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
   };
 
   const chooseLicense = (license: LicenseType) => {
-    if (isInCart(beat.id, license)) {
-      removeItem(beat.id, license);
-      return;
-    }
     addItem({
       beatId: beat.id,
       slug: beat.slug,
@@ -74,10 +71,12 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       price: priceForLicense(beat, license)
     });
     setLicenseModalOpen(false);
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 620);
   };
 
   return (
-    <section className="featured">
+    <section className={`featured ${isPlaying ? 'is-live' : ''}`}>
       <div className="featured-main">
         <div className={`featured-cover ${playingThis ? 'playing' : ''}`}>
           {coverUrl && <img src={coverUrl} alt={`Portada de ${beat.title}`} />}
@@ -122,7 +121,7 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
               </span>
               <button
                 type="button"
-                className={`beat-row-btn ${inCart ? 'in-cart' : ''}`}
+                className={`beat-row-btn ${inCart ? 'in-cart' : ''} ${justAdded ? 'just-added' : ''}`}
                 onClick={() => setLicenseModalOpen(true)}
               >
                 <span className="beat-row-btn-icon">{inCart ? <CheckIcon /> : <CartIcon />}</span>
@@ -136,9 +135,9 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
 
       {previewUrl && (
         <AudioWaveform
-          active={isActive}
-          playing={playingThis}
-          progress={isActive ? progress : 0}
+          active={!!track}
+          playing={isPlaying}
+          progress={progress}
           onSeek={seekToPercent}
           getSpectrumSnapshot={getSpectrumSnapshot}
         />

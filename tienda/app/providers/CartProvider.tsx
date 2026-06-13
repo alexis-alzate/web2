@@ -15,8 +15,11 @@ export type CartItem = {
 type CartContextValue = {
   items: CartItem[];
   isOpen: boolean;
+  isPreviewOpen: boolean;
   openCart: () => void;
+  openCartPreview: () => void;
   closeCart: () => void;
+  closeCartPreview: () => void;
   addItem: (item: CartItem) => void;
   removeItem: (beatId: string, license: LicenseType) => void;
   isInCart: (beatId: string, license: LicenseType) => boolean;
@@ -29,15 +32,25 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = 'lujourban_tienda_cart';
 
+const dedupeByBeat = (cartItems: CartItem[]) => {
+  const byBeat = new Map<string, CartItem>();
+  cartItems.forEach((item) => byBeat.set(item.beatId, item));
+  return Array.from(byBeat.values());
+};
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setItems(dedupeByBeat(parsed));
+      }
     } catch {
       // ignora carritos corruptos
     }
@@ -51,10 +64,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback((item: CartItem) => {
     setItems((prev) => {
-      const exists = prev.some((it) => it.beatId === item.beatId && it.license === item.license);
-      if (exists) return prev;
-      return [...prev, item];
+      const existingIndex = prev.findIndex((it) => it.beatId === item.beatId);
+      if (existingIndex === -1) return [...prev, item];
+
+      const next = [...prev];
+      next[existingIndex] = item;
+      return next;
     });
+    setIsPreviewOpen(true);
   }, []);
 
   const removeItem = useCallback((beatId: string, license: LicenseType) => {
@@ -68,15 +85,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const clear = useCallback(() => setItems([]), []);
-  const openCart = useCallback(() => setIsOpen(true), []);
+  const openCart = useCallback(() => {
+    setIsPreviewOpen(false);
+    setIsOpen(true);
+  }, []);
+  const openCartPreview = useCallback(() => {
+    if (!items.length) {
+      setIsOpen(true);
+      return;
+    }
+    setIsOpen(false);
+    setIsPreviewOpen(true);
+  }, [items.length]);
   const closeCart = useCallback(() => setIsOpen(false), []);
+  const closeCartPreview = useCallback(() => setIsPreviewOpen(false), []);
 
   const total = useMemo(() => items.reduce((sum, it) => sum + it.price, 0), [items]);
   const count = items.length;
 
   return (
     <CartContext.Provider
-      value={{ items, isOpen, openCart, closeCart, addItem, removeItem, isInCart, clear, total, count }}
+      value={{
+        items,
+        isOpen,
+        isPreviewOpen,
+        openCart,
+        openCartPreview,
+        closeCart,
+        closeCartPreview,
+        addItem,
+        removeItem,
+        isInCart,
+        clear,
+        total,
+        count
+      }}
     >
       {children}
     </CartContext.Provider>

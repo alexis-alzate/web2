@@ -8,13 +8,15 @@ import { formatCOP, formatTime, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
 import { CartIcon, CheckIcon, PlayIcon, PauseIcon, ShareIcon } from './Icons';
+import AudioWaveform from './AudioWaveform';
 import LicensePickerModal from './LicensePickerModal';
 
 export default function BeatRow({ beat }: { beat: Beat }) {
-  const { track, isPlaying, toggle } = usePlayer();
-  const { items, addItem, removeItem, isInCart } = useCart();
+  const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot } = usePlayer();
+  const { items, addItem, isInCart } = useCart();
   const [duration, setDuration] = useState<string>('');
   const [licenseModalOpen, setLicenseModalOpen] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   const coverUrl = publicUrl('beats-covers', beat.cover_url);
   const previewUrl = publicUrl('beats-previews', beat.preview_url);
@@ -44,10 +46,6 @@ export default function BeatRow({ beat }: { beat: Beat }) {
   const inCart = items.some((item) => item.beatId === beat.id);
 
   const chooseLicense = (license: LicenseType) => {
-    if (isInCart(beat.id, license)) {
-      removeItem(beat.id, license);
-      return;
-    }
     addItem({
       beatId: beat.id,
       slug: beat.slug,
@@ -57,6 +55,8 @@ export default function BeatRow({ beat }: { beat: Beat }) {
       price: priceForLicense(beat, license)
     });
     setLicenseModalOpen(false);
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 620);
   };
 
   const metaParts = [
@@ -86,6 +86,16 @@ export default function BeatRow({ beat }: { beat: Beat }) {
         {!!metaParts.length && (
           <span className="beat-row-meta">{metaParts.join(' · ')}</span>
         )}
+        {previewUrl && (
+          <AudioWaveform
+            compact
+            active={isActive}
+            playing={playingThis}
+            progress={isActive ? progress : 0}
+            onSeek={isActive ? seekToPercent : () => {}}
+            getSpectrumSnapshot={getSpectrumSnapshot}
+          />
+        )}
       </div>
 
       <span className="beat-row-time">{duration || '--:--'}</span>
@@ -109,7 +119,7 @@ export default function BeatRow({ beat }: { beat: Beat }) {
           </span>
           <button
             type="button"
-            className={`beat-row-btn ${inCart ? 'in-cart' : ''}`}
+            className={`beat-row-btn ${inCart ? 'in-cart' : ''} ${justAdded ? 'just-added' : ''}`}
             onClick={() => setLicenseModalOpen(true)}
           >
             <span className="beat-row-btn-icon">{inCart ? <CheckIcon /> : <CartIcon />}</span>

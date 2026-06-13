@@ -87,7 +87,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     if (!analyserRef.current) {
       const analyser = audioContextRef.current.createAnalyser();
       analyser.fftSize = 4096;
-      analyser.smoothingTimeConstant = 0.68;
+      analyser.smoothingTimeConstant = 0.58;
       analyser.minDecibels = -92;
       analyser.maxDecibels = -18;
       analyserRef.current = analyser;

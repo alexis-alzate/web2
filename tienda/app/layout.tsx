@@ -80,9 +80,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </Suspense>
               <div className="site-header-divider" />
               {children}
+              <CartDrawer />
               <PlayerBar />
             </div>
-            <CartDrawer />
           </CartProvider>
         </PlayerProvider>
       </body>

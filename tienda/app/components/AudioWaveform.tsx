@@ -13,9 +13,9 @@ type AudioWaveformProps = {
   progress: number;
   onSeek: (percent: number) => void;
   getSpectrumSnapshot: () => SpectrumSnapshot | null;
+  compact?: boolean;
 };
 
-const BAR_COUNT = 156;
 const MIN_FREQ = 28;
 const MAX_FREQ = 18000;
 
@@ -39,16 +39,18 @@ const readBin = (data: number[], position: number) => {
   return ((data[lower] || 0) * (1 - mix) + (data[upper] || 0) * mix) / 255;
 };
 
-const barFrequency = (index: number) => {
-  const ratio = index / Math.max(1, BAR_COUNT - 1);
+const barFrequency = (index: number, barCount: number) => {
+  const ratio = index / Math.max(1, barCount - 1);
   return MIN_FREQ * Math.pow(MAX_FREQ / MIN_FREQ, ratio);
 };
 
-const bandWeight = (index: number) => {
-  const ratio = index / Math.max(1, BAR_COUNT - 1);
-  if (ratio < 0.23) return 1.18;
-  if (ratio < 0.68) return 0.96;
-  return 0.78;
+// Realza graves/medios y deja que los agudos solo "salten" si el audio
+// realmente trae energia ahi (como el analizador de un EQ tipo Pro-Q3).
+const bandWeight = (index: number, barCount: number) => {
+  const ratio = index / Math.max(1, barCount - 1);
+  if (ratio < 0.23) return 1.26;
+  if (ratio < 0.68) return 1.02;
+  return 0.72;
 };
 
 export default function AudioWaveform({
@@ -56,12 +58,21 @@ export default function AudioWaveform({
   playing,
   progress,
   onSeek,
-  getSpectrumSnapshot
+  getSpectrumSnapshot,
+  compact = false
 }: AudioWaveformProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const levelsRef = useRef<number[]>(Array.from({ length: BAR_COUNT }, (_, index) => deterministicIdle(index)));
-  const peaksRef = useRef<number[]>(Array.from({ length: BAR_COUNT }, () => 0));
+  const barCount = compact ? 40 : 156;
+  const levelsRef = useRef<number[]>(Array.from({ length: barCount }, (_, index) => deterministicIdle(index)));
+  const peaksRef = useRef<number[]>(Array.from({ length: barCount }, () => 0));
   const tickRef = useRef(0);
+
+  // El loop de animacion lee estos valores desde un ref para no depender de
+  // ellos en el array del efecto. Si `progress`/`playing` estuvieran en las
+  // dependencias, cada tick de progreso reiniciaria el requestAnimationFrame
+  // y la fila recien activada podria no volver a arrancar el loop.
+  const liveRef = useRef({ playing, progress, getSpectrumSnapshot });
+  liveRef.current = { playing, progress, getSpectrumSnapshot };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,7 +83,8 @@ export default function AudioWaveform({
 
     let frame = 0;
 
-    const draw = () => {
+    const render = () => {
+      const { playing, progress, getSpectrumSnapshot } = liveRef.current;
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const width = Math.max(1, Math.floor(rect.width * dpr));
@@ -83,36 +95,43 @@ export default function AudioWaveform({
         canvas.height = height;
       }
 
-      const gradientBg = ctx.createLinearGradient(0, 0, 0, height);
-      gradientBg.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      gradientBg.addColorStop(1, 'rgba(0, 0, 0, 0.18)');
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = gradientBg;
-      ctx.fillRect(0, 0, width, height);
+      if (!compact) {
+        const gradientBg = ctx.createLinearGradient(0, 0, 0, height);
+        gradientBg.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        gradientBg.addColorStop(1, 'rgba(0, 0, 0, 0.18)');
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = gradientBg;
+        ctx.fillRect(0, 0, width, height);
+      } else {
+        ctx.clearRect(0, 0, width, height);
+      }
 
       tickRef.current += playing ? 0.085 : 0.018;
       const snapshot = active && playing ? getSpectrumSnapshot() : null;
       const hasEnergy = !!snapshot?.data.some((value) => value > 2);
       const nextLevels = levelsRef.current;
 
-      for (let index = 0; index < BAR_COUNT; index++) {
-        let target = deterministicIdle(index) * 0.34;
+      for (let index = 0; index < barCount; index++) {
+        let target = deterministicIdle(index) * (compact ? 0.14 : 0.34);
 
         if (snapshot?.data.length && hasEnergy) {
-          const frequency = barFrequency(index);
+          const frequency = barFrequency(index, barCount);
           const center = frequencyToIndex(frequency, snapshot.sampleRate, snapshot.data.length);
-          const spread = index < 36 ? 3.8 : index < 108 ? 2.4 : 1.35;
+          const spread = index < barCount * 0.23 ? 3.8 : index < barCount * 0.69 ? 2.4 : 1.35;
           const raw =
             readBin(snapshot.data, Math.max(0, center - spread)) * 0.22 +
             readBin(snapshot.data, center) * 0.56 +
             readBin(snapshot.data, Math.min(snapshot.data.length - 1, center + spread)) * 0.22;
 
-          const shaped = Math.pow(clamp(raw * bandWeight(index)), 0.62);
+          // Exponente >1: las bandas sin energia se quedan abajo y las que
+          // si tienen contenido "se elevan" con mas contraste, al estilo
+          // de un analizador de espectro en tiempo real.
+          const shaped = Math.pow(clamp(raw * bandWeight(index, barCount)), 0.82);
           target = clamp(shaped);
         } else if (active && playing) {
-          const bassShape = Math.max(0, 1 - index / 52);
-          const midShape = Math.max(0, 1 - Math.abs(index - 72) / 46);
-          const highShape = Math.max(0, 1 - Math.abs(index - 126) / 34);
+          const bassShape = Math.max(0, 1 - index / (barCount * 0.33));
+          const midShape = Math.max(0, 1 - Math.abs(index - barCount * 0.46) / (barCount * 0.3));
+          const highShape = Math.max(0, 1 - Math.abs(index - barCount * 0.81) / (barCount * 0.22));
           const t = tickRef.current;
           target = clamp(
             deterministicIdle(index) * 0.16 +
@@ -123,21 +142,21 @@ export default function AudioWaveform({
         }
 
         const previous = nextLevels[index] || 0;
-        const attack = target > previous ? 0.72 : 0.28;
+        const attack = target > previous ? 0.78 : 0.24;
         nextLevels[index] = previous + (target - previous) * attack;
         peaksRef.current[index] = Math.max(nextLevels[index], (peaksRef.current[index] || 0) - 0.012);
       }
 
-      const gap = Math.max(1 * dpr, Math.min(3 * dpr, width / BAR_COUNT * 0.26));
-      const barWidth = Math.max(1.7 * dpr, (width - gap * (BAR_COUNT - 1)) / BAR_COUNT);
-      const bottomPad = 9 * dpr;
+      const gap = Math.max(1 * dpr, Math.min(3 * dpr, (width / barCount) * 0.26));
+      const barWidth = Math.max(1.5 * dpr, (width - gap * (barCount - 1)) / barCount);
+      const bottomPad = compact ? 1 * dpr : 9 * dpr;
       const playedX = (clamp(progress, 0, 100) / 100) * width;
 
-      for (let index = 0; index < BAR_COUNT; index++) {
+      for (let index = 0; index < barCount; index++) {
         const level = nextLevels[index] || 0;
         const peak = peaksRef.current[index] || 0;
         const x = index * (barWidth + gap);
-        const barHeight = Math.max(3 * dpr, level * (height - bottomPad) * 0.95);
+        const barHeight = Math.max((compact ? 1.2 : 3) * dpr, level * (height - bottomPad) * 0.95);
         const y = height - bottomPad - barHeight;
         const isPlayed = active && x <= playedX;
 
@@ -146,8 +165,10 @@ export default function AudioWaveform({
           barGradient.addColorStop(0, 'rgba(255, 232, 157, 0.96)');
           barGradient.addColorStop(0.5, 'rgba(211, 174, 76, 0.86)');
           barGradient.addColorStop(1, 'rgba(127, 97, 32, 0.34)');
-          ctx.shadowColor = 'rgba(211, 174, 76, 0.24)';
-          ctx.shadowBlur = playing ? 7 * dpr : 3 * dpr;
+          if (!compact) {
+            ctx.shadowColor = 'rgba(211, 174, 76, 0.24)';
+            ctx.shadowBlur = playing ? 7 * dpr : 3 * dpr;
+          }
         } else {
           barGradient.addColorStop(0, 'rgba(255, 255, 255, 0.38)');
           barGradient.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
@@ -159,7 +180,7 @@ export default function AudioWaveform({
         ctx.roundRect(x, y, barWidth, barHeight, Math.min(2 * dpr, barWidth / 2));
         ctx.fill();
 
-        if (playing && peak > level + 0.08) {
+        if (!compact && playing && peak > level + 0.08) {
           const peakY = height - bottomPad - peak * (height - bottomPad) * 0.95;
           ctx.fillStyle = isPlayed ? 'rgba(255, 239, 185, 0.52)' : 'rgba(255,255,255,0.24)';
           ctx.fillRect(x, peakY, barWidth, Math.max(1 * dpr, 1.5));
@@ -167,17 +188,28 @@ export default function AudioWaveform({
       }
 
       ctx.shadowBlur = 0;
-      if (active) {
+      if (active && !compact) {
         ctx.fillStyle = 'rgba(214, 176, 74, 0.38)';
         ctx.fillRect(0, height - 2 * dpr, playedX, 2 * dpr);
       }
-
-      frame = window.requestAnimationFrame(draw);
     };
 
-    draw();
-    return () => window.cancelAnimationFrame(frame);
-  }, [active, getSpectrumSnapshot, playing, progress]);
+    // Solo el track activo necesita animarse cuadro a cuadro; el resto
+    // dibuja su forma idle una vez (y al cambiar de tamano).
+    if (active) {
+      const loop = () => {
+        render();
+        frame = window.requestAnimationFrame(loop);
+      };
+      loop();
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    render();
+    const resizeObserver = new ResizeObserver(() => render());
+    resizeObserver.observe(canvas);
+    return () => resizeObserver.disconnect();
+  }, [active, compact, barCount]);
 
   const seek = (clientX: number) => {
     const canvas = canvasRef.current;
@@ -189,7 +221,7 @@ export default function AudioWaveform({
   return (
     <canvas
       ref={canvasRef}
-      className="audio-waveform audio-spectrum"
+      className={`audio-waveform audio-spectrum ${compact ? 'audio-waveform-compact' : ''}`}
       aria-label="Analizador de espectro del preview"
       role="img"
       onClick={(event) => seek(event.clientX)}
