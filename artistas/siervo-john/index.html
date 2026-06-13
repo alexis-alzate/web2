@@ -61,7 +61,7 @@ fbq('track', 'PageView');
   for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
   ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
   ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;
-  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._o=ttq._o||{},ttq._o[e]=n||{};
   n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;
   e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
   ttq.load('D857IOBC77U70JIQN4BG');
@@ -71,9 +71,6 @@ fbq('track', 'PageView');
 <!-- End TikTok Pixel Code -->
 </head>
 <body class="artist-page">
-
-<a href="https://casa.lujourban.com" class="lujourban-home-link" data-track-event="artista_siervo_john_lujourban_casa_click" data-track-label="lujourban_home_link" data-track-content="LUJO URBAN"><span>LUJO URBAN</span></a>
-
 <noscript>
   <img height="1" width="1" style="display:none" alt=""
     src="https://www.facebook.com/tr?id=670742718071367&ev=PageView&noscript=1">
@@ -110,7 +107,25 @@ fbq('track', 'PageView');
     </a>
   </div>
 </section>
-
+<div class="divider divider-music-inner"></div>
+<section class="fade-up" data-view-event="artista_siervo_john_release_visto" data-view-label="artist_release" data-release-slug="murio-por-mi" data-artist-slug="siervo-john">
+  <p class="section-label">Último lanzamiento</p>
+  <div class="release-card">
+    <div class="release-status">
+      <p><span class="release-status-dot" aria-hidden="true"></span>Ya disponible</p>
+    </div>
+    <div class="release-feature">
+      <a href="https://too.fm/p7k2g4d" target="_blank" rel="noopener" class="release-cover-link" data-track-event="artista_siervo_john_release_portada_click" data-track-label="artist_release_cover" data-track-content="Murió Por Mi"><div class="artist-photo-placeholder" aria-hidden="true"><span>MP</span></div></a>
+      <div class="release-feature-copy">
+        <h2>Murió Por Mi</h2>
+        <p>EL SIERVO JHON</p>
+        <div class="release-actions">
+          <a href="https://too.fm/p7k2g4d" target="_blank" rel="noopener" data-track-event="artista_siervo_john_release_escuchar_click" data-track-label="artist_release_button" data-track-content="Murió Por Mi">Escuchar ahora</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 
 

@@ -26,7 +26,12 @@
         "tiktok": "https://www.tiktok.com/@elsiervojhon?_r=1&_t=ZS-96uFZCQaekG",
         "instagram": "https://www.instagram.com/elsiervo_jhon?igsh=MTQ0NWt0dW1sOWZodg=="
       },
-      "release": null,
+      "release": {
+        "title": "Murió Por Mi",
+        "slug": "murio-por-mi",
+        "link": "https://too.fm/p7k2g4d",
+        "cover": ""
+      },
       "beatsEmbed": "",
       "productionsEmbed": "",
       "contact": null
