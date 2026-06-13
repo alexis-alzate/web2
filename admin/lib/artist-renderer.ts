@@ -3,6 +3,8 @@ export type ArtistRelease = {
   slug?: string;
   link: string;
   cover?: string;
+  shareUrl?: string;
+  statusUrl?: string;
 };
 
 export type Artist = {
@@ -261,6 +263,16 @@ const trackingBodyScript = `<script>
     });
   });
 
+  document.querySelectorAll('[data-artist-release-status]').forEach(link => {
+    link.addEventListener('click', () => {
+      const releaseSlug = link.dataset.releaseSlug || '';
+      const artistSlug = link.dataset.artistSlug || '';
+      if (!releaseSlug) return;
+
+      sendReleaseAnalyticsEvent(releaseSlug, artistSlug, 'status_click', 'status_click:' + releaseSlug);
+    });
+  });
+
   const trackedPlayers = document.querySelectorAll('iframe[data-track-event]');
   if (trackedPlayers.length) {
     const playerObserver = new IntersectionObserver(entries => {
@@ -373,7 +385,7 @@ const renderRelease = (artist: Artist) => {
 
   const eventSlug = trackingSlug(artist);
   const releaseSlug = artist.release.slug || slugify(artist.release.title);
-  const shareUrl = `https://www.lujourban.com/artistas/${artist.slug}/`;
+  const shareUrl = artist.release.shareUrl || `https://www.lujourban.com/artistas/${artist.slug}/`;
   const shareText = `Escucha ${artist.release.title}, el nuevo lanzamiento de ${artist.name}.`;
   const cover = artist.release.cover
     ? `<img src="../../${artist.release.cover}" alt="Portada de ${escapeHtml(artist.release.title)}">`
@@ -387,12 +399,12 @@ const renderRelease = (artist: Artist) => {
       <p><span class="release-status-dot" aria-hidden="true"></span>Ya disponible</p>
     </div>
     <div class="release-feature">
-      <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" class="release-cover-link" data-track-event="artista_${eventSlug}_release_portada_click" data-track-label="artist_release_cover" data-track-content="${escapeHtml(artist.release.title)}">${cover}</a>
+      <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" class="release-cover-link" data-artist-release-status data-release-slug="${escapeHtml(releaseSlug)}" data-artist-slug="${escapeHtml(artist.slug)}" data-track-event="artista_${eventSlug}_release_portada_click" data-track-label="artist_release_cover" data-track-content="${escapeHtml(artist.release.title)}">${cover}</a>
       <div class="release-feature-copy">
         <h2>${escapeHtml(artist.release.title)}</h2>
         <p>${escapeHtml(artist.name)}</p>
         <div class="release-actions">
-          <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" data-track-event="artista_${eventSlug}_release_escuchar_click" data-track-label="artist_release_button" data-track-content="${escapeHtml(artist.release.title)}">Escuchar ahora</a>
+          <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" data-artist-release-status data-release-slug="${escapeHtml(releaseSlug)}" data-artist-slug="${escapeHtml(artist.slug)}" data-track-event="artista_${eventSlug}_release_escuchar_click" data-track-label="artist_release_button" data-track-content="${escapeHtml(artist.release.title)}">Escuchar ahora</a>
           <button type="button" class="release-share-button" data-artist-release-share data-release-slug="${escapeHtml(releaseSlug)}" data-artist-slug="${escapeHtml(artist.slug)}" data-share-url="${escapeHtml(shareUrl)}" data-share-title="${escapeHtml(`${artist.release.title} - ${artist.name}`)}" data-share-text="${escapeHtml(shareText)}" data-track-event="artista_${eventSlug}_release_compartir" data-track-label="artist_release_share" data-track-content="${escapeHtml(artist.release.title)}">Compartir</button>
         </div>
       </div>
