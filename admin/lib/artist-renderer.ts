@@ -225,6 +225,42 @@ const trackingBodyScript = `<script>
     });
   });
 
+  document.querySelectorAll('[data-artist-release-share]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const releaseSlug = button.dataset.releaseSlug || '';
+      const artistSlug = button.dataset.artistSlug || '';
+      const shareUrl = button.dataset.shareUrl || window.location.href;
+      const shareTitle = button.dataset.shareTitle || document.title;
+      const shareText = button.dataset.shareText || 'Escucha este lanzamiento en LUJO URBAN.';
+
+      if (releaseSlug) {
+        sendReleaseAnalyticsEvent(releaseSlug, artistSlug, 'chat_click', 'chat_click:' + releaseSlug);
+      }
+
+      const shareData = {
+        title: shareTitle,
+        text: shareText,
+        url: shareUrl
+      };
+
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share(shareData);
+        } catch (error) {
+          if (error.name !== 'AbortError') console.error('No se pudo compartir el lanzamiento.', error);
+        }
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        window.alert('Enlace del lanzamiento copiado.');
+      } catch {
+        window.prompt('Copia el enlace del lanzamiento:', shareUrl);
+      }
+    });
+  });
+
   const trackedPlayers = document.querySelectorAll('iframe[data-track-event]');
   if (trackedPlayers.length) {
     const playerObserver = new IntersectionObserver(entries => {
@@ -336,6 +372,9 @@ const renderRelease = (artist: Artist) => {
   if (!artist.release?.title || !artist.release?.link) return '';
 
   const eventSlug = trackingSlug(artist);
+  const releaseSlug = artist.release.slug || slugify(artist.release.title);
+  const shareUrl = `https://www.lujourban.com/artistas/${artist.slug}/`;
+  const shareText = `Escucha ${artist.release.title}, el nuevo lanzamiento de ${artist.name}.`;
   const cover = artist.release.cover
     ? `<img src="../../${artist.release.cover}" alt="Portada de ${escapeHtml(artist.release.title)}">`
     : `<div class="artist-photo-placeholder" aria-hidden="true"><span>${escapeHtml(initials(artist.release.title))}</span></div>`;
@@ -354,6 +393,7 @@ const renderRelease = (artist: Artist) => {
         <p>${escapeHtml(artist.name)}</p>
         <div class="release-actions">
           <a href="${escapeHtml(artist.release.link)}" target="_blank" rel="noopener" data-track-event="artista_${eventSlug}_release_escuchar_click" data-track-label="artist_release_button" data-track-content="${escapeHtml(artist.release.title)}">Escuchar ahora</a>
+          <button type="button" class="release-share-button" data-artist-release-share data-release-slug="${escapeHtml(releaseSlug)}" data-artist-slug="${escapeHtml(artist.slug)}" data-share-url="${escapeHtml(shareUrl)}" data-share-title="${escapeHtml(`${artist.release.title} - ${artist.name}`)}" data-share-text="${escapeHtml(shareText)}" data-track-event="artista_${eventSlug}_release_compartir" data-track-label="artist_release_share" data-track-content="${escapeHtml(artist.release.title)}">Compartir</button>
         </div>
       </div>
     </div>

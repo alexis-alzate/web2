@@ -121,6 +121,7 @@ fbq('track', 'PageView');
         <p>EL SIERVO JHON</p>
         <div class="release-actions">
           <a href="https://too.fm/p7k2g4d" target="_blank" rel="noopener" data-track-event="artista_siervo_john_release_escuchar_click" data-track-label="artist_release_button" data-track-content="Murió Por Mi">Escuchar ahora</a>
+          <button type="button" class="release-share-button" data-artist-release-share data-release-slug="murio-por-mi" data-artist-slug="siervo-john" data-share-url="https://www.lujourban.com/artistas/siervo-john/" data-share-title="Murió Por Mi - EL SIERVO JHON" data-share-text="Escucha Murió Por Mi, el nuevo lanzamiento de EL SIERVO JHON." data-track-event="artista_siervo_john_release_compartir" data-track-label="artist_release_share" data-track-content="Murió Por Mi">Compartir</button>
         </div>
       </div>
     </div>
@@ -239,6 +240,42 @@ fbq('track', 'PageView');
         content_name: element.dataset.trackContent || element.textContent.trim(),
         destination: element.href || ''
       });
+    });
+  });
+
+  document.querySelectorAll('[data-artist-release-share]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const releaseSlug = button.dataset.releaseSlug || '';
+      const artistSlug = button.dataset.artistSlug || '';
+      const shareUrl = button.dataset.shareUrl || window.location.href;
+      const shareTitle = button.dataset.shareTitle || document.title;
+      const shareText = button.dataset.shareText || 'Escucha este lanzamiento en LUJO URBAN.';
+
+      if (releaseSlug) {
+        sendReleaseAnalyticsEvent(releaseSlug, artistSlug, 'chat_click', 'chat_click:' + releaseSlug);
+      }
+
+      const shareData = {
+        title: shareTitle,
+        text: shareText,
+        url: shareUrl
+      };
+
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share(shareData);
+        } catch (error) {
+          if (error.name !== 'AbortError') console.error('No se pudo compartir el lanzamiento.', error);
+        }
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        window.alert('Enlace del lanzamiento copiado.');
+      } catch {
+        window.prompt('Copia el enlace del lanzamiento:', shareUrl);
+      }
     });
   });
 
