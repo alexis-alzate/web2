@@ -66,6 +66,67 @@ const fetchSpotifyCover = async (thumbnailUrl: string) => {
   throw new Error('No pude descargar la portada desde Spotify.');
 };
 
+const readMetaAttribute = (tag: string, name: string) =>
+  tag.match(new RegExp(`${name}=["']([^"']+)["']`, 'i'))?.[1] || '';
+
+const extractOgImage = (html: string, sourceUrl: string) => {
+  const tags = html.match(/<meta\s+[^>]*>/gi) || [];
+
+  for (const tag of tags) {
+    const property = readMetaAttribute(tag, 'property') || readMetaAttribute(tag, 'name');
+    if (!['og:image', 'og:image:secure_url', 'twitter:image'].includes(property.toLowerCase())) continue;
+
+    const content = readMetaAttribute(tag, 'content');
+    if (!content) continue;
+    return new URL(content, sourceUrl).toString();
+  }
+
+  return '';
+};
+
+const responseToUploadedImage = async (response: Response, slug: string, suffix: string) => {
+  const contentType = response.headers.get('content-type') || 'image/jpeg';
+  const extension = (contentType.split('/')[1] || 'jpg')
+    .split(';')[0]
+    .toLowerCase()
+    .replace('jpeg', 'jpg');
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  return {
+    path: `assets/${slug}-${suffix}.${extension}`,
+    content: buffer.toString('base64'),
+    encoding: 'base64' as const
+  };
+};
+
+const fetchSmartLinkCover = async (smartLink: string, slug: string) => {
+  try {
+    const pageResponse = await fetch(smartLink, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (compatible; LUJO-URBAN-Admin/1.0)'
+      },
+      redirect: 'follow'
+    });
+    if (!pageResponse.ok) return null;
+
+    const html = await pageResponse.text();
+    const imageUrl = extractOgImage(html, pageResponse.url || smartLink);
+    if (!imageUrl) return null;
+
+    const imageResponse = await fetch(imageUrl, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (compatible; LUJO-URBAN-Admin/1.0)'
+      },
+      redirect: 'follow'
+    });
+    if (!imageResponse.ok) return null;
+
+    return responseToUploadedImage(imageResponse, slug, 'cover');
+  } catch {
+    return null;
+  }
+};
+
 const requireAdmin = async () => {
   if (!(await isAuthenticated())) throw new Error('No autenticado.');
 };
@@ -435,7 +496,7 @@ export const addArtistReleaseAction = async (formData: FormData) => {
   const title = normalizeOptional(formData.get('title'));
   const releaseSlug = slugifyArtist(normalizeOptional(formData.get('slug')) || title);
   const link = normalizeOptional(formData.get('link'));
-  const cover = normalizeOptional(formData.get('cover'));
+  let cover = normalizeOptional(formData.get('cover'));
 
   if (!artistSlug) throw new Error('Selecciona un artista.');
   if (!title) throw new Error('El nombre del lanzamiento es obligatorio.');
@@ -450,6 +511,17 @@ export const addArtistReleaseAction = async (formData: FormData) => {
   ]);
 
   const artist = findArtist(data, artistSlug);
+  const coverSlug = `${artistSlug}-${releaseSlug}`;
+  const uploadedCover = await readUploadedImage(formData, 'coverFile', coverSlug, 'cover');
+  const smartLinkCover = !cover && !uploadedCover ? await fetchSmartLinkCover(link, coverSlug) : null;
+  const coverFile = uploadedCover || smartLinkCover;
+  const extraFiles: UploadedFile[] = [];
+
+  if (coverFile) {
+    cover = coverFile.path;
+    extraFiles.push(coverFile);
+  }
+
   const release: ArtistRelease = { title, slug: releaseSlug, link, cover };
   const releases = Array.isArray(history.artists[artistSlug]) ? history.artists[artistSlug] : [];
   const releaseIndex = releases.findIndex(item => item.slug === releaseSlug);
@@ -461,6 +533,7 @@ export const addArtistReleaseAction = async (formData: FormData) => {
 
   await commitFiles([
     ...buildArtistFiles(data, sitemap, vision),
+    ...extraFiles,
     { path: 'artist-release-history.json', content: `${JSON.stringify(history, null, 2)}\n` }
   ], `Set ${title} as latest release for ${artist.name}`);
 

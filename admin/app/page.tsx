@@ -705,8 +705,12 @@ export default async function DashboardPage() {
                   <input name="slug" placeholder="automatico" />
                 </label>
                 <label>
-                  Portada ya subida
+                  Portada ya subida (opcional)
                   <input name="cover" placeholder="assets/artista-cancion-cover.jpg" />
+                </label>
+                <label>
+                  Subir portada manual
+                  <input name="coverFile" type="file" accept="image/*" />
                 </label>
                 <label className="span-2">
                   Link escuchar
