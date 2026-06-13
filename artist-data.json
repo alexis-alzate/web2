@@ -9,7 +9,14 @@
       "bio": "Perfil oficial de EL EVANGELISTA GONZALEZ dentro del ecosistema Lujo Urban.",
       "photo": "assets/evangelista-gonzalez-photo.jpg",
       "links": {},
-      "release": null,
+      "release": {
+        "title": "Instrumento Del Señor",
+        "slug": "instrumento-del-senor",
+        "link": "https://too.fm/11yo0l",
+        "cover": "assets/evangelista-gonzalez-instrumento-del-senor-cover.jpg",
+        "shareUrl": "https://www.lujourban.com/lanzamientos/evangelista-gonzalez-instrumento-del-senor-v1/",
+        "statusUrl": "https://www.lujourban.com/estados/evangelista-gonzalez-instrumento-del-senor-v1/"
+      },
       "beatsEmbed": "",
       "productionsEmbed": "",
       "contact": null

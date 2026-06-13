@@ -91,7 +91,26 @@ fbq('track', 'PageView');
   </div>
 </div>
 
-
+<div class="divider divider-music-inner"></div>
+<section class="fade-up" data-view-event="artista_evangelista_gonzalez_release_visto" data-view-label="artist_release" data-release-slug="instrumento-del-senor" data-artist-slug="evangelista-gonzalez">
+  <p class="section-label">Último lanzamiento</p>
+  <div class="release-card">
+    <div class="release-status">
+      <p><span class="release-status-dot" aria-hidden="true"></span>Ya disponible</p>
+    </div>
+    <div class="release-feature">
+      <a href="https://too.fm/11yo0l" target="_blank" rel="noopener" class="release-cover-link" data-artist-release-status data-release-slug="instrumento-del-senor" data-artist-slug="evangelista-gonzalez" data-track-event="artista_evangelista_gonzalez_release_portada_click" data-track-label="artist_release_cover" data-track-content="Instrumento Del Señor"><img src="../../assets/evangelista-gonzalez-instrumento-del-senor-cover.jpg" alt="Portada de Instrumento Del Señor"></a>
+      <div class="release-feature-copy">
+        <h2>Instrumento Del Señor</h2>
+        <p>EL EVANGELISTA GONZALEZ</p>
+        <div class="release-actions">
+          <a href="https://too.fm/11yo0l" target="_blank" rel="noopener" data-artist-release-status data-release-slug="instrumento-del-senor" data-artist-slug="evangelista-gonzalez" data-track-event="artista_evangelista_gonzalez_release_escuchar_click" data-track-label="artist_release_button" data-track-content="Instrumento Del Señor">Escuchar ahora</a>
+          <button type="button" class="release-share-button" data-artist-release-share data-release-slug="instrumento-del-senor" data-artist-slug="evangelista-gonzalez" data-share-url="https://www.lujourban.com/lanzamientos/evangelista-gonzalez-instrumento-del-senor-v1/" data-share-title="Instrumento Del Señor - EL EVANGELISTA GONZALEZ" data-share-text="Escucha Instrumento Del Señor, el nuevo lanzamiento de EL EVANGELISTA GONZALEZ." data-track-event="artista_evangelista_gonzalez_release_compartir" data-track-label="artist_release_share" data-track-content="Instrumento Del Señor">Compartir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 
 
@@ -205,6 +224,52 @@ fbq('track', 'PageView');
         content_name: element.dataset.trackContent || element.textContent.trim(),
         destination: element.href || ''
       });
+    });
+  });
+
+  document.querySelectorAll('[data-artist-release-share]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const releaseSlug = button.dataset.releaseSlug || '';
+      const artistSlug = button.dataset.artistSlug || '';
+      const shareUrl = button.dataset.shareUrl || window.location.href;
+      const shareTitle = button.dataset.shareTitle || document.title;
+      const shareText = button.dataset.shareText || 'Escucha este lanzamiento en LUJO URBAN.';
+
+      if (releaseSlug) {
+        sendReleaseAnalyticsEvent(releaseSlug, artistSlug, 'chat_click', 'chat_click:' + releaseSlug);
+      }
+
+      const shareData = {
+        title: shareTitle,
+        text: shareText,
+        url: shareUrl
+      };
+
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share(shareData);
+        } catch (error) {
+          if (error.name !== 'AbortError') console.error('No se pudo compartir el lanzamiento.', error);
+        }
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        window.alert('Enlace del lanzamiento copiado.');
+      } catch {
+        window.prompt('Copia el enlace del lanzamiento:', shareUrl);
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-artist-release-status]').forEach(link => {
+    link.addEventListener('click', () => {
+      const releaseSlug = link.dataset.releaseSlug || '';
+      const artistSlug = link.dataset.artistSlug || '';
+      if (!releaseSlug) return;
+
+      sendReleaseAnalyticsEvent(releaseSlug, artistSlug, 'status_click', 'status_click:' + releaseSlug);
     });
   });
 
