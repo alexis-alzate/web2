@@ -87,11 +87,11 @@ export default function BeatRow({ beat }: { beat: Beat }) {
     window.setTimeout(() => setJustAdded(false), 620);
   };
 
-  // Linea 1: genero · BPM   |   Linea 2: tiempo · prod.
-  const metaPrimary = [
+  const metaParts = [
     beat.genre && beat.genre.toLowerCase() !== beat.title.toLowerCase() ? beat.genre : null,
-    beat.bpm ? `${beat.bpm} BPM` : null
-  ].filter(Boolean).join(' · ');
+    beat.bpm ? `${beat.bpm} BPM` : null,
+    duration || null
+  ].filter(Boolean);
 
   return (
     <div ref={rowRef} className={`beat-row ${isActive ? 'active' : ''}`}>
@@ -111,18 +111,14 @@ export default function BeatRow({ beat }: { beat: Beat }) {
 
       <div className="beat-row-titlebox">
         <Link href={`/${beat.slug}`} className="beat-row-title">{beat.title}</Link>
-        {(metaPrimary || duration || beat.producer) && (
+        {(!!metaParts.length || beat.producer) && (
           <span className="beat-row-subline">
-            {metaPrimary && <span className="beat-row-meta">{metaPrimary}</span>}
-            {(duration || beat.producer) && (
-              <span className="beat-row-meta beat-row-meta-2">
-                {duration}
-                {duration && beat.producer ? <span className="beat-row-dot"> · </span> : null}
-                {beat.producer && (
-                  <span className="beat-row-producer">
-                    <span className="beat-row-producer-label">Prod.</span> {beat.producer}
-                  </span>
-                )}
+            {!!metaParts.length && (
+              <span className="beat-row-meta">{metaParts.join(' · ')}</span>
+            )}
+            {beat.producer && (
+              <span className="beat-row-producer">
+                <span className="beat-row-producer-label">Prod.</span> {beat.producer}
               </span>
             )}
           </span>

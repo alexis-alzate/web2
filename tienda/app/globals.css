@@ -1419,7 +1419,7 @@ body:has(.descarga-page) .tienda-frame {
   text-overflow: ellipsis;
 }
 
-/* Desktop: las dos lineas de meta van inline (genero·bpm  tiempo·prod) */
+/* meta + productor en UNA sola linea para no engordar la tarjeta */
 .beat-row-subline {
   display: flex;
   align-items: baseline;
@@ -1429,14 +1429,6 @@ body:has(.descarga-page) .tienda-frame {
 .beat-row-subline .beat-row-meta {
   flex: 0 1 auto;
   min-width: 0;
-}
-.beat-row-meta-2 {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 5px;
-}
-.beat-row-dot {
-  color: var(--t-muted);
 }
 
 /* Firma del productor (premium, sutil, dorado fino) */
@@ -3714,9 +3706,9 @@ body:has(.descarga-page) .tienda-frame {
   .site-header {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 12px;
+    gap: 8px;
     min-height: 56px;
-    padding: 0 13px;
+    padding: 0 10px;
   }
 
   .site-header::before {
@@ -3727,14 +3719,13 @@ body:has(.descarga-page) .tienda-frame {
     width: auto;
     min-width: 0;
     white-space: nowrap;
-    padding-right: 2px;
     font-size: .82rem;
     letter-spacing: 1.5px;
   }
 
   .site-search {
     height: 40px;
-    padding-inline: 14px;
+    padding-inline: 10px;
     border-radius: 12px;
   }
 
@@ -3775,19 +3766,18 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .tienda-trust {
-    padding: 10px 10px 2px;
+    padding: 12px 10px 4px;
     gap: 6px;
   }
 
   .tienda-trust-item {
     flex: 1 1 0;
     min-width: 0;
-    min-height: 46px;
-    padding: 7px 8px;
+    min-height: 56px;
   }
 
   .featured {
-    margin: 8px 10px 0;
+    margin: 12px 10px 0;
     padding: 16px 12px 64px;
     border-radius: 18px;
   }
@@ -3874,13 +3864,7 @@ body:has(.descarga-page) .tienda-frame {
 
   .beats-filters {
     margin-top: 14px;
-    padding: 0 20px 0 10px;
-    scroll-padding-inline: 10px 20px;
-  }
-  /* Espaciador final para que el ultimo filtro no quede pegado/cortado */
-  .beats-filters::after {
-    content: "";
-    flex: 0 0 4px;
+    padding-inline: 10px;
   }
 
   .beats-list {
@@ -3888,10 +3872,10 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .beat-row {
-    grid-template-columns: 56px minmax(0, 1fr) 94px;
+    grid-template-columns: 56px minmax(0, 1fr) 92px;
     min-height: 76px;
-    padding: 9px 13px 9px 9px;
-    column-gap: 11px;
+    padding: 9px;
+    column-gap: 10px;
     border-radius: 13px;
   }
 
@@ -3905,20 +3889,8 @@ body:has(.descarga-page) .tienda-frame {
     line-height: 1.1;
   }
 
-  /* Meta en dos lineas limpias: genero·BPM / tiempo·prod. */
-  .beat-row-subline {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1px;
-    width: 100%;
-  }
   .beat-row-meta {
     font-size: .7rem;
-    max-width: 100%;
-  }
-  .beat-row-meta-2 {
-    max-width: 100%;
-    overflow: hidden;
   }
 
   .audio-waveform-compact {
