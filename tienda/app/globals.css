@@ -12,6 +12,11 @@
 
 * { box-sizing: border-box; }
 
+/* Sin destello de tap en movil ni resaltado azul/gris al hacer click en
+   ningun elemento (se ve poco profesional). El foco de teclado (focus-visible)
+   se conserva para accesibilidad. */
+* { -webkit-tap-highlight-color: transparent; }
+
 html, body {
   margin: 0;
   padding: 0;
@@ -1414,8 +1419,21 @@ body:has(.descarga-page) .tienda-frame {
   text-overflow: ellipsis;
 }
 
+/* meta + productor en UNA sola linea para no engordar la tarjeta */
+.beat-row-subline {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-width: 0;
+}
+.beat-row-subline .beat-row-meta {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
 /* Firma del productor (premium, sutil, dorado fino) */
 .beat-row-producer {
+  flex: none;
   font-family: var(--font-barlow-condensed), sans-serif;
   font-size: .64rem;
   font-weight: 600;
@@ -1423,8 +1441,6 @@ body:has(.descarga-page) .tienda-frame {
   text-transform: uppercase;
   color: rgba(var(--t-gold-rgb), 0.74);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .beat-row-producer-label {
   color: rgba(var(--t-gold-rgb), 0.45);
@@ -2676,6 +2692,10 @@ body:has(.descarga-page) .tienda-frame {
   height: 124px;
   margin: 0;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  -webkit-touch-callout: none;
   border-radius: 2px;
   opacity: .86;
   filter: drop-shadow(0 12px 24px rgba(0,0,0,.34));

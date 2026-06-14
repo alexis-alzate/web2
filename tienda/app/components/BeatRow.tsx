@@ -111,12 +111,16 @@ export default function BeatRow({ beat }: { beat: Beat }) {
 
       <div className="beat-row-titlebox">
         <Link href={`/${beat.slug}`} className="beat-row-title">{beat.title}</Link>
-        {!!metaParts.length && (
-          <span className="beat-row-meta">{metaParts.join(' · ')}</span>
-        )}
-        {beat.producer && (
-          <span className="beat-row-producer">
-            <span className="beat-row-producer-label">Prod.</span> {beat.producer}
+        {(!!metaParts.length || beat.producer) && (
+          <span className="beat-row-subline">
+            {!!metaParts.length && (
+              <span className="beat-row-meta">{metaParts.join(' · ')}</span>
+            )}
+            {beat.producer && (
+              <span className="beat-row-producer">
+                <span className="beat-row-producer-label">Prod.</span> {beat.producer}
+              </span>
+            )}
           </span>
         )}
         {beat.key && <span className="beat-row-key">{beat.key}</span>}
