@@ -162,9 +162,9 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
 
       {previewUrl && (
         <AudioWaveform
-          active={isActive}
-          playing={playingThis}
-          progress={isActive ? progress : 0}
+          active={!!track}
+          playing={isPlaying}
+          progress={progress}
           onSeek={seekToPercent}
           getSpectrumSnapshot={getSpectrumSnapshot}
         />

@@ -109,7 +109,9 @@ export default function AudioWaveform({
     const render = () => {
       const { playing, progress, getSpectrumSnapshot, spectrumMode } = liveRef.current;
       const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
+      // Capamos el DPR: en pantallas retina (2-3x) dibujar a resolucion nativa
+      // multiplica el trabajo del canvas y satura la CPU (audio cruje). 2 basta.
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const width = Math.max(1, Math.floor(rect.width * dpr));
       const height = Math.max(1, Math.floor(rect.height * dpr));
 
@@ -272,45 +274,47 @@ export default function AudioWaveform({
         const gap = Math.max(1 * dpr, Math.min(3 * dpr, (width / barCount) * 0.26));
         const barWidth = Math.max(1.5 * dpr, (width - gap * (barCount - 1)) / barCount);
         const playedX = active ? (clamp(progress, 0, 100) / 100) * width : 0;
+        const radius = Math.min(2 * dpr, barWidth / 2);
+        const minBarH = (compact ? 1.2 : 3) * dpr;
+
+        // Gradientes creados UNA vez (no por barra): crear 156 gradientes por
+        // frame saturaba la CPU y hacia crujir el audio. Son de altura completa,
+        // las barras los comparten.
+        const playedGrad = ctx.createLinearGradient(0, 0, 0, height - bottomPad);
+        playedGrad.addColorStop(0, 'rgba(255, 232, 157, 0.96)');
+        playedGrad.addColorStop(0.5, 'rgba(211, 174, 76, 0.86)');
+        playedGrad.addColorStop(1, 'rgba(127, 97, 32, 0.34)');
+        const idleGrad = ctx.createLinearGradient(0, 0, 0, height - bottomPad);
+        idleGrad.addColorStop(0, 'rgba(214, 178, 92, 0.62)');
+        idleGrad.addColorStop(0.5, 'rgba(176, 138, 58, 0.4)');
+        idleGrad.addColorStop(1, 'rgba(120, 92, 40, 0.16)');
 
         for (let index = 0; index < barCount; index++) {
           const level = nextLevels[index] || 0;
-          const peak = peaksRef.current[index] || 0;
           const x = index * (barWidth + gap);
-          const barHeight = Math.max((compact ? 1.2 : 3) * dpr, level * (height - bottomPad) * 0.95);
+          const barHeight = Math.max(minBarH, level * (height - bottomPad) * 0.95);
           const y = height - bottomPad - barHeight;
           const isPlayed = active && x <= playedX;
 
-          const barGradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
-          if (isPlayed) {
-            barGradient.addColorStop(0, 'rgba(255, 232, 157, 0.96)');
-            barGradient.addColorStop(0.5, 'rgba(211, 174, 76, 0.86)');
-            barGradient.addColorStop(1, 'rgba(127, 97, 32, 0.34)');
-            if (!compact) {
-              ctx.shadowColor = 'rgba(211, 174, 76, 0.24)';
-              ctx.shadowBlur = playing ? 7 * dpr : 3 * dpr;
-            }
-          } else {
-            // Dorado premium apagado desde el inicio (se intensifica al llenarse)
-            barGradient.addColorStop(0, 'rgba(214, 178, 92, 0.62)');
-            barGradient.addColorStop(0.5, 'rgba(176, 138, 58, 0.4)');
-            barGradient.addColorStop(1, 'rgba(120, 92, 40, 0.16)');
-            ctx.shadowBlur = 0;
-          }
-
-          ctx.fillStyle = barGradient;
+          ctx.fillStyle = isPlayed ? playedGrad : idleGrad;
           ctx.beginPath();
-          ctx.roundRect(x, y, barWidth, barHeight, Math.min(2 * dpr, barWidth / 2));
+          ctx.roundRect(x, y, barWidth, barHeight, radius);
           ctx.fill();
+        }
 
-          if (!compact && playing && peak > level + 0.08) {
+        // Linea de pico: una sola pasada de rectangulos finos (sin sombra)
+        if (!compact && playing) {
+          ctx.fillStyle = 'rgba(255, 233, 170, 0.4)';
+          for (let index = 0; index < barCount; index++) {
+            const level = nextLevels[index] || 0;
+            const peak = peaksRef.current[index] || 0;
+            if (peak <= level + 0.08) continue;
+            const x = index * (barWidth + gap);
             const peakY = height - bottomPad - peak * (height - bottomPad) * 0.95;
-            ctx.fillStyle = isPlayed ? 'rgba(255, 239, 185, 0.52)' : 'rgba(255, 228, 160, 0.3)';
             ctx.fillRect(x, peakY, barWidth, Math.max(1 * dpr, 1.5));
           }
         }
 
-        ctx.shadowBlur = 0;
         if (active && !compact) {
           ctx.fillStyle = 'rgba(214, 176, 74, 0.38)';
           ctx.fillRect(0, height - 2 * dpr, playedX, 2 * dpr);
