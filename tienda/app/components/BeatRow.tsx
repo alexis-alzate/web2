@@ -114,6 +114,11 @@ export default function BeatRow({ beat }: { beat: Beat }) {
         {!!metaParts.length && (
           <span className="beat-row-meta">{metaParts.join(' · ')}</span>
         )}
+        {beat.producer && (
+          <span className="beat-row-producer">
+            <span className="beat-row-producer-label">Prod.</span> {beat.producer}
+          </span>
+        )}
         {beat.key && <span className="beat-row-key">{beat.key}</span>}
         {previewUrl && (
           <AudioWaveform

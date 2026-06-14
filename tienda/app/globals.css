@@ -1414,6 +1414,23 @@ body:has(.descarga-page) .tienda-frame {
   text-overflow: ellipsis;
 }
 
+/* Firma del productor (premium, sutil, dorado fino) */
+.beat-row-producer {
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .64rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(var(--t-gold-rgb), 0.74);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.beat-row-producer-label {
+  color: rgba(var(--t-gold-rgb), 0.45);
+  font-weight: 500;
+}
+
 /* Pill de tonalidad: redundante en desktop (ya esta en la columna KEY/TAGS),
    se activa solo en mobile/tablet donde esas columnas se ocultan. */
 .beat-row-key {
