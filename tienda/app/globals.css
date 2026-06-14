@@ -2862,16 +2862,16 @@ body:has(.descarga-page) .tienda-frame {
     display: inline-flex;
     align-items: center;
     align-self: flex-start;
-    margin-top: 1px;
-    padding: 2px 8px;
-    border: 1px solid rgba(var(--t-gold-rgb), .22);
-    border-radius: 999px;
-    background: rgba(var(--t-gold-rgb), .07);
-    color: rgba(var(--t-gold-rgb), .82);
+    margin-top: 2px;
+    padding: 3px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.66);
     font-family: var(--font-barlow-condensed), sans-serif;
-    font-size: .68rem;
+    font-size: .7rem;
     font-weight: 600;
-    letter-spacing: .6px;
+    letter-spacing: .4px;
     white-space: nowrap;
   }
 }
@@ -2931,11 +2931,16 @@ body:has(.descarga-page) .tienda-frame {
       linear-gradient(180deg, #070707 0%, #0c0a07 46%, #050505 100%);
   }
 
+  /* Movil = app pura, sin el hero de marketing (igual que la referencia) */
+  .marketplace-top {
+    display: none;
+  }
+
   .tienda-frame {
     width: calc(100% - 24px);
     max-width: 100%;
-    height: calc(100dvh - 22px);
-    margin: -58px auto 12px;
+    height: calc(100dvh - 24px);
+    margin: 12px auto;
     border: 1px solid rgba(var(--t-gold-rgb), 0.34);
     border-radius: 18px;
     overflow: hidden;
@@ -3000,6 +3005,7 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .brand-mark span {
+    display: inline;
     color: #fff;
   }
 
@@ -3128,6 +3134,33 @@ body:has(.descarga-page) .tienda-frame {
     .cart-toggle-total {
       font-size: .78rem;
     }
+
+    /* Ultra compacto: en pantallas muy angostas el featured no debe desbordar */
+    .featured {
+      padding: 16px 13px 70px;
+    }
+    .featured-main {
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 13px;
+    }
+    .featured-cover {
+      width: 100px;
+      height: 100px;
+    }
+    .featured-title {
+      font-size: clamp(1.9rem, 11vw, 2.6rem);
+    }
+    .featured-actions {
+      flex-wrap: wrap;
+      gap: 10px 12px;
+    }
+    .featured-price {
+      font-size: 1.5rem;
+    }
+    .featured-actions .beat-row-btn {
+      min-width: 96px;
+      min-height: 42px;
+    }
   }
 
   .tienda-section {
@@ -3136,41 +3169,35 @@ body:has(.descarga-page) .tienda-frame {
 
   .tienda-trust {
     display: flex;
-    gap: 8px;
+    gap: 7px;
     padding: 12px 12px 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tienda-trust::-webkit-scrollbar {
-    display: none;
   }
 
   .tienda-trust-item {
-    flex: 0 0 min(220px, 72vw);
-    gap: 8px;
-    padding: 10px 11px;
-    border-radius: 14px;
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 7px;
+    padding: 9px 8px;
+    border-radius: 13px;
     border-color: rgba(var(--t-gold-rgb), 0.16);
     background:
-      radial-gradient(130px 70px at 0% 50%, rgba(var(--t-gold-rgb), 0.11), transparent 72%),
+      radial-gradient(110px 60px at 0% 50%, rgba(var(--t-gold-rgb), 0.11), transparent 72%),
       linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.3));
   }
 
   .tienda-trust-icon {
-    width: 32px;
-    height: 32px;
+    width: 27px;
+    height: 27px;
   }
 
   .tienda-trust-icon svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
   }
 
   .tienda-trust-text {
-    font-size: .76rem;
-    line-height: 1.2;
+    font-size: .58rem;
+    line-height: 1.16;
     letter-spacing: 0;
   }
 
@@ -3603,5 +3630,272 @@ body:has(.descarga-page) .tienda-frame {
   .cart-preview-cover {
     width: 42px;
     height: 42px;
+  }
+}
+
+/* Ajuste final mobile: evita que la tienda se sienta como desktop comprimido. */
+@media (max-width: 640px) {
+  .tienda-frame {
+    width: calc(100% - 22px);
+    height: calc(100dvh - 22px);
+    margin: 11px auto;
+    border: 1px solid rgba(var(--t-gold-rgb), 0.32);
+    border-radius: 20px;
+    box-shadow:
+      0 24px 68px rgba(0, 0, 0, 0.72),
+      0 0 0 1px rgba(255,255,255,0.045) inset,
+      0 0 42px rgba(var(--t-gold-rgb), 0.12);
+  }
+
+  .site-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: 56px;
+    padding: 0 10px;
+  }
+
+  .site-header::before {
+    width: 82px;
+  }
+
+  .brand-mark {
+    width: auto;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: .82rem;
+    letter-spacing: 1.5px;
+  }
+
+  .site-search {
+    height: 40px;
+    padding-inline: 10px;
+    border-radius: 12px;
+  }
+
+  .site-search input {
+    min-width: 0;
+    font-size: .8rem;
+  }
+
+  .cart-toggle {
+    width: auto;
+    height: 56px;
+    padding: 0 12px;
+    margin-right: -10px;
+    gap: 8px;
+  }
+
+  .cart-toggle-total {
+    display: inline;
+    font-family: var(--font-inter), sans-serif;
+    font-size: .8rem;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .cart-toggle-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .cart-toggle-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .cart-toggle-badge {
+    top: -7px;
+    right: -7px;
+  }
+
+  .tienda-trust {
+    padding: 12px 10px 4px;
+    gap: 6px;
+  }
+
+  .tienda-trust-item {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 56px;
+  }
+
+  .featured {
+    margin: 12px 10px 0;
+    padding: 16px 12px 64px;
+    border-radius: 18px;
+  }
+
+  .featured-spectrum {
+    top: 12px;
+    right: 12px;
+    transform: scale(.92);
+    transform-origin: top right;
+  }
+
+  .featured-main {
+    grid-template-columns: 98px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+  }
+
+  .featured-cover {
+    width: 98px;
+    height: 98px;
+    border-radius: 10px;
+  }
+
+  .featured-play {
+    width: 46px;
+    height: 46px;
+  }
+
+  .featured-info {
+    min-width: 0;
+    gap: 7px;
+  }
+
+  .featured-title {
+    display: block;
+    max-width: calc(100% - 44px);
+    font-size: clamp(2rem, 10vw, 2.7rem);
+    line-height: .9;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .featured-meta {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .featured-meta-pill {
+    min-height: 26px;
+    padding: 4px 7px;
+    font-size: .72rem;
+  }
+
+  /* Mostrar BPM, TIME y KEY (no ocultar el tercero en movil) */
+  .featured-meta-pill:nth-child(n + 4) {
+    display: none;
+  }
+  .featured-meta-pill:nth-child(3) {
+    display: inline-flex;
+  }
+
+  .featured-actions {
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .featured-price {
+    min-width: 76px;
+    font-size: 1.43rem;
+  }
+
+  .featured-actions .beat-row-btn {
+    min-width: 88px;
+    min-height: 42px;
+    padding: 0 11px;
+    font-size: .66rem;
+  }
+
+  .featured > .audio-waveform {
+    height: 58px;
+    opacity: .92;
+  }
+
+  .beats-filters {
+    margin-top: 14px;
+    padding-inline: 10px;
+  }
+
+  .beats-list {
+    padding: 8px 10px 14px;
+  }
+
+  .beat-row {
+    grid-template-columns: 56px minmax(0, 1fr) 92px;
+    min-height: 76px;
+    padding: 9px;
+    column-gap: 10px;
+    border-radius: 13px;
+  }
+
+  .beat-row-cover {
+    width: 56px;
+    height: 56px;
+  }
+
+  .beat-row-title {
+    font-size: .94rem;
+    line-height: 1.1;
+  }
+
+  .beat-row-meta {
+    font-size: .7rem;
+  }
+
+  .audio-waveform-compact {
+    height: 14px;
+    margin-top: 2px;
+    opacity: .44;
+  }
+
+  .beat-row-buy {
+    min-width: 92px;
+    gap: 6px;
+  }
+
+  .beat-row-price {
+    font-size: .94rem;
+  }
+
+  .beat-row-btn {
+    min-width: 72px;
+    min-height: 36px;
+    padding: 0 9px;
+    font-size: .6rem;
+  }
+
+  .player-bar {
+    margin: 0 10px 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .tienda-frame {
+    width: calc(100% - 16px);
+  }
+
+  .brand-mark {
+    width: auto;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: .74rem;
+    letter-spacing: 1.1px;
+  }
+
+  .featured-main {
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .featured-cover {
+    width: 90px;
+    height: 90px;
+  }
+
+  .featured-title {
+    font-size: clamp(1.78rem, 9vw, 2.25rem);
+  }
+
+  .featured-price {
+    font-size: 1.28rem;
+  }
+
+  .featured-actions .beat-row-btn {
+    min-width: 80px;
   }
 }

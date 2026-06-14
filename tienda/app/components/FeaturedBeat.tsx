@@ -40,11 +40,8 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       return;
     }
 
-    // preload='auto' + mismo crossOrigin que el player: ademas de leer la
-    // duracion, deja el preview del beat destacado en cache, asi el primer
-    // play tras recargar suena al instante en vez de esperar la descarga.
     const probe = new Audio();
-    probe.preload = 'auto';
+    probe.preload = 'metadata';
     probe.crossOrigin = 'anonymous';
     probe.src = previewUrl;
     const onLoaded = () => setDuration(formatTime(probe.duration));
@@ -165,9 +162,9 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
 
       {previewUrl && (
         <AudioWaveform
-          active={!!track}
-          playing={isPlaying}
-          progress={progress}
+          active={isActive}
+          playing={playingThis}
+          progress={isActive ? progress : 0}
           onSeek={seekToPercent}
           getSpectrumSnapshot={getSpectrumSnapshot}
         />

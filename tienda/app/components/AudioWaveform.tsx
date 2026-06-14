@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { usePlayer } from '../providers/PlayerProvider';
 
 type SpectrumSnapshot = {
-  data: number[];
+  data: Uint8Array;
   sampleRate: number;
 };
 
@@ -47,7 +47,7 @@ const bandEdges = (index: number, barCount: number) => {
 // perceptual. Integramos esa energia por banda con ventana Hann y mezclamos
 // promedio (estabilidad) + pico (viveza), como un analizador real. No se vuelve
 // a aplicar log: eso aplastaria la senal hacia el piso.
-const readBand = (data: number[], sampleRate: number, lowFrequency: number, highFrequency: number) => {
+const readBand = (data: Uint8Array, sampleRate: number, lowFrequency: number, highFrequency: number) => {
   const from = Math.floor(frequencyToIndex(lowFrequency, sampleRate, data.length));
   const to = Math.max(from + 1, Math.ceil(frequencyToIndex(highFrequency, sampleRate, data.length)));
   let total = 0;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { Beat, LicenseType } from '@/lib/types';
 import { priceForLicense } from '@/lib/types';
@@ -14,7 +14,9 @@ import LicensePickerModal from './LicensePickerModal';
 export default function BeatRow({ beat }: { beat: Beat }) {
   const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot } = usePlayer();
   const { items, addItem, isInCart } = useCart();
+  const rowRef = useRef<HTMLDivElement | null>(null);
   const [duration, setDuration] = useState<string>('');
+  const [shouldLoadDuration, setShouldLoadDuration] = useState(false);
   const [licenseModalOpen, setLicenseModalOpen] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -25,14 +27,40 @@ export default function BeatRow({ beat }: { beat: Beat }) {
   const isSold = beat.status === 'sold_exclusive';
 
   useEffect(() => {
-    if (!previewUrl) return;
+    if (!previewUrl) {
+      setShouldLoadDuration(false);
+      return;
+    }
+
+    const node = rowRef.current;
+    if (!node || !('IntersectionObserver' in window)) {
+      setShouldLoadDuration(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadDuration(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '280px 0px' }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [previewUrl]);
+
+  useEffect(() => {
+    if (!previewUrl || !shouldLoadDuration) return;
     const probe = new Audio();
     probe.preload = 'metadata';
     probe.src = previewUrl;
     const onLoaded = () => setDuration(formatTime(probe.duration));
     probe.addEventListener('loadedmetadata', onLoaded);
     return () => probe.removeEventListener('loadedmetadata', onLoaded);
-  }, [previewUrl]);
+  }, [previewUrl, shouldLoadDuration]);
 
   const share = () => {
     const url = `${location.origin}/${beat.slug}`;
@@ -66,7 +94,7 @@ export default function BeatRow({ beat }: { beat: Beat }) {
   ].filter(Boolean);
 
   return (
-    <div className={`beat-row ${isActive ? 'active' : ''}`}>
+    <div ref={rowRef} className={`beat-row ${isActive ? 'active' : ''}`}>
       <div className={`beat-row-cover ${playingThis ? 'spinning' : ''}`}>
         {coverUrl && <img src={coverUrl} alt={`Portada de ${beat.title}`} loading="lazy" />}
         {previewUrl && (

@@ -25,7 +25,7 @@ type AudioWindow = Window & typeof globalThis & {
 };
 
 type SpectrumSnapshot = {
-  data: number[];
+  data: Uint8Array;
   sampleRate: number;
 };
 
@@ -73,7 +73,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [muted, setMuted] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>('off');
   const [queueVersion, setQueueVersion] = useState(0);
-  const [spectrumMode, setSpectrumMode] = useState<SpectrumMode>('curve');
+  const [spectrumMode, setSpectrumMode] = useState<SpectrumMode>('bars');
 
   useEffect(() => {
     const saved = window.localStorage.getItem('lu-spectrum-mode');
@@ -324,7 +324,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     if (!analyser || !data || !audioContext) return null;
     analyser.getByteFrequencyData(data);
     return {
-      data: Array.from(data),
+      data,
       sampleRate: audioContext.sampleRate
     };
   }, []);
