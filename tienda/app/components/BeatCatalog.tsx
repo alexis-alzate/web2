@@ -6,6 +6,7 @@ import { publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import BeatRow from './BeatRow';
 import FeaturedBeat from './FeaturedBeat';
+import { MailIcon, TagIcon, ShieldCheckIcon } from './Icons';
 
 export default function BeatCatalog({ beats }: { beats: Beat[] }) {
   const [activeGenre, setActiveGenre] = useState('all');
@@ -35,13 +36,32 @@ export default function BeatCatalog({ beats }: { beats: Beat[] }) {
           genre: b.genre,
           coverUrl: publicUrl('beats-covers', b.cover_url),
           previewUrl: publicUrl('beats-previews', b.preview_url),
-          price: b.price_basic
+          price: b.price_basic,
+          pricePremium: b.price_premium,
+          priceExclusive: b.price_exclusive,
+          bpm: b.bpm,
+          key: b.key
         }))
     );
   }, [filtered, setQueue]);
 
   return (
     <section className="tienda-section">
+      <div className="tienda-trust" aria-label="Garantías de compra">
+        <div className="tienda-trust-item">
+          <span className="tienda-trust-icon"><MailIcon /></span>
+          <span className="tienda-trust-text">Entrega inmediata por correo</span>
+        </div>
+        <div className="tienda-trust-item">
+          <span className="tienda-trust-icon"><TagIcon /></span>
+          <span className="tienda-trust-text">Licencias básica, premium y exclusiva</span>
+        </div>
+        <div className="tienda-trust-item">
+          <span className="tienda-trust-icon"><ShieldCheckIcon /></span>
+          <span className="tienda-trust-text">Pago 100% seguro con MercadoPago</span>
+        </div>
+      </div>
+
       {beats.length > 0 && <FeaturedBeat beat={beats[0]} />}
 
       {!!genres.length && (

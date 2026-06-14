@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { usePlayer } from '../providers/PlayerProvider';
 
 type SpectrumSnapshot = {
   data: number[];
@@ -32,25 +33,47 @@ const frequencyToIndex = (frequency: number, sampleRate: number, bins: number) =
   return clamp(frequency / nyquist, 0, 1) * Math.max(0, bins - 1);
 };
 
-const readBin = (data: number[], position: number) => {
-  const lower = Math.floor(position);
-  const upper = Math.min(data.length - 1, lower + 1);
-  const mix = position - lower;
-  return ((data[lower] || 0) * (1 - mix) + (data[upper] || 0) * mix) / 255;
+const bandEdges = (index: number, barCount: number) => {
+  const lowRatio = Math.max(0, index - 0.48) / Math.max(1, barCount - 1);
+  const highRatio = Math.min(barCount - 1, index + 0.48) / Math.max(1, barCount - 1);
+  return {
+    low: MIN_FREQ * Math.pow(MAX_FREQ / MIN_FREQ, lowRatio),
+    high: MIN_FREQ * Math.pow(MAX_FREQ / MIN_FREQ, highRatio)
+  };
 };
 
-const barFrequency = (index: number, barCount: number) => {
-  const ratio = index / Math.max(1, barCount - 1);
-  return MIN_FREQ * Math.pow(MAX_FREQ / MIN_FREQ, ratio);
+// getByteFrequencyData YA entrega valores en escala dB (mapeados entre
+// minDecibels/maxDecibels del AnalyserNode), asi que data[bin]/255 es de por si
+// perceptual. Integramos esa energia por banda con ventana Hann y mezclamos
+// promedio (estabilidad) + pico (viveza), como un analizador real. No se vuelve
+// a aplicar log: eso aplastaria la senal hacia el piso.
+const readBand = (data: number[], sampleRate: number, lowFrequency: number, highFrequency: number) => {
+  const from = Math.floor(frequencyToIndex(lowFrequency, sampleRate, data.length));
+  const to = Math.max(from + 1, Math.ceil(frequencyToIndex(highFrequency, sampleRate, data.length)));
+  let total = 0;
+  let weightTotal = 0;
+  let peak = 0;
+
+  for (let bin = from; bin <= Math.min(data.length - 1, to); bin++) {
+    const ratio = to === from ? 0.5 : (bin - from) / (to - from);
+    const windowWeight = 0.5 - 0.5 * Math.cos(Math.PI * 2 * ratio);
+    const value = (data[bin] || 0) / 255;
+    total += value * windowWeight;
+    weightTotal += windowWeight;
+    if (value > peak) peak = value;
+  }
+
+  const avg = total / Math.max(0.0001, weightTotal);
+  return clamp(avg * 0.62 + peak * 0.38);
 };
 
-// Realza graves/medios y deja que los agudos solo "salten" si el audio
-// realmente trae energia ahi (como el analizador de un EQ tipo Pro-Q3).
+// Modo barras: realza graves/medios (estetica del visualizador clasico, sin el
+// spectral tilt que usa la curva FabFilter).
 const bandWeight = (index: number, barCount: number) => {
   const ratio = index / Math.max(1, barCount - 1);
-  if (ratio < 0.23) return 1.26;
-  if (ratio < 0.68) return 1.02;
-  return 0.72;
+  if (ratio < 0.23) return 1.24;
+  if (ratio < 0.68) return 1.06;
+  return 0.84;
 };
 
 export default function AudioWaveform({
@@ -61,18 +84,18 @@ export default function AudioWaveform({
   getSpectrumSnapshot,
   compact = false
 }: AudioWaveformProps) {
+  const { spectrumMode } = usePlayer();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const barCount = compact ? 40 : 156;
-  const levelsRef = useRef<number[]>(Array.from({ length: barCount }, (_, index) => deterministicIdle(index)));
+  const levelsRef = useRef<number[]>(Array.from({ length: barCount }, (_, index) => deterministicIdle(index) * 0.14));
   const peaksRef = useRef<number[]>(Array.from({ length: barCount }, () => 0));
-  const tickRef = useRef(0);
 
   // El loop de animacion lee estos valores desde un ref para no depender de
   // ellos en el array del efecto. Si `progress`/`playing` estuvieran en las
   // dependencias, cada tick de progreso reiniciaria el requestAnimationFrame
   // y la fila recien activada podria no volver a arrancar el loop.
-  const liveRef = useRef({ playing, progress, getSpectrumSnapshot });
-  liveRef.current = { playing, progress, getSpectrumSnapshot };
+  const liveRef = useRef({ playing, progress, getSpectrumSnapshot, spectrumMode });
+  liveRef.current = { playing, progress, getSpectrumSnapshot, spectrumMode };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -84,7 +107,7 @@ export default function AudioWaveform({
     let frame = 0;
 
     const render = () => {
-      const { playing, progress, getSpectrumSnapshot } = liveRef.current;
+      const { playing, progress, getSpectrumSnapshot, spectrumMode } = liveRef.current;
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const width = Math.max(1, Math.floor(rect.width * dpr));
@@ -106,91 +129,192 @@ export default function AudioWaveform({
         ctx.clearRect(0, 0, width, height);
       }
 
-      tickRef.current += playing ? 0.085 : 0.018;
       const snapshot = active && playing ? getSpectrumSnapshot() : null;
       const hasEnergy = !!snapshot?.data.some((value) => value > 2);
       const nextLevels = levelsRef.current;
 
       for (let index = 0; index < barCount; index++) {
-        let target = deterministicIdle(index) * (compact ? 0.14 : 0.34);
+        const ratio = index / Math.max(1, barCount - 1);
+        let target = deterministicIdle(index) * (compact ? 0.08 : spectrumMode === 'curve' ? 0.13 : 0.16);
 
         if (snapshot?.data.length && hasEnergy) {
-          const frequency = barFrequency(index, barCount);
-          const center = frequencyToIndex(frequency, snapshot.sampleRate, snapshot.data.length);
-          const spread = index < barCount * 0.23 ? 3.8 : index < barCount * 0.69 ? 2.4 : 1.35;
-          const raw =
-            readBin(snapshot.data, Math.max(0, center - spread)) * 0.22 +
-            readBin(snapshot.data, center) * 0.56 +
-            readBin(snapshot.data, Math.min(snapshot.data.length - 1, center + spread)) * 0.22;
+          const { low, high } = bandEdges(index, barCount);
+          const raw = readBand(snapshot.data, snapshot.sampleRate, low, high);
+          const gated = raw < 0.02 ? 0 : raw;
 
-          // Exponente >1: las bandas sin energia se quedan abajo y las que
-          // si tienen contenido "se elevan" con mas contraste, al estilo
-          // de un analizador de espectro en tiempo real.
-          const shaped = Math.pow(clamp(raw * bandWeight(index, barCount)), 0.82);
-          target = clamp(shaped);
-        } else if (active && playing) {
-          const bassShape = Math.max(0, 1 - index / (barCount * 0.33));
-          const midShape = Math.max(0, 1 - Math.abs(index - barCount * 0.46) / (barCount * 0.3));
-          const highShape = Math.max(0, 1 - Math.abs(index - barCount * 0.81) / (barCount * 0.22));
-          const t = tickRef.current;
-          target = clamp(
-            deterministicIdle(index) * 0.16 +
-            bassShape * Math.abs(Math.sin(t * 1.85 + index * 0.09)) * 0.62 +
-            midShape * Math.abs(Math.sin(t * 3.15 + index * 0.17)) * 0.42 +
-            highShape * Math.abs(Math.sin(t * 5.4 + index * 0.29)) * 0.28
-          );
-        }
-
-        const previous = nextLevels[index] || 0;
-        const attack = target > previous ? 0.78 : 0.24;
-        nextLevels[index] = previous + (target - previous) * attack;
-        peaksRef.current[index] = Math.max(nextLevels[index], (peaksRef.current[index] || 0) - 0.012);
-      }
-
-      const gap = Math.max(1 * dpr, Math.min(3 * dpr, (width / barCount) * 0.26));
-      const barWidth = Math.max(1.5 * dpr, (width - gap * (barCount - 1)) / barCount);
-      const bottomPad = compact ? 1 * dpr : 9 * dpr;
-      const playedX = (clamp(progress, 0, 100) / 100) * width;
-
-      for (let index = 0; index < barCount; index++) {
-        const level = nextLevels[index] || 0;
-        const peak = peaksRef.current[index] || 0;
-        const x = index * (barWidth + gap);
-        const barHeight = Math.max((compact ? 1.2 : 3) * dpr, level * (height - bottomPad) * 0.95);
-        const y = height - bottomPad - barHeight;
-        const isPlayed = active && x <= playedX;
-
-        const barGradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
-        if (isPlayed) {
-          barGradient.addColorStop(0, 'rgba(255, 232, 157, 0.96)');
-          barGradient.addColorStop(0.5, 'rgba(211, 174, 76, 0.86)');
-          barGradient.addColorStop(1, 'rgba(127, 97, 32, 0.34)');
-          if (!compact) {
-            ctx.shadowColor = 'rgba(211, 174, 76, 0.24)';
-            ctx.shadowBlur = playing ? 7 * dpr : 3 * dpr;
+          if (spectrumMode === 'curve') {
+            // Spectral tilt: el audio real trae mucha mas energia en graves, asi
+            // que sin compensar se ve como una loma de bajo cayendo a la nada. La
+            // inclinacion sube los agudos y equilibra el espectro en todo el
+            // rango, que es lo que da el "look" de FabFilter / Logic.
+            const tilt = 0.7 + ratio * 1.5;
+            target = clamp(Math.pow(clamp(gated * tilt * 1.12), 0.6));
+          } else {
+            // Modo barras clasico: realza graves con ganancia para llenar.
+            target = clamp(Math.pow(clamp(gated * bandWeight(index, barCount) * 1.32), 0.62));
           }
-        } else {
-          barGradient.addColorStop(0, 'rgba(255, 255, 255, 0.38)');
-          barGradient.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
-          ctx.shadowBlur = 0;
         }
 
-        ctx.fillStyle = barGradient;
-        ctx.beginPath();
-        ctx.roundRect(x, y, barWidth, barHeight, Math.min(2 * dpr, barWidth / 2));
-        ctx.fill();
-
-        if (!compact && playing && peak > level + 0.08) {
-          const peakY = height - bottomPad - peak * (height - bottomPad) * 0.95;
-          ctx.fillStyle = isPlayed ? 'rgba(255, 239, 185, 0.52)' : 'rgba(255,255,255,0.24)';
-          ctx.fillRect(x, peakY, barWidth, Math.max(1 * dpr, 1.5));
-        }
+        // Ataque rapido; caida dependiente de frecuencia (graves pesados/lentos,
+        // agudos secos). Da la inercia organica de un analizador profesional.
+        const previous = nextLevels[index] || 0;
+        const release = ratio < 0.23 ? 0.16 : ratio < 0.68 ? 0.2 : 0.26;
+        const attack = target > previous ? (hasEnergy ? 0.85 : 0.2) : release;
+        nextLevels[index] = previous + (target - previous) * attack;
+        const peakFall = ratio < 0.23 ? 0.007 : 0.011;
+        peaksRef.current[index] = Math.max(nextLevels[index], (peaksRef.current[index] || 0) - peakFall);
       }
 
-      ctx.shadowBlur = 0;
-      if (active && !compact) {
-        ctx.fillStyle = 'rgba(214, 176, 74, 0.38)';
-        ctx.fillRect(0, height - 2 * dpr, playedX, 2 * dpr);
+      if (spectrumMode === 'curve') {
+        const bottomPad = compact ? 1 * dpr : 7 * dpr;
+        const topPad = compact ? 2 * dpr : 6 * dpr;
+        const baseY = height - bottomPad;
+        const usableH = Math.max(1, height - bottomPad - topPad);
+        const minH = (compact ? 1 : 2) * dpr;
+        const stepX = width / Math.max(1, barCount - 1);
+        const playedX = active ? (clamp(progress, 0, 100) / 100) * width : 0;
+
+        const yFor = (level: number) => baseY - Math.max(minH, clamp(level) * usableH);
+
+        // Curva superior suave: cada segmento pasa por el punto medio entre dos
+        // muestras (quadratic), eliminando los picos duros entre puntos -> linea
+        // continua como la de un analizador pro, no barras.
+        const appendCurve = (values: number[]) => {
+          for (let i = 1; i < barCount; i++) {
+            const xPrev = (i - 1) * stepX;
+            const yPrev = yFor(values[i - 1] || 0);
+            const xCur = i * stepX;
+            const yCur = yFor(values[i] || 0);
+            ctx.quadraticCurveTo(xPrev, yPrev, (xPrev + xCur) / 2, (yPrev + yCur) / 2);
+          }
+          ctx.lineTo(width, yFor(values[barCount - 1] || 0));
+        };
+
+        const fillArea = (values: number[], grad: CanvasGradient) => {
+          ctx.beginPath();
+          ctx.moveTo(0, baseY);
+          ctx.lineTo(0, yFor(values[0] || 0));
+          appendCurve(values);
+          ctx.lineTo(width, baseY);
+          ctx.closePath();
+          ctx.fillStyle = grad;
+          ctx.fill();
+        };
+
+        const strokeCurve = (values: number[]) => {
+          ctx.beginPath();
+          ctx.moveTo(0, yFor(values[0] || 0));
+          appendCurve(values);
+          ctx.stroke();
+        };
+
+        // 1) Relleno bajo la curva (degradado dorado tenue, todo el ancho)
+        const baseFill = ctx.createLinearGradient(0, topPad, 0, baseY);
+        baseFill.addColorStop(0, 'rgba(255, 228, 150, 0.28)');
+        baseFill.addColorStop(0.55, 'rgba(211, 174, 76, 0.12)');
+        baseFill.addColorStop(1, 'rgba(211, 174, 76, 0.015)');
+        fillArea(nextLevels, baseFill);
+
+        // 2) Realce de la parte ya reproducida (mas brillante, recortada a playedX)
+        if (active && playedX > 0.5) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, playedX, height);
+          ctx.clip();
+          const playedFill = ctx.createLinearGradient(0, topPad, 0, baseY);
+          playedFill.addColorStop(0, 'rgba(255, 234, 165, 0.5)');
+          playedFill.addColorStop(0.55, 'rgba(214, 178, 80, 0.24)');
+          playedFill.addColorStop(1, 'rgba(214, 178, 80, 0.03)');
+          fillArea(nextLevels, playedFill);
+          ctx.restore();
+        }
+
+        // 3) Peak-hold: traza tenue que cae lento por encima (firma del analizador)
+        if (active && !compact) {
+          ctx.strokeStyle = 'rgba(255, 239, 185, 0.3)';
+          ctx.lineWidth = 1 * dpr;
+          ctx.lineJoin = 'round';
+          strokeCurve(peaksRef.current);
+        }
+
+        // 4) Linea superior del espectro (tenue completa)
+        ctx.strokeStyle = 'rgba(255, 226, 150, 0.5)';
+        ctx.lineWidth = (compact ? 1.1 : 1.6) * dpr;
+        ctx.lineJoin = 'round';
+        strokeCurve(nextLevels);
+
+        // 5) Linea superior brillante con glow en la parte reproducida
+        if (active && playedX > 0.5) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, playedX, height);
+          ctx.clip();
+          if (!compact && playing) {
+            ctx.shadowColor = 'rgba(255, 214, 110, 0.55)';
+            ctx.shadowBlur = 10 * dpr;
+          }
+          ctx.strokeStyle = 'rgba(255, 238, 172, 0.98)';
+          ctx.lineWidth = (compact ? 1.3 : 2) * dpr;
+          ctx.lineJoin = 'round';
+          strokeCurve(nextLevels);
+          ctx.shadowBlur = 0;
+          ctx.restore();
+        }
+
+        // 6) Cabeza de reproduccion (linea vertical sutil, ayuda al seek)
+        if (active && !compact && playedX > 0.5) {
+          ctx.fillStyle = 'rgba(255, 236, 170, 0.45)';
+          ctx.fillRect(playedX - 0.5 * dpr, topPad, 1 * dpr, baseY - topPad);
+        }
+      } else {
+        // ===== Modo barras (visualizador clasico) =====
+        const bottomPad = compact ? 1 * dpr : 9 * dpr;
+        const gap = Math.max(1 * dpr, Math.min(3 * dpr, (width / barCount) * 0.26));
+        const barWidth = Math.max(1.5 * dpr, (width - gap * (barCount - 1)) / barCount);
+        const playedX = active ? (clamp(progress, 0, 100) / 100) * width : 0;
+
+        for (let index = 0; index < barCount; index++) {
+          const level = nextLevels[index] || 0;
+          const peak = peaksRef.current[index] || 0;
+          const x = index * (barWidth + gap);
+          const barHeight = Math.max((compact ? 1.2 : 3) * dpr, level * (height - bottomPad) * 0.95);
+          const y = height - bottomPad - barHeight;
+          const isPlayed = active && x <= playedX;
+
+          const barGradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
+          if (isPlayed) {
+            barGradient.addColorStop(0, 'rgba(255, 232, 157, 0.96)');
+            barGradient.addColorStop(0.5, 'rgba(211, 174, 76, 0.86)');
+            barGradient.addColorStop(1, 'rgba(127, 97, 32, 0.34)');
+            if (!compact) {
+              ctx.shadowColor = 'rgba(211, 174, 76, 0.24)';
+              ctx.shadowBlur = playing ? 7 * dpr : 3 * dpr;
+            }
+          } else {
+            // Dorado premium apagado desde el inicio (se intensifica al llenarse)
+            barGradient.addColorStop(0, 'rgba(214, 178, 92, 0.62)');
+            barGradient.addColorStop(0.5, 'rgba(176, 138, 58, 0.4)');
+            barGradient.addColorStop(1, 'rgba(120, 92, 40, 0.16)');
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.fillStyle = barGradient;
+          ctx.beginPath();
+          ctx.roundRect(x, y, barWidth, barHeight, Math.min(2 * dpr, barWidth / 2));
+          ctx.fill();
+
+          if (!compact && playing && peak > level + 0.08) {
+            const peakY = height - bottomPad - peak * (height - bottomPad) * 0.95;
+            ctx.fillStyle = isPlayed ? 'rgba(255, 239, 185, 0.52)' : 'rgba(255, 228, 160, 0.3)';
+            ctx.fillRect(x, peakY, barWidth, Math.max(1 * dpr, 1.5));
+          }
+        }
+
+        ctx.shadowBlur = 0;
+        if (active && !compact) {
+          ctx.fillStyle = 'rgba(214, 176, 74, 0.38)';
+          ctx.fillRect(0, height - 2 * dpr, playedX, 2 * dpr);
+        }
       }
     };
 
@@ -209,7 +333,7 @@ export default function AudioWaveform({
     const resizeObserver = new ResizeObserver(() => render());
     resizeObserver.observe(canvas);
     return () => resizeObserver.disconnect();
-  }, [active, compact, barCount]);
+  }, [active, compact, barCount, spectrumMode]);
 
   const seek = (clientX: number) => {
     const canvas = canvasRef.current;

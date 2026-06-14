@@ -7,12 +7,12 @@ import { priceForLicense } from '@/lib/types';
 import { formatCOP, formatTime, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
-import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
+import { CartIcon, CheckIcon, PlayIcon, PauseIcon, SpectrumModeIcon } from './Icons';
 import AudioWaveform from './AudioWaveform';
 import LicensePickerModal from './LicensePickerModal';
 
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
-  const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot } = usePlayer();
+  const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot, spectrumMode, toggleSpectrumMode } = usePlayer();
   const { items, addItem, isInCart } = useCart();
   const [duration, setDuration] = useState<string>('');
   const [licenseModalOpen, setLicenseModalOpen] = useState(false);
@@ -40,8 +40,12 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       return;
     }
 
+    // preload='auto' + mismo crossOrigin que el player: ademas de leer la
+    // duracion, deja el preview del beat destacado en cache, asi el primer
+    // play tras recargar suena al instante en vez de esperar la descarga.
     const probe = new Audio();
-    probe.preload = 'metadata';
+    probe.preload = 'auto';
+    probe.crossOrigin = 'anonymous';
     probe.src = previewUrl;
     const onLoaded = () => setDuration(formatTime(probe.duration));
     probe.addEventListener('loadedmetadata', onLoaded);
@@ -57,7 +61,11 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       genre: beat.genre,
       coverUrl,
       previewUrl,
-      price: beat.price_basic
+      price: beat.price_basic,
+      pricePremium: beat.price_premium,
+      priceExclusive: beat.price_exclusive,
+      bpm: beat.bpm,
+      key: beat.key
     });
   };
 
@@ -77,6 +85,28 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
 
   return (
     <section className={`featured ${isPlaying ? 'is-live' : ''}`}>
+      <div className="featured-spectrum" role="group" aria-label="Estilo del espectro">
+        <button
+          type="button"
+          className={`featured-spectrum-btn ${spectrumMode === 'curve' ? 'active' : ''}`}
+          onClick={() => spectrumMode !== 'curve' && toggleSpectrumMode()}
+          aria-pressed={spectrumMode === 'curve'}
+          aria-label="Espectro en curva"
+          title="Curva"
+        >
+          <SpectrumModeIcon mode="curve" />
+        </button>
+        <button
+          type="button"
+          className={`featured-spectrum-btn ${spectrumMode === 'bars' ? 'active' : ''}`}
+          onClick={() => spectrumMode !== 'bars' && toggleSpectrumMode()}
+          aria-pressed={spectrumMode === 'bars'}
+          aria-label="Espectro en barras"
+          title="Barras"
+        >
+          <SpectrumModeIcon mode="bars" />
+        </button>
+      </div>
       <div className="featured-main">
         <div className={`featured-cover ${playingThis ? 'playing' : ''}`}>
           {coverUrl && <img src={coverUrl} alt={`Portada de ${beat.title}`} />}

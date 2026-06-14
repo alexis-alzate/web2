@@ -10,9 +10,15 @@ export type PlayerTrack = {
   coverUrl: string;
   previewUrl: string;
   price: number;
+  pricePremium?: number;
+  priceExclusive?: number;
+  bpm?: number | null;
+  key?: string | null;
 };
 
 type RepeatMode = 'off' | 'all' | 'one';
+
+export type SpectrumMode = 'curve' | 'bars';
 
 type AudioWindow = Window & typeof globalThis & {
   webkitAudioContext?: typeof AudioContext;
@@ -43,6 +49,8 @@ type PlayerContextValue = {
   cycleRepeat: () => void;
   seekToPercent: (percent: number) => void;
   getSpectrumSnapshot: () => SpectrumSnapshot | null;
+  spectrumMode: SpectrumMode;
+  toggleSpectrumMode: () => void;
 };
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -56,6 +64,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const queueRef = useRef<PlayerTrack[]>([]);
   const trackRef = useRef<PlayerTrack | null>(null);
   const repeatRef = useRef<RepeatMode>('off');
+  const progressRef = useRef(0);
 
   const [track, setTrack] = useState<PlayerTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -64,10 +73,28 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [muted, setMuted] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>('off');
   const [queueVersion, setQueueVersion] = useState(0);
+  const [spectrumMode, setSpectrumMode] = useState<SpectrumMode>('curve');
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem('lu-spectrum-mode');
+    if (saved === 'bars' || saved === 'curve') setSpectrumMode(saved);
+  }, []);
+
+  const toggleSpectrumMode = useCallback(() => {
+    setSpectrumMode((prev) => {
+      const next = prev === 'curve' ? 'bars' : 'curve';
+      window.localStorage.setItem('lu-spectrum-mode', next);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     trackRef.current = track;
   }, [track]);
+
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
   useEffect(() => {
     repeatRef.current = repeat;
@@ -86,8 +113,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     if (!analyserRef.current) {
       const analyser = audioContextRef.current.createAnalyser();
-      analyser.fftSize = 4096;
-      analyser.smoothingTimeConstant = 0.58;
+      // 8192 = el punto medio: mejor resolucion de graves que 4096 pero con una
+      // ventana de tiempo (~186 ms) lo bastante corta para rastrear transientes.
+      // Mas alto (16384) suaviza los graves pero "unta" los golpes en el tiempo
+      // y el espectro se ve falso/lento respecto al audio.
+      analyser.fftSize = 8192;
+      analyser.smoothingTimeConstant = 0.56;
       analyser.minDecibels = -92;
       analyser.maxDecibels = -18;
       analyserRef.current = analyser;
@@ -258,6 +289,34 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     setProgress(clamped);
   }, []);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement as HTMLElement | null;
+      const isTyping =
+        activeElement?.tagName === 'INPUT' ||
+        activeElement?.tagName === 'TEXTAREA' ||
+        activeElement?.isContentEditable;
+
+      if (isTyping || document.querySelector('[role="dialog"]')) return;
+
+      if (event.code === 'Space') {
+        event.preventDefault();
+        togglePlayPause();
+      } else if (event.code === 'ArrowRight') {
+        event.preventDefault();
+        seekToPercent(progressRef.current + 10);
+      } else if (event.code === 'ArrowLeft') {
+        event.preventDefault();
+        seekToPercent(progressRef.current - 10);
+      } else if (event.key.toLowerCase() === 'm') {
+        toggleMute();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [seekToPercent, toggleMute, togglePlayPause]);
+
   const getSpectrumSnapshot = useCallback(() => {
     const analyser = analyserRef.current;
     const data = frequencyDataRef.current;
@@ -301,7 +360,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         toggleMute,
         cycleRepeat,
         seekToPercent,
-        getSpectrumSnapshot
+        getSpectrumSnapshot,
+        spectrumMode,
+        toggleSpectrumMode
       }}
     >
       {children}

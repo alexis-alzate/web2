@@ -51,7 +51,7 @@ export default function BeatDetail({ beat }: { beat: Beat }) {
           <button
             type="button"
             className={`beat-detail-play ${isActive && isPlaying ? 'playing' : ''}`}
-            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic })}
+            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key })}
             aria-label="Reproducir preview"
           >
             {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}

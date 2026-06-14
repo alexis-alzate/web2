@@ -169,6 +169,24 @@ export function ShieldCheckIcon({ className }: { className?: string }) {
   );
 }
 
+export function SpectrumModeIcon({ className, mode }: { className?: string; mode: 'curve' | 'bars' }) {
+  if (mode === 'bars') {
+    return (
+      <svg className={className} {...iconProps}>
+        <line x1="4" y1="20" x2="4" y2="13" />
+        <line x1="9" y1="20" x2="9" y2="7" />
+        <line x1="14" y1="20" x2="14" y2="10" />
+        <line x1="19" y1="20" x2="19" y2="15" />
+      </svg>
+    );
+  }
+  return (
+    <svg className={className} {...iconProps}>
+      <path d="M3 16c2.5 0 3-7 5-7s2.5 5 4 5 2.5-7 4.5-7" />
+    </svg>
+  );
+}
+
 export function VolumeIcon({ className, muted }: { className?: string; muted: boolean }) {
   if (muted) {
     return (

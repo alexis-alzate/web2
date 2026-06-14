@@ -1,8 +1,12 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
 import { formatCOP } from '@/lib/format';
+import type { Beat, LicenseType } from '@/lib/types';
+import { priceForLicense } from '@/lib/types';
+import LicensePickerModal from './LicensePickerModal';
 import {
   CartIcon,
   CheckIcon,
@@ -13,6 +17,7 @@ import {
   PrevTrackIcon,
   RepeatIcon,
   ShareIcon,
+  SpectrumModeIcon,
   VolumeIcon
 } from './Icons';
 
@@ -31,27 +36,48 @@ export default function PlayerBar() {
     playPrevious,
     setVolume,
     toggleMute,
-    cycleRepeat
+    cycleRepeat,
+    seekToPercent,
+    spectrumMode,
+    toggleSpectrumMode
   } = usePlayer();
-  const { addItem, removeItem, isInCart, openCart } = useCart();
+  const { items, addItem, isInCart, openCart } = useCart();
+  const [licenseModalOpen, setLicenseModalOpen] = useState(false);
+  const progressRef = useRef<HTMLDivElement | null>(null);
 
   if (!track) return null;
 
-  const inCart = isInCart(track.beatId, 'basic');
+  const inCart = items.some((item) => item.beatId === track.beatId);
+  const playerBeat: Beat = {
+    id: track.beatId,
+    slug: track.slug,
+    title: track.title,
+    bpm: track.bpm ?? null,
+    key: track.key ?? null,
+    genre: track.genre,
+    tags: null,
+    cover_url: null,
+    preview_url: null,
+    price_basic: track.price,
+    price_premium: track.pricePremium ?? track.price,
+    price_exclusive: track.priceExclusive ?? track.price,
+    file_basic_path: null,
+    file_premium_path: null,
+    file_exclusive_path: null,
+    status: 'available',
+    created_at: ''
+  };
 
-  const toggleCart = () => {
-    if (inCart) {
-      removeItem(track.beatId, 'basic');
-      return;
-    }
+  const chooseLicense = (license: LicenseType) => {
     addItem({
       beatId: track.beatId,
       slug: track.slug,
       title: track.title,
       coverUrl: track.coverUrl,
-      license: 'basic',
-      price: track.price
+      license,
+      price: priceForLicense(playerBeat, license)
     });
+    setLicenseModalOpen(false);
   };
 
   const share = () => {
@@ -63,9 +89,30 @@ export default function PlayerBar() {
     }
   };
 
+  const seekFromPointer = (clientX: number) => {
+    const rect = progressRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    seekToPercent(((clientX - rect.left) / rect.width) * 100);
+  };
+
+  const subtitle = [
+    track.genre || 'Lujo Urban',
+    track.bpm ? `${track.bpm} BPM` : null,
+    track.key || null
+  ].filter(Boolean).join(' · ');
+
   return (
     <div className="player-bar">
-      <div className="player-bar-progress">
+      <div
+        ref={progressRef}
+        className="player-bar-progress"
+        onClick={(event) => seekFromPointer(event.clientX)}
+        role="slider"
+        aria-label="Progreso del preview"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress)}
+      >
         <div className="player-bar-progress-fill" style={{ width: `${progress}%` }} />
       </div>
       <div className="player-bar-inner">
@@ -75,8 +122,17 @@ export default function PlayerBar() {
           </div>
           <div className="player-bar-meta">
             <p className="player-bar-title">{track.title}</p>
-            <p className="player-bar-subtitle">{track.genre || 'Lujo Urban'}</p>
+            <p className="player-bar-subtitle">{subtitle}</p>
           </div>
+          <button
+            type="button"
+            className="player-bar-icon-btn player-bar-spectrum-btn"
+            onClick={toggleSpectrumMode}
+            aria-label={spectrumMode === 'curve' ? 'Cambiar a barras' : 'Cambiar a curva'}
+            title={spectrumMode === 'curve' ? 'Espectro: curva' : 'Espectro: barras'}
+          >
+            <SpectrumModeIcon mode={spectrumMode} />
+          </button>
           <button type="button" className="player-bar-icon-btn" onClick={share} aria-label="Compartir">
             <ShareIcon />
           </button>
@@ -139,12 +195,20 @@ export default function PlayerBar() {
             />
           </div>
 
-          <button type="button" className={`player-bar-cart ${inCart ? 'in-cart' : ''}`} onClick={toggleCart}>
+          <button type="button" className={`player-bar-cart ${inCart ? 'in-cart' : ''}`} onClick={() => setLicenseModalOpen(true)}>
             <span>{formatCOP(track.price)}</span>
             {inCart ? <CheckIcon /> : <CartIcon />}
           </button>
         </div>
       </div>
+      <LicensePickerModal
+        beat={playerBeat}
+        coverUrl={track.coverUrl}
+        open={licenseModalOpen}
+        isInCart={isInCart}
+        onClose={() => setLicenseModalOpen(false)}
+        onChoose={chooseLicense}
+      />
     </div>
   );
 }

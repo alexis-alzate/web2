@@ -74,7 +74,7 @@ export default function BeatRow({ beat }: { beat: Beat }) {
             type="button"
             className={`beat-row-play ${playingThis ? 'playing' : ''}`}
             aria-label={playingThis ? 'Pausar preview' : 'Reproducir preview'}
-            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic })}
+            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key })}
           >
             {playingThis ? <PauseIcon /> : <PlayIcon />}
           </button>
@@ -86,6 +86,7 @@ export default function BeatRow({ beat }: { beat: Beat }) {
         {!!metaParts.length && (
           <span className="beat-row-meta">{metaParts.join(' · ')}</span>
         )}
+        {beat.key && <span className="beat-row-key">{beat.key}</span>}
         {previewUrl && (
           <AudioWaveform
             compact

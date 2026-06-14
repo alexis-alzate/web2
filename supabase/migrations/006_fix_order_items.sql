@@ -11,5 +11,5 @@ alter table order_items enable row level security;
 create unique index if not exists orders_mp_payment_id_idx
   on orders (mp_payment_id)
   where mp_payment_id is not null;
-
+npm
 notify pgrst, 'reload schema';
