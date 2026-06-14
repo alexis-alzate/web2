@@ -55,6 +55,7 @@ export default function PlayerBar() {
     bpm: track.bpm ?? null,
     key: track.key ?? null,
     genre: track.genre,
+    producer: track.producer ?? null,
     tags: null,
     cover_url: null,
     preview_url: null,
@@ -96,7 +97,7 @@ export default function PlayerBar() {
   };
 
   const subtitle = [
-    track.genre || 'Lujo Urban',
+    track.producer ? `Prod. ${track.producer}` : (track.genre || 'Lujo Urban'),
     track.bpm ? `${track.bpm} BPM` : null,
     track.key || null
   ].filter(Boolean).join(' · ');

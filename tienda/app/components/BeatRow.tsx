@@ -102,7 +102,7 @@ export default function BeatRow({ beat }: { beat: Beat }) {
             type="button"
             className={`beat-row-play ${playingThis ? 'playing' : ''}`}
             aria-label={playingThis ? 'Pausar preview' : 'Reproducir preview'}
-            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key })}
+            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key, producer: beat.producer })}
           >
             {playingThis ? <PauseIcon /> : <PlayIcon />}
           </button>

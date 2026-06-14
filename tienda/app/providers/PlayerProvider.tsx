@@ -14,6 +14,7 @@ export type PlayerTrack = {
   priceExclusive?: number;
   bpm?: number | null;
   key?: string | null;
+  producer?: string | null;
 };
 
 type RepeatMode = 'off' | 'all' | 'one';
@@ -108,16 +109,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     if (!AudioContextClass) return null;
 
     if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContextClass();
+      // latencyHint 'playback' = buffer de audio grande, robusto ante tirones
+      // del hilo principal (evita el crujido). La latencia no importa en una
+      // tienda de beats.
+      audioContextRef.current = new AudioContextClass({ latencyHint: 'playback' });
     }
 
     if (!analyserRef.current) {
       const analyser = audioContextRef.current.createAnalyser();
-      // 8192 = el punto medio: mejor resolucion de graves que 4096 pero con una
-      // ventana de tiempo (~186 ms) lo bastante corta para rastrear transientes.
-      // Mas alto (16384) suaviza los graves pero "unta" los golpes en el tiempo
-      // y el espectro se ve falso/lento respecto al audio.
-      analyser.fftSize = 8192;
+      // 4096 (~93 ms / ~10.7 Hz por bin): buena resolucion sin recargar el hilo
+      // de audio. Mas grande (8192/16384) aumenta el trabajo del analizador y
+      // hace mas probable el crujido en moviles.
+      analyser.fftSize = 4096;
       analyser.smoothingTimeConstant = 0.56;
       analyser.minDecibels = -92;
       analyser.maxDecibels = -18;

@@ -105,15 +105,23 @@ export default function AudioWaveform({
     if (!ctx) return;
 
     let frame = 0;
+    // Tamano cacheado: medir con getBoundingClientRect en cada frame fuerza un
+    // reflow del layout. Lo medimos una vez y solo al cambiar de tamano.
+    let cssW = 0;
+    let cssH = 0;
+    const measure = () => {
+      const r = canvas.getBoundingClientRect();
+      cssW = r.width;
+      cssH = r.height;
+    };
 
     const render = () => {
       const { playing, progress, getSpectrumSnapshot, spectrumMode } = liveRef.current;
-      const rect = canvas.getBoundingClientRect();
       // Capamos el DPR: en pantallas retina (2-3x) dibujar a resolucion nativa
       // multiplica el trabajo del canvas y satura la CPU (audio cruje). 2 basta.
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const width = Math.max(1, Math.floor(rect.width * dpr));
-      const height = Math.max(1, Math.floor(rect.height * dpr));
+      const width = Math.max(1, Math.floor(cssW * dpr));
+      const height = Math.max(1, Math.floor(cssH * dpr));
 
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
@@ -322,20 +330,38 @@ export default function AudioWaveform({
       }
     };
 
-    // Solo el track activo necesita animarse cuadro a cuadro; el resto
-    // dibuja su forma idle una vez (y al cambiar de tamano).
+    measure();
+    const resizeObserver = new ResizeObserver(() => {
+      measure();
+      if (!active) render();
+    });
+    resizeObserver.observe(canvas);
+
+    // Solo el track activo necesita animarse; el resto dibuja su forma idle
+    // una vez (y al cambiar de tamano via el observer).
     if (active) {
-      const loop = () => {
-        render();
+      let last = 0;
+      const loop = (now: number) => {
         frame = window.requestAnimationFrame(loop);
+        // En segundo plano (cambias de app/pestana) no dibujamos nada: el audio
+        // sigue, pero el canvas deja de consumir CPU y no compite con el audio.
+        if (document.hidden) return;
+        const { playing } = liveRef.current;
+        // ~30fps tocando (se ve fluido a la mitad de costo) y ~5fps en pausa
+        // (solo para reflejar el seek), en vez de 60fps siempre.
+        const interval = playing ? 33 : 200;
+        if (now - last < interval) return;
+        last = now;
+        render();
       };
-      loop();
-      return () => window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(loop);
+      return () => {
+        window.cancelAnimationFrame(frame);
+        resizeObserver.disconnect();
+      };
     }
 
     render();
-    const resizeObserver = new ResizeObserver(() => render());
-    resizeObserver.observe(canvas);
     return () => resizeObserver.disconnect();
   }, [active, compact, barCount, spectrumMode]);
 

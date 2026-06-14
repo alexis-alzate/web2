@@ -1105,6 +1105,16 @@ body:has(.descarga-page) .tienda-frame {
   opacity: .9;
 }
 
+.featured-producer {
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(var(--t-gold-rgb), 0.82);
+  margin-top: -2px;
+}
+
 .featured-title {
   font-family: var(--font-bebas), sans-serif;
   font-size: clamp(1.6rem, 4vw, 2.5rem);
@@ -1661,6 +1671,15 @@ body:has(.descarga-page) .tienda-frame {
   letter-spacing: 1px;
   color: var(--t-gold);
   margin: 0 0 6px;
+}
+.beat-detail-producer {
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(var(--t-gold-rgb), 0.82);
+  margin: 0 0 8px;
 }
 .beat-detail-meta {
   font-family: var(--font-barlow-condensed), sans-serif;

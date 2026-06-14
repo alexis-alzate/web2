@@ -7,6 +7,7 @@ export type Beat = {
   bpm: number | null;
   key: string | null;
   genre: string | null;
+  producer: string | null;
   tags: string[] | null;
   cover_url: string | null;
   preview_url: string | null;

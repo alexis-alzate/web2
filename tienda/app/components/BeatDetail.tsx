@@ -51,7 +51,7 @@ export default function BeatDetail({ beat }: { beat: Beat }) {
           <button
             type="button"
             className={`beat-detail-play ${isActive && isPlaying ? 'playing' : ''}`}
-            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key })}
+            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key, producer: beat.producer })}
             aria-label="Reproducir preview"
           >
             {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
@@ -61,6 +61,7 @@ export default function BeatDetail({ beat }: { beat: Beat }) {
 
       <div className="beat-detail-info">
         <h1 className="beat-detail-title">{beat.title}</h1>
+        {beat.producer && <p className="beat-detail-producer">Prod. by {beat.producer}</p>}
         <p className="beat-detail-meta">{meta}</p>
         {beat.tags && beat.tags.length > 0 && (
           <p className="beat-detail-tags">{beat.tags.join(' · ')}</p>

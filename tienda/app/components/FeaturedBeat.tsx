@@ -62,7 +62,8 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       pricePremium: beat.price_premium,
       priceExclusive: beat.price_exclusive,
       bpm: beat.bpm,
-      key: beat.key
+      key: beat.key,
+      producer: beat.producer
     });
   };
 
@@ -122,6 +123,9 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
         <div className="featured-info">
           <span className="featured-eyebrow">Beat destacado</span>
           <Link href={`/${beat.slug}`} className="featured-title">{beat.title}</Link>
+          {beat.producer && (
+            <span className="featured-producer">Prod. by {beat.producer}</span>
+          )}
           {!!meta.length && (
             <div className="featured-meta">
               {meta.map((item) => (
