@@ -21,11 +21,19 @@ export async function POST(request: Request) {
   // Los IDs de demo (catalogo duplicado para previsualizacion) tienen el formato "<uuid>-demo-N"
   const realBeatId = (id: string) => id.replace(/-demo-\d+$/, '');
 
-  const beatIds = [...new Set(items.map((it) => realBeatId(it.beat_id)))];
+  const beatIds = items.map((it) => realBeatId(it.beat_id));
+  if (new Set(beatIds).size !== beatIds.length) {
+    return NextResponse.json(
+      { error: 'Solo puedes elegir una licencia por beat en cada orden.' },
+      { status: 400 }
+    );
+  }
+
+  const uniqueBeatIds = [...new Set(beatIds)];
   const { data: beats, error: beatsError } = await supabase
     .from('beats')
     .select('*')
-    .in('id', beatIds);
+    .in('id', uniqueBeatIds);
 
   if (beatsError || !beats) {
     return NextResponse.json({ error: 'No se pudieron cargar los beats.' }, { status: 500 });

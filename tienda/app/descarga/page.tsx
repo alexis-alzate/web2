@@ -15,6 +15,21 @@ type OrderItem = {
   downloads: { token: string; download_count: number; max_downloads: number; expires_at: string }[];
 };
 
+const verifyApprovedPayment = async (paymentId: string, orderId: string) => {
+  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!accessToken) return false;
+
+  const paymentRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: 'no-store'
+  });
+
+  if (!paymentRes.ok) return false;
+
+  const payment = await paymentRes.json();
+  return payment.status === 'approved' && payment.external_reference === orderId;
+};
+
 export default async function DescargaPage({
   searchParams
 }: {
@@ -46,15 +61,18 @@ export default async function DescargaPage({
   }
 
   // Respaldo para entornos donde MercadoPago no puede llamar al webhook (ej. localhost):
-  // si volvemos del checkout con un pago aprobado, confirmamos la orden aqui mismo.
+  // nunca confiamos en la URL; se reconsulta MercadoPago y se valida external_reference.
   if (order.status === 'pending' && status === 'approved' && payment_id) {
-    await approveOrder(supabase, order_id, payment_id);
-    const refetch = await supabase
-      .from('orders')
-      .select('*, order_items(*, beats(*), downloads(*))')
-      .eq('id', order_id)
-      .single();
-    if (refetch.data) order = refetch.data;
+    const isApproved = await verifyApprovedPayment(payment_id, order_id);
+    if (isApproved) {
+      await approveOrder(supabase, order_id, payment_id);
+      const refetch = await supabase
+        .from('orders')
+        .select('*, order_items(*, beats(*), downloads(*))')
+        .eq('id', order_id)
+        .single();
+      if (refetch.data) order = refetch.data;
+    }
   }
 
   if (order.status === 'pending') {

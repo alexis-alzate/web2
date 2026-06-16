@@ -8,6 +8,44 @@ const requireAuth = async () => {
   if (!(await isAuthenticated())) throw new Error('No autorizado.');
 };
 
+const MB = 1024 * 1024;
+const MAX_TOTAL_UPLOAD_BYTES = 240 * MB;
+const MAX_FILE_BYTES = {
+  cover: 12 * MB,
+  preview: 60 * MB,
+  basic: 80 * MB,
+  premium: 180 * MB,
+  exclusive: 220 * MB
+};
+
+type UploadedFile = {
+  bucket: string;
+  path: string;
+};
+
+const formatBytes = (value: number) => `${Math.round(value / MB)} MB`;
+
+const selectedFile = (formData: FormData, field: string) => {
+  const file = formData.get(field);
+  return file instanceof File && file.size > 0 ? file : null;
+};
+
+const validateFileSize = (file: File | null, label: string, maxBytes: number) => {
+  if (!file || file.size <= maxBytes) return;
+  throw new Error(`${label} pesa ${formatBytes(file.size)}. Maximo permitido: ${formatBytes(maxBytes)}.`);
+};
+
+const cleanupUploadedFiles = async (
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  uploadedFiles: UploadedFile[]
+) => {
+  await Promise.all(
+    uploadedFiles.map(({ bucket, path }) =>
+      supabase.storage.from(bucket).remove([path]).catch(() => null)
+    )
+  );
+};
+
 const numberField = (formData: FormData, field: string) => {
   const raw = formData.get(field);
   const value = Number(raw);
@@ -69,55 +107,87 @@ export const createBeatAction = async (formData: FormData) => {
   const pricePremium = numberField(formData, 'price_premium');
   const priceExclusive = numberField(formData, 'price_exclusive');
 
+  const coverFile = selectedFile(formData, 'cover');
+  const previewFile = selectedFile(formData, 'preview');
+  const basicFile = selectedFile(formData, 'file_basic');
+  const premiumFile = selectedFile(formData, 'file_premium');
+  const exclusiveFile = selectedFile(formData, 'file_exclusive');
+  const uploadTotal = [coverFile, previewFile, basicFile, premiumFile, exclusiveFile]
+    .reduce((sum, file) => sum + (file?.size ?? 0), 0);
+
+  if (uploadTotal > MAX_TOTAL_UPLOAD_BYTES) {
+    throw new Error(`La subida total pesa ${formatBytes(uploadTotal)}. Maximo permitido por publicacion: ${formatBytes(MAX_TOTAL_UPLOAD_BYTES)}.`);
+  }
+
+  validateFileSize(coverFile, 'La caratula', MAX_FILE_BYTES.cover);
+  validateFileSize(previewFile, 'El preview', MAX_FILE_BYTES.preview);
+  validateFileSize(basicFile, 'El archivo de licencia basica', MAX_FILE_BYTES.basic);
+  validateFileSize(premiumFile, 'El archivo de licencia premium', MAX_FILE_BYTES.premium);
+  validateFileSize(exclusiveFile, 'El archivo de licencia ilimitada', MAX_FILE_BYTES.exclusive);
+
+  const uploadedFiles: UploadedFile[] = [];
+
   let coverPath: string | null = null;
-  const coverFile = formData.get('cover') as File | null;
-  if (coverFile instanceof File && coverFile.size > 0) {
-    coverPath = await uploadFile(supabase, 'beats-covers', `${slug}${fileExt(coverFile, '.jpg')}`, coverFile);
-  }
-
   let previewPath: string | null = null;
-  const previewFile = formData.get('preview') as File | null;
-  if (previewFile instanceof File && previewFile.size > 0) {
-    previewPath = await uploadFile(supabase, 'beats-previews', `${slug}-preview${fileExt(previewFile, '.mp3')}`, previewFile);
-  }
-
   const licensePaths: Record<'basic' | 'premium' | 'exclusive', string | null> = {
     basic: null,
     premium: null,
     exclusive: null
   };
 
-  for (const license of ['basic', 'premium', 'exclusive'] as const) {
-    const file = formData.get(`file_${license}`) as File | null;
-    if (file instanceof File && file.size > 0) {
-      licensePaths[license] = await uploadFile(
-        supabase,
-        'beats-files',
-        `${slug}-${license}${fileExt(file, '.zip')}`,
-        file
-      );
+  try {
+    if (coverFile) {
+      coverPath = await uploadFile(supabase, 'beats-covers', `${slug}${fileExt(coverFile, '.jpg')}`, coverFile);
+      uploadedFiles.push({ bucket: 'beats-covers', path: coverPath });
     }
+
+    if (previewFile) {
+      previewPath = await uploadFile(supabase, 'beats-previews', `${slug}-preview${fileExt(previewFile, '.mp3')}`, previewFile);
+      uploadedFiles.push({ bucket: 'beats-previews', path: previewPath });
+    }
+
+    const licenseFiles = {
+      basic: basicFile,
+      premium: premiumFile,
+      exclusive: exclusiveFile
+    };
+
+    for (const license of ['basic', 'premium', 'exclusive'] as const) {
+      const file = licenseFiles[license];
+      if (file) {
+        licensePaths[license] = await uploadFile(
+          supabase,
+          'beats-files',
+          `${slug}-${license}${fileExt(file, '.zip')}`,
+          file
+        );
+        uploadedFiles.push({ bucket: 'beats-files', path: licensePaths[license]! });
+      }
+    }
+
+    const { error } = await supabase.from('beats').insert({
+      slug,
+      title,
+      bpm,
+      key,
+      genre,
+      tags,
+      cover_url: coverPath,
+      preview_url: previewPath,
+      price_basic: priceBasic,
+      price_premium: pricePremium,
+      price_exclusive: priceExclusive,
+      file_basic_path: licensePaths.basic,
+      file_premium_path: licensePaths.premium,
+      file_exclusive_path: licensePaths.exclusive,
+      status: 'available'
+    });
+
+    if (error) throw new Error(`No se pudo guardar el beat: ${error.message}`);
+  } catch (error) {
+    await cleanupUploadedFiles(supabase, uploadedFiles);
+    throw error;
   }
-
-  const { error } = await supabase.from('beats').insert({
-    slug,
-    title,
-    bpm,
-    key,
-    genre,
-    tags,
-    cover_url: coverPath,
-    preview_url: previewPath,
-    price_basic: priceBasic,
-    price_premium: pricePremium,
-    price_exclusive: priceExclusive,
-    file_basic_path: licensePaths.basic,
-    file_premium_path: licensePaths.premium,
-    file_exclusive_path: licensePaths.exclusive,
-    status: 'available'
-  });
-
-  if (error) throw new Error(`No se pudo guardar el beat: ${error.message}`);
 };
 
 export const deleteBeatAction = async (formData: FormData) => {

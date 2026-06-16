@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
+import { createSupabaseAdminClient } from '@/lib/supabase/server';
 
 const escapeHtml = (value: string) =>
   value
@@ -11,6 +12,7 @@ const escapeHtml = (value: string) =>
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
+  const beatId = String(body?.beat_id || '').trim();
   const beatTitle = String(body?.beat_title || '').trim();
   const beatSlug = String(body?.beat_slug || '').trim();
   const fullName = String(body?.full_name || '').trim();
@@ -22,6 +24,40 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Datos de oferta incompletos.' }, { status: 400 });
   }
 
+  const supabase = createSupabaseAdminClient();
+  const { data: beat, error: beatError } = await supabase
+    .from('beats')
+    .select('id, title, slug')
+    .eq(beatId ? 'id' : 'slug', beatId || beatSlug)
+    .maybeSingle();
+
+  if (beatError) {
+    return NextResponse.json({ error: 'No se pudo validar el beat.' }, { status: 500 });
+  }
+
+  if (!beat) {
+    return NextResponse.json({ error: 'El beat de la oferta no existe.' }, { status: 400 });
+  }
+
+  const safeBeatTitle = String(beat.title || beatTitle);
+  const safeBeatSlug = String(beat.slug || beatSlug);
+
+  const { error: offerError } = await supabase.from('beat_offers').insert({
+    beat_id: beat.id,
+    beat_slug: safeBeatSlug,
+    beat_title: safeBeatTitle,
+    full_name: fullName,
+    email,
+    amount,
+    message: message || null,
+    status: 'new'
+  });
+
+  if (offerError) {
+    console.error('No se pudo registrar la oferta:', offerError);
+    return NextResponse.json({ error: 'No se pudo registrar la oferta.' }, { status: 500 });
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error('Falta configurar RESEND_API_KEY, no se envio la oferta.');
@@ -30,19 +66,19 @@ export async function POST(request: Request) {
 
   const siteUrl = process.env.SITE_URL ?? 'https://tienda.lujourban.com';
   const offerTo = process.env.BEAT_OFFER_TO_EMAIL ?? 'pedidos@lujourban.com';
-  const beatUrl = `${siteUrl}/${encodeURIComponent(beatSlug)}`;
+  const beatUrl = `${siteUrl}/${encodeURIComponent(safeBeatSlug)}`;
   const resend = new Resend(apiKey);
 
   await resend.emails.send({
     from: 'Lujo Urban <pedidos@lujourban.com>',
     to: offerTo,
     replyTo: email,
-    subject: `Oferta exclusiva: ${beatTitle}`,
+    subject: `Oferta exclusiva: ${safeBeatTitle}`,
     html: `
       <div style="background:#070706;padding:32px;font-family:Arial,sans-serif;color:#f4efe7;">
         <div style="max-width:620px;margin:0 auto;border:1px solid rgba(214,176,74,.35);border-radius:14px;background:#11100d;padding:24px;">
           <p style="margin:0 0 8px;color:#d6b04a;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:700;">Make an offer</p>
-          <h1 style="margin:0 0 18px;color:#fff;font-size:24px;">${escapeHtml(beatTitle)}</h1>
+          <h1 style="margin:0 0 18px;color:#fff;font-size:24px;">${escapeHtml(safeBeatTitle)}</h1>
           <p style="margin:0 0 10px;"><strong>Nombre:</strong> ${escapeHtml(fullName)}</p>
           <p style="margin:0 0 10px;"><strong>Email:</strong> ${escapeHtml(email)}</p>
           <p style="margin:0 0 10px;"><strong>Oferta:</strong> ${escapeHtml(amount)}</p>

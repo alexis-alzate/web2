@@ -35,10 +35,30 @@ type BeatOrder = {
   order_items: { license_type: LicenseType; amount: number; beats: { title: string } | null }[];
 };
 
+type BeatOffer = {
+  id: string;
+  beat_title: string;
+  beat_slug: string;
+  full_name: string;
+  email: string;
+  amount: string;
+  message: string | null;
+  status: 'new' | 'contacted' | 'accepted' | 'rejected' | 'closed';
+  created_at: string;
+};
+
 const ORDER_STATUS_LABELS: Record<BeatOrder['status'], string> = {
   pending: 'Pendiente',
   approved: 'Aprobada',
   rejected: 'Rechazada'
+};
+
+const OFFER_STATUS_LABELS: Record<BeatOffer['status'], string> = {
+  new: 'Nueva',
+  contacted: 'Contactada',
+  accepted: 'Aceptada',
+  rejected: 'Rechazada',
+  closed: 'Cerrada'
 };
 
 type Artist = {
@@ -225,6 +245,7 @@ export default async function DashboardPage() {
   let beats: Beat[] = [];
   let showDemoBeats = true;
   let beatOrders: BeatOrder[] = [];
+  let beatOffers: BeatOffer[] = [];
 
   try {
     const supabaseAdmin = createSupabaseAdminClient();
@@ -247,6 +268,13 @@ export default async function DashboardPage() {
       .order('created_at', { ascending: false })
       .limit(50);
     beatOrders = (ordersData as unknown as BeatOrder[]) || [];
+
+    const { data: offersData } = await supabaseAdmin
+      .from('beat_offers')
+      .select('id, beat_title, beat_slug, full_name, email, amount, message, status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    beatOffers = (offersData as BeatOffer[]) || [];
   } catch {
     beats = [];
   }
@@ -943,68 +971,104 @@ export default async function DashboardPage() {
               <summary>Agregar beat nuevo</summary>
               <ActionForm
                 action={createBeatAction}
-                className="grid"
+                className="grid beat-upload-form"
                 savingMessage="Subiendo archivos y publicando el beat..."
                 successMessage="Beat publicado en la tienda."
                 resetOnSuccess
               >
+                <div className="span-2 beat-form-note">
+                  <strong>Campos obligatorios</strong>
+                  <span>Título y los 3 precios. Los archivos son opcionales para guardar el beat, pero necesarios para vender cada licencia. Sube máximo 240 MB por publicación.</span>
+                </div>
                 <label className="span-2">
-                  Título
+                  <span className="field-label">Título <em>obligatorio</em></span>
                   <input name="title" required placeholder="Nombre del beat" />
                 </label>
                 <label>
-                  BPM
+                  <span className="field-label">BPM <em>opcional</em></span>
                   <input name="bpm" type="number" placeholder="88" />
                 </label>
                 <label>
-                  Tonalidad (key)
+                  <span className="field-label">Tonalidad <em>opcional</em></span>
                   <input name="key" placeholder="C minor" />
                 </label>
                 <label>
-                  Género
+                  <span className="field-label">Género <em>opcional</em></span>
                   <input name="genre" placeholder="Afrobeat" />
                 </label>
                 <label>
-                  Tags (separados por coma)
+                  <span className="field-label">Tags <em>opcional</em></span>
                   <input name="tags" placeholder="afro dancehall, type beat" />
+                  <small className="muted">Separados por coma.</small>
                 </label>
                 <label>
-                  Precio licencia básica (COP)
+                  <span className="field-label">Precio básica (COP) <em>obligatorio</em></span>
                   <input name="price_basic" type="number" required placeholder="100000" />
                 </label>
                 <label>
-                  Precio licencia premium (COP)
+                  <span className="field-label">Precio premium (COP) <em>obligatorio</em></span>
                   <input name="price_premium" type="number" required placeholder="200000" />
                 </label>
                 <label>
-                  Precio licencia ilimitada (COP)
+                  <span className="field-label">Precio ilimitada (COP) <em>obligatorio</em></span>
                   <input name="price_exclusive" type="number" required placeholder="400000" />
                 </label>
                 <label className="span-2">
-                  Carátula (imagen)
+                  <span className="field-label">Carátula <em>opcional</em></span>
                   <input name="cover" type="file" accept="image/*" />
+                  <small className="muted">Se guarda en Supabase Storage: beats-covers.</small>
                 </label>
                 <label className="span-2">
-                  Preview de audio
+                  <span className="field-label">Preview de audio <em>opcional</em></span>
                   <input name="preview" type="file" accept="audio/*" />
+                  <small className="muted">Se guarda en beats-previews y alimenta el reproductor.</small>
                 </label>
                 <label>
-                  Archivo licencia básica (MP3)
+                  <span className="field-label">Archivo básica <em>opcional</em></span>
                   <input name="file_basic" type="file" accept="audio/*" />
+                  <small className="muted">Necesario para vender la licencia básica.</small>
                 </label>
                 <label>
-                  Archivo licencia premium (WAV)
+                  <span className="field-label">Archivo premium <em>opcional</em></span>
                   <input name="file_premium" type="file" accept="audio/*" />
+                  <small className="muted">Necesario para vender la licencia premium.</small>
                 </label>
                 <label>
-                  Archivo licencia ilimitada (.zip con stems)
+                  <span className="field-label">Archivo ilimitada <em>opcional</em></span>
                   <input name="file_exclusive" type="file" accept=".zip,.rar,application/zip,application/x-zip-compressed" />
-                  <small className="muted">Sube un comprimido con todos los tracks/stems del beat.</small>
+                  <small className="muted">ZIP/RAR con stems. Necesario para vender ilimitada.</small>
                 </label>
                 <SubmitButton className="primary span-2" pendingText="Publicando...">
                   Publicar beat
                 </SubmitButton>
               </ActionForm>
+            </details>
+
+            <details className="subfolder">
+              <summary>Ofertas exclusivas ({beatOffers.length})</summary>
+              {beatOffers.length === 0 ? (
+                <p className="muted">Todavía no hay ofertas exclusivas registradas.</p>
+              ) : (
+                <ol className="cards">
+                  {beatOffers.map((offer) => (
+                    <li className="card" key={offer.id}>
+                      <div>
+                        <h3>{offer.beat_title} — {offer.amount}</h3>
+                        <p className="muted">
+                          {offer.full_name} · {offer.email} · {OFFER_STATUS_LABELS[offer.status]}
+                        </p>
+                        <p className="muted">
+                          {new Date(offer.created_at).toLocaleString('es-CO', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                          })}
+                        </p>
+                        {offer.message && <p className="muted">{offer.message}</p>}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </details>
 
             <details className="subfolder">

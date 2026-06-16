@@ -61,6 +61,7 @@ export default function Header() {
           <CartIcon />
           {mounted && count > 0 && <span className="cart-toggle-badge">{count}</span>}
         </span>
+        {mounted && count > 0 && <span className="cart-toggle-label">Pagar</span>}
         <span className={`cart-toggle-total ${bump ? 'bump' : ''}`}>
           {mounted ? formatCOP(total) : formatCOP(0)}
         </span>
