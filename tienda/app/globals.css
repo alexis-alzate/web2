@@ -319,9 +319,7 @@ body:has(.descarga-page) .marketplace-top {
   margin: 14px auto;
   border: 1px solid var(--t-border);
   border-radius: 18px;
-  background:
-    radial-gradient(120% 45% at 50% 0%, rgba(var(--t-gold-rgb), 0.07), transparent 70%),
-    linear-gradient(180deg, #131211 0%, #0d0c0c 35%, var(--t-bg) 100%);
+  background: linear-gradient(180deg, #131211 0%, #0d0c0c 35%, var(--t-bg) 100%);
   box-shadow:
     0 24px 80px rgba(0, 0, 0, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -494,8 +492,8 @@ body:has(.descarga-page) .tienda-frame {
   gap: 8px;
   height: 38px;
   border-radius: 999px;
-  border: 1px solid rgba(var(--t-gold-rgb), 0.35);
-  background: rgba(var(--t-gold-rgb), 0.08);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--t-gold);
   font-size: 1rem;
   padding: 0 14px;
@@ -2474,8 +2472,7 @@ body:has(.descarga-page) .tienda-frame {
   background: linear-gradient(180deg, #11100f 0%, #080807 52%, #050505 100%);
   box-shadow:
     0 34px 110px rgba(0, 0, 0, 0.72),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .site-header {
@@ -2489,8 +2486,8 @@ body:has(.descarga-page) .tienda-frame {
   align-self: stretch;
   border-radius: 0;
   border: none;
-  border-left: 1px solid rgba(255,255,255,0.08);
-  border-right: 1px solid rgba(255,255,255,0.08);
+  border-left: none;
+  border-right: none;
   background: rgba(255, 255, 255, 0.03);
   padding-inline: 20px;
 }
@@ -2502,8 +2499,6 @@ body:has(.descarga-page) .tienda-frame {
 
 .cart-toggle {
   height: 42px;
-  border-color: rgba(var(--t-gold-rgb), 0.24);
-  background: rgba(0, 0, 0, 0.42);
 }
 
 .featured {
@@ -3017,14 +3012,10 @@ body:has(.descarga-page) .tienda-frame {
     align-self: stretch;
     padding: 0 13px;
     margin-right: -12px;
-    border-width: 0 0 0 1px;
-    border-color: rgba(255, 255, 255, 0.08);
+    border: none;
     border-radius: 0;
     background: linear-gradient(180deg, rgba(18, 17, 15, 0.96), rgba(3, 3, 3, 0.94));
-    box-shadow:
-      inset 1px 0 0 rgba(255,255,255,0.035),
-      inset 0 -1px 0 rgba(0,0,0,0.48),
-      -12px 0 28px rgba(0,0,0,0.16);
+    box-shadow: -12px 0 28px rgba(0,0,0,0.16);
     isolation: isolate;
     overflow: visible;
   }
@@ -3159,9 +3150,7 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .featured::before {
-    height: 88px;
-    opacity: .26;
-    background-size: 30px 100%, 100% 100%;
+    display: none;
   }
 
   .featured::after {
@@ -3290,20 +3279,20 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .beats-filters {
-    gap: 8px;
-    margin: 16px 0 8px;
-    padding: 0 12px 10px;
+    gap: 6px;
+    margin: 8px 0 2px;
+    padding: 0 12px 6px;
     scroll-padding-inline: 14px;
     -webkit-overflow-scrolling: touch;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .filter-pill {
-    min-height: 36px;
-    padding: 0 16px;
+    min-height: 28px;
+    padding: 0 12px;
     border-radius: 999px;
-    font-size: .68rem;
-    letter-spacing: 1.8px;
+    font-size: .64rem;
+    letter-spacing: 1.6px;
     border-color: rgba(255, 255, 255, 0.1);
     background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,.34));
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
