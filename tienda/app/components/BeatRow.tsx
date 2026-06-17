@@ -88,7 +88,6 @@ export default function BeatRow({ beat }: { beat: Beat }) {
   };
 
   const metaParts = [
-    beat.genre && beat.genre.toLowerCase() !== beat.title.toLowerCase() ? beat.genre : null,
     beat.bpm ? `${beat.bpm} BPM` : null,
     duration || null
   ].filter(Boolean);
