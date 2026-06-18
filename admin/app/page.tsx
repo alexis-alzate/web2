@@ -781,47 +781,50 @@ export default async function DashboardPage() {
               </ActionForm>
             </details>
 
-            <div className="cards">
-              {artistData.artists.map(artist => {
-                const releases = artistReleaseHistory.artists[artist.slug] || [];
-                return (
-                  <details className="admin-item-accordion" key={`${artist.slug}-releases`}>
-                    <summary className="admin-item-summary">
-                      {artist.photo ? (
-                        <img className="thumb" src={`https://www.lujourban.com/${artist.photo}`} alt="" />
-                      ) : (
-                        <div className="thumb placeholder">{initials(artist.name)}</div>
-                      )}
-                      <span className="admin-item-copy">
-                        <strong>{artist.cardName || artist.name}</strong>
-                        <small>{releases.length ? `${releases.length} lanzamiento(s) guardado(s)` : 'Sin historial de lanzamientos'}</small>
-                      </span>
-                      <span className="admin-item-badge">{artist.slug}</span>
-                    </summary>
-                    <div className="admin-item-panel">
-                      {releases.length ? (
-                        <div className="actions">
-                          {releases.map(release => (
-                            <ActionForm
-                              action={reactivateArtistReleaseAction}
-                              key={release.slug || release.title}
-                              savingMessage={`Reactivando ${release.title}...`}
-                              successMessage={`${release.title} quedo activo para este artista.`}
-                            >
-                              <input name="artistSlug" type="hidden" value={artist.slug} />
-                              <input name="releaseSlug" type="hidden" value={release.slug || ''} />
-                              <SubmitButton pendingText="Reactivando...">{release.title}</SubmitButton>
-                            </ActionForm>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="muted">Publica un lanzamiento para activar el historial de este artista.</p>
-                      )}
-                    </div>
-                  </details>
-                );
-              })}
-            </div>
+            <details className="subfolder">
+              <summary>Artistas con lanzamientos ({artistData.artists.length})</summary>
+              <div className="cards">
+                {artistData.artists.map(artist => {
+                  const releases = artistReleaseHistory.artists[artist.slug] || [];
+                  return (
+                    <details className="admin-item-accordion" key={`${artist.slug}-releases`}>
+                      <summary className="admin-item-summary">
+                        {artist.photo ? (
+                          <img className="thumb" src={`https://www.lujourban.com/${artist.photo}`} alt="" />
+                        ) : (
+                          <div className="thumb placeholder">{initials(artist.name)}</div>
+                        )}
+                        <span className="admin-item-copy">
+                          <strong>{artist.cardName || artist.name}</strong>
+                          <small>{releases.length ? `${releases.length} lanzamiento(s) guardado(s)` : 'Sin historial de lanzamientos'}</small>
+                        </span>
+                        <span className="admin-item-badge">{artist.slug}</span>
+                      </summary>
+                      <div className="admin-item-panel">
+                        {releases.length ? (
+                          <div className="actions">
+                            {releases.map(release => (
+                              <ActionForm
+                                action={reactivateArtistReleaseAction}
+                                key={release.slug || release.title}
+                                savingMessage={`Reactivando ${release.title}...`}
+                                successMessage={`${release.title} quedo activo para este artista.`}
+                              >
+                                <input name="artistSlug" type="hidden" value={artist.slug} />
+                                <input name="releaseSlug" type="hidden" value={release.slug || ''} />
+                                <SubmitButton pendingText="Reactivando...">{release.title}</SubmitButton>
+                              </ActionForm>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="muted">Publica un lanzamiento para activar el historial de este artista.</p>
+                        )}
+                      </div>
+                    </details>
+                  );
+                })}
+              </div>
+            </details>
           </div>
         </details>
       </section>
@@ -844,61 +847,66 @@ export default async function DashboardPage() {
               lanzamientos mas recientes.
             </p>
 
-            {casaCatalog.picks.length > 0 && (
-              <ol className="cards catalog-picks">
-                {casaCatalog.picks.map((pick, index) => {
-                  const label = resolveCasaCatalogPickLabel(pick, artistData, releaseHistory, artistReleaseHistory);
-                  return (
-                    <li key={`${pick.source}-${pick.artistSlug || 'zaetta'}-${pick.releaseSlug}`}>
-                      <details className="admin-item-accordion">
-                        <summary className="admin-item-summary">
-                          {label.cover ? (
-                            <img className="thumb" src={label.cover} alt="" />
-                          ) : (
-                            <div className="thumb placeholder">{initials(label.title)}</div>
-                          )}
-                          <span className="admin-item-copy">
-                            <strong>{`${index + 1}. ${label.title}`}</strong>
-                            <small>{label.sourceName}</small>
-                          </span>
-                          <span className="admin-item-badge">Casa</span>
-                        </summary>
-                        <div className="admin-item-panel">
-                          <div className="actions">
-                            <ActionForm
-                              action={moveCasaCatalogPickAction}
-                              savingMessage="Moviendo lanzamiento..."
-                              successMessage="Orden del catalogo actualizado."
-                            >
-                              <input name="index" type="hidden" value={index} />
-                              <input name="direction" type="hidden" value="up" />
-                              <SubmitButton pendingText="..." disabled={index === 0}>↑ Subir</SubmitButton>
-                            </ActionForm>
-                            <ActionForm
-                              action={moveCasaCatalogPickAction}
-                              savingMessage="Moviendo lanzamiento..."
-                              successMessage="Orden del catalogo actualizado."
-                            >
-                              <input name="index" type="hidden" value={index} />
-                              <input name="direction" type="hidden" value="down" />
-                              <SubmitButton pendingText="..." disabled={index === casaCatalog.picks.length - 1}>↓ Bajar</SubmitButton>
-                            </ActionForm>
-                            <ActionForm
-                              action={removeCasaCatalogPickAction}
-                              savingMessage="Quitando del catalogo..."
-                              successMessage={`${label.title} ya no esta fijo en el catalogo.`}
-                            >
-                              <input name="index" type="hidden" value={index} />
-                              <SubmitButton className="danger" pendingText="Quitando...">Quitar</SubmitButton>
-                            </ActionForm>
+            <details className="subfolder">
+              <summary>Lanzamientos fijados ({casaCatalog.picks.length})</summary>
+              {casaCatalog.picks.length === 0 ? (
+                <p className="muted">Todavia no hay lanzamientos fijados manualmente.</p>
+              ) : (
+                <ol className="cards catalog-picks">
+                  {casaCatalog.picks.map((pick, index) => {
+                    const label = resolveCasaCatalogPickLabel(pick, artistData, releaseHistory, artistReleaseHistory);
+                    return (
+                      <li key={`${pick.source}-${pick.artistSlug || 'zaetta'}-${pick.releaseSlug}`}>
+                        <details className="admin-item-accordion">
+                          <summary className="admin-item-summary">
+                            {label.cover ? (
+                              <img className="thumb" src={label.cover} alt="" />
+                            ) : (
+                              <div className="thumb placeholder">{initials(label.title)}</div>
+                            )}
+                            <span className="admin-item-copy">
+                              <strong>{`${index + 1}. ${label.title}`}</strong>
+                              <small>{label.sourceName}</small>
+                            </span>
+                            <span className="admin-item-badge">Casa</span>
+                          </summary>
+                          <div className="admin-item-panel">
+                            <div className="actions">
+                              <ActionForm
+                                action={moveCasaCatalogPickAction}
+                                savingMessage="Moviendo lanzamiento..."
+                                successMessage="Orden del catalogo actualizado."
+                              >
+                                <input name="index" type="hidden" value={index} />
+                                <input name="direction" type="hidden" value="up" />
+                                <SubmitButton pendingText="..." disabled={index === 0}>↑ Subir</SubmitButton>
+                              </ActionForm>
+                              <ActionForm
+                                action={moveCasaCatalogPickAction}
+                                savingMessage="Moviendo lanzamiento..."
+                                successMessage="Orden del catalogo actualizado."
+                              >
+                                <input name="index" type="hidden" value={index} />
+                                <input name="direction" type="hidden" value="down" />
+                                <SubmitButton pendingText="..." disabled={index === casaCatalog.picks.length - 1}>↓ Bajar</SubmitButton>
+                              </ActionForm>
+                              <ActionForm
+                                action={removeCasaCatalogPickAction}
+                                savingMessage="Quitando del catalogo..."
+                                successMessage={`${label.title} ya no esta fijo en el catalogo.`}
+                              >
+                                <input name="index" type="hidden" value={index} />
+                                <SubmitButton className="danger" pendingText="Quitando...">Quitar</SubmitButton>
+                              </ActionForm>
+                            </div>
                           </div>
-                        </div>
-                      </details>
-                    </li>
-                  );
-                })}
-              </ol>
-            )}
+                        </details>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+            </details>
 
             <details className="subfolder">
               <summary>Fijar lanzamiento en el catalogo</summary>
