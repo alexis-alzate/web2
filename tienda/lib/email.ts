@@ -9,6 +9,22 @@ type DownloadEmailItem = {
   token: string;
 };
 
+type ProducerSaleEmailItem = {
+  beatTitle: string;
+  licenseType: LicenseType;
+  grossAmount: number;
+  platformFeeAmount: number;
+  producerAmount: number;
+};
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
 export async function sendDownloadEmail(buyerEmail: string, items: DownloadEmailItem[]) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -57,6 +73,60 @@ export async function sendDownloadEmail(buyerEmail: string, items: DownloadEmail
     from: 'Lujo Urban <pedidos@lujourban.com>',
     to: buyerEmail,
     subject: 'Tus beats están listos para descargar',
+    html
+  });
+}
+
+export async function sendProducerSaleEmail(
+  producerEmail: string,
+  producerName: string,
+  items: ProducerSaleEmailItem[]
+) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error('Falta configurar RESEND_API_KEY, no se envio la notificacion al productor.');
+
+  const resend = new Resend(apiKey);
+  const totalProducerAmount = items.reduce((sum, item) => sum + item.producerAmount, 0);
+
+  const rows = items
+    .map((item) => `
+      <tr>
+        <td style="padding:12px 0;border-bottom:1px solid rgba(243,195,94,0.2);">
+          <p style="margin:0;color:#f4efe7;font-weight:700;">${escapeHtml(item.beatTitle)}</p>
+          <p style="margin:4px 0 0;color:rgba(244,239,231,0.62);font-size:13px;">
+            Licencia ${LICENSE_LABELS[item.licenseType].name} · Venta ${formatCOP(item.grossAmount)}
+          </p>
+        </td>
+        <td style="padding:12px 0;border-bottom:1px solid rgba(243,195,94,0.2);text-align:right;">
+          <p style="margin:0;color:#f3c35e;font-weight:800;">${formatCOP(item.producerAmount)}</p>
+          <p style="margin:4px 0 0;color:rgba(244,239,231,0.45);font-size:12px;">LUJO URBAN ${formatCOP(item.platformFeeAmount)}</p>
+        </td>
+      </tr>
+    `)
+    .join('');
+
+  const html = `
+    <div style="background:#0b0907;padding:32px;font-family:Arial,sans-serif;">
+      <div style="max-width:560px;margin:0 auto;background:#16110b;border:1px solid rgba(243,195,94,0.3);border-radius:16px;padding:24px;">
+        <h1 style="color:#f3c35e;font-size:22px;margin:0 0 8px;">Lujo Urban</h1>
+        <p style="color:#f4efe7;margin:0 0 20px;">${escapeHtml(producerName)}, se vendió uno de tus beats.</p>
+        <table style="width:100%;border-collapse:collapse;">
+          ${rows}
+        </table>
+        <p style="color:#f3c35e;font-weight:800;font-size:18px;margin:22px 0 0;text-align:right;">
+          Para productor: ${formatCOP(totalProducerAmount)}
+        </p>
+        <p style="color:rgba(244,239,231,0.5);font-size:12px;margin-top:20px;">
+          Este correo es una notificación automática. El pago al productor se liquida internamente según el acuerdo vigente con LUJO URBAN.
+        </p>
+      </div>
+    </div>
+  `;
+
+  await resend.emails.send({
+    from: 'Lujo Urban <pedidos@lujourban.com>',
+    to: producerEmail,
+    subject: 'Venta registrada de tu beat en LUJO URBAN',
     html
   });
 }

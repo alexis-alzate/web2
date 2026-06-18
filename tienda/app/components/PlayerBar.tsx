@@ -56,6 +56,7 @@ export default function PlayerBar() {
     key: track.key ?? null,
     genre: track.genre,
     producer: track.producer ?? null,
+    producer_id: null,
     tags: null,
     cover_url: null,
     preview_url: null,
