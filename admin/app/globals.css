@@ -598,6 +598,73 @@ label small {
   color: rgba(255, 118, 118, .88);
 }
 
+.beat-upload-complete-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    radial-gradient(420px 260px at 50% 42%, rgba(57, 255, 99, .18), transparent 70%),
+    rgba(0, 0, 0, .72);
+  backdrop-filter: blur(16px);
+}
+
+.beat-upload-complete {
+  display: grid;
+  justify-items: center;
+  width: min(430px, 100%);
+  padding: 28px 22px 22px;
+  border: 1px solid rgba(57, 255, 99, .28);
+  border-radius: 24px;
+  background:
+    radial-gradient(360px 180px at 50% 0%, rgba(57, 255, 99, .16), transparent 70%),
+    linear-gradient(180deg, rgba(8, 18, 10, .98), rgba(2, 5, 3, .96));
+  box-shadow:
+    0 26px 80px rgba(0, 0, 0, .62),
+    0 0 44px rgba(57, 255, 99, .16),
+    inset 0 1px 0 rgba(255, 255, 255, .08);
+  text-align: center;
+}
+
+.beat-upload-complete-orb {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(57, 255, 99, .36);
+  border-radius: 50%;
+  color: #061309;
+  background:
+    radial-gradient(circle at 45% 35%, rgba(255, 255, 255, .95), rgba(57, 255, 99, .94) 38%, rgba(57, 255, 99, .72));
+  box-shadow:
+    0 0 34px rgba(57, 255, 99, .38),
+    inset 0 1px 0 rgba(255, 255, 255, .58);
+  font-size: 1.7rem;
+  font-weight: 900;
+}
+
+.beat-upload-complete h3 {
+  margin: 4px 0 8px;
+  color: var(--text);
+  font-size: clamp(1.55rem, 7vw, 2.3rem);
+  line-height: 1;
+}
+
+.beat-upload-complete p:not(.eyebrow) {
+  max-width: 310px;
+  margin: 0 0 20px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.beat-upload-complete .primary {
+  width: 100%;
+  max-width: 260px;
+}
+
 .field-label {
   display: flex;
   align-items: center;
@@ -774,6 +841,17 @@ input[type="file"]::file-selector-button:hover {
   margin: 14px 0;
   padding: 0;
   list-style: none;
+}
+
+.catalog-picks .actions form:first-child {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.catalog-picks .actions form:first-child select {
+  min-width: 0;
 }
 
 /* Analytics Dashboard — LUJO URBAN (mobile-first, sin efectos decorativos) */
@@ -1673,6 +1751,27 @@ input[type="file"]::file-selector-button:hover {
     gap: 7px;
   }
 
+  .catalog-picks .card {
+    position: relative;
+    row-gap: 10px;
+  }
+
+  .catalog-picks .actions {
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, .07);
+  }
+
+  .catalog-picks .actions form:first-child {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .catalog-picks .actions form:first-child select,
+  .catalog-picks .actions form:first-child button {
+    width: 100%;
+  }
+
   button,
   .button {
     min-height: 38px;
@@ -1935,6 +2034,10 @@ input[type="file"]::file-selector-button:hover {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
+  }
+
+  .catalog-picks .actions {
+    grid-template-columns: 1fr;
   }
 
   .actions > *,

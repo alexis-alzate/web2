@@ -130,6 +130,7 @@ export function BeatUploadForm({ producers }: { producers: ProducerOption[] }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, setState] = useState<UploadState>(initialState);
+  const [completedBeatTitle, setCompletedBeatTitle] = useState('');
   const isUploading = state.status === 'uploading';
 
   const collectFile = (formData: FormData, field: UploadField) => {
@@ -253,6 +254,7 @@ export function BeatUploadForm({ producers }: { producers: ProducerOption[] }) {
 
       await apiPost('/api/beats/create', { metadata, uploads: uploadedPaths }, 'Guardando beat en Supabase');
 
+      setCompletedBeatTitle(metadata.title.trim());
       setState({
         status: 'success',
         message: 'Beat publicado en la tienda.',
@@ -371,6 +373,27 @@ export function BeatUploadForm({ producers }: { producers: ProducerOption[] }) {
       <button className="primary span-2" disabled={isUploading} aria-busy={isUploading}>
         {isUploading ? 'Publicando...' : 'Publicar beat'}
       </button>
+
+      {state.status === 'success' && completedBeatTitle && (
+        <div className="beat-upload-complete-backdrop" role="presentation">
+          <div className="beat-upload-complete" role="dialog" aria-modal="true" aria-labelledby="beat-upload-complete-title">
+            <span className="beat-upload-complete-orb" aria-hidden="true">✓</span>
+            <p className="eyebrow">Publicación completada</p>
+            <h3 id="beat-upload-complete-title">{completedBeatTitle}</h3>
+            <p>El beat quedó guardado en Supabase y ya aparece en la tienda.</p>
+            <button
+              type="button"
+              className="primary"
+              onClick={() => {
+                setCompletedBeatTitle('');
+                setState(initialState);
+              }}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }
