@@ -10,7 +10,7 @@ import { MailIcon, TagIcon, ShieldCheckIcon } from './Icons';
 
 export default function BeatCatalog({ beats }: { beats: Beat[] }) {
   const [activeGenre, setActiveGenre] = useState('all');
-  const { setQueue } = usePlayer();
+  const { setQueue, track } = usePlayer();
 
   const genres = useMemo(() => {
     const set = new Set<string>();
@@ -40,10 +40,20 @@ export default function BeatCatalog({ beats }: { beats: Beat[] }) {
           pricePremium: b.price_premium,
           priceExclusive: b.price_exclusive,
           bpm: b.bpm,
-          key: b.key
+          key: b.key,
+          producer: b.producer
         }))
     );
   }, [filtered, setQueue]);
+
+  const featuredBeat = useMemo(() => {
+    if (track) {
+      const activeBeat = beats.find((beat) => beat.id === track.beatId);
+      if (activeBeat) return activeBeat;
+    }
+
+    return filtered[0] ?? beats[0] ?? null;
+  }, [beats, filtered, track]);
 
   return (
     <section className="tienda-section">
@@ -62,7 +72,7 @@ export default function BeatCatalog({ beats }: { beats: Beat[] }) {
         </div>
       </div>
 
-      {beats.length > 0 && <FeaturedBeat beat={beats[0]} />}
+      {featuredBeat && <FeaturedBeat key={featuredBeat.id} beat={featuredBeat} />}
 
       {!!genres.length && (
         <div className="beats-filters">
