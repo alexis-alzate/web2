@@ -3181,14 +3181,13 @@ body:has(.descarga-page) .tienda-frame {
 
   .featured-title {
     max-width: 100%;
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
     font-size: clamp(1.15rem, 5.2vw, 1.6rem);
     line-height: 1.05;
     letter-spacing: .5px;
-    overflow: hidden;
     text-align: left;
     margin-bottom: 1px;
   }
