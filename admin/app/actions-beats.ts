@@ -245,3 +245,41 @@ export const updateBeatProducerAction = async (formData: FormData) => {
 
   if (error) throw new Error(`No se pudo asignar el productor: ${error.message}`);
 };
+
+export const updateBeatMetadataAction = async (formData: FormData) => {
+  await requireAuth();
+  const supabase = createSupabaseAdminClient();
+
+  const id = formData.get('id') as string;
+  if (!id) throw new Error('Falta el id del beat.');
+
+  const title = optionalText(formData, 'title');
+  if (!title) throw new Error('El titulo es obligatorio.');
+
+  const bpm = optionalText(formData, 'bpm') ? numberField(formData, 'bpm') : null;
+  const key = optionalText(formData, 'key');
+  const genre = optionalText(formData, 'genre');
+  const producerId = optionalText(formData, 'producer_id');
+  const tagsRaw = optionalText(formData, 'tags');
+  const tags = tagsRaw ? tagsRaw.split(',').map((tag) => tag.trim()).filter(Boolean) : null;
+  const priceBasic = numberField(formData, 'price_basic');
+  const pricePremium = numberField(formData, 'price_premium');
+  const priceExclusive = numberField(formData, 'price_exclusive');
+
+  const { error } = await supabase
+    .from('beats')
+    .update({
+      title,
+      bpm,
+      key,
+      genre,
+      producer_id: producerId,
+      tags,
+      price_basic: priceBasic,
+      price_premium: pricePremium,
+      price_exclusive: priceExclusive
+    })
+    .eq('id', id);
+
+  if (error) throw new Error(`No se pudo editar el beat: ${error.message}`);
+};

@@ -21,8 +21,9 @@ import { ReleasePreview } from './components/ReleasePreview';
 import { CopyLinkButton } from './components/CopyLinkButton';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { BeatUploadForm } from './components/BeatUploadForm';
+import { BeatFilesUploadForm } from './components/BeatFilesUploadForm';
 import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/analytics';
-import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, updateBeatProducerAction } from './actions-beats';
+import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, updateBeatMetadataAction } from './actions-beats';
 import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
@@ -1016,64 +1017,123 @@ export default async function DashboardPage() {
             {beats.length > 0 && (
               <ol className="cards catalog-picks">
                 {beats.map((beat) => (
-                  <li className="card" key={beat.id}>
-                    {beat.cover_url ? (
-                      <img className="thumb" src={beatCoverUrl(beat.cover_url)} alt="" />
-                    ) : (
-                      <div className="thumb placeholder">{initials(beat.title)}</div>
-                    )}
-                    <div>
-                      <h3>{beat.title}</h3>
-                      <p className="muted">
-                        {[beat.genre, beat.bpm ? `${beat.bpm} BPM` : null, beat.key]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </p>
-                      <p className="muted">
-                        Básica {formatCOP(beat.price_basic)} · Premium {formatCOP(beat.price_premium)} · Ilimitada {formatCOP(beat.price_exclusive)}
-                      </p>
-                      <p className="muted">
-                        Productor:{' '}
-                        {producers.find((producer) => producer.id === beat.producer_id)?.stage_name ?? beat.producer ?? 'Sin asignar'}
-                      </p>
-                    </div>
-                    <div className="actions">
-                      <ActionForm
-                        action={updateBeatProducerAction}
-                        savingMessage="Asignando productor..."
-                        successMessage="Productor asignado."
-                      >
-                        <input name="id" type="hidden" value={beat.id} />
-                        <select name="producer_id" defaultValue={beat.producer_id ?? ''}>
-                          <option value="">Sin productor</option>
-                          {producers.map((producer) => (
-                            <option key={producer.id} value={producer.id}>
-                              {producer.stage_name}
-                            </option>
-                          ))}
-                        </select>
-                        <SubmitButton pendingText="Guardando...">Guardar productor</SubmitButton>
-                      </ActionForm>
-                      <ActionForm
-                        action={toggleBeatStatusAction}
-                        savingMessage="Actualizando estado..."
-                        successMessage="Estado del beat actualizado."
-                      >
-                        <input name="id" type="hidden" value={beat.id} />
-                        <input name="status" type="hidden" value={beat.status} />
-                        <SubmitButton pendingText="...">
-                          {beat.status === 'available' ? 'Marcar vendido (exclusiva negociada)' : 'Marcar disponible'}
-                        </SubmitButton>
-                      </ActionForm>
-                      <ActionForm
-                        action={deleteBeatAction}
-                        savingMessage="Eliminando beat..."
-                        successMessage="Beat eliminado."
-                      >
-                        <input name="id" type="hidden" value={beat.id} />
-                        <SubmitButton className="danger" pendingText="Eliminando...">Eliminar</SubmitButton>
-                      </ActionForm>
-                    </div>
+                  <li key={beat.id}>
+                    <details className="beat-admin-card">
+                      <summary className="beat-admin-summary">
+                        {beat.cover_url ? (
+                          <img className="thumb" src={beatCoverUrl(beat.cover_url)} alt="" />
+                        ) : (
+                          <div className="thumb placeholder">{initials(beat.title)}</div>
+                        )}
+                        <span className="beat-admin-copy">
+                          <strong>{beat.title}</strong>
+                          <small>
+                            {[beat.genre, beat.bpm ? `${beat.bpm} BPM` : null, beat.key]
+                              .filter(Boolean)
+                              .join(' · ') || 'Sin metadata'}
+                          </small>
+                          <small>
+                            Productor: {producers.find((producer) => producer.id === beat.producer_id)?.stage_name ?? beat.producer ?? 'Sin asignar'}
+                          </small>
+                        </span>
+                        <span className="beat-admin-status">
+                          {beat.status === 'available' ? 'Disponible' : 'Vendida'}
+                        </span>
+                      </summary>
+
+                      <div className="beat-admin-panel">
+                        <ActionForm
+                          action={updateBeatMetadataAction}
+                          className="grid beat-edit-form"
+                          savingMessage="Editando beat..."
+                          successMessage="Beat actualizado."
+                        >
+                          <input name="id" type="hidden" value={beat.id} />
+                          <label className="span-2">
+                            <span className="field-label">Título <em>obligatorio</em></span>
+                            <input name="title" required defaultValue={beat.title} />
+                          </label>
+                          <label>
+                            <span className="field-label">BPM <em>opcional</em></span>
+                            <input name="bpm" type="number" defaultValue={beat.bpm ?? ''} />
+                          </label>
+                          <label>
+                            <span className="field-label">Tonalidad <em>opcional</em></span>
+                            <input name="key" defaultValue={beat.key ?? ''} />
+                          </label>
+                          <label>
+                            <span className="field-label">Género <em>opcional</em></span>
+                            <input name="genre" defaultValue={beat.genre ?? ''} />
+                          </label>
+                          <label>
+                            <span className="field-label">Productor <em>opcional</em></span>
+                            <select name="producer_id" defaultValue={beat.producer_id ?? ''}>
+                              <option value="">Sin productor</option>
+                              {producers.map((producer) => (
+                                <option key={producer.id} value={producer.id}>
+                                  {producer.stage_name}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="span-2">
+                            <span className="field-label">Tags <em>opcional</em></span>
+                            <input name="tags" defaultValue={(beat.tags ?? []).join(', ')} />
+                          </label>
+                          <label>
+                            <span className="field-label">Básica <em>COP</em></span>
+                            <input name="price_basic" type="number" required defaultValue={beat.price_basic} />
+                          </label>
+                          <label>
+                            <span className="field-label">Premium <em>COP</em></span>
+                            <input name="price_premium" type="number" required defaultValue={beat.price_premium} />
+                          </label>
+                          <label>
+                            <span className="field-label">Ilimitada <em>COP</em></span>
+                            <input name="price_exclusive" type="number" required defaultValue={beat.price_exclusive} />
+                          </label>
+                          <SubmitButton className="primary span-2" pendingText="Guardando...">
+                            Guardar cambios
+                          </SubmitButton>
+                        </ActionForm>
+
+                        <BeatFilesUploadForm
+                          beatId={beat.id}
+                          paths={{
+                            basic: beat.file_basic_path,
+                            premium: beat.file_premium_path,
+                            exclusive: beat.file_exclusive_path
+                          }}
+                        />
+
+                        <div className="beat-admin-actions">
+                          <p className="muted">
+                            Básica {formatCOP(beat.price_basic)} · Premium {formatCOP(beat.price_premium)} · Ilimitada {formatCOP(beat.price_exclusive)}
+                          </p>
+                          <div className="actions">
+                            <ActionForm
+                              action={toggleBeatStatusAction}
+                              savingMessage="Actualizando estado..."
+                              successMessage="Estado del beat actualizado."
+                            >
+                              <input name="id" type="hidden" value={beat.id} />
+                              <input name="status" type="hidden" value={beat.status} />
+                              <SubmitButton pendingText="...">
+                                {beat.status === 'available' ? 'Marcar vendido (exclusiva negociada)' : 'Marcar disponible'}
+                              </SubmitButton>
+                            </ActionForm>
+                            <ActionForm
+                              action={deleteBeatAction}
+                              savingMessage="Eliminando beat..."
+                              successMessage="Beat eliminado."
+                            >
+                              <input name="id" type="hidden" value={beat.id} />
+                              <SubmitButton className="danger" pendingText="Eliminando...">Eliminar</SubmitButton>
+                            </ActionForm>
+                          </div>
+                        </div>
+                      </div>
+                    </details>
                   </li>
                 ))}
               </ol>
