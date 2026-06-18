@@ -2445,7 +2445,7 @@ body:has(.descarga-page) .tienda-frame {
 }
 
 @media (max-width: 540px) {
-  .player-bar-inner { gap: 6px; padding: 6px 10px; }
+  .player-bar-inner { gap: 6px; padding: 6px 10px; height: 48px; }
   .player-bar-disc { width: 28px; height: 28px; }
   .player-bar-disc::before { width: 4px; height: 4px; }
   .player-bar-title { font-size: .78rem; }
@@ -3312,7 +3312,9 @@ body:has(.descarga-page) .tienda-frame {
       "cover title buy";
     column-gap: 12px;
     min-height: 78px;
+    height: 78px;
     padding: 10px 10px;
+    overflow: hidden;
     background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,.3));
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
