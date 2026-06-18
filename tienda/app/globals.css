@@ -3312,9 +3312,7 @@ body:has(.descarga-page) .tienda-frame {
       "cover title buy";
     column-gap: 12px;
     min-height: 78px;
-    height: 78px;
     padding: 10px 10px;
-    overflow: hidden;
     background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,.3));
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
@@ -3367,10 +3365,10 @@ body:has(.descarga-page) .tienda-frame {
     font-size: .96rem;
     line-height: 1.15;
     letter-spacing: .1px;
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
   }
 
   .beat-row-meta {
