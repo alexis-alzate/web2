@@ -100,6 +100,7 @@ export const createBeatAction = async (formData: FormData) => {
   const bpm = optionalText(formData, 'bpm') ? numberField(formData, 'bpm') : null;
   const key = optionalText(formData, 'key');
   const genre = optionalText(formData, 'genre');
+  const producerId = optionalText(formData, 'producer_id');
   const tagsRaw = optionalText(formData, 'tags');
   const tags = tagsRaw ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean) : null;
 
@@ -171,6 +172,7 @@ export const createBeatAction = async (formData: FormData) => {
       bpm,
       key,
       genre,
+      producer_id: producerId,
       tags,
       cover_url: coverPath,
       preview_url: previewPath,
@@ -226,4 +228,20 @@ export const toggleBeatStatusAction = async (formData: FormData) => {
 
   const { error } = await supabase.from('beats').update({ status: nextStatus }).eq('id', id);
   if (error) throw new Error(`No se pudo actualizar el estado: ${error.message}`);
+};
+
+export const updateBeatProducerAction = async (formData: FormData) => {
+  await requireAuth();
+  const supabase = createSupabaseAdminClient();
+
+  const id = formData.get('id') as string;
+  if (!id) throw new Error('Falta el id del beat.');
+
+  const producerId = optionalText(formData, 'producer_id');
+  const { error } = await supabase
+    .from('beats')
+    .update({ producer_id: producerId })
+    .eq('id', id);
+
+  if (error) throw new Error(`No se pudo asignar el productor: ${error.message}`);
 };

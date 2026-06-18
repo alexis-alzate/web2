@@ -508,6 +508,96 @@ label small {
   line-height: 1.35;
 }
 
+.beat-upload-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(57, 255, 99, .22);
+  border-radius: 16px;
+  background:
+    radial-gradient(360px 140px at 0% 0%, rgba(57, 255, 99, .12), transparent 70%),
+    linear-gradient(180deg, rgba(8, 18, 10, .92), rgba(2, 5, 3, .88));
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, .26),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.beat-upload-progress div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.beat-upload-progress strong {
+  color: var(--text);
+  font-size: .8rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.beat-upload-progress span,
+.beat-upload-progress small {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .84rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.beat-upload-progress small {
+  color: rgba(57, 255, 99, .72);
+  font-size: .74rem;
+}
+
+.beat-upload-progress-track {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(57, 255, 99, .18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, .35);
+}
+
+.beat-upload-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(57, 255, 99, .68), rgba(215, 255, 224, .95), rgba(57, 255, 99, .78));
+  box-shadow:
+    0 0 18px rgba(57, 255, 99, .28),
+    inset 0 1px 0 rgba(255, 255, 255, .35);
+  transition: width .22s ease;
+}
+
+.beat-upload-progress b {
+  color: var(--green);
+  font-size: .82rem;
+  letter-spacing: .1em;
+}
+
+.beat-upload-progress-success {
+  border-color: rgba(57, 255, 99, .32);
+}
+
+.beat-upload-progress-error {
+  border-color: rgba(255, 88, 88, .5);
+  background:
+    radial-gradient(360px 140px at 0% 0%, rgba(255, 88, 88, .12), transparent 70%),
+    linear-gradient(180deg, rgba(18, 8, 8, .92), rgba(5, 2, 2, .88));
+}
+
+.beat-upload-progress-error b,
+.beat-upload-progress-error small {
+  color: rgba(255, 118, 118, .88);
+}
+
 .field-label {
   display: flex;
   align-items: center;
@@ -1321,6 +1411,58 @@ input[type="file"]::file-selector-button:hover {
   color: rgba(255, 255, 255, .66);
   font-size: .86rem;
   line-height: 1.35;
+}
+
+.admin-toast-progress {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.admin-toast-progress-track {
+  position: relative;
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(57, 255, 99, .18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, .32);
+}
+
+.admin-toast-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(57, 255, 99, .72), rgba(202, 255, 213, .98), rgba(57, 255, 99, .82));
+  box-shadow:
+    0 0 14px rgba(57, 255, 99, .28),
+    inset 0 1px 0 rgba(255, 255, 255, .35);
+  transition: width .38s ease;
+}
+
+.admin-toast-progress-text {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(255, 255, 255, .58);
+  font-size: .74rem;
+  line-height: 1.25;
+}
+
+.admin-toast-progress-text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-toast-progress-text b {
+  flex: 0 0 auto;
+  color: rgba(57, 255, 99, .9);
+  font-size: .72rem;
+  letter-spacing: .08em;
 }
 
 .admin-toast-orb {

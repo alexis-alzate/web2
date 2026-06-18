@@ -20,11 +20,13 @@ import { ActionForm } from './components/ActionForm';
 import { ReleasePreview } from './components/ReleasePreview';
 import { CopyLinkButton } from './components/CopyLinkButton';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+import { BeatUploadForm } from './components/BeatUploadForm';
 import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/analytics';
-import { createBeatAction, deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction } from './actions-beats';
+import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, updateBeatProducerAction } from './actions-beats';
 import { resendOrderEmailAction } from './actions-orders';
+import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
-import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType } from '@/lib/beats';
+import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType, type Producer } from '@/lib/beats';
 
 type BeatOrder = {
   id: string;
@@ -45,6 +47,18 @@ type BeatOffer = {
   message: string | null;
   status: 'new' | 'contacted' | 'accepted' | 'rejected' | 'closed';
   created_at: string;
+};
+
+type ProducerEarning = {
+  id: string;
+  gross_amount: number;
+  platform_fee_amount: number;
+  producer_amount: number;
+  status: 'pending' | 'paid' | 'cancelled';
+  producer_notified_at: string | null;
+  created_at: string;
+  producers: { stage_name: string; email: string } | null;
+  beats: { title: string } | null;
 };
 
 const ORDER_STATUS_LABELS: Record<BeatOrder['status'], string> = {
@@ -246,6 +260,8 @@ export default async function DashboardPage() {
   let showDemoBeats = true;
   let beatOrders: BeatOrder[] = [];
   let beatOffers: BeatOffer[] = [];
+  let producers: Producer[] = [];
+  let producerEarnings: ProducerEarning[] = [];
 
   try {
     const supabaseAdmin = createSupabaseAdminClient();
@@ -254,6 +270,12 @@ export default async function DashboardPage() {
       .select('*')
       .order('created_at', { ascending: false });
     beats = (beatsData as Beat[]) || [];
+
+    const { data: producersData } = await supabaseAdmin
+      .from('producers')
+      .select('*')
+      .order('stage_name', { ascending: true });
+    producers = (producersData as Producer[]) || [];
 
     const { data: settingData } = await supabaseAdmin
       .from('app_settings')
@@ -275,6 +297,13 @@ export default async function DashboardPage() {
       .order('created_at', { ascending: false })
       .limit(50);
     beatOffers = (offersData as BeatOffer[]) || [];
+
+    const { data: earningsData } = await supabaseAdmin
+      .from('producer_earnings')
+      .select('id, gross_amount, platform_fee_amount, producer_amount, status, producer_notified_at, created_at, producers(stage_name, email), beats(title)')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    producerEarnings = (earningsData as unknown as ProducerEarning[]) || [];
   } catch {
     beats = [];
   }
@@ -921,6 +950,69 @@ export default async function DashboardPage() {
               </SubmitButton>
             </ActionForm>
 
+            <details className="subfolder">
+              <summary>Productores ({producers.length})</summary>
+              <ActionForm
+                action={createProducerAction}
+                className="grid"
+                savingMessage="Creando productor..."
+                successMessage="Productor creado."
+                resetOnSuccess
+              >
+                <label>
+                  Nombre artistico
+                  <input name="stage_name" required placeholder="Zaetta" />
+                </label>
+                <label>
+                  Correo de notificacion
+                  <input name="email" type="email" required placeholder="productor@email.com" />
+                </label>
+                <label>
+                  Comisión LUJO URBAN (%)
+                  <input name="platform_commission_percent" type="number" min="0" max="100" step="0.01" defaultValue="30" />
+                  <small className="muted">El resto queda como ganancia del productor.</small>
+                </label>
+                <label>
+                  Notas internas
+                  <input name="notes" placeholder="Datos de pago, acuerdo, contacto..." />
+                </label>
+                <SubmitButton className="primary span-2" pendingText="Guardando...">
+                  Crear productor
+                </SubmitButton>
+              </ActionForm>
+
+              {producers.length > 0 && (
+                <ol className="cards">
+                  {producers.map((producer) => (
+                    <li className="card" key={producer.id}>
+                      <div>
+                        <h3>{producer.stage_name}</h3>
+                        <p className="muted">
+                          {producer.email} · LUJO URBAN {producer.platform_commission_percent}%
+                          {' · '}
+                          {producer.status === 'active' ? 'Activo' : 'Inactivo'}
+                        </p>
+                        {producer.notes && <p className="muted">{producer.notes}</p>}
+                      </div>
+                      <div className="actions">
+                        <ActionForm
+                          action={toggleProducerStatusAction}
+                          savingMessage="Actualizando productor..."
+                          successMessage="Productor actualizado."
+                        >
+                          <input name="id" type="hidden" value={producer.id} />
+                          <input name="status" type="hidden" value={producer.status} />
+                          <SubmitButton pendingText="...">
+                            {producer.status === 'active' ? 'Desactivar' : 'Activar'}
+                          </SubmitButton>
+                        </ActionForm>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </details>
+
             {beats.length > 0 && (
               <ol className="cards catalog-picks">
                 {beats.map((beat) => (
@@ -940,8 +1032,28 @@ export default async function DashboardPage() {
                       <p className="muted">
                         Básica {formatCOP(beat.price_basic)} · Premium {formatCOP(beat.price_premium)} · Ilimitada {formatCOP(beat.price_exclusive)}
                       </p>
+                      <p className="muted">
+                        Productor:{' '}
+                        {producers.find((producer) => producer.id === beat.producer_id)?.stage_name ?? beat.producer ?? 'Sin asignar'}
+                      </p>
                     </div>
                     <div className="actions">
+                      <ActionForm
+                        action={updateBeatProducerAction}
+                        savingMessage="Asignando productor..."
+                        successMessage="Productor asignado."
+                      >
+                        <input name="id" type="hidden" value={beat.id} />
+                        <select name="producer_id" defaultValue={beat.producer_id ?? ''}>
+                          <option value="">Sin productor</option>
+                          {producers.map((producer) => (
+                            <option key={producer.id} value={producer.id}>
+                              {producer.stage_name}
+                            </option>
+                          ))}
+                        </select>
+                        <SubmitButton pendingText="Guardando...">Guardar productor</SubmitButton>
+                      </ActionForm>
                       <ActionForm
                         action={toggleBeatStatusAction}
                         savingMessage="Actualizando estado..."
@@ -969,79 +1081,39 @@ export default async function DashboardPage() {
 
             <details className="subfolder">
               <summary>Agregar beat nuevo</summary>
-              <ActionForm
-                action={createBeatAction}
-                className="grid beat-upload-form"
-                savingMessage="Subiendo archivos y publicando el beat..."
-                successMessage="Beat publicado en la tienda."
-                resetOnSuccess
-              >
-                <div className="span-2 beat-form-note">
-                  <strong>Campos obligatorios</strong>
-                  <span>Título y los 3 precios. Los archivos son opcionales para guardar el beat, pero necesarios para vender cada licencia. Sube máximo 240 MB por publicación.</span>
-                </div>
-                <label className="span-2">
-                  <span className="field-label">Título <em>obligatorio</em></span>
-                  <input name="title" required placeholder="Nombre del beat" />
-                </label>
-                <label>
-                  <span className="field-label">BPM <em>opcional</em></span>
-                  <input name="bpm" type="number" placeholder="88" />
-                </label>
-                <label>
-                  <span className="field-label">Tonalidad <em>opcional</em></span>
-                  <input name="key" placeholder="C minor" />
-                </label>
-                <label>
-                  <span className="field-label">Género <em>opcional</em></span>
-                  <input name="genre" placeholder="Afrobeat" />
-                </label>
-                <label>
-                  <span className="field-label">Tags <em>opcional</em></span>
-                  <input name="tags" placeholder="afro dancehall, type beat" />
-                  <small className="muted">Separados por coma.</small>
-                </label>
-                <label>
-                  <span className="field-label">Precio básica (COP) <em>obligatorio</em></span>
-                  <input name="price_basic" type="number" required placeholder="100000" />
-                </label>
-                <label>
-                  <span className="field-label">Precio premium (COP) <em>obligatorio</em></span>
-                  <input name="price_premium" type="number" required placeholder="200000" />
-                </label>
-                <label>
-                  <span className="field-label">Precio ilimitada (COP) <em>obligatorio</em></span>
-                  <input name="price_exclusive" type="number" required placeholder="400000" />
-                </label>
-                <label className="span-2">
-                  <span className="field-label">Carátula <em>opcional</em></span>
-                  <input name="cover" type="file" accept="image/*" />
-                  <small className="muted">Se guarda en Supabase Storage: beats-covers.</small>
-                </label>
-                <label className="span-2">
-                  <span className="field-label">Preview de audio <em>opcional</em></span>
-                  <input name="preview" type="file" accept="audio/*" />
-                  <small className="muted">Se guarda en beats-previews y alimenta el reproductor.</small>
-                </label>
-                <label>
-                  <span className="field-label">Archivo básica <em>opcional</em></span>
-                  <input name="file_basic" type="file" accept="audio/*" />
-                  <small className="muted">Necesario para vender la licencia básica.</small>
-                </label>
-                <label>
-                  <span className="field-label">Archivo premium <em>opcional</em></span>
-                  <input name="file_premium" type="file" accept="audio/*" />
-                  <small className="muted">Necesario para vender la licencia premium.</small>
-                </label>
-                <label>
-                  <span className="field-label">Archivo ilimitada <em>opcional</em></span>
-                  <input name="file_exclusive" type="file" accept=".zip,.rar,application/zip,application/x-zip-compressed" />
-                  <small className="muted">ZIP/RAR con stems. Necesario para vender ilimitada.</small>
-                </label>
-                <SubmitButton className="primary span-2" pendingText="Publicando...">
-                  Publicar beat
-                </SubmitButton>
-              </ActionForm>
+              <BeatUploadForm producers={producers} />
+            </details>
+
+            <details className="subfolder">
+              <summary>Ganancias de productores ({producerEarnings.length})</summary>
+              {producerEarnings.length === 0 ? (
+                <p className="muted">Todavía no hay ganancias registradas para productores.</p>
+              ) : (
+                <ol className="cards">
+                  {producerEarnings.map((earning) => (
+                    <li className="card" key={earning.id}>
+                      <div>
+                        <h3>
+                          {earning.producers?.stage_name ?? 'Productor eliminado'} · {formatCOP(earning.producer_amount)}
+                        </h3>
+                        <p className="muted">
+                          {earning.beats?.title ?? 'Beat eliminado'} · Venta {formatCOP(earning.gross_amount)} · LUJO URBAN {formatCOP(earning.platform_fee_amount)}
+                        </p>
+                        <p className="muted">
+                          {earning.status === 'pending' ? 'Pendiente de pago' : earning.status === 'paid' ? 'Pagada' : 'Cancelada'}
+                          {' · '}
+                          {earning.producer_notified_at ? 'Productor notificado' : 'Notificacion pendiente'}
+                          {' · '}
+                          {new Date(earning.created_at).toLocaleString('es-CO', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                          })}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </details>
 
             <details className="subfolder">

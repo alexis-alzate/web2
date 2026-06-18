@@ -7,6 +7,8 @@ export type Beat = {
   bpm: number | null;
   key: string | null;
   genre: string | null;
+  producer: string | null;
+  producer_id: string | null;
   tags: string[] | null;
   cover_url: string | null;
   preview_url: string | null;
@@ -17,6 +19,16 @@ export type Beat = {
   file_premium_path: string | null;
   file_exclusive_path: string | null;
   status: 'available' | 'sold_exclusive';
+  created_at: string;
+};
+
+export type Producer = {
+  id: string;
+  stage_name: string;
+  email: string;
+  platform_commission_percent: number;
+  status: 'active' | 'inactive';
+  notes: string | null;
   created_at: string;
 };
 
