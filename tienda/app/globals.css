@@ -3307,9 +3307,8 @@ body:has(.descarga-page) .tienda-frame {
 
   .beat-row {
     grid-template-columns: 58px minmax(0, 1fr) 98px;
-    grid-template-areas:
-      "cover title buy"
-      "cover title buy";
+    grid-template-areas: "cover title buy";
+    align-items: center;
     column-gap: 12px;
     min-height: 78px;
     padding: 10px 10px;
@@ -3378,16 +3377,14 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .audio-waveform-compact {
-    display: block;
-    height: 18px;
-    max-width: 100%;
-    opacity: .55;
+    display: none;
   }
 
   .beat-row-time,
   .beat-row-bpm,
   .beat-row-tags,
-  .beat-row-share {
+  .beat-row-share,
+  .beat-row-key {
     display: none;
   }
 
