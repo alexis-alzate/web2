@@ -658,8 +658,8 @@ body:has(.descarga-page) .tienda-frame {
 .cart-preview-info p {
   margin: 0;
   color: var(--t-text);
-  font-size: .82rem;
-  font-weight: 800;
+  font-size: .8rem;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -668,11 +668,11 @@ body:has(.descarga-page) .tienda-frame {
 .cart-preview-info span {
   display: block;
   margin-top: 1px;
-  color: rgba(255,255,255,0.52);
+  color: rgba(255,255,255,0.38);
   font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: .65rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
 }
 
@@ -681,7 +681,7 @@ body:has(.descarga-page) .tienda-frame {
   margin-top: 2px;
   color: var(--t-gold);
   font-family: var(--font-bebas), sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   letter-spacing: .4px;
 }
 
@@ -1392,21 +1392,6 @@ body:has(.descarga-page) .tienda-frame {
   min-width: 0;
 }
 
-/* Firma del productor (premium, sutil, dorado fino) */
-.beat-row-producer {
-  flex: none;
-  font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: .64rem;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(var(--t-gold-rgb), 0.74);
-  white-space: nowrap;
-}
-.beat-row-producer-label {
-  color: rgba(var(--t-gold-rgb), 0.45);
-  font-weight: 500;
-}
 
 /* Pill de tonalidad: redundante en desktop (ya esta en la columna KEY/TAGS),
    se activa solo en mobile/tablet donde esas columnas se ocultan. */
@@ -2460,9 +2445,15 @@ body:has(.descarga-page) .tienda-frame {
 }
 
 @media (max-width: 540px) {
-  .player-bar-inner { gap: 8px; padding: 8px 12px; }
+  .player-bar-inner { gap: 6px; padding: 6px 10px; }
+  .player-bar-disc { width: 28px; height: 28px; }
+  .player-bar-disc::before { width: 4px; height: 4px; }
+  .player-bar-title { font-size: .78rem; }
   .player-bar-track .player-bar-icon-btn { display: none; }
-  .player-bar-controls { gap: 4px; }
+  .player-bar-controls { gap: 3px; }
+  .player-bar-toggle { width: 34px; height: 34px; }
+  .player-bar-icon-btn { width: 28px; height: 28px; }
+  .player-bar-cart { min-height: 30px; padding: 0 10px; font-size: .6rem; }
   .player-bar-cart span { display: none; }
 }
 
