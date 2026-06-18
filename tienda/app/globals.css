@@ -2449,7 +2449,7 @@ body:has(.descarga-page) .tienda-frame {
   .player-bar-disc { width: 28px; height: 28px; }
   .player-bar-disc::before { width: 4px; height: 4px; }
   .player-bar-title { font-size: .78rem; }
-  .player-bar-track .player-bar-icon-btn { display: none; }
+  .player-bar-track .player-bar-icon-btn { width: 26px; height: 26px; }
   .player-bar-controls { gap: 3px; }
   .player-bar-toggle { width: 34px; height: 34px; }
   .player-bar-icon-btn { width: 28px; height: 28px; }

@@ -12,25 +12,35 @@ import AudioWaveform from './AudioWaveform';
 import LicensePickerModal from './LicensePickerModal';
 
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
-  const { track, isPlaying, progress, toggle, seekToPercent, getSpectrumSnapshot, spectrumMode, toggleSpectrumMode } = usePlayer();
+  const { track, isPlaying, progress, toggle, togglePlayPause, seekToPercent, getSpectrumSnapshot, spectrumMode, toggleSpectrumMode } = usePlayer();
   const { items, addItem, isInCart } = useCart();
   const [duration, setDuration] = useState<string>('');
   const [licenseModalOpen, setLicenseModalOpen] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
-  const coverUrl = publicUrl('beats-covers', beat.cover_url);
-  const previewUrl = publicUrl('beats-previews', beat.preview_url);
-  const isActive = track?.beatId === beat.id;
+  const beatCoverUrl = publicUrl('beats-covers', beat.cover_url);
+  const beatPreviewUrl = publicUrl('beats-previews', beat.preview_url);
+  const displayBeatId = track?.beatId ?? beat.id;
+  const displaySlug = track?.slug ?? beat.slug;
+  const displayTitle = track?.title ?? beat.title;
+  const displayGenre = track?.genre ?? beat.genre;
+  const displayProducer = track?.producer ?? beat.producer;
+  const displayBpm = track?.bpm ?? beat.bpm;
+  const displayKey = track?.key ?? beat.key;
+  const displayPrice = track?.price ?? beat.price_basic;
+  const coverUrl = track?.coverUrl || beatCoverUrl;
+  const previewUrl = track?.previewUrl || beatPreviewUrl;
+  const isActive = track?.beatId === displayBeatId;
   const playingThis = isActive && isPlaying;
   const isSold = beat.status === 'sold_exclusive';
-  const inCart = items.some((item) => item.beatId === beat.id);
+  const inCart = items.some((item) => item.beatId === displayBeatId);
 
   const meta = [
-    beat.bpm ? { label: 'BPM', value: String(beat.bpm) } : null,
+    displayBpm ? { label: 'BPM', value: String(displayBpm) } : null,
     duration ? { label: 'TIME', value: duration } : null,
-    beat.key ? { label: 'KEY', value: beat.key } : null,
-    beat.genre && beat.genre.toLowerCase() !== beat.title.toLowerCase()
-      ? { label: 'STYLE', value: beat.genre }
+    displayKey ? { label: 'KEY', value: displayKey } : null,
+    displayGenre && displayGenre.toLowerCase() !== displayTitle.toLowerCase()
+      ? { label: 'STYLE', value: displayGenre }
       : null
   ].filter((item): item is { label: string; value: string } => item !== null);
 
@@ -51,13 +61,18 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
 
   const play = () => {
     if (!previewUrl) return;
+    if (track) {
+      togglePlayPause();
+      return;
+    }
+
     toggle({
       beatId: beat.id,
       slug: beat.slug,
       title: beat.title,
       genre: beat.genre,
-      coverUrl,
-      previewUrl,
+      coverUrl: beatCoverUrl,
+      previewUrl: beatPreviewUrl,
       price: beat.price_basic,
       pricePremium: beat.price_premium,
       priceExclusive: beat.price_exclusive,
@@ -107,7 +122,7 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       </div>
       <div className="featured-main">
         <div className={`featured-cover ${playingThis ? 'playing' : ''}`}>
-          {coverUrl && <img src={coverUrl} alt={`Portada de ${beat.title}`} />}
+          {coverUrl && <img key={coverUrl} src={coverUrl} alt={`Portada de ${displayTitle}`} />}
           {previewUrl && (
             <button
               type="button"
@@ -122,9 +137,9 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
 
         <div className="featured-info">
           <span className="featured-eyebrow">Beat destacado</span>
-          <Link href={`/${beat.slug}`} className="featured-title">{beat.title}</Link>
-          {beat.producer && (
-            <span className="featured-producer">Prod. by {beat.producer}</span>
+          <Link href={`/${displaySlug}`} className="featured-title">{displayTitle}</Link>
+          {displayProducer && (
+            <span className="featured-producer">Prod. by {displayProducer}</span>
           )}
           {!!meta.length && (
             <div className="featured-meta">
@@ -148,7 +163,7 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
             <div className="featured-actions">
               <span className="featured-price">
                 <small>desde</small>
-                {formatCOP(beat.price_basic)}
+                {formatCOP(displayPrice)}
               </span>
               <button
                 type="button"
