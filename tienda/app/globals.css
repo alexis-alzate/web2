@@ -3848,23 +3848,46 @@ body:has(.descarga-page) .tienda-frame {
   }
 
   .featured-main {
-    min-height: 108px;
+    min-height: 156px;
+    align-items: start;
+  }
+
+  .featured-info {
+    display: grid;
+    grid-template-rows: 13px 54px 15px 30px 44px;
+    align-content: start;
+    gap: 5px;
+    min-height: 156px;
+    max-height: 156px;
+    overflow: hidden;
+  }
+
+  .featured-eyebrow,
+  .featured-producer {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .featured-title {
     max-width: 100%;
-    min-height: 1.8em;
-    max-height: 1.8em;
+    min-height: 54px;
+    max-height: 54px;
+    line-height: .9;
     overflow: hidden;
+    white-space: normal;
   }
 
   .featured-meta {
-    min-height: 26px;
+    min-height: 30px;
+    max-height: 30px;
     overflow: hidden;
   }
 
   .featured-actions {
-    min-height: 42px;
+    min-height: 44px;
+    max-height: 44px;
+    align-self: start;
   }
 
   .featured > .audio-waveform {
@@ -3948,12 +3971,19 @@ body:has(.descarga-page) .tienda-frame {
 
 @media (max-width: 380px) {
   .featured-main {
-    min-height: 100px;
+    min-height: 146px;
+  }
+
+  .featured-info {
+    grid-template-rows: 12px 50px 14px 28px 42px;
+    min-height: 146px;
+    max-height: 146px;
   }
 
   .featured-title {
-    min-height: 2em;
-    max-height: 2em;
+    min-height: 50px;
+    max-height: 50px;
+    line-height: .9;
   }
 
   .beat-row {
