@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700&display=swap");
+
 :root {
     --green: #39ff63;
     --black: #000;
@@ -304,7 +306,9 @@
     line-height: 1;
     letter-spacing: 2px;
     max-width: 100%;
-    overflow-wrap: break-word;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
     padding-top: .08em;
     text-wrap: balance;
   }
@@ -1417,7 +1421,7 @@ a[href*="spotify"]{
 
 @media (max-width: 420px) {
   .release-feature {
-    grid-template-columns: minmax(112px, 34vw) minmax(0, 1fr) !important;
+    grid-template-columns: minmax(104px, 30vw) minmax(0, 1fr) !important;
     gap: 14px !important;
     padding: 20px 16px !important;
   }
@@ -1432,9 +1436,9 @@ a[href*="spotify"]{
   }
 
   .release-feature-copy h2 {
-    font-size: clamp(1.7rem, 8.4vw, 2.05rem) !important;
+    font-size: clamp(1.55rem, 7.2vw, 1.85rem) !important;
     line-height: 1 !important;
-    letter-spacing: 1.25px !important;
+    letter-spacing: 1px !important;
     padding-top: .1em !important;
   }
 
