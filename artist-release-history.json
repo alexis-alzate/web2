@@ -19,6 +19,14 @@
         "shareUrl": "https://www.lujourban.com/lanzamientos/evangelista-gonzalez-instrumento-del-senor-v1/",
         "statusUrl": "https://www.lujourban.com/estados/evangelista-gonzalez-instrumento-del-senor-v1/"
       }
+    ],
+    "la-libreta": [
+      {
+        "title": "CANTARLE A EL",
+        "slug": "cantarle-a-el",
+        "link": "CANTARLE A EL",
+        "cover": ""
+      }
     ]
   }
 }

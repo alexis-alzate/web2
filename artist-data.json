@@ -60,7 +60,12 @@
         "youtube": "https://youtube.com/@julianramoslalibreta?si=4_HSF7cXMIX5MYcd",
         "facebook": "https://www.facebook.com/share/1EhzcfUQVw/?mibextid=wwXIfr"
       },
-      "release": null,
+      "release": {
+        "title": "CANTARLE A EL",
+        "slug": "cantarle-a-el",
+        "link": "CANTARLE A EL",
+        "cover": ""
+      },
       "beatsEmbed": "",
       "productionsEmbed": "",
       "contact": null
