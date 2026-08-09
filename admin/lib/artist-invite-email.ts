@@ -18,18 +18,18 @@ export const sendArtistInviteEmail = async (
     <div style="background:#020302;padding:32px 18px;font-family:Arial,sans-serif;color:#fff;">
       <div style="max-width:560px;margin:0 auto;border:1px solid rgba(57,255,99,.28);border-radius:20px;padding:28px;background:#081009;">
         <p style="margin:0 0 10px;color:#39ff63;font-size:12px;letter-spacing:3px;text-transform:uppercase;">Lujo Urban</p>
-        <h1 style="margin:0 0 14px;color:#fff;font-size:26px;">Tu portal de artista esta listo</h1>
+        <h1 style="margin:0 0 14px;color:#fff;font-size:26px;">Tu portal de artista está listo</h1>
         <p style="margin:0 0 12px;color:rgba(255,255,255,.72);line-height:1.6;">
           Hola ${safeName}. Ya puedes crear tu clave y entrar a tu espacio privado de Lujo Urban.
         </p>
         <p style="margin:0 0 24px;color:rgba(255,255,255,.62);line-height:1.6;">
-          Desde alli podras actualizar tus enlaces, ordenar tus redes y cambiar el enlace de tu lanzamiento actual. El diseño oficial permanece protegido.
+          Desde allí podrás actualizar tus enlaces, escoger tus botones principales, ordenar tus redes y cambiar el enlace de tu lanzamiento actual. El diseño oficial permanece protegido.
         </p>
         <a href="${safeLink}" style="display:inline-block;border-radius:999px;padding:14px 22px;background:#39ff63;color:#001406;text-decoration:none;font-weight:800;">
           Crear mi clave
         </a>
         <p style="margin:24px 0 0;color:rgba(255,255,255,.42);font-size:12px;line-height:1.5;">
-          Este enlace es personal. Si no esperabas esta invitacion, puedes ignorar este correo.
+          Este enlace es personal. Si no esperabas esta invitación, puedes ignorar este correo.
         </p>
       </div>
     </div>
