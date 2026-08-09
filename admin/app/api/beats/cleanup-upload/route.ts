@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
+import { getCurrentAccess } from '@/lib/auth';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import type { BeatStoragePath } from '@/lib/beat-upload';
 
@@ -8,8 +8,9 @@ type CleanupRequest = {
 };
 
 export async function POST(request: Request) {
-  if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: 'No autorizado.' }, { status: 401 });
+  const access = await getCurrentAccess();
+  if (!access || access.role !== 'admin' || access.status !== 'active') {
+    return NextResponse.json({ error: 'No autorizado.' }, { status: access ? 403 : 401 });
   }
 
   const body = await request.json().catch(() => null) as CleanupRequest | null;

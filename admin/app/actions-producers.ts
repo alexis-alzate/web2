@@ -1,11 +1,7 @@
 'use server';
 
-import { isAuthenticated } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
-
-const requireAuth = async () => {
-  if (!(await isAuthenticated())) throw new Error('No autorizado.');
-};
 
 const requiredText = (formData: FormData, field: string, label: string) => {
   const value = formData.get(field);
@@ -21,7 +17,7 @@ const optionalText = (formData: FormData, field: string) => {
 };
 
 export const createProducerAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const stageName = requiredText(formData, 'stage_name', 'El nombre artistico');
@@ -46,7 +42,7 @@ export const createProducerAction = async (formData: FormData) => {
 };
 
 export const toggleProducerStatusAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const id = requiredText(formData, 'id', 'El id del productor');

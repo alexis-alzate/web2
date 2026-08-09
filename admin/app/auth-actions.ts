@@ -1,19 +1,8 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { getAppOrigin } from '@/lib/app-origin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-
-const getAppOrigin = async () => {
-  const configuredUrl = process.env.ADMIN_SITE_URL || process.env.NEXT_PUBLIC_ADMIN_SITE_URL;
-  if (configuredUrl) return configuredUrl.replace(/\/$/, '');
-
-  const headerStore = await headers();
-  const host = headerStore.get('host');
-  const protocol = headerStore.get('x-forwarded-proto') || 'https';
-  if (!host) throw new Error('No pude determinar la URL del panel.');
-  return `${protocol}://${host}`;
-};
 
 export const sendPasswordResetAction = async (formData: FormData) => {
   const email = String(formData.get('email') || '').trim();

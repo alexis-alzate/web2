@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ADMIN_SESSION_COOKIE } from '@/lib/admin-session';
 
-const publicPaths = ['/login', '/forgot-password', '/reset-password', '/auth/callback'];
+const publicPaths = ['/login', '/forgot-password', '/reset-password', '/auth/callback', '/auth/confirm'];
 
 const hasSupabaseAuthCookie = (request: NextRequest) =>
   request.cookies.getAll().some(cookie =>

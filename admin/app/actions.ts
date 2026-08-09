@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isAuthenticated } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
 import { commitFiles, readFile, readJson } from '@/lib/github';
 import {
   type Artist,
@@ -16,6 +16,7 @@ import {
   updateVisionContent,
   VISION_MAX_CRATE
 } from '@/lib/artist-renderer';
+import { parseSocialOrder } from '@/lib/socials';
 
 type Release = {
   title: string;
@@ -125,10 +126,6 @@ const fetchSmartLinkCover = async (smartLink: string, slug: string) => {
   } catch {
     return null;
   }
-};
-
-const requireAdmin = async () => {
-  if (!(await isAuthenticated())) throw new Error('No autenticado.');
 };
 
 const cleanLinks = (formData: FormData) => {
@@ -526,6 +523,9 @@ export const saveArtistAction = async (formData: FormData) => {
     ? data.artists.findIndex(artist => artist.slug === originalSlug)
     : data.artists.findIndex(artist => artist.slug === slug);
   const existingArtist = existingIndex >= 0 ? data.artists[existingIndex] : null;
+  const submittedSocialOrder = formData.has('socialOrder')
+    ? parseSocialOrder(formData.get('socialOrder'))
+    : existingArtist?.socialOrder;
 
   const nextArtist: Artist = {
     name,
@@ -536,6 +536,7 @@ export const saveArtistAction = async (formData: FormData) => {
     bio,
     photo,
     links: cleanLinks(formData),
+    socialOrder: submittedSocialOrder,
     release: existingArtist?.release || null,
     beatsEmbed,
     productionsEmbed,

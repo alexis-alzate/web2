@@ -32,6 +32,7 @@ export function PasskeyLoginButton() {
 
       const sessionResponse = await fetch('/api/session/activate', { method: 'POST' });
       if (!sessionResponse.ok) {
+        await supabase.auth.signOut();
         setMessage('No pude iniciar la sesion del panel.');
         return;
       }

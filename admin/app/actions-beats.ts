@@ -1,12 +1,8 @@
 'use server';
 
-import { isAuthenticated } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { slugify } from '@/lib/beats';
-
-const requireAuth = async () => {
-  if (!(await isAuthenticated())) throw new Error('No autorizado.');
-};
 
 const MB = 1024 * 1024;
 const MAX_TOTAL_UPLOAD_BYTES = 240 * MB;
@@ -80,7 +76,7 @@ const fileExt = (file: File, fallback: string) => {
 };
 
 export const createBeatAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const title = (formData.get('title') as string)?.trim();
@@ -193,7 +189,7 @@ export const createBeatAction = async (formData: FormData) => {
 };
 
 export const deleteBeatAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const id = formData.get('id') as string;
@@ -204,7 +200,7 @@ export const deleteBeatAction = async (formData: FormData) => {
 };
 
 export const toggleDemoBeatsAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const current = formData.get('current') as string;
@@ -217,7 +213,7 @@ export const toggleDemoBeatsAction = async (formData: FormData) => {
 };
 
 export const toggleBeatStatusAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const id = formData.get('id') as string;
@@ -231,7 +227,7 @@ export const toggleBeatStatusAction = async (formData: FormData) => {
 };
 
 export const updateBeatProducerAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const id = formData.get('id') as string;
@@ -247,7 +243,7 @@ export const updateBeatProducerAction = async (formData: FormData) => {
 };
 
 export const updateBeatMetadataAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const id = formData.get('id') as string;
