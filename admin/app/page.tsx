@@ -31,7 +31,14 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType, type Producer } from '@/lib/beats';
 import type { SocialKey } from '@/lib/socials';
 import { isAccessStatus, type LujoAccessStatus } from '@/lib/auth';
-import { inviteArtistUserAction, updateArtistUserAccessAction } from './artist-access-actions';
+import { TEST_ARTIST_SLUG } from '@/lib/test-artist';
+import {
+  convertArtistUserToTestAction,
+  createTestArtistUserAction,
+  inviteArtistUserAction,
+  unlinkArtistUserAction,
+  updateArtistUserAccessAction
+} from './artist-access-actions';
 
 type BeatOrder = {
   id: string;
@@ -111,6 +118,7 @@ type ArtistAccessAccount = {
   artistSlug: string;
   status: LujoAccessStatus;
   confirmed: boolean;
+  unlinkedAt: string;
 };
 
 const ACCESS_STATUS_LABELS: Record<LujoAccessStatus, string> = {
@@ -408,11 +416,22 @@ export default async function DashboardPage() {
         status: isAccessStatus(user.app_metadata?.lujo_access)
           ? user.app_metadata.lujo_access
           : 'inactive',
-        confirmed: Boolean(user.email_confirmed_at)
+        confirmed: Boolean(user.email_confirmed_at),
+        unlinkedAt: typeof user.app_metadata?.lujo_unlinked_at === 'string'
+          ? user.app_metadata.lujo_unlinked_at
+          : ''
       }));
   } catch (error) {
     artistAccessError = error instanceof Error ? error.message : 'No pude cargar los accesos de artistas.';
   }
+
+  const testAccessAccounts = artistAccessAccounts.filter(account => account.artistSlug === TEST_ARTIST_SLUG);
+  const linkedArtistAccessAccounts = artistAccessAccounts.filter(account =>
+    account.artistSlug && account.artistSlug !== TEST_ARTIST_SLUG
+  );
+  const configuredArtistCount = artistData.artists.filter(artist =>
+    linkedArtistAccessAccounts.some(account => account.artistSlug === artist.slug)
+  ).length;
 
   return (
     <main className="shell">
@@ -669,81 +688,192 @@ export default async function DashboardPage() {
             </details>
 
             <details className="subfolder">
-              <summary>Accesos de artistas ({artistAccessAccounts.length})</summary>
+              <summary>Accesos de artistas ({configuredArtistCount}/{artistData.artists.length})</summary>
               <p className="muted">
-                Cada usuario solo entra a su propio perfil. No puede ver lanzamientos de Zaetta,
-                analiticas, configuracion ni la tienda de beats.
+                Cada artista tiene un solo cupo. Para cambiar un correo perdido, desvincula primero
+                la cuenta anterior y después invita la nueva.
               </p>
-              <ActionForm
-                action={inviteArtistUserAction}
-                className="grid artist-access-invite"
-                savingMessage="Creando el acceso y enviando la invitacion..."
-                successMessage="Invitacion enviada. El artista ya puede crear su clave."
-                resetOnSuccess
-              >
-                <label>
-                  Correo del artista
-                  <input type="email" name="email" placeholder="artista@correo.com" required />
-                </label>
-                <label>
-                  Perfil que puede editar
-                  <select name="artistSlug" required defaultValue="">
-                    <option value="" disabled>Seleccionar artista</option>
-                    {artistData.artists.map(artist => (
-                      <option key={artist.slug} value={artist.slug}>{artist.cardName || artist.name}</option>
-                    ))}
-                  </select>
-                </label>
-                <SubmitButton className="primary span-2" pendingText="Enviando...">
-                  Crear acceso y enviar invitacion
-                </SubmitButton>
-              </ActionForm>
-
               {artistAccessError ? <p className="auth-error">{artistAccessError}</p> : null}
-              {artistAccessAccounts.length ? (
-                <div className="artist-access-list">
-                  {artistAccessAccounts.map(account => {
-                    const linkedArtist = artistData.artists.find(artist => artist.slug === account.artistSlug);
-                    return (
-                      <ActionForm
-                        action={updateArtistUserAccessAction}
-                        className="artist-access-card"
-                        key={account.id}
-                        savingMessage={`Actualizando el acceso de ${account.email}...`}
-                        successMessage="Acceso de artista actualizado."
-                      >
-                        <input type="hidden" name="userId" value={account.id} />
+              <div className="artist-access-roster">
+                <details className="artist-access-profile artist-access-profile-test">
+                  <summary className="artist-access-profile-summary">
+                    <span className="artist-access-profile-avatar is-test">P</span>
+                    <span className="artist-access-profile-name">
+                      <strong>Cuenta de prueba</strong>
+                      <small>Privada · no pertenece al roster</small>
+                    </span>
+                    <span className={`artist-access-badge ${testAccessAccounts.length ? `is-${testAccessAccounts[0].status}` : ''}`}>
+                      {testAccessAccounts.length ? ACCESS_STATUS_LABELS[testAccessAccounts[0].status] : 'Sin configurar'}
+                    </span>
+                  </summary>
+                  <div className="artist-access-profile-body">
+                    <p className="muted">
+                      Úsala siempre para probar el portal. Sus cambios nunca modifican una página pública.
+                    </p>
+                    {testAccessAccounts.length ? testAccessAccounts.map(account => (
+                      <div className="artist-access-account" key={account.id}>
                         <div className="artist-access-copy">
-                          <strong>{linkedArtist?.cardName || linkedArtist?.name || account.artistSlug || 'Perfil sin vincular'}</strong>
-                          <small>{account.email}</small>
-                          <span className={`artist-access-badge is-${account.status}`}>
-                            {ACCESS_STATUS_LABELS[account.status]} · {account.confirmed ? 'Cuenta confirmada' : 'Invitacion pendiente'}
-                          </span>
+                          <strong>{account.email}</strong>
+                          <small>{account.confirmed ? 'Cuenta confirmada' : 'Invitación pendiente'}</small>
                         </div>
+                        <ActionForm
+                          action={updateArtistUserAccessAction}
+                          className="artist-access-status-form"
+                          savingMessage="Actualizando la cuenta de prueba..."
+                          successMessage="Cuenta de prueba actualizada."
+                        >
+                          <input type="hidden" name="userId" value={account.id} />
+                          <label>
+                            Estado
+                            <select name="accessStatus" defaultValue={account.status}>
+                              <option value="active">Activo</option>
+                              <option value="suspended">Pausado</option>
+                              <option value="inactive">Inactivo</option>
+                            </select>
+                          </label>
+                          <SubmitButton pendingText="Guardando...">Guardar</SubmitButton>
+                        </ActionForm>
+                        <details className="artist-access-emergency">
+                          <summary>Desvincular cuenta de prueba</summary>
+                          <ActionForm
+                            action={unlinkArtistUserAction}
+                            className="artist-access-unlink-form"
+                            savingMessage="Desvinculando la cuenta de prueba..."
+                            successMessage="Cuenta de prueba desvinculada."
+                          >
+                            <input type="hidden" name="userId" value={account.id} />
+                            <label>
+                              Escribe DESVINCULAR
+                              <input name="confirmation" autoComplete="off" required />
+                            </label>
+                            <SubmitButton className="danger" pendingText="Desvinculando...">Desvincular</SubmitButton>
+                          </ActionForm>
+                        </details>
+                      </div>
+                    )) : (
+                      <ActionForm
+                        action={createTestArtistUserAction}
+                        className="artist-access-invite"
+                        savingMessage="Preparando la cuenta de prueba..."
+                        successMessage="Cuenta de prueba preparada. Revisa el correo si era una cuenta nueva."
+                        resetOnSuccess
+                      >
                         <label>
-                          Perfil
-                          <select name="artistSlug" defaultValue={account.artistSlug} required>
-                            {artistData.artists.map(artist => (
-                              <option key={artist.slug} value={artist.slug}>{artist.cardName || artist.name}</option>
-                            ))}
-                          </select>
+                          Tu correo para pruebas
+                          <input type="email" name="email" placeholder="tu-correo+prueba@gmail.com" required />
                         </label>
-                        <label>
-                          Estado
-                          <select name="accessStatus" defaultValue={account.status}>
-                            <option value="active">Activo</option>
-                            <option value="suspended">Pausado</option>
-                            <option value="inactive">Inactivo</option>
-                          </select>
-                        </label>
-                        <SubmitButton pendingText="Guardando...">Guardar acceso</SubmitButton>
+                        <SubmitButton className="primary" pendingText="Preparando...">Crear cuenta de prueba</SubmitButton>
                       </ActionForm>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="muted">Todavia no hay cuentas de artistas.</p>
-              )}
+                    )}
+                  </div>
+                </details>
+
+                {artistData.artists.map(artist => {
+                  const accounts = linkedArtistAccessAccounts.filter(account => account.artistSlug === artist.slug);
+                  const summaryStatus = accounts.length > 1
+                    ? `${accounts.length} correos · corregir`
+                    : accounts.length === 1
+                      ? ACCESS_STATUS_LABELS[accounts[0].status]
+                      : 'Sin acceso';
+
+                  return (
+                    <details className="artist-access-profile" key={artist.slug}>
+                      <summary className="artist-access-profile-summary">
+                        {artist.photo ? (
+                          <img className="artist-access-profile-avatar" src={`https://www.lujourban.com/${artist.photo}`} alt="" />
+                        ) : (
+                          <span className="artist-access-profile-avatar">{initials(artist.name)}</span>
+                        )}
+                        <span className="artist-access-profile-name">
+                          <strong>{artist.cardName || artist.name}</strong>
+                          <small>{accounts.length === 1 ? accounts[0].email : 'Un solo correo permitido'}</small>
+                        </span>
+                        <span className={`artist-access-badge ${accounts.length > 1 ? 'is-warning' : accounts[0] ? `is-${accounts[0].status}` : ''}`}>
+                          {summaryStatus}
+                        </span>
+                      </summary>
+                      <div className="artist-access-profile-body">
+                        {accounts.length > 1 ? (
+                          <p className="artist-access-warning">
+                            Hay varios correos heredados en este perfil. Conserva el correcto y desvincula los demás.
+                          </p>
+                        ) : null}
+
+                        {accounts.length ? accounts.map(account => (
+                          <div className="artist-access-account" key={account.id}>
+                            <div className="artist-access-copy">
+                              <strong>{account.email}</strong>
+                              <small>{account.confirmed ? 'Cuenta confirmada' : 'Invitación pendiente'}</small>
+                              <span className={`artist-access-badge is-${account.status}`}>{ACCESS_STATUS_LABELS[account.status]}</span>
+                            </div>
+                            <ActionForm
+                              action={updateArtistUserAccessAction}
+                              className="artist-access-status-form"
+                              savingMessage={`Actualizando el acceso de ${account.email}...`}
+                              successMessage="Acceso actualizado."
+                            >
+                              <input type="hidden" name="userId" value={account.id} />
+                              <label>
+                                Estado
+                                <select name="accessStatus" defaultValue={account.status}>
+                                  <option value="active">Activo</option>
+                                  <option value="suspended">Pausado</option>
+                                  <option value="inactive">Inactivo</option>
+                                </select>
+                              </label>
+                              <SubmitButton pendingText="Guardando...">Guardar</SubmitButton>
+                            </ActionForm>
+                            {account.status === 'inactive' && !testAccessAccounts.length ? (
+                              <ActionForm
+                                action={convertArtistUserToTestAction}
+                                savingMessage="Moviendo esta cuenta al espacio de prueba..."
+                                successMessage="La cuenta ahora es la cuenta de prueba privada."
+                              >
+                                <input type="hidden" name="userId" value={account.id} />
+                                <SubmitButton pendingText="Moviendo...">Usar como prueba</SubmitButton>
+                              </ActionForm>
+                            ) : null}
+                            <details className="artist-access-emergency">
+                              <summary>Desvincular por cambio de correo</summary>
+                              <p className="muted">
+                                Bloquea este acceso y libera el perfil para vincular un correo nuevo.
+                              </p>
+                              <ActionForm
+                                action={unlinkArtistUserAction}
+                                className="artist-access-unlink-form"
+                                savingMessage={`Desvinculando ${account.email}...`}
+                                successMessage="Correo desvinculado. Ya puedes registrar el nuevo."
+                              >
+                                <input type="hidden" name="userId" value={account.id} />
+                                <label>
+                                  Escribe DESVINCULAR
+                                  <input name="confirmation" autoComplete="off" required />
+                                </label>
+                                <SubmitButton className="danger" pendingText="Desvinculando...">Desvincular correo</SubmitButton>
+                              </ActionForm>
+                            </details>
+                          </div>
+                        )) : (
+                          <ActionForm
+                            action={inviteArtistUserAction}
+                            className="artist-access-invite"
+                            savingMessage={`Creando el acceso de ${artist.cardName || artist.name}...`}
+                            successMessage="Acceso preparado. Revisa el correo si era una cuenta nueva."
+                            resetOnSuccess
+                          >
+                            <input type="hidden" name="artistSlug" value={artist.slug} />
+                            <label>
+                              Correo del artista
+                              <input type="email" name="email" placeholder="artista@correo.com" required />
+                            </label>
+                            <SubmitButton className="primary" pendingText="Enviando...">Vincular y enviar invitación</SubmitButton>
+                          </ActionForm>
+                        )}
+                      </div>
+                    </details>
+                  );
+                })}
+              </div>
             </details>
 
             <details className="subfolder">

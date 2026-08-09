@@ -38,6 +38,11 @@ El token de GitHub debe poder leer y escribir contenido del repo.
 La clave del panel se cambia desde el flujo de recuperacion de Supabase.
 Las invitaciones de artistas usan Resend, por lo que `RESEND_API_KEY` es obligatoria
 para crear sus accesos. El flujo no depende del SMTP de desarrollo de Supabase.
+Cada artista admite un solo correo vinculado, incluso cuando el acceso esta inactivo.
+Para reemplazar un correo perdido, el administrador debe usar primero la accion
+`Desvincular`; despues puede vincular el nuevo correo sin tocar el perfil publico.
+La cuenta privada de prueba ocupa un cupo independiente y nunca publica cambios en
+los archivos de artistas.
 
 ## Local
 
@@ -94,6 +99,7 @@ Incluye:
 - Panel responsive con secciones desplegables.
 - Lectura y edicion de artistas desde `artist-data.json`.
 - Portal restringido para que cada artista gestione sus enlaces, sus dos botones destacados, el orden de sus redes y el enlace de su lanzamiento activo.
+- Accesos encapsulados por artista, con un solo correo por perfil, reemplazo de emergencia y cuenta privada de prueba.
 - Ordenar artistas del roster.
 - Borrar artistas con confirmacion.
 - Crear y reactivar lanzamientos principales de Zaetta.

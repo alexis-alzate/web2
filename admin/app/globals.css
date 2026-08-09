@@ -2811,21 +2811,144 @@ input[type="file"]::file-selector-button:hover {
   background: rgba(57, 255, 99, .025);
 }
 
-.artist-access-list {
+.artist-access-roster {
   display: grid;
   gap: 10px;
   margin-top: 14px;
 }
 
-.artist-access-card {
+.artist-access-profile {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, .022);
+}
+
+.artist-access-profile[open] {
+  border-color: rgba(57, 255, 99, .18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
+}
+
+.artist-access-profile-test {
+  border-color: rgba(201, 168, 76, .2);
+  background:
+    radial-gradient(300px 110px at 0% 0%, rgba(201, 168, 76, .08), transparent 72%),
+    rgba(255, 255, 255, .018);
+}
+
+.artist-access-profile-summary {
   display: grid;
-  grid-template-columns: minmax(190px, 1.2fr) minmax(150px, 1fr) minmax(130px, .7fr) auto;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.artist-access-profile-summary::-webkit-details-marker {
+  display: none;
+}
+
+.artist-access-profile-avatar {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  border: 1px solid rgba(57, 255, 99, .2);
+  border-radius: 14px;
+  object-fit: cover;
+  color: var(--green);
+  background: rgba(57, 255, 99, .06);
+  font-weight: 800;
+}
+
+.artist-access-profile-avatar.is-test {
+  border-color: rgba(201, 168, 76, .3);
+  color: #e4c875;
+  background: rgba(201, 168, 76, .08);
+}
+
+.artist-access-profile-name {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.artist-access-profile-name strong,
+.artist-access-profile-name small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist-access-profile-name strong {
+  color: var(--text);
+  font-size: .92rem;
+}
+
+.artist-access-profile-name small {
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.artist-access-profile-body {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .065);
+  background: rgba(0, 0, 0, .14);
+}
+
+.artist-access-account {
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) minmax(240px, auto);
   gap: 12px;
   align-items: end;
   padding: 14px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 15px;
-  background: rgba(255, 255, 255, .022);
+  border: 1px solid rgba(255, 255, 255, .075);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .18);
+}
+
+.artist-access-status-form {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.artist-access-emergency {
+  grid-column: 1 / -1;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+.artist-access-emergency > summary {
+  width: max-content;
+  max-width: 100%;
+  cursor: pointer;
+  color: #d9b4ad;
+  font-size: .72rem;
+}
+
+.artist-access-unlink-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-top: 10px;
+}
+
+.artist-access-warning {
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 195, 77, .2);
+  border-radius: 12px;
+  color: #ffd889;
+  background: rgba(255, 195, 77, .055);
+  font-size: .78rem;
+  line-height: 1.45;
 }
 
 .artist-access-copy {
@@ -2878,6 +3001,12 @@ input[type="file"]::file-selector-button:hover {
   background: rgba(255, 195, 77, .06);
 }
 
+.artist-access-badge.is-warning {
+  border-color: rgba(255, 122, 91, .3);
+  color: #ffab98;
+  background: rgba(255, 122, 91, .07);
+}
+
 .artist-portal-shell {
   width: min(780px, calc(100% - 28px));
   margin: 0 auto;
@@ -2907,6 +3036,45 @@ input[type="file"]::file-selector-button:hover {
     radial-gradient(380px 160px at 0% 0%, rgba(57, 255, 99, .085), transparent 72%),
     linear-gradient(180deg, rgba(8, 15, 9, .94), rgba(2, 4, 2, .96));
   box-shadow: 0 20px 50px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+.artist-portal-test-banner {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 13px 15px;
+  border: 1px solid rgba(201, 168, 76, .26);
+  border-radius: 16px;
+  color: #efd985;
+  background: rgba(201, 168, 76, .07);
+}
+
+.artist-portal-test-banner strong {
+  font-size: .76rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.artist-portal-test-banner span {
+  color: rgba(255, 255, 255, .62);
+  font-size: .76rem;
+  line-height: 1.45;
+}
+
+.artist-portal-private-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid rgba(201, 168, 76, .25);
+  border-radius: 12px;
+  color: #efd985;
+  background: rgba(201, 168, 76, .055);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
 }
 
 .artist-portal-profile {
@@ -3094,13 +3262,31 @@ input[type="file"]::file-selector-button:hover {
 }
 
 @media (max-width: 760px) {
-  .artist-access-card {
+  .artist-access-account,
+  .artist-access-status-form,
+  .artist-access-unlink-form {
     grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
   }
 
-  .artist-access-card button {
+  .artist-access-account button,
+  .artist-access-status-form button,
+  .artist-access-unlink-form button {
     width: 100%;
+  }
+
+  .artist-access-profile-summary {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .artist-access-profile-avatar {
+    width: 46px;
+    height: 46px;
+  }
+
+  .artist-access-profile-summary > .artist-access-badge {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .artist-portal-profile {
@@ -3114,7 +3300,8 @@ input[type="file"]::file-selector-button:hover {
     border-radius: 16px;
   }
 
-  .artist-portal-profile > .button {
+  .artist-portal-profile > .button,
+  .artist-portal-profile > .artist-portal-private-label {
     grid-column: 1 / -1;
     width: 100%;
   }

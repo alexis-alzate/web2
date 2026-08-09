@@ -3,6 +3,7 @@ import { getCurrentAccess } from '@/lib/auth';
 import { readJson } from '@/lib/github';
 import type { ArtistData } from '@/lib/artist-renderer';
 import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
+import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { ActionForm } from '../components/ActionForm';
 import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
 import { SocialOrderEditor } from '../components/SocialOrderEditor';
@@ -28,8 +29,11 @@ export default async function ArtistPortalPage() {
   if (access.role === 'admin') redirect('/');
   if (access.role !== 'artist' || !access.artistSlug) redirect('/login?error=access');
 
-  const artistData = await readJson<ArtistData>('artist-data.json', { artists: [] });
-  const artist = artistData.artists.find(item => item.slug === access.artistSlug);
+  const isTestAccount = access.artistSlug === TEST_ARTIST_SLUG;
+  const artist = isTestAccount
+    ? readTestArtist(access.user.app_metadata?.lujo_test_profile)
+    : (await readJson<ArtistData>('artist-data.json', { artists: [] }))
+      .artists.find(item => item.slug === access.artistSlug);
 
   if (!artist) {
     return (
@@ -66,9 +70,13 @@ export default async function ArtistPortalPage() {
           <span className="artist-portal-lock" aria-hidden="true">◇</span>
           <h2>{copy.title}</h2>
           <p>{copy.message}</p>
-          <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">
-            Ver mi pagina publica
-          </a>
+          {isTestAccount ? (
+            <span className="artist-portal-private-label">Prueba privada</span>
+          ) : (
+            <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">
+              Ver mi página pública
+            </a>
+          )}
         </section>
       </main>
     );
@@ -87,6 +95,13 @@ export default async function ArtistPortalPage() {
         <form action="/api/logout" method="post"><button className="logout-button">Salir</button></form>
       </header>
 
+      {isTestAccount ? (
+        <section className="artist-portal-test-banner">
+          <strong>Modo prueba privado</strong>
+          <span>Puedes probar todos los controles. Nada de aquí modifica ni publica un artista real.</span>
+        </section>
+      ) : null}
+
       <section className="artist-portal-profile">
         {artist.photo ? (
           <img src={`https://www.lujourban.com/${artist.photo}`} alt="" />
@@ -98,16 +113,24 @@ export default async function ArtistPortalPage() {
           <h2>{artist.cardName || artist.name}</h2>
           <p>{artist.tagline}</p>
         </div>
-        <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">
-          Ver perfil
-        </a>
+        {isTestAccount ? (
+          <span className="artist-portal-private-label">Solo prueba</span>
+        ) : (
+          <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">
+            Ver perfil
+          </a>
+        )}
       </section>
 
       <ActionForm
         action={saveOwnArtistPortalAction}
         className="artist-portal-form"
-        savingMessage="Actualizando tus enlaces y publicando tu perfil..."
-        successMessage="Tu perfil quedo actualizado y se esta publicando."
+        savingMessage={isTestAccount
+          ? 'Guardando los cambios de la prueba privada...'
+          : 'Actualizando tus enlaces y publicando tu perfil...'}
+        successMessage={isTestAccount
+          ? 'Prueba guardada. Ningún artista real fue modificado.'
+          : 'Tu perfil quedó actualizado y se está publicando.'}
       >
         <section className="artist-portal-card">
           <div className="artist-portal-card-heading">
@@ -217,7 +240,9 @@ export default async function ArtistPortalPage() {
             <strong>Diseño protegido</strong>
             <small>Colores, tipografias y estructura siguen siendo Lujo Urban.</small>
           </span>
-          <SubmitButton className="primary" pendingText="Publicando...">Guardar y publicar</SubmitButton>
+          <SubmitButton className="primary" pendingText={isTestAccount ? 'Guardando prueba...' : 'Publicando...'}>
+            {isTestAccount ? 'Guardar prueba privada' : 'Guardar y publicar'}
+          </SubmitButton>
         </div>
       </ActionForm>
     </main>
