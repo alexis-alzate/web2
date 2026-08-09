@@ -612,17 +612,28 @@ export default async function DashboardPage() {
                     <div className="artist-folder-body">
                       <p className="muted">{artist.tagline}</p>
                       {artist.release ? <p className="muted">Release activo: {artist.release.title}</p> : null}
-                      <div className="actions">
-                        <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Ver</a>
-                        <details className="inline-details">
-                          <summary className="button">Editar</summary>
+                      <div className="actions artist-actions">
+                        <a className="button artist-view-button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Ver perfil</a>
+                        <details className="inline-details artist-edit-details">
+                          <summary className="button artist-edit-toggle">
+                            <span className="artist-edit-toggle-open">Editar perfil</span>
+                            <span className="artist-edit-toggle-close">Cerrar editor</span>
+                          </summary>
                           <ActionForm
                             action={saveArtistAction}
-                            className="mini-form"
+                            className="mini-form artist-edit-form"
                             savingMessage={`Guardando cambios de ${artist.cardName || artist.name}...`}
                             successMessage="Artista actualizado correctamente."
                           >
                             <input name="originalSlug" type="hidden" value={artist.slug} />
+                            <div className="artist-edit-heading">
+                              <span>Editor del perfil</span>
+                              <strong>{artist.cardName || artist.name}</strong>
+                              <small>Actualiza el contenido. La plantilla y el diseño permanecen protegidos.</small>
+                            </div>
+                            <fieldset className="artist-edit-section">
+                              <legend>Identidad</legend>
+                              <div className="artist-edit-grid">
                             <label>
                               Nombre publico
                               <input name="name" defaultValue={artist.name} required />
@@ -647,6 +658,11 @@ export default async function DashboardPage() {
                               Bio
                               <textarea name="bio" rows={3} defaultValue={artist.bio || ''} />
                             </label>
+                              </div>
+                            </fieldset>
+                            <fieldset className="artist-edit-section">
+                              <legend>Imagen del artista</legend>
+                              <div className="artist-edit-grid">
                             <label>
                               Subir foto nueva
                               <input name="photoFile" type="file" accept="image/*" />
@@ -656,12 +672,22 @@ export default async function DashboardPage() {
                               Foto (si no subes una nueva)
                               <input name="photo" defaultValue={artist.photo || ''} />
                             </label>
+                              </div>
+                            </fieldset>
+                            <fieldset className="artist-edit-section">
+                              <legend>Redes y plataformas</legend>
+                              <div className="artist-edit-grid">
                             {['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp'].map(key => (
                               <label key={key}>
                                 {key}
                                 <input name={key} defaultValue={artist.links?.[key] || ''} />
                               </label>
                             ))}
+                              </div>
+                            </fieldset>
+                            <fieldset className="artist-edit-section">
+                              <legend>Integraciones y contacto</legend>
+                              <div className="artist-edit-grid">
                             <label>
                               Embed beats
                               <input name="beatsEmbed" defaultValue={artist.beatsEmbed || ''} />
@@ -678,7 +704,12 @@ export default async function DashboardPage() {
                               Link contacto
                               <input name="contactUrl" defaultValue={artist.contact?.url || ''} />
                             </label>
-                            <SubmitButton className="primary" pendingText="Guardando...">Guardar</SubmitButton>
+                              </div>
+                            </fieldset>
+                            <div className="artist-edit-footer">
+                              <a className="button artist-edit-preview" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Vista pública</a>
+                              <SubmitButton className="primary" pendingText="Guardando...">Guardar cambios</SubmitButton>
+                            </div>
                           </ActionForm>
                         </details>
                         <ActionForm
