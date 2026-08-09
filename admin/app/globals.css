@@ -2804,11 +2804,24 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .artist-access-invite {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: end;
   margin-top: 16px;
   padding: 15px;
   border: 1px solid rgba(57, 255, 99, .14);
   border-radius: 15px;
   background: rgba(57, 255, 99, .025);
+}
+
+.artist-access-invite > .primary {
+  min-height: 48px;
+  padding-inline: 20px;
+  border-radius: 14px;
+  font-size: .76rem;
+  letter-spacing: .035em;
+  white-space: nowrap;
 }
 
 .artist-access-roster {
@@ -2838,7 +2851,7 @@ input[type="file"]::file-selector-button:hover {
 
 .artist-access-profile-summary {
   display: grid;
-  grid-template-columns: 50px minmax(0, 1fr) auto;
+  grid-template-columns: 50px minmax(0, 1fr) auto 28px;
   gap: 12px;
   align-items: center;
   padding: 14px;
@@ -2848,6 +2861,118 @@ input[type="file"]::file-selector-button:hover {
 
 .artist-access-profile-summary::-webkit-details-marker {
   display: none;
+}
+
+.artist-access-profile-summary::after,
+.artist-access-directory-summary::after {
+  content: "›";
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgba(57, 255, 99, .15);
+  border-radius: 50%;
+  color: rgba(57, 255, 99, .72);
+  background: rgba(57, 255, 99, .045);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.artist-access-profile[open] > .artist-access-profile-summary::after,
+.artist-access-directory[open] > .artist-access-directory-summary::after {
+  border-color: rgba(57, 255, 99, .28);
+  background: rgba(57, 255, 99, .09);
+  transform: rotate(90deg);
+}
+
+.artist-access-directory {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 17px;
+  background:
+    radial-gradient(340px 120px at 0% 0%, rgba(57, 255, 99, .055), transparent 72%),
+    rgba(255, 255, 255, .018);
+}
+
+.artist-access-directory[open] {
+  border-color: rgba(57, 255, 99, .2);
+}
+
+.artist-access-directory-summary {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto 28px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.artist-access-directory-summary::-webkit-details-marker {
+  display: none;
+}
+
+.artist-access-directory-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(57, 255, 99, .22);
+  border-radius: 14px;
+  color: var(--green);
+  background: rgba(57, 255, 99, .065);
+  font-weight: 900;
+}
+
+.artist-access-directory-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.artist-access-directory-copy strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: .92rem;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.artist-access-directory-copy small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist-access-directory-body {
+  display: grid;
+  max-height: min(68vh, 720px);
+  gap: 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, .065);
+  background: rgba(0, 0, 0, .16);
+  scrollbar-color: rgba(57, 255, 99, .32) rgba(255, 255, 255, .035);
+  scrollbar-width: thin;
+}
+
+.artist-access-directory-body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.artist-access-directory-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, .025);
+}
+
+.artist-access-directory-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(57, 255, 99, .28);
 }
 
 .artist-access-profile-avatar {
@@ -3262,6 +3387,15 @@ input[type="file"]::file-selector-button:hover {
 }
 
 @media (max-width: 760px) {
+  .artist-access-invite {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .artist-access-invite > .primary {
+    width: 100%;
+  }
+
   .artist-access-account,
   .artist-access-status-form,
   .artist-access-unlink-form {
@@ -3276,7 +3410,7 @@ input[type="file"]::file-selector-button:hover {
   }
 
   .artist-access-profile-summary {
-    grid-template-columns: 46px minmax(0, 1fr);
+    grid-template-columns: 46px minmax(0, 1fr) 28px;
   }
 
   .artist-access-profile-avatar {
@@ -3287,6 +3421,35 @@ input[type="file"]::file-selector-button:hover {
   .artist-access-profile-summary > .artist-access-badge {
     grid-column: 2;
     justify-self: start;
+  }
+
+  .artist-access-profile-summary::after {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .artist-access-directory-summary {
+    grid-template-columns: 42px minmax(0, 1fr) 28px;
+  }
+
+  .artist-access-directory-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .artist-access-directory-summary > .artist-access-badge {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .artist-access-directory-summary::after {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .artist-access-directory-body {
+    max-height: 62svh;
+    padding: 9px;
   }
 
   .artist-portal-profile {
