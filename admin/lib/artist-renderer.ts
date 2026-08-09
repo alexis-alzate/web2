@@ -483,6 +483,8 @@ export const renderArtistPage = (artist: Artist) => {
 ${trackingHead}
 </head>
 <body class="artist-page">
+
+<a href="https://casa.lujourban.com" class="lujourban-home-link" data-track-event="artista_${eventSlug}_lujourban_casa_click" data-track-label="lujourban_home_link" data-track-content="LUJO URBAN"><span>LUJO URBAN</span></a>
 ${trackingNoScript}
 <main>
 ${renderHeroPhoto(artist)}
