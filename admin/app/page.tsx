@@ -113,6 +113,13 @@ type ReleaseHistory = {
   releases: Release[];
 };
 
+type AnalyticsRelease = {
+  title: string;
+  slug: string;
+  cover?: string;
+  artistSlug?: string | null;
+};
+
 type ArtistReleaseHistory = {
   artists: Record<string, NonNullable<Artist['release']>[]>;
 };
@@ -134,9 +141,15 @@ const emptyAnalyticsSummary = (error?: string): ReleaseAnalyticsSummary => ({
     status_click: 0
   },
   interactionsTotal: 0,
-  conversionRate: 0,
+  interactionRate: 0,
   releases: [],
+  previous: {
+    views: 0,
+    interactions: 0,
+    interactionRate: 0
+  },
   dailyStats: [],
+  periodDays: 15,
   hasData: false,
   error
 });
@@ -257,6 +270,7 @@ export default async function DashboardPage() {
   let artistReleaseHistory: ArtistReleaseHistory;
   let casaCatalog: CasaCatalogConfig;
   let analyticsSummary: ReleaseAnalyticsSummary = emptyAnalyticsSummary();
+  let analyticsReleases: AnalyticsRelease[] = [];
   let beats: Beat[] = [];
   let showDemoBeats = true;
   let beatOrders: BeatOrder[] = [];
@@ -316,6 +330,22 @@ export default async function DashboardPage() {
       readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
       readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] })
     ]);
+    analyticsReleases = [
+      ...releaseHistory.releases.map(release => ({
+        title: release.title,
+        slug: release.slug,
+        cover: release.cover,
+        artistSlug: null
+      })),
+      ...Object.entries(artistReleaseHistory.artists).flatMap(([artistSlug, releases]) =>
+        releases.map(release => ({
+          title: release.title,
+          slug: release.slug,
+          cover: release.cover,
+          artistSlug
+        }))
+      )
+    ];
     analyticsSummary = await getReleaseAnalyticsSummary();
   } catch (error) {
     return (
@@ -1325,7 +1355,7 @@ export default async function DashboardPage() {
             </span>
           </summary>
           <div className="folder-body">
-            <AnalyticsDashboard summary={analyticsSummary} releases={releaseHistory.releases} />
+            <AnalyticsDashboard summary={analyticsSummary} releases={analyticsReleases} />
           </div>
         </details>
       </section>
