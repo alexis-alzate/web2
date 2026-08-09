@@ -55,7 +55,7 @@
       "photo": "assets/la-libreta-photo.jpg",
       "links": {
         "tiktok": "https://www.tiktok.com/@julian_ramos_lalibreta?_r=1&_t=ZS-98h4rMf3lkz",
-        "spotify": "https://hypeddit.com/cfv42c",
+        "spotify": "https://open.spotify.com/artist/3sNpPpejUtc0AVplD9Qvtf?si=TrMIaXWhQiSVWCBzCDNO8w&utm_source=copy-link",
         "instagram": "https://www.instagram.com/julian_ramos_lalibreta?igsh=MTl4dmFpd29kMzFkOA%3D%3D&utm_source=qr",
         "youtube": "https://youtube.com/@julianramoslalibreta?si=4_HSF7cXMIX5MYcd",
         "facebook": "https://www.facebook.com/share/1EhzcfUQVw/?mibextid=wwXIfr"
@@ -72,11 +72,11 @@
       "productionsEmbed": "",
       "contact": null,
       "socialOrder": [
-        "youtube",
         "instagram",
-        "spotify",
         "tiktok",
         "facebook",
+        "spotify",
+        "youtube",
         "whatsapp"
       ],
       "heroButtons": {
