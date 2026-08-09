@@ -85,9 +85,6 @@ fbq('track', 'PageView');
   <p class="hero-role">Artista oficial</p>
   <p class="hero-sub">Mensaje, fe y propósito.</p>
   <div class="hero-btns">
-    <a href="/artistas/" class="btn-secondary" data-track-event="artistas_directorio_click" data-track-label="artist_hero_artistas">
-      Artistas
-    </a>
   </div>
 </div>
 
@@ -114,6 +111,13 @@ fbq('track', 'PageView');
 
 
 
+<div class="divider divider-music-inner"></div>
+<section class="artist-discovery fade-up" aria-label="Descubrir más artistas de Lujo Urban">
+  <a href="/artistas/" class="artist-discovery-link" data-track-event="artista_evangelista_gonzalez_directorio_final_click" data-track-label="artist_footer_directory" data-track-content="EL EVANGELISTA GONZALEZ">
+    <span>Descubre más artistas de LUJO URBAN</span>
+    <span class="artist-discovery-arrow" aria-hidden="true">→</span>
+  </a>
+</section>
 </main>
 <script>
   const trackMetaEvent = (eventName, params = {}) => {
