@@ -1,4 +1,10 @@
-import { SOCIAL_LABELS, normalizeSocialOrder, type SocialKey } from '@/lib/socials';
+import {
+  SOCIAL_LABELS,
+  normalizeSocialOrder,
+  resolveHeroButtons,
+  type HeroButtonPreferences,
+  type SocialKey
+} from '@/lib/socials';
 
 export type ArtistRelease = {
   title: string;
@@ -19,6 +25,7 @@ export type Artist = {
   photo?: string;
   links?: Record<string, string>;
   socialOrder?: SocialKey[];
+  heroButtons?: HeroButtonPreferences;
   release?: ArtistRelease | null;
   beatsEmbed?: string;
   productionsEmbed?: string;
@@ -397,25 +404,27 @@ ${items.map(key => `    <a href="${escapeHtml(artist.links?.[key] || '')}" targe
 };
 
 const heroButtons = (artist: Artist) => {
-  const buttons: string[] = [];
   const eventSlug = trackingSlug(artist);
-  const buttonIcon = (key: string) => (svg[key] || '').replace('<svg viewBox="0 0 24 24"', '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"');
+  const resolved = resolveHeroButtons(artist.links, artist.heroButtons);
+  const selections = [
+    { key: resolved.primary, className: 'btn-primary', slot: 'primary' },
+    { key: resolved.secondary, className: 'btn-secondary', slot: 'secondary' }
+  ] as const;
 
-  if (artist.links?.spotify) {
-    buttons.push(`<a href="${escapeHtml(artist.links.spotify)}" target="_blank" rel="noopener" class="btn-primary" data-track-event="artista_${eventSlug}_hero_spotify_click" data-track-label="artist_hero_spotify">
-      ${svg.spotify.replace('<svg viewBox="0 0 24 24"', '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"')}
-      Escucha ahora
-    </a>`);
-  }
+  return selections.flatMap(({ key, className, slot }) => {
+    if (!key || !artist.links?.[key]) return [];
+    const iconSize = slot === 'primary' ? '15' : '13';
+    const icon = (svg[key] || '').replace(
+      '<svg viewBox="0 0 24 24"',
+      `<svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="currentColor"`
+    );
+    const label = slot === 'primary' && key === 'spotify' ? 'Escucha ahora' : SOCIAL_LABELS[key];
 
-  if (artist.links?.tiktok) {
-    buttons.push(`<a href="${escapeHtml(artist.links.tiktok)}" target="_blank" rel="noopener" class="btn-secondary" data-track-event="artista_${eventSlug}_hero_tiktok_click" data-track-label="artist_hero_tiktok">
-      ${buttonIcon('tiktok')}
-      TikTok
-    </a>`);
-  }
-
-  return buttons.join('\n    ');
+    return [`<a href="${escapeHtml(artist.links[key])}" target="_blank" rel="noopener" class="${className}" data-track-event="artista_${eventSlug}_hero_${key}_click" data-track-label="artist_hero_${key}">
+      ${icon}
+      ${label}
+    </a>`];
+  }).join('\n    ');
 };
 
 const renderArtistDiscovery = (artist: Artist) => {

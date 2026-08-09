@@ -10,7 +10,7 @@ import {
   type CasaCatalogConfig,
   type VisionCatalogEntry
 } from '@/lib/artist-renderer';
-import { SOCIAL_KEYS, parseSocialOrder } from '@/lib/socials';
+import { SOCIAL_KEYS, SOCIAL_LABELS, isSocialKey, parseSocialOrder, type SocialKey } from '@/lib/socials';
 
 type ReleaseHistory = { releases: VisionCatalogEntry[] };
 
@@ -28,6 +28,13 @@ const validHttpUrl = (value: FormDataEntryValue | null, label: string, required 
     throw new Error(`${label} debe ser un enlace completo que empiece por https://.`);
   }
   return text;
+};
+
+const optionalSocialKey = (value: FormDataEntryValue | null, label: string): SocialKey | undefined => {
+  const key = String(value || '').trim();
+  if (!key) return undefined;
+  if (!isSocialKey(key)) throw new Error(`${label} no es una red válida.`);
+  return key;
 };
 
 export const saveOwnArtistPortalAction = async (formData: FormData) => {
@@ -54,6 +61,19 @@ export const saveOwnArtistPortalAction = async (formData: FormData) => {
   });
   artist.links = links;
   artist.socialOrder = parseSocialOrder(formData.get('socialOrder'));
+
+  const primary = optionalSocialKey(formData.get('heroPrimary'), 'El botón principal');
+  const secondary = optionalSocialKey(formData.get('heroSecondary'), 'El botón secundario');
+  if (primary && !links[primary]) {
+    throw new Error(`Agrega primero tu enlace de ${SOCIAL_LABELS[primary]} para usarlo en el botón principal.`);
+  }
+  if (secondary && !links[secondary]) {
+    throw new Error(`Agrega primero tu enlace de ${SOCIAL_LABELS[secondary]} para usarlo en el botón secundario.`);
+  }
+  if (primary && secondary && primary === secondary) {
+    throw new Error('Elige dos redes diferentes para los botones superiores.');
+  }
+  artist.heroButtons = primary || secondary ? { primary, secondary } : undefined;
 
   if (artist.release) {
     const releaseLink = validHttpUrl(formData.get('releaseLink'), 'El enlace de la cancion actual', true);

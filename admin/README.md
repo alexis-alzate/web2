@@ -93,6 +93,7 @@ Incluye:
 - Recuperacion de clave por correo.
 - Panel responsive con secciones desplegables.
 - Lectura y edicion de artistas desde `artist-data.json`.
+- Portal restringido para que cada artista gestione sus enlaces, sus dos botones destacados, el orden de sus redes y el enlace de su lanzamiento activo.
 - Ordenar artistas del roster.
 - Borrar artistas con confirmacion.
 - Crear y reactivar lanzamientos principales de Zaetta.

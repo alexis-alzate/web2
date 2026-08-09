@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentAccess } from '@/lib/auth';
 import { readJson } from '@/lib/github';
 import type { ArtistData } from '@/lib/artist-renderer';
-import { SOCIAL_KEYS, SOCIAL_LABELS } from '@/lib/socials';
+import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
 import { ActionForm } from '../components/ActionForm';
 import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
 import { SocialOrderEditor } from '../components/SocialOrderEditor';
@@ -74,6 +74,8 @@ export default async function ArtistPortalPage() {
     );
   }
 
+  const resolvedHeroButtons = resolveHeroButtons(artist.links, artist.heroButtons);
+
   return (
     <main className="artist-portal-shell">
       <AutoLogoutTimer />
@@ -128,7 +130,6 @@ export default async function ArtistPortalPage() {
                   defaultValue={artist.links?.[key] || ''}
                   placeholder="https://..."
                 />
-                {key === 'spotify' ? <small>También alimenta el botón verde “Escucha ahora” de la cabecera.</small> : null}
               </label>
             ))}
           </div>
@@ -137,6 +138,45 @@ export default async function ArtistPortalPage() {
         <section className="artist-portal-card">
           <div className="artist-portal-card-heading">
             <span>02</span>
+            <div>
+              <p className="eyebrow">Zona destacada</p>
+              <h2>Botones superiores</h2>
+            </div>
+          </div>
+          <p className="artist-portal-help">
+            Escoge las dos plataformas que quieres destacar arriba. El primer botón conserva el fondo verde y el segundo el estilo oscuro de Lujo Urban.
+          </p>
+          <div className="artist-portal-fields artist-portal-hero-fields">
+            <label>
+              Botón verde principal
+              <select name="heroPrimary" defaultValue={resolvedHeroButtons.primary || ''}>
+                <option value="">Seleccionar red</option>
+                {SOCIAL_KEYS.map(key => (
+                  <option key={key} value={key}>
+                    {SOCIAL_LABELS[key]}{artist.links?.[key] ? '' : ' · agrega su enlace arriba'}
+                  </option>
+                ))}
+              </select>
+              <small>Spotify conserva el texto “Escucha ahora”; las demás muestran el nombre de la red.</small>
+            </label>
+            <label>
+              Botón oscuro secundario
+              <select name="heroSecondary" defaultValue={resolvedHeroButtons.secondary || ''}>
+                <option value="">Seleccionar red</option>
+                {SOCIAL_KEYS.map(key => (
+                  <option key={key} value={key}>
+                    {SOCIAL_LABELS[key]}{artist.links?.[key] ? '' : ' · agrega su enlace arriba'}
+                  </option>
+                ))}
+              </select>
+              <small>Debe ser una red diferente a la elegida en el botón principal.</small>
+            </label>
+          </div>
+        </section>
+
+        <section className="artist-portal-card">
+          <div className="artist-portal-card-heading">
+            <span>03</span>
             <div>
               <p className="eyebrow">Orden visual</p>
               <h2>Organiza tus redes</h2>
@@ -147,7 +187,7 @@ export default async function ArtistPortalPage() {
 
         <section className="artist-portal-card">
           <div className="artist-portal-card-heading">
-            <span>03</span>
+            <span>04</span>
             <div>
               <p className="eyebrow">Musica actual</p>
               <h2>Enlace del lanzamiento</h2>

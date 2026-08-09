@@ -537,6 +537,7 @@ export const saveArtistAction = async (formData: FormData) => {
     photo,
     links: cleanLinks(formData),
     socialOrder: submittedSocialOrder,
+    heroButtons: existingArtist?.heroButtons,
     release: existingArtist?.release || null,
     beatsEmbed,
     productionsEmbed,
