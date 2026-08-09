@@ -73,10 +73,43 @@ const detectAnalyticsDevice = () => {
   return 'desktop';
 };
 
-const sendReleaseAnalyticsEvent = (eventType, onceKey = '') => {
-  if (!latestRelease.slug || !['view', 'chat_click', 'status_click'].includes(eventType)) return;
+const analyticsBogotaDateKey = () => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Bogota',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return values.year + '-' + values.month + '-' + values.day;
+};
 
-  const key = onceKey || `${eventType}:${latestRelease.slug}`;
+const isReleaseAnalyticsOwner = () => {
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('owner') === 'zaetta-alexis') {
+      window.localStorage.setItem('zaetta_clarity_owner_id', 'zaetta-owner-alexis');
+    }
+    return window.localStorage.getItem('zaetta_clarity_owner_id') === 'zaetta-owner-alexis';
+  } catch {
+    return false;
+  }
+};
+
+const sendReleaseAnalyticsEvent = (eventType) => {
+  if (!latestRelease.slug || !['view', 'chat_click', 'status_click'].includes(eventType)) return;
+  if (isReleaseAnalyticsOwner()) return;
+
+  const eventGroup = eventType === 'view' ? 'view' : 'interaction';
+  const persistentKey = 'lu_release_analytics:' + latestRelease.slug + ':' + eventGroup + ':' + analyticsBogotaDateKey();
+
+  try {
+    if (window.localStorage.getItem(persistentKey)) return;
+  } catch {
+    // Tracking still works when localStorage is unavailable.
+  }
+
+  const key = eventGroup + ':' + latestRelease.slug;
   if (releaseAnalyticsSent.has(key)) return;
   releaseAnalyticsSent.add(key);
 
@@ -98,6 +131,13 @@ const sendReleaseAnalyticsEvent = (eventType, onceKey = '') => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
+    }).then(response => {
+      if (!response.ok) return;
+      try {
+        window.localStorage.setItem(persistentKey, '1');
+      } catch {
+        // Analytics must never block the public landing.
+      }
     }).catch(() => {});
   } catch {
     // Analytics must never block the public landing.
