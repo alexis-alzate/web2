@@ -1,3 +1,5 @@
+import { SOCIAL_LABELS, normalizeSocialOrder, type SocialKey } from '@/lib/socials';
+
 export type ArtistRelease = {
   title: string;
   slug?: string;
@@ -16,6 +18,7 @@ export type Artist = {
   bio?: string;
   photo?: string;
   links?: Record<string, string>;
+  socialOrder?: SocialKey[];
   release?: ArtistRelease | null;
   beatsEmbed?: string;
   productionsEmbed?: string;
@@ -378,8 +381,7 @@ const renderHeroPhoto = (artist: Artist) => artist.photo
 
 const renderSocialGrid = (artist: Artist) => {
   const eventSlug = trackingSlug(artist);
-  const socialOrder = ['tiktok', 'spotify', 'instagram', 'youtube', 'facebook', 'whatsapp'];
-  const labels: Record<string, string> = { spotify: 'Spotify', tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube', facebook: 'Facebook', whatsapp: 'WhatsApp' };
+  const socialOrder = normalizeSocialOrder(artist.socialOrder);
   const items = socialOrder.filter(key => artist.links?.[key]);
   if (!items.length) return '';
 
@@ -388,7 +390,7 @@ const renderSocialGrid = (artist: Artist) => {
   <div class="social-grid">
 ${items.map(key => `    <a href="${escapeHtml(artist.links?.[key] || '')}" target="_blank" rel="noopener" class="social-item" data-track-event="artista_${eventSlug}_${key}_click" data-track-label="artist_${key}">
       ${svg[key] || ''}
-      ${labels[key] || key}
+      ${SOCIAL_LABELS[key] || key}
     </a>`).join('\n')}
   </div>
 </section>`;

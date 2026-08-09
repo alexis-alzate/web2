@@ -1,13 +1,9 @@
 'use server';
 
-import { isAuthenticated } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { sendDownloadEmail } from '@/lib/email';
 import type { Beat, LicenseType } from '@/lib/beats';
-
-const requireAuth = async () => {
-  if (!(await isAuthenticated())) throw new Error('No autorizado.');
-};
 
 type DownloadRow = {
   id: string;
@@ -32,7 +28,7 @@ const isUsable = (d: DownloadRow) =>
 // item ya vencieron o agotaron sus usos, genera uno nuevo (re-entrega para
 // compradores que perdieron sus archivos).
 export const resendOrderEmailAction = async (formData: FormData) => {
-  await requireAuth();
+  await requireAdmin();
   const supabase = createSupabaseAdminClient();
 
   const orderId = formData.get('id') as string;

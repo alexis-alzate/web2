@@ -17,6 +17,7 @@ GITHUB_TOKEN=github_pat_xxx
 GITHUB_OWNER=alexis-alzate
 GITHUB_REPO=web2
 GITHUB_BRANCH=main
+RESEND_API_KEY=re_xxx
 ```
 
 Tambien puedes usar `SUPABASE_URL` y `SUPABASE_ANON_KEY` si copiaste los
@@ -35,6 +36,8 @@ Redirect URL: https://panel.lujourban.com/reset-password
 
 El token de GitHub debe poder leer y escribir contenido del repo.
 La clave del panel se cambia desde el flujo de recuperacion de Supabase.
+Las invitaciones de artistas usan Resend, por lo que `RESEND_API_KEY` es obligatoria
+para crear sus accesos. El flujo no depende del SMTP de desarrollo de Supabase.
 
 ## Local
 

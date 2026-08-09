@@ -2700,3 +2700,460 @@ input[type="file"]::file-selector-button:hover {
   }
 }
 
+/* Artist access and self-service portal */
+
+.social-order-editor {
+  display: grid;
+  gap: 11px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.social-order-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.45;
+}
+
+.social-order-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social-order-list li {
+  display: grid;
+  grid-template-columns: auto 30px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(57, 255, 99, .15);
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(57, 255, 99, .065), rgba(255, 255, 255, .018));
+  transition: opacity .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.social-order-list li.is-dragging {
+  opacity: .52;
+  border-color: rgba(57, 255, 99, .48);
+  transform: scale(.99);
+}
+
+.social-order-handle {
+  color: rgba(255, 255, 255, .3);
+  cursor: grab;
+  font-size: .85rem;
+  letter-spacing: -4px;
+}
+
+.social-order-position {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(57, 255, 99, .22);
+  border-radius: 50%;
+  color: var(--green);
+  background: rgba(57, 255, 99, .075);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.social-order-name {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.social-order-name strong {
+  color: var(--text);
+  font-size: .82rem;
+  letter-spacing: .04em;
+  text-transform: none;
+}
+
+.social-order-name small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-order-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.social-order-controls button {
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-color: rgba(57, 255, 99, .2);
+  color: var(--green);
+  background: rgba(0, 0, 0, .24);
+}
+
+.social-order-controls button:disabled {
+  cursor: default;
+  opacity: .25;
+}
+
+.artist-access-invite {
+  margin-top: 16px;
+  padding: 15px;
+  border: 1px solid rgba(57, 255, 99, .14);
+  border-radius: 15px;
+  background: rgba(57, 255, 99, .025);
+}
+
+.artist-access-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.artist-access-card {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.2fr) minmax(150px, 1fr) minmax(130px, .7fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, .022);
+}
+
+.artist-access-copy {
+  display: grid;
+  align-self: center;
+  min-width: 0;
+  gap: 4px;
+}
+
+.artist-access-copy strong,
+.artist-access-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist-access-copy strong {
+  color: var(--text);
+  font-size: .92rem;
+}
+
+.artist-access-copy small {
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.artist-access-badge {
+  width: max-content;
+  max-width: 100%;
+  margin-top: 3px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, .035);
+  font-size: .62rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.artist-access-badge.is-active {
+  border-color: rgba(57, 255, 99, .25);
+  color: var(--green);
+  background: rgba(57, 255, 99, .06);
+}
+
+.artist-access-badge.is-suspended {
+  border-color: rgba(255, 195, 77, .3);
+  color: #ffd889;
+  background: rgba(255, 195, 77, .06);
+}
+
+.artist-portal-shell {
+  width: min(780px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 24px 0 110px;
+}
+
+.artist-portal-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.artist-portal-topbar h1 {
+  margin: 0;
+  font-size: clamp(1.1rem, 5vw, 1.45rem);
+  font-weight: 700;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+}
+
+.artist-portal-profile,
+.artist-portal-card {
+  border: 1px solid rgba(57, 255, 99, .18);
+  background:
+    radial-gradient(380px 160px at 0% 0%, rgba(57, 255, 99, .085), transparent 72%),
+    linear-gradient(180deg, rgba(8, 15, 9, .94), rgba(2, 4, 2, .96));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+.artist-portal-profile {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 17px;
+  border-radius: 22px;
+}
+
+.artist-portal-profile > img,
+.artist-portal-avatar {
+  width: 76px;
+  height: 76px;
+  border: 1px solid rgba(57, 255, 99, .28);
+  border-radius: 18px;
+  object-fit: cover;
+}
+
+.artist-portal-avatar {
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  background: rgba(57, 255, 99, .08);
+  font-size: 1.25rem;
+}
+
+.artist-portal-profile h2 {
+  margin: 5px 0 4px;
+  font-size: clamp(1.15rem, 4.5vw, 1.55rem);
+  line-height: 1.05;
+}
+
+.artist-portal-profile p {
+  margin: 0;
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.35;
+}
+
+.artist-portal-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--green);
+  font-size: .64rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.artist-portal-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 12px rgba(57, 255, 99, .65);
+}
+
+.artist-portal-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.artist-portal-card {
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.artist-portal-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.artist-portal-card-heading > span {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(57, 255, 99, .22);
+  border-radius: 50%;
+  color: var(--green);
+  background: rgba(57, 255, 99, .07);
+  font-size: .65rem;
+  font-weight: 800;
+}
+
+.artist-portal-card-heading .eyebrow {
+  margin: 0 0 4px;
+  color: rgba(57, 255, 99, .72);
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.artist-portal-card-heading h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.artist-portal-help {
+  margin: -2px 0 16px;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+.artist-portal-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.artist-portal-savebar {
+  position: sticky;
+  bottom: 10px;
+  z-index: 12;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 12px 12px 16px;
+  border: 1px solid rgba(57, 255, 99, .25);
+  border-radius: 18px;
+  background: rgba(3, 8, 4, .92);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .52), 0 0 28px rgba(57, 255, 99, .08);
+  backdrop-filter: blur(16px);
+}
+
+.artist-portal-savebar > span {
+  display: grid;
+  gap: 3px;
+}
+
+.artist-portal-savebar strong {
+  color: var(--text);
+  font-size: .78rem;
+}
+
+.artist-portal-savebar small {
+  color: var(--muted);
+  font-size: .68rem;
+  line-height: 1.3;
+}
+
+.artist-portal-savebar button {
+  min-width: 170px;
+}
+
+.artist-portal-restricted {
+  display: grid;
+  justify-items: center;
+  min-height: 360px;
+  align-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.artist-portal-restricted h2,
+.artist-portal-restricted p {
+  margin: 0;
+}
+
+.artist-portal-restricted p {
+  max-width: 480px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.artist-portal-lock {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border: 1px solid rgba(57, 255, 99, .28);
+  border-radius: 50%;
+  color: var(--green);
+  background: rgba(57, 255, 99, .08);
+  font-size: 1.5rem;
+}
+
+@media (max-width: 760px) {
+  .artist-access-card {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .artist-access-card button {
+    width: 100%;
+  }
+
+  .artist-portal-profile {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .artist-portal-profile > img,
+  .artist-portal-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+  }
+
+  .artist-portal-profile > .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .artist-portal-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .artist-portal-savebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .artist-portal-savebar button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .artist-portal-shell {
+    width: min(100% - 20px, 780px);
+    padding-top: 16px;
+  }
+
+  .artist-portal-card {
+    padding: 16px 13px;
+  }
+
+  .social-order-list li {
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .social-order-handle {
+    display: none;
+  }
+
+  .social-order-controls button {
+    width: 32px;
+    min-height: 32px;
+  }
+}

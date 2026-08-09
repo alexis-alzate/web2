@@ -11,12 +11,13 @@ import {
   saveArtistAction,
   reactivateHomeReleaseAction
 } from './actions';
-import { isAuthenticated } from '@/lib/auth';
+import { getCurrentAccess } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { SubmitButton } from './components/SubmitButton';
 import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
 import { AutoLogoutTimer } from './components/AutoLogoutTimer';
 import { ActionForm } from './components/ActionForm';
+import { SocialOrderEditor } from './components/SocialOrderEditor';
 import { ReleasePreview } from './components/ReleasePreview';
 import { CopyLinkButton } from './components/CopyLinkButton';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
@@ -28,6 +29,9 @@ import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType, type Producer } from '@/lib/beats';
+import type { SocialKey } from '@/lib/socials';
+import { isAccessStatus, type LujoAccessStatus } from '@/lib/auth';
+import { inviteArtistUserAction, updateArtistUserAccessAction } from './artist-access-actions';
 
 type BeatOrder = {
   id: string;
@@ -85,6 +89,7 @@ type Artist = {
   bio?: string;
   photo?: string;
   links?: Record<string, string>;
+  socialOrder?: SocialKey[];
   release?: {
     title: string;
     slug: string;
@@ -98,6 +103,20 @@ type Artist = {
 
 type ArtistData = {
   artists: Artist[];
+};
+
+type ArtistAccessAccount = {
+  id: string;
+  email: string;
+  artistSlug: string;
+  status: LujoAccessStatus;
+  confirmed: boolean;
+};
+
+const ACCESS_STATUS_LABELS: Record<LujoAccessStatus, string> = {
+  active: 'Activo',
+  suspended: 'Pausado',
+  inactive: 'Inactivo'
 };
 
 type Release = {
@@ -263,7 +282,10 @@ const futureModules = [
 ];
 
 export default async function DashboardPage() {
-  if (!(await isAuthenticated())) redirect('/login');
+  const access = await getCurrentAccess();
+  if (!access) redirect('/login');
+  if (access.role === 'artist') redirect('/mi-perfil');
+  if (access.role !== 'admin' || access.status !== 'active') redirect('/login?error=access');
 
   let artistData: ArtistData;
   let releaseHistory: ReleaseHistory;
@@ -277,6 +299,8 @@ export default async function DashboardPage() {
   let beatOffers: BeatOffer[] = [];
   let producers: Producer[] = [];
   let producerEarnings: ProducerEarning[] = [];
+  let artistAccessAccounts: ArtistAccessAccount[] = [];
+  let artistAccessError = '';
 
   try {
     const supabaseAdmin = createSupabaseAdminClient();
@@ -367,6 +391,27 @@ export default async function DashboardPage() {
         </section>
       </main>
     );
+  }
+
+  try {
+    const supabaseAdmin = createSupabaseAdminClient();
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (error) throw error;
+    artistAccessAccounts = data.users
+      .filter(user => user.app_metadata?.lujo_role === 'artist')
+      .map(user => ({
+        id: user.id,
+        email: user.email || 'Sin correo',
+        artistSlug: typeof user.app_metadata?.lujo_artist_slug === 'string'
+          ? user.app_metadata.lujo_artist_slug
+          : '',
+        status: isAccessStatus(user.app_metadata?.lujo_access)
+          ? user.app_metadata.lujo_access
+          : 'inactive',
+        confirmed: Boolean(user.email_confirmed_at)
+      }));
+  } catch (error) {
+    artistAccessError = error instanceof Error ? error.message : 'No pude cargar los accesos de artistas.';
   }
 
   return (
@@ -598,6 +643,9 @@ export default async function DashboardPage() {
                   WhatsApp
                   <input name="whatsapp" placeholder="https://wa.me/..." />
                 </label>
+                <div className="span-2">
+                  <SocialOrderEditor />
+                </div>
                 <label className="span-2">
                   Embed beats
                   <input name="beatsEmbed" placeholder="https://open.spotify.com/embed/... o BeatStars" />
@@ -618,6 +666,84 @@ export default async function DashboardPage() {
                   Crear artista
                 </SubmitButton>
               </ActionForm>
+            </details>
+
+            <details className="subfolder">
+              <summary>Accesos de artistas ({artistAccessAccounts.length})</summary>
+              <p className="muted">
+                Cada usuario solo entra a su propio perfil. No puede ver lanzamientos de Zaetta,
+                analiticas, configuracion ni la tienda de beats.
+              </p>
+              <ActionForm
+                action={inviteArtistUserAction}
+                className="grid artist-access-invite"
+                savingMessage="Creando el acceso y enviando la invitacion..."
+                successMessage="Invitacion enviada. El artista ya puede crear su clave."
+                resetOnSuccess
+              >
+                <label>
+                  Correo del artista
+                  <input type="email" name="email" placeholder="artista@correo.com" required />
+                </label>
+                <label>
+                  Perfil que puede editar
+                  <select name="artistSlug" required defaultValue="">
+                    <option value="" disabled>Seleccionar artista</option>
+                    {artistData.artists.map(artist => (
+                      <option key={artist.slug} value={artist.slug}>{artist.cardName || artist.name}</option>
+                    ))}
+                  </select>
+                </label>
+                <SubmitButton className="primary span-2" pendingText="Enviando...">
+                  Crear acceso y enviar invitacion
+                </SubmitButton>
+              </ActionForm>
+
+              {artistAccessError ? <p className="auth-error">{artistAccessError}</p> : null}
+              {artistAccessAccounts.length ? (
+                <div className="artist-access-list">
+                  {artistAccessAccounts.map(account => {
+                    const linkedArtist = artistData.artists.find(artist => artist.slug === account.artistSlug);
+                    return (
+                      <ActionForm
+                        action={updateArtistUserAccessAction}
+                        className="artist-access-card"
+                        key={account.id}
+                        savingMessage={`Actualizando el acceso de ${account.email}...`}
+                        successMessage="Acceso de artista actualizado."
+                      >
+                        <input type="hidden" name="userId" value={account.id} />
+                        <div className="artist-access-copy">
+                          <strong>{linkedArtist?.cardName || linkedArtist?.name || account.artistSlug || 'Perfil sin vincular'}</strong>
+                          <small>{account.email}</small>
+                          <span className={`artist-access-badge is-${account.status}`}>
+                            {ACCESS_STATUS_LABELS[account.status]} · {account.confirmed ? 'Cuenta confirmada' : 'Invitacion pendiente'}
+                          </span>
+                        </div>
+                        <label>
+                          Perfil
+                          <select name="artistSlug" defaultValue={account.artistSlug} required>
+                            {artistData.artists.map(artist => (
+                              <option key={artist.slug} value={artist.slug}>{artist.cardName || artist.name}</option>
+                            ))}
+                          </select>
+                        </label>
+                        <label>
+                          Estado
+                          <select name="accessStatus" defaultValue={account.status}>
+                            <option value="active">Activo</option>
+                            <option value="suspended">Pausado</option>
+                            <option value="inactive">Inactivo</option>
+                          </select>
+                        </label>
+                        <SubmitButton pendingText="Guardando...">Guardar acceso</SubmitButton>
+                      </ActionForm>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="muted">Todavia no hay cuentas de artistas.</p>
+              )}
             </details>
 
             <details className="subfolder">
@@ -714,6 +840,7 @@ export default async function DashboardPage() {
                               </label>
                             ))}
                               </div>
+                              <SocialOrderEditor initialOrder={artist.socialOrder} links={artist.links} />
                             </fieldset>
                             <fieldset className="artist-edit-section">
                               <legend>Integraciones y contacto</legend>
