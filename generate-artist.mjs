@@ -320,11 +320,18 @@ const heroButtons = artist => {
     </a>`);
   }
 
-  buttons.push(`<a href="/artistas/" class="btn-secondary" data-track-event="artistas_directorio_click" data-track-label="artist_hero_artistas">
-      Artistas
-    </a>`);
-
   return buttons.join('\n    ');
+};
+
+const renderArtistDiscovery = artist => {
+  const eventSlug = trackingSlug(artist);
+  return `<div class="divider divider-music-inner"></div>
+<section class="artist-discovery fade-up" aria-label="Descubrir más artistas de Lujo Urban">
+  <a href="/artistas/" class="artist-discovery-link" data-track-event="artista_${eventSlug}_directorio_final_click" data-track-label="artist_footer_directory" data-track-content="${escapeHtml(artist.name)}">
+    <span>Descubre más artistas de LUJO URBAN</span>
+    <span class="artist-discovery-arrow" aria-hidden="true">→</span>
+  </a>
+</section>`;
 };
 
 const renderRelease = artist => {
@@ -439,6 +446,7 @@ ${renderRelease(artist)}
 ${renderEmbedSection('Beats', 'Catálogo de beats', artist.beatsEmbed, `artista_${eventSlug}_beats_visto`)}
 ${renderEmbedSection('Producciones', 'Producciones destacadas', artist.productionsEmbed, `artista_${eventSlug}_producciones_visto`)}
 ${renderContact(artist)}
+${renderArtistDiscovery(artist)}
 </main>
 ${trackingBodyScript}
 </body>

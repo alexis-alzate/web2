@@ -1462,3 +1462,54 @@ a[href*="spotify"]{
     opacity: .96 !important;
   }
 }
+
+/* Navegación secundaria al final de los perfiles de artista */
+.artist-discovery {
+  display: flex;
+  justify-content: center;
+  padding: 34px 24px 56px;
+}
+.artist-discovery-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #a8a8a8;
+  border-bottom: 1px solid rgba(57,255,99,.26);
+  padding: 8px 2px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1.35;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .2s ease, border-color .2s ease;
+}
+.artist-discovery-link:hover,
+.artist-discovery-link:focus-visible {
+  color: var(--green);
+  border-color: rgba(57,255,99,.72);
+}
+.artist-discovery-link:focus-visible {
+  outline: 2px solid rgba(57,255,99,.45);
+  outline-offset: 5px;
+}
+.artist-discovery-arrow {
+  color: var(--green);
+  font-size: 1rem;
+  transition: transform .2s ease;
+}
+.artist-discovery-link:hover .artist-discovery-arrow,
+.artist-discovery-link:focus-visible .artist-discovery-arrow {
+  transform: translateX(3px);
+}
+@media (max-width: 520px) {
+  .artist-discovery { padding: 28px 20px 46px; }
+  .artist-discovery-link {
+    max-width: 280px;
+    font-size: .72rem;
+    letter-spacing: 1.7px;
+  }
+}
