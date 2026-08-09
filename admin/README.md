@@ -12,7 +12,7 @@ Configura estas variables en Vercel:
 ```text
 NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
-ADMIN_SITE_URL=https://panel.lujourban.com
+ADMIN_SITE_URL=https://admin.lujourban.com
 GITHUB_TOKEN=github_pat_xxx
 GITHUB_OWNER=alexis-alzate
 GITHUB_REPO=web2
@@ -29,9 +29,9 @@ Supabase usando el correo que usaras para entrar al panel.
 En Supabase configura estas URLs:
 
 ```text
-Site URL: https://panel.lujourban.com
-Redirect URL: https://panel.lujourban.com/auth/callback
-Redirect URL: https://panel.lujourban.com/reset-password
+Site URL: https://admin.lujourban.com
+Redirect URL: https://admin.lujourban.com/auth/callback
+Redirect URL: https://admin.lujourban.com/reset-password
 ```
 
 El token de GitHub debe poder leer y escribir contenido del repo.
@@ -106,4 +106,4 @@ Pendiente para la siguiente iteracion:
 
 - Subida de fotos/portadas desde el navegador.
 - Mensajes visuales de exito/error despues de publicar.
-- Dominio privado `panel.lujourban.com`.
+- Dominio privado `admin.lujourban.com`.
