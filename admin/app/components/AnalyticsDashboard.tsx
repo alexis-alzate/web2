@@ -1,11 +1,12 @@
 'use client';
 
-import type { ReleaseAnalyticsSummary, DailyStat } from '@/lib/analytics';
+import type { ReleaseAnalyticsSummary, DailyStat, ReleaseStat } from '@/lib/analytics';
 
 type Release = {
   title: string;
   slug: string;
   cover?: string;
+  artistSlug?: string | null;
 };
 
 type AnalyticsDashboardProps = {
@@ -17,8 +18,11 @@ const mainSiteUrl = 'https://www.lujourban.com/';
 
 const formatNumber = (value: number) => new Intl.NumberFormat('es-CO').format(value);
 
-const findRelease = (slug: string, releases: Release[]) =>
-  releases.find(release => release.slug === slug);
+const findRelease = (stat: ReleaseStat, releases: Release[]) =>
+  releases.find(release =>
+    release.slug === stat.slug &&
+    (release.artistSlug || null) === stat.artistSlug
+  ) || releases.find(release => release.slug === stat.slug);
 
 const resolveCoverUrl = (release?: Release) => {
   let coverUrl = release?.cover;
@@ -28,28 +32,16 @@ const resolveCoverUrl = (release?: Release) => {
   return coverUrl;
 };
 
-type PeriodTotals = {
-  views: number;
-  interactions: number;
-  conversionRate: number;
-};
-
-const sumPeriod = (rows: DailyStat[]): PeriodTotals => {
-  const views = rows.reduce((acc, row) => acc + row.view, 0);
-  const interactions = rows.reduce((acc, row) => acc + row.interaction, 0);
-  return {
-    views,
-    interactions,
-    conversionRate: views > 0 ? (interactions / views) * 100 : 0
-  };
-};
-
 const percentChange = (current: number, previous: number) => {
-  if (previous > 0) return ((current - previous) / previous) * 100;
-  return current > 0 ? 100 : 0;
+  if (previous <= 0) return current > 0 ? null : 0;
+  return ((current - previous) / previous) * 100;
 };
 
-const TrendBadge = ({ delta, unit }: { delta: number; unit: '%' | 'pts' }) => {
+const TrendBadge = ({ delta, unit }: { delta: number | null; unit: '%' | 'pts' }) => {
+  if (delta === null) {
+    return <span className="analytics-trend-badge flat">Sin datos anteriores</span>;
+  }
+
   const rounded = Math.round(delta * 10) / 10;
   const tone = rounded > 0.05 ? 'up' : rounded < -0.05 ? 'down' : 'flat';
   const arrow = tone === 'up' ? '▲' : tone === 'down' ? '▼' : '·';
@@ -84,42 +76,46 @@ const Sparkline = ({ data }: { data: DailyStat[] }) => {
   );
 };
 
-const InteractionBreakdown = ({ chatClicks, statusClicks }: { chatClicks: number; statusClicks: number }) => {
-  const total = chatClicks + statusClicks;
+const InteractionBreakdown = ({ listenOrShare, statusClicks }: { listenOrShare: number; statusClicks: number }) => {
+  const total = listenOrShare + statusClicks;
   if (total <= 0) return null;
 
-  const chatPct = (chatClicks / total) * 100;
+  const listenPct = (listenOrShare / total) * 100;
   const statusPct = (statusClicks / total) * 100;
 
   return (
     <div className="analytics-interaction-breakdown">
       <span className="analytics-interaction-bar">
-        <span className="analytics-interaction-segment chat" style={{ width: `${chatPct}%` }} />
+        <span className="analytics-interaction-segment chat" style={{ width: `${listenPct}%` }} />
         <span className="analytics-interaction-segment status" style={{ width: `${statusPct}%` }} />
       </span>
       <div className="analytics-interaction-legend">
-        <span><i className="dot chat" />Chat / escuchar · {chatPct.toFixed(0)}%</span>
+        <span><i className="dot chat" />Escuchar / compartir · {listenPct.toFixed(0)}%</span>
         <span><i className="dot status" />Estado · {statusPct.toFixed(0)}%</span>
       </div>
     </div>
   );
 };
 
-const ReleaseList = ({ stats, releases }: { stats: ReleaseAnalyticsSummary['releases']; releases: Release[] }) => {
+const ReleaseList = ({ stats, releases, periodDays }: {
+  stats: ReleaseAnalyticsSummary['releases'];
+  releases: Release[];
+  periodDays: number;
+}) => {
   const maxViews = Math.max(1, ...stats.map(item => item.views));
 
   return (
     <article className="analytics-panel">
-      <h3>Lanzamientos</h3>
+      <h3>Lanzamientos · últimos {periodDays} días</h3>
       <ol className="analytics-release-list">
         {stats.map((item, index) => {
-          const release = findRelease(item.slug, releases);
+          const release = findRelease(item, releases);
           const coverUrl = resolveCoverUrl(release);
           const isTop = index === 0;
           const barWidth = (item.views / maxViews) * 100;
 
           return (
-            <li className="analytics-release-row" key={item.slug}>
+            <li className="analytics-release-row" key={`${item.artistSlug || 'zaetta'}:${item.slug}`}>
               <span className={`analytics-release-rank${isTop ? ' is-top' : ''}`}>
                 {isTop ? '★' : index + 1}
               </span>
@@ -138,7 +134,7 @@ const ReleaseList = ({ stats, releases }: { stats: ReleaseAnalyticsSummary['rele
               <div className="analytics-release-info">
                 <span className="analytics-release-title">{release?.title || item.slug}</span>
                 <span className="analytics-release-stats">
-                  {formatNumber(item.views)} visitas · {item.conversionRate.toFixed(1)}% conversión
+                  {formatNumber(item.views)} visitas · {item.interactionRate.toFixed(1)}% interacción
                 </span>
                 <span className="analytics-release-bar-track">
                   <span
@@ -156,13 +152,13 @@ const ReleaseList = ({ stats, releases }: { stats: ReleaseAnalyticsSummary['rele
 };
 
 export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProps) {
-  const days = summary.dailyStats;
-  const half = Math.floor(days.length / 2);
-  const previousPeriod = sumPeriod(days.slice(0, half));
-  const currentPeriod = sumPeriod(days.slice(half));
-  const periodDays = days.length - half;
-  const viewsDelta = percentChange(currentPeriod.views, previousPeriod.views);
-  const conversionDelta = currentPeriod.conversionRate - previousPeriod.conversionRate;
+  const periodDays = summary.periodDays;
+  const currentDays = summary.dailyStats.slice(-periodDays);
+  const currentViews = summary.totals.view;
+  const viewsDelta = percentChange(currentViews, summary.previous.views);
+  const interactionDelta = summary.previous.views > 0
+    ? summary.interactionRate - summary.previous.interactionRate
+    : summary.interactionsTotal > 0 ? null : 0;
 
   return (
     <div className="analytics-container fade-in">
@@ -182,31 +178,31 @@ export function AnalyticsDashboard({ summary, releases }: AnalyticsDashboardProp
           <article className="analytics-kpi-card">
             <span className="analytics-kpi-label">Visitas · últimos {periodDays} días</span>
             <div className="analytics-kpi-row">
-              <strong className="analytics-kpi-value">{formatNumber(currentPeriod.views)}</strong>
+              <strong className="analytics-kpi-value">{formatNumber(currentViews)}</strong>
               <TrendBadge delta={viewsDelta} unit="%" />
             </div>
-            <Sparkline data={days.slice(half)} />
+            <Sparkline data={currentDays} />
             <span className="analytics-kpi-context">
-              {formatNumber(previousPeriod.views)} en los {periodDays} días anteriores
+              {formatNumber(summary.previous.views)} en los {periodDays} días anteriores
             </span>
           </article>
 
           <article className="analytics-kpi-card">
-            <span className="analytics-kpi-label">Conversión · últimos {periodDays} días</span>
+            <span className="analytics-kpi-label">Interacción · últimos {periodDays} días</span>
             <div className="analytics-kpi-row">
-              <strong className="analytics-kpi-value">{currentPeriod.conversionRate.toFixed(1)}%</strong>
-              <TrendBadge delta={conversionDelta} unit="pts" />
+              <strong className="analytics-kpi-value">{summary.interactionRate.toFixed(1)}%</strong>
+              <TrendBadge delta={interactionDelta} unit="pts" />
             </div>
             <InteractionBreakdown
-              chatClicks={summary.totals.chat_click}
+              listenOrShare={summary.totals.chat_click}
               statusClicks={summary.totals.status_click}
             />
             <span className="analytics-kpi-context">
-              {formatNumber(currentPeriod.interactions)} interacciones de {formatNumber(currentPeriod.views)} visitas
+              {formatNumber(summary.interactionsTotal)} interacciones de {formatNumber(currentViews)} visitas
             </span>
           </article>
 
-          <ReleaseList stats={summary.releases} releases={releases} />
+          <ReleaseList stats={summary.releases} releases={releases} periodDays={periodDays} />
         </div>
       )}
     </div>
