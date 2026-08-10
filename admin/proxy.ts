@@ -3,10 +3,11 @@ import { ADMIN_SESSION_COOKIE } from '@/lib/admin-session';
 
 const publicPaths = ['/login', '/forgot-password', '/reset-password', '/auth/callback', '/auth/confirm'];
 
+const isSupabaseAuthCookieName = (name: string) =>
+  name.startsWith('sb-') && /-auth-token(?:\.\d+)?$/.test(name);
+
 const hasSupabaseAuthCookie = (request: NextRequest) =>
-  request.cookies.getAll().some(cookie =>
-    cookie.name.startsWith('sb-') && cookie.name.endsWith('-auth-token') && cookie.value
-  );
+  request.cookies.getAll().some(cookie => isSupabaseAuthCookieName(cookie.name) && cookie.value);
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
