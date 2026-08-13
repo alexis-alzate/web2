@@ -14,7 +14,18 @@ export const sendPasswordResetAction = async (formData: FormData) => {
     redirectTo: `${origin}/auth/callback?next=/reset-password`
   });
 
-  if (error) redirect('/forgot-password?error=send');
+  if (error) {
+    const rateLimited = error.status === 429 || error.code === 'over_email_send_rate_limit';
+
+    if (rateLimited) redirect('/forgot-password?error=rate-limit');
+
+    console.error('Password reset email request failed.', {
+      code: error.code,
+      status: error.status
+    });
+    redirect('/forgot-password?error=send');
+  }
+
   redirect('/forgot-password?sent=1');
 };
 
