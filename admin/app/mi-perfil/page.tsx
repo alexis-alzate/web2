@@ -6,6 +6,7 @@ import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { ActionForm } from '../components/ActionForm';
 import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
+import { PortalActivityTracker } from '../components/PortalActivityTracker';
 import { SocialOrderEditor } from '../components/SocialOrderEditor';
 import { SubmitButton } from '../components/SubmitButton';
 import { saveOwnArtistPortalAction } from '../artist-portal-actions';
@@ -38,6 +39,8 @@ export default async function ArtistPortalPage() {
   if (!artist) {
     return (
       <main className="artist-portal-shell">
+        <AutoLogoutTimer />
+        <PortalActivityTracker />
         <header className="artist-portal-topbar">
           <div>
             <p className="eyebrow">Mi espacio</p>
@@ -59,6 +62,7 @@ export default async function ArtistPortalPage() {
     return (
       <main className="artist-portal-shell">
         <AutoLogoutTimer />
+        <PortalActivityTracker />
         <header className="artist-portal-topbar">
           <div>
             <p className="eyebrow">{copy.eyebrow}</p>
@@ -87,6 +91,7 @@ export default async function ArtistPortalPage() {
   return (
     <main className="artist-portal-shell">
       <AutoLogoutTimer />
+      <PortalActivityTracker />
       <header className="artist-portal-topbar">
         <div>
           <p className="eyebrow">Portal del artista</p>

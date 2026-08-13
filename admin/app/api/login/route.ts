@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { ADMIN_SESSION_COOKIE, ADMIN_SESSION_MAX_AGE_SECONDS } from '@/lib/admin-session';
 import { readAccessMetadata } from '@/lib/auth';
+import {
+  PORTAL_ACTIVITY_COOKIE_MAX_AGE_SECONDS,
+  PORTAL_ACTIVITY_SESSION_COOKIE,
+  startPortalSession
+} from '@/lib/portal-activity';
 import { createSupabaseRouteClient } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {
@@ -46,6 +51,23 @@ export async function POST(request: Request) {
       sameSite: 'lax',
       secure: request.url.startsWith('https://')
     });
+
+    const activitySessionId = await startPortalSession({
+      userId: data.user.id,
+      role: access?.role === 'admin' ? 'admin' : 'artist',
+      artistSlug: access?.artistSlug || null,
+      loginMethod: 'password',
+      userAgent: request.headers.get('user-agent')
+    });
+    if (activitySessionId) {
+      response.cookies.set(PORTAL_ACTIVITY_SESSION_COOKIE, activitySessionId, {
+        httpOnly: true,
+        maxAge: PORTAL_ACTIVITY_COOKIE_MAX_AGE_SECONDS,
+        path: '/',
+        sameSite: 'lax',
+        secure: request.url.startsWith('https://')
+      });
+    }
     return response;
   } catch {
     return NextResponse.redirect(new URL('/login?error=config', request.url), 303);

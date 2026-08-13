@@ -3132,6 +3132,195 @@ input[type="file"]::file-selector-button:hover {
   background: rgba(255, 122, 91, .07);
 }
 
+.artist-activity {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(201, 168, 76, .18);
+  border-radius: 14px;
+  background:
+    radial-gradient(320px 120px at 0% 0%, rgba(201, 168, 76, .075), transparent 72%),
+    rgba(255, 255, 255, .018);
+}
+
+.artist-activity-heading,
+.artist-activity-last-login {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.artist-activity-heading > span:first-child,
+.artist-activity-last-login > span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.artist-activity-heading small,
+.artist-activity-last-login small,
+.artist-activity-metrics small {
+  color: var(--muted);
+  font-size: .64rem;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+
+.artist-activity-heading strong {
+  color: var(--text);
+  font-size: .84rem;
+}
+
+.artist-activity-status {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, .035);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.artist-activity-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6f7472;
+}
+
+.artist-activity-status.is-online {
+  border-color: rgba(57, 255, 99, .28);
+  color: var(--green);
+  background: rgba(57, 255, 99, .065);
+}
+
+.artist-activity-status.is-online i {
+  background: var(--green);
+  box-shadow: 0 0 12px rgba(57, 255, 99, .7);
+}
+
+.artist-activity-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.artist-activity-metrics > span {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 11px;
+  border: 1px solid rgba(255, 255, 255, .065);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, .2);
+}
+
+.artist-activity-metrics strong {
+  overflow: hidden;
+  color: #e7d08e;
+  font-size: .92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist-activity-last-login {
+  padding: 0 2px;
+}
+
+.artist-activity-last-login > span:last-child {
+  text-align: right;
+}
+
+.artist-activity-last-login strong {
+  color: var(--text);
+  font-size: .73rem;
+}
+
+.artist-activity-events {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+.artist-activity-events > summary {
+  width: max-content;
+  max-width: 100%;
+  cursor: pointer;
+  color: #d7c17d;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.artist-activity-events ol {
+  display: grid;
+  gap: 0;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.artist-activity-events li {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .045);
+}
+
+.artist-activity-events li:last-child {
+  border-bottom: 0;
+}
+
+.artist-activity-events li > i {
+  width: 7px;
+  height: 7px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: rgba(201, 168, 76, .7);
+}
+
+.artist-activity-events li > span {
+  display: grid;
+  gap: 2px;
+}
+
+.artist-activity-events li strong {
+  color: var(--text);
+  font-size: .74rem;
+  font-weight: 650;
+}
+
+.artist-activity-events li small,
+.artist-activity-events p,
+.artist-activity-empty small,
+.artist-activity-unavailable span {
+  color: var(--muted);
+  font-size: .67rem;
+}
+
+.artist-activity-events p {
+  margin: 10px 0 0;
+}
+
+.artist-activity-empty,
+.artist-activity-unavailable {
+  justify-items: start;
+}
+
+.artist-activity-empty strong,
+.artist-activity-unavailable strong {
+  color: var(--text);
+  font-size: .8rem;
+}
+
 .artist-portal-shell {
   width: min(780px, calc(100% - 28px));
   margin: 0 auto;
@@ -3450,6 +3639,28 @@ input[type="file"]::file-selector-button:hover {
   .artist-access-directory-body {
     max-height: 62svh;
     padding: 9px;
+  }
+
+  .artist-activity-heading,
+  .artist-activity-last-login {
+    align-items: flex-start;
+  }
+
+  .artist-activity-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .artist-activity-metrics > span:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .artist-activity-last-login {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .artist-activity-last-login > span:last-child {
+    text-align: left;
   }
 
   .artist-portal-profile {

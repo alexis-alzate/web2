@@ -16,6 +16,7 @@ import { redirect } from 'next/navigation';
 import { SubmitButton } from './components/SubmitButton';
 import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
 import { AutoLogoutTimer } from './components/AutoLogoutTimer';
+import { PortalActivityTracker } from './components/PortalActivityTracker';
 import { ActionForm } from './components/ActionForm';
 import { SocialOrderEditor } from './components/SocialOrderEditor';
 import { ReleasePreview } from './components/ReleasePreview';
@@ -32,6 +33,9 @@ import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType, type Produce
 import type { SocialKey } from '@/lib/socials';
 import { isAccessStatus, type LujoAccessStatus } from '@/lib/auth';
 import { TEST_ARTIST_SLUG } from '@/lib/test-artist';
+import { loadPortalUserActivities } from '@/lib/portal-activity';
+import type { PortalUserActivity } from '@/lib/portal-activity-types';
+import { UserActivityPanel } from './components/UserActivityPanel';
 import {
   convertArtistUserToTestAction,
   createTestArtistUserAction,
@@ -309,6 +313,8 @@ export default async function DashboardPage() {
   let producerEarnings: ProducerEarning[] = [];
   let artistAccessAccounts: ArtistAccessAccount[] = [];
   let artistAccessError = '';
+  let artistActivityAvailable = true;
+  let artistActivities: Record<string, PortalUserActivity> = {};
 
   try {
     const supabaseAdmin = createSupabaseAdminClient();
@@ -421,6 +427,10 @@ export default async function DashboardPage() {
           ? user.app_metadata.lujo_unlinked_at
           : ''
       }));
+
+    const activityResult = await loadPortalUserActivities(artistAccessAccounts.map(account => account.id));
+    artistActivityAvailable = activityResult.available;
+    artistActivities = activityResult.byUserId;
   } catch (error) {
     artistAccessError = error instanceof Error ? error.message : 'No pude cargar los accesos de artistas.';
   }
@@ -435,10 +445,12 @@ export default async function DashboardPage() {
   const accessRosterArtists = [...artistData.artists].sort((left, right) =>
     (left.cardName || left.name).localeCompare(right.cardName || right.name, 'es')
   );
+  const activityGeneratedAt = new Date().toISOString();
 
   return (
     <main className="shell">
       <AutoLogoutTimer />
+      <PortalActivityTracker />
       <header className="topbar">
         <div className="topbar-title">
           <p className="eyebrow">Panel privado</p>
@@ -736,6 +748,11 @@ export default async function DashboardPage() {
                           </label>
                           <SubmitButton pendingText="Guardando...">Guardar</SubmitButton>
                         </ActionForm>
+                        <UserActivityPanel
+                          activity={artistActivities[account.id]}
+                          trackingAvailable={artistActivityAvailable}
+                          generatedAt={activityGeneratedAt}
+                        />
                         <details className="artist-access-emergency">
                           <summary>Desvincular cuenta de prueba</summary>
                           <ActionForm
@@ -838,6 +855,11 @@ export default async function DashboardPage() {
                                   </label>
                                   <SubmitButton pendingText="Guardando...">Guardar</SubmitButton>
                                 </ActionForm>
+                                <UserActivityPanel
+                                  activity={artistActivities[account.id]}
+                                  trackingAvailable={artistActivityAvailable}
+                                  generatedAt={activityGeneratedAt}
+                                />
                                 {account.status === 'inactive' && !testAccessAccounts.length ? (
                                   <ActionForm
                                     action={convertArtistUserToTestAction}

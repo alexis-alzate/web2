@@ -14,8 +14,41 @@ import {
 import { SOCIAL_KEYS, SOCIAL_LABELS, isSocialKey, parseSocialOrder, type SocialKey } from '@/lib/socials';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
+import { recordCurrentPortalActivity } from '@/lib/portal-activity';
 
 type ReleaseHistory = { releases: VisionCatalogEntry[] };
+
+const normalizedRecord = (value: Record<string, string> | undefined) =>
+  Object.entries(value || {}).sort(([left], [right]) => left.localeCompare(right));
+
+const portalChanges = (before: Artist, after: Artist) => {
+  const changes: Array<{ key: string; label: string }> = [];
+  if (JSON.stringify(normalizedRecord(before.links)) !== JSON.stringify(normalizedRecord(after.links))) {
+    changes.push({ key: 'social_links', label: 'redes y plataformas' });
+  }
+  if (JSON.stringify(before.heroButtons || {}) !== JSON.stringify(after.heroButtons || {})) {
+    changes.push({ key: 'hero_buttons', label: 'botones destacados' });
+  }
+  if (JSON.stringify(before.socialOrder || []) !== JSON.stringify(after.socialOrder || [])) {
+    changes.push({ key: 'social_order', label: 'orden de las redes' });
+  }
+  if ((before.release?.link || '') !== (after.release?.link || '')) {
+    changes.push({ key: 'release_link', label: 'enlace del lanzamiento' });
+  }
+  return changes;
+};
+
+const recordProfileUpdate = async (userId: string, before: Artist, after: Artist) => {
+  const changes = portalChanges(before, after);
+  await recordCurrentPortalActivity({
+    userId,
+    eventType: 'profile_updated',
+    eventLabel: changes.length
+      ? `Actualizó ${changes.map(change => change.label).join(', ')}`
+      : 'Guardó su perfil sin cambios visibles',
+    metadata: { sections: changes.map(change => change.key) }
+  });
+};
 
 const validHttpUrl = (value: FormDataEntryValue | null, label: string, required = false) => {
   const text = String(value || '').trim();
@@ -81,10 +114,9 @@ export const saveOwnArtistPortalAction = async (formData: FormData) => {
   if (!artistSlug) throw new Error('Este acceso no esta vinculado a un artista.');
 
   if (artistSlug === TEST_ARTIST_SLUG) {
-    const artist = applyArtistPortalForm(
-      readTestArtist(access.user.app_metadata?.lujo_test_profile),
-      formData
-    );
+    const artist = readTestArtist(access.user.app_metadata?.lujo_test_profile);
+    const before = JSON.parse(JSON.stringify(artist)) as Artist;
+    applyArtistPortalForm(artist, formData);
     const supabase = createSupabaseAdminClient();
     const { error } = await supabase.auth.admin.updateUserById(access.user.id, {
       app_metadata: {
@@ -93,6 +125,8 @@ export const saveOwnArtistPortalAction = async (formData: FormData) => {
       }
     });
     if (error) throw new Error(`No pude guardar la prueba: ${error.message}`);
+
+    await recordProfileUpdate(access.user.id, before, artist);
 
     revalidatePath('/mi-perfil');
     return;
@@ -109,6 +143,7 @@ export const saveOwnArtistPortalAction = async (formData: FormData) => {
 
   const artist = data.artists.find(item => item.slug === artistSlug);
   if (!artist) throw new Error('Tu cuenta ya no esta vinculada a un perfil publicado.');
+  const before = JSON.parse(JSON.stringify(artist)) as Artist;
 
   applyArtistPortalForm(artist, formData, releaseLink => {
     if (artist.release) {
@@ -134,6 +169,8 @@ export const saveOwnArtistPortalAction = async (formData: FormData) => {
       content: `${JSON.stringify(artistReleaseHistory, null, 2)}\n`
     }
   ], `Update artist links for ${artist.name}`);
+
+  await recordProfileUpdate(access.user.id, before, artist);
 
   revalidatePath('/mi-perfil');
   revalidatePath('/');
