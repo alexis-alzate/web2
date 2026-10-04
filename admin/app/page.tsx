@@ -48,7 +48,7 @@ type BeatOrder = {
   id: string;
   buyer_email: string;
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'conflict';
   created_at: string;
   order_items: { license_type: LicenseType; amount: number; beats: { title: string } | null }[];
 };
@@ -80,7 +80,8 @@ type ProducerEarning = {
 const ORDER_STATUS_LABELS: Record<BeatOrder['status'], string> = {
   pending: 'Pendiente',
   approved: 'Aprobada',
-  rejected: 'Rechazada'
+  rejected: 'Rechazada',
+  conflict: 'Conflicto: beat ya vendido en exclusiva, reembolsar'
 };
 
 const OFFER_STATUS_LABELS: Record<BeatOffer['status'], string> = {
