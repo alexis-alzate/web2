@@ -31,7 +31,7 @@ web2/
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..009, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..016, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
@@ -130,6 +130,7 @@ web2/
 - Tabla `beats.status`: `'available' | 'sold_exclusive'`.
 - Al aprobarse una orden con `license_type = 'exclusive'`, el beat correspondiente pasa a `sold_exclusive` **automáticamente** (en `approveOrder`).
 - El checkout rechaza (400) cualquier intento de comprar un beat que no esté `available`.
+- **Doble venta (migración 016)**: `approve_order_safely` bloquea los beats de la orden (`FOR UPDATE`) y, si una orden todavía no aprobada contiene un beat que ya está `sold_exclusive`, la deja en estado `conflict`: no crea descargas ni ganancias, la tienda manda un aviso a `pedidos@` (o `ORDER_ALERT_TO_EMAIL`) para reembolsar, y `/descarga` le explica al comprador. Se reembolsa a mano desde Mercado Pago.
 - El botón manual "Marcar vendido (exclusiva)" / "Marcar disponible" en el panel admin (`actions-beats.ts: toggleBeatStatusAction`) **sigue existiendo y es útil** para ventas externas (fuera de la tienda) o para revertir un estado manualmente.
 
 ## 8. Variables de entorno necesarias (sin valores reales)
@@ -193,6 +194,10 @@ de la app afectada como mínimo.
   urbano, negro/dorado.
 - Después de cambios importantes: correr `npx tsc --noEmit` y `npm run build`
   en la(s) app(s) afectada(s) antes de dar por terminada la tarea.
+- **Permisos de RPC en Supabase**: `revoke ... from public` NO basta. Supabase le da
+  EXECUTE explícito a `anon` y `authenticated`, así que toda función nueva debe
+  hacer `revoke execute ... from public, anon, authenticated` y `grant ... to service_role`
+  (ver migración 015). Si no, cualquiera con la publishable key la puede llamar.
 - Las migraciones SQL (`supabase/migrations/*.sql`) son incrementales y se
   corren **a mano** en el SQL Editor de Supabase — un agente no puede
   ejecutarlas directamente (no hay conexión Postgres ni endpoint de SQL
