@@ -216,6 +216,11 @@ de la app afectada como mínimo.
 - Historial de compras del cliente vía magic link por correo (login opcional,
   nunca obligatorio para comprar).
 - Limpieza periódica de órdenes `pending` antiguas/abandonadas.
+- **Reserva temporal de exclusivas**: columna `beats.reserved_until` que el
+  checkout llene (p. ej. 15 min) al iniciar una compra exclusiva, para que nadie
+  más pueda abrir checkout de ese beat mientras siga vigente. Hoy la doble venta
+  se ataja después del pago (estado `conflict` + reembolso manual, migración
+  016); la reserva evitaría que el conflicto llegue a ocurrir.
 - Cupones de descuento (tabla `coupons`).
 - Dashboard de ventas (totales por beat/licencia/fecha).
 - Marca de agua / voz periódica en los previews de audio.
