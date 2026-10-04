@@ -5,6 +5,8 @@
 // exige esas extensiones en photo_path, asi que rechazar aqui da un mensaje
 // claro en vez de un error de constraint mas adelante.
 
+import { ValidationError } from '@/lib/errors';
+
 export type UploadedImage = {
   extension: 'jpg' | 'png' | 'webp';
   contentBase64: string;
@@ -26,8 +28,8 @@ export const readUploadedImage = async (formData: FormData, field: string): Prom
   if (!(file instanceof File) || file.size === 0) return null;
 
   const extension = extensionFor(file.type);
-  if (!extension) throw new Error('La imagen debe ser JPG, PNG o WebP.');
-  if (file.size > MAX_IMAGE_BYTES) throw new Error('La imagen pesa mas de 5 MB. Usa una mas liviana.');
+  if (!extension) throw new ValidationError('La imagen debe ser JPG, PNG o WebP.');
+  if (file.size > MAX_IMAGE_BYTES) throw new ValidationError('La imagen pesa mas de 5 MB. Usa una mas liviana.');
 
   return { extension, contentBase64: Buffer.from(await file.arrayBuffer()).toString('base64') };
 };

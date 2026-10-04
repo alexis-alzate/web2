@@ -4,7 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { requireActiveArtist } from '@/lib/auth';
 import type { Artist } from '@/lib/artist-renderer';
 import { SOCIAL_KEYS, parseSocialOrder } from '@/lib/socials';
-import { applyPortalInput, savePortalProfile, type PortalInput } from '@/lib/artists/service';
+import { artistService, applyPortalInput, type PortalInput } from '@/lib/artists';
+import { safeAction } from '@/lib/actions/safe-action';
+import { ForbiddenError } from '@/lib/errors';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { recordCurrentPortalActivity } from '@/lib/portal-activity';
@@ -51,10 +53,10 @@ const readPortalForm = (formData: FormData): PortalInput => ({
   releaseLink: String(formData.get('releaseLink') || '')
 });
 
-export const saveOwnArtistPortalAction = async (formData: FormData) => {
+export const saveOwnArtistPortalAction = safeAction(async (formData: FormData) => {
   const access = await requireActiveArtist();
   const artistSlug = access.artistSlug;
-  if (!artistSlug) throw new Error('Este acceso no esta vinculado a un artista.');
+  if (!artistSlug) throw new ForbiddenError('Este acceso no esta vinculado a un artista.');
 
   const input = readPortalForm(formData);
 
@@ -78,9 +80,9 @@ export const saveOwnArtistPortalAction = async (formData: FormData) => {
     return;
   }
 
-  const { before, after } = await savePortalProfile(artistSlug, input);
+  const { before, after } = await artistService.savePortalProfile(artistSlug, input);
   await recordProfileUpdate(access.user.id, before, after);
 
   revalidatePath('/mi-perfil');
   revalidatePath('/');
-};
+});
