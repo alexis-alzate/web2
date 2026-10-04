@@ -130,3 +130,48 @@ export async function sendProducerSaleEmail(
     html
   });
 }
+
+type ExclusiveConflictEmailInput = {
+  orderId: string;
+  paymentId: string;
+  buyerEmail: string;
+  totalAmount: number;
+  beatTitles: string[];
+};
+
+// Aviso interno: un pago se aprobo en Mercado Pago pero el beat ya estaba
+// vendido en exclusiva. La orden queda en 'conflict' y hay que reembolsar.
+export async function sendExclusiveConflictEmail(input: ExclusiveConflictEmailInput) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error('Falta configurar RESEND_API_KEY, no se envio el aviso de conflicto.');
+
+  const resend = new Resend(apiKey);
+  const to = process.env.ORDER_ALERT_TO_EMAIL ?? 'pedidos@lujourban.com';
+  const beats = input.beatTitles.map((title) => `<li>${escapeHtml(title)}</li>`).join('');
+
+  const html = `
+    <div style="background:#0b0907;padding:32px;font-family:Arial,sans-serif;">
+      <div style="max-width:560px;margin:0 auto;background:#16110b;border:1px solid rgba(243,195,94,0.3);border-radius:16px;padding:24px;color:#f4efe7;">
+        <h1 style="color:#f3c35e;font-size:20px;margin:0 0 12px;">Pago recibido de un beat ya vendido en exclusiva</h1>
+        <p style="margin:0 0 16px;">La orden quedó en estado <strong>Conflicto</strong>: no se entregaron archivos. Hay que reembolsar el pago desde Mercado Pago y escribirle al comprador.</p>
+        <p style="margin:0 0 6px;"><strong>Comprador:</strong> ${escapeHtml(input.buyerEmail)}</p>
+        <p style="margin:0 0 6px;"><strong>Total:</strong> ${formatCOP(input.totalAmount)}</p>
+        <p style="margin:0 0 6px;"><strong>Pago MP:</strong> ${escapeHtml(input.paymentId)}</p>
+        <p style="margin:0 0 6px;"><strong>Orden:</strong> ${escapeHtml(input.orderId)}</p>
+        <p style="margin:16px 0 6px;"><strong>Beats en la orden:</strong></p>
+        <ul style="margin:0;padding-left:20px;">${beats}</ul>
+      </div>
+    </div>
+  `;
+
+  // El SDK de Resend no lanza en errores de API: los devuelve en `error`.
+  const { error } = await resend.emails.send({
+    from: 'Lujo Urban <pedidos@lujourban.com>',
+    to,
+    replyTo: input.buyerEmail,
+    subject: `⚠️ Reembolsar: pago de exclusiva ya vendida (${formatCOP(input.totalAmount)})`,
+    html
+  });
+
+  if (error) throw new Error(`Resend rechazo el aviso de conflicto: ${error.message}`);
+}
