@@ -4,19 +4,20 @@ import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { commitFiles, readFile, readJson } from '@/lib/github';
 import {
-  type Artist,
-  type ArtistData,
-  type ArtistRelease,
-  type ArtistReleaseHistory,
   type CasaCatalogConfig,
   type CasaCatalogPick,
-  buildArtistFiles,
-  compactArtistName,
-  slugify as slugifyArtist,
-  updateVisionContent,
   VISION_MAX_CRATE
 } from '@/lib/artist-renderer';
-import { parseSocialOrder } from '@/lib/socials';
+import { SOCIAL_KEYS, parseSocialOrder } from '@/lib/socials';
+import { readUploadedImage } from '@/lib/artists/images';
+import {
+  addRelease,
+  deleteArtist,
+  moveArtist,
+  publishCasaCatalog,
+  reactivateRelease,
+  saveArtist
+} from '@/lib/artists/service';
 
 type Release = {
   title: string;
@@ -67,110 +68,20 @@ const fetchSpotifyCover = async (thumbnailUrl: string) => {
   throw new Error('No pude descargar la portada desde Spotify.');
 };
 
-const readMetaAttribute = (tag: string, name: string) =>
-  tag.match(new RegExp(`${name}=["']([^"']+)["']`, 'i'))?.[1] || '';
-
-const extractOgImage = (html: string, sourceUrl: string) => {
-  const tags = html.match(/<meta\s+[^>]*>/gi) || [];
-
-  for (const tag of tags) {
-    const property = readMetaAttribute(tag, 'property') || readMetaAttribute(tag, 'name');
-    if (!['og:image', 'og:image:secure_url', 'twitter:image'].includes(property.toLowerCase())) continue;
-
-    const content = readMetaAttribute(tag, 'content');
-    if (!content) continue;
-    return new URL(content, sourceUrl).toString();
-  }
-
-  return '';
-};
-
-const responseToUploadedImage = async (response: Response, slug: string, suffix: string) => {
-  const contentType = response.headers.get('content-type') || 'image/jpeg';
-  const extension = (contentType.split('/')[1] || 'jpg')
-    .split(';')[0]
-    .toLowerCase()
-    .replace('jpeg', 'jpg');
-  const buffer = Buffer.from(await response.arrayBuffer());
-
-  return {
-    path: `assets/${slug}-${suffix}.${extension}`,
-    content: buffer.toString('base64'),
-    encoding: 'base64' as const
-  };
-};
-
-const fetchSmartLinkCover = async (smartLink: string, slug: string) => {
-  try {
-    const pageResponse = await fetch(smartLink, {
-      headers: {
-        'user-agent': 'Mozilla/5.0 (compatible; LUJO-URBAN-Admin/1.0)'
-      },
-      redirect: 'follow'
-    });
-    if (!pageResponse.ok) return null;
-
-    const html = await pageResponse.text();
-    const imageUrl = extractOgImage(html, pageResponse.url || smartLink);
-    if (!imageUrl) return null;
-
-    const imageResponse = await fetch(imageUrl, {
-      headers: {
-        'user-agent': 'Mozilla/5.0 (compatible; LUJO-URBAN-Admin/1.0)'
-      },
-      redirect: 'follow'
-    });
-    if (!imageResponse.ok) return null;
-
-    return responseToUploadedImage(imageResponse, slug, 'cover');
-  } catch {
-    return null;
-  }
-};
-
-const cleanLinks = (formData: FormData) => {
-  const links: Record<string, string> = {};
-  ['spotify', 'tiktok', 'instagram', 'youtube', 'facebook', 'whatsapp'].forEach(key => {
-    const value = String(formData.get(key) || '').trim();
-    if (value) links[key] = value;
-  });
-  return links;
-};
-
 const normalizeOptional = (value: FormDataEntryValue | null) => {
   const text = String(value || '').trim();
   return text || '';
 };
 
-const readArtistBuildInputs = async () => Promise.all([
-  readJson<ArtistData>('artist-data.json', { artists: [] }),
-  readFile('sitemap.xml')
-]);
+const formLinks = (formData: FormData) =>
+  Object.fromEntries(SOCIAL_KEYS.map(key => [key, normalizeOptional(formData.get(key))]));
 
-const readVisionBuildInputs = async () => {
-  const [source, history, artistHistory, catalog] = await Promise.all([
-    readFile('lujourban-vision/index.html'),
-    readJson<ReleaseHistory>('release-history.json', { releases: [] }),
-    readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
-    readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] })
-  ]);
-  return { source, releases: history.releases, artistReleases: artistHistory.artists, catalog };
+const rebuildCasaCatalog = async (catalog: CasaCatalogConfig, message: string) => {
+  await publishCasaCatalog(catalog, message);
+  revalidatePath('/');
 };
 
 const readCasaCatalog = () => readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] });
-
-const rebuildCasaCatalog = async (catalog: CasaCatalogConfig, message: string) => {
-  const [data, vision] = await Promise.all([
-    readJson<ArtistData>('artist-data.json', { artists: [] }),
-    readVisionBuildInputs()
-  ]);
-
-  await commitFiles([
-    { path: 'lujourban-vision/index.html', content: updateVisionContent(vision.source, data, vision.releases, vision.artistReleases, catalog) },
-    { path: 'casa-catalog.json', content: `${JSON.stringify(catalog, null, 2)}\n` }
-  ], message);
-  revalidatePath('/');
-};
 
 const parseCasaCatalogPick = (value: string): CasaCatalogPick | null => {
   const [source, artistSlug, releaseSlug] = String(value || '').split('|');
@@ -182,33 +93,6 @@ const parseCasaCatalogPick = (value: string): CasaCatalogPick | null => {
 
 const samePick = (a: CasaCatalogPick, b: CasaCatalogPick) =>
   a.source === b.source && a.artistSlug === b.artistSlug && a.releaseSlug === b.releaseSlug;
-
-type UploadedFile = { path: string; content: string; encoding: 'base64' };
-
-const readUploadedImage = async (formData: FormData, field: string, slug: string, suffix: string) => {
-  const file = formData.get(field);
-  if (!(file instanceof File) || file.size === 0) return null;
-
-  const extension = (file.type.split('/')[1] || file.name.split('.').pop() || 'jpg')
-    .toLowerCase()
-    .replace('jpeg', 'jpg');
-  const path = `assets/${slug}-${suffix}.${extension}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  return { path, content: buffer.toString('base64'), encoding: 'base64' as const };
-};
-
-const commitArtistBuild = async (data: ArtistData, sitemap: string, message: string, extraFiles: UploadedFile[] = []) => {
-  const vision = await readVisionBuildInputs();
-  await commitFiles([...buildArtistFiles(data, sitemap, vision), ...extraFiles], message);
-  revalidatePath('/');
-};
-
-const findArtist = (data: ArtistData, slug: string) => {
-  const artist = data.artists.find(item => item.slug === slug);
-  if (!artist) throw new Error('No encontre ese artista.');
-  return artist;
-};
 
 const applyHomeRelease = async (selected: Release) => {
   const [scriptSource, htmlSource] = await Promise.all([
@@ -262,104 +146,6 @@ const getNextPreviewVersion = (history: ReleaseHistory, slug: string) => {
     .map(Number);
 
   return String(Math.max(0, ...versions) + 1);
-};
-
-const getNextArtistPreviewVersion = (history: ArtistReleaseHistory, artistSlug: string, releaseSlug: string) => {
-  const baseSlug = `${artistSlug}-${releaseSlug}`;
-  const versions = (history.artists[artistSlug] || [])
-    .map(release => release.shareUrl?.match(new RegExp(`/lanzamientos/${baseSlug}-v(\\d+)/`))?.[1])
-    .filter(Boolean)
-    .map(Number);
-
-  return String(Math.max(0, ...versions) + 1);
-};
-
-const buildArtistReleaseSharePages = (params: {
-  artist: Artist;
-  releaseTitle: string;
-  releaseSlug: string;
-  version: string;
-  cover: string;
-}) => {
-  const baseSlug = `${params.artist.slug}-${params.releaseSlug}`;
-  const shareDirectory = `lanzamientos/${baseSlug}-v${params.version}`;
-  const statusDirectory = `estados/${baseSlug}-v${params.version}`;
-  const shareUrl = `https://www.lujourban.com/${shareDirectory}/`;
-  const statusUrl = `https://www.lujourban.com/${statusDirectory}/`;
-  const shareImageUrl = `https://www.lujourban.com/${params.cover}?v=${params.version}`;
-  const socialTitle = `${params.releaseTitle} - ${params.artist.name}`;
-  const socialDescription = `Escucha ${params.releaseTitle}, el nuevo lanzamiento de ${params.artist.name}.`;
-  const artistProfileUrl = `/artistas/${params.artist.slug}/`;
-
-  const sharePage = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, follow">
-<meta property="og:type" content="website">
-<meta property="og:url" content="${shareUrl}">
-<meta property="og:title" content="${escapeHtml(socialTitle)}">
-<meta property="og:description" content="${escapeHtml(socialDescription)}">
-<meta property="og:image" content="${shareImageUrl}">
-<meta property="og:image:secure_url" content="${shareImageUrl}">
-<meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="600">
-<meta property="og:image:height" content="600">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="${escapeHtml(socialTitle)}">
-<meta name="twitter:description" content="${escapeHtml(socialDescription)}">
-<meta name="twitter:image" content="${shareImageUrl}">
-<meta http-equiv="refresh" content="0;url=${artistProfileUrl}">
-<title>${escapeHtml(socialTitle)}</title>
-<script>window.location.replace('${artistProfileUrl}');</script>
-</head>
-<body>
-<p><a href="${artistProfileUrl}">Ir al perfil oficial de ${escapeHtml(params.artist.name)}</a></p>
-</body>
-</html>
-`;
-
-  const statusPage = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, follow">
-<meta property="og:type" content="website">
-<meta property="og:url" content="${statusUrl}">
-<meta property="og:title" content="${escapeHtml(socialTitle)}">
-<meta property="og:description" content="${escapeHtml(socialDescription)}">
-<meta property="og:image" content="${shareImageUrl}">
-<meta property="og:image:secure_url" content="${shareImageUrl}">
-<meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="600">
-<meta property="og:image:height" content="600">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${escapeHtml(socialTitle)}">
-<meta name="twitter:description" content="${escapeHtml(socialDescription)}">
-<meta name="twitter:image" content="${shareImageUrl}">
-<title>${escapeHtml(socialTitle)}</title>
-</head>
-<body style="margin:0;background:#020302;color:#fff;font-family:Arial,sans-serif;">
-<main style="min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center;">
-<a href="${artistProfileUrl}" style="color:inherit;text-decoration:none;">
-<img src="${shareImageUrl}" alt="${escapeHtml(socialTitle)}" style="display:block;width:min(100%,1200px);height:auto;border:0;">
-<p>Ir al perfil oficial de ${escapeHtml(params.artist.name)}</p>
-</a>
-</main>
-</body>
-</html>
-`;
-
-  return {
-    shareUrl,
-    statusUrl,
-    files: [
-      { path: `${shareDirectory}/index.html`, content: sharePage },
-      { path: `${statusDirectory}/index.html`, content: statusPage }
-    ]
-  };
 };
 
 export const reactivateHomeReleaseAction = async (formData: FormData) => {
@@ -500,154 +286,58 @@ export const createHomeReleaseAction = async (formData: FormData) => {
 export const saveArtistAction = async (formData: FormData) => {
   await requireAdmin();
 
-  const originalSlug = normalizeOptional(formData.get('originalSlug'));
-  const name = normalizeOptional(formData.get('name'));
-  const slug = slugifyArtist(normalizeOptional(formData.get('slug')) || name);
-  if (!name) throw new Error('El nombre artistico es obligatorio.');
-  if (!slug) throw new Error('El slug del artista es obligatorio.');
+  await saveArtist({
+    originalSlug: normalizeOptional(formData.get('originalSlug')),
+    name: normalizeOptional(formData.get('name')),
+    slug: normalizeOptional(formData.get('slug')),
+    role: normalizeOptional(formData.get('role')),
+    cardName: normalizeOptional(formData.get('cardName')),
+    tagline: normalizeOptional(formData.get('tagline')),
+    bio: normalizeOptional(formData.get('bio')),
+    photo: normalizeOptional(formData.get('photo')),
+    uploadedPhoto: await readUploadedImage(formData, 'photoFile'),
+    links: formLinks(formData),
+    socialOrder: formData.has('socialOrder') ? parseSocialOrder(formData.get('socialOrder')) : null,
+    beatsEmbed: normalizeOptional(formData.get('beatsEmbed')),
+    productionsEmbed: normalizeOptional(formData.get('productionsEmbed')),
+    contactLabel: normalizeOptional(formData.get('contactLabel')),
+    contactUrl: normalizeOptional(formData.get('contactUrl'))
+  });
 
-  const role = normalizeOptional(formData.get('role')) || 'Artista oficial';
-  const cardName = normalizeOptional(formData.get('cardName')) || compactArtistName(name);
-  const tagline = normalizeOptional(formData.get('tagline')) || 'Música con identidad, visión y propósito.';
-  const bio = normalizeOptional(formData.get('bio')) || `Perfil oficial de ${name} dentro del ecosistema Lujo Urban.`;
-  const beatsEmbed = normalizeOptional(formData.get('beatsEmbed'));
-  const productionsEmbed = normalizeOptional(formData.get('productionsEmbed'));
-  const contactLabel = normalizeOptional(formData.get('contactLabel'));
-  const contactUrl = normalizeOptional(formData.get('contactUrl'));
-
-  const uploadedPhoto = await readUploadedImage(formData, 'photoFile', slug, 'photo');
-  const photo = uploadedPhoto ? uploadedPhoto.path : normalizeOptional(formData.get('photo'));
-
-  const [data, sitemap] = await readArtistBuildInputs();
-  const existingIndex = originalSlug
-    ? data.artists.findIndex(artist => artist.slug === originalSlug)
-    : data.artists.findIndex(artist => artist.slug === slug);
-  const existingArtist = existingIndex >= 0 ? data.artists[existingIndex] : null;
-  const submittedSocialOrder = formData.has('socialOrder')
-    ? parseSocialOrder(formData.get('socialOrder'))
-    : existingArtist?.socialOrder;
-
-  const nextArtist: Artist = {
-    name,
-    cardName,
-    slug,
-    role,
-    tagline,
-    bio,
-    photo,
-    links: cleanLinks(formData),
-    socialOrder: submittedSocialOrder,
-    heroButtons: existingArtist?.heroButtons,
-    release: existingArtist?.release || null,
-    beatsEmbed,
-    productionsEmbed,
-    contact: contactUrl ? { label: contactLabel || 'Booking', url: contactUrl } : null
-  };
-
-  if (existingIndex >= 0) data.artists[existingIndex] = nextArtist;
-  else data.artists.push(nextArtist);
-
-  await commitArtistBuild(
-    data,
-    sitemap,
-    existingArtist ? `Update artist ${name}` : `Create artist ${name}`,
-    uploadedPhoto ? [uploadedPhoto] : []
-  );
+  revalidatePath('/');
 };
 
 export const moveArtistAction = async (formData: FormData) => {
   await requireAdmin();
 
-  const slug = normalizeOptional(formData.get('slug'));
-  const direction = normalizeOptional(formData.get('direction'));
-  const [data, sitemap] = await readArtistBuildInputs();
-  const fromIndex = data.artists.findIndex(artist => artist.slug === slug);
-  if (fromIndex < 0) throw new Error('No encontre ese artista.');
+  await moveArtist(
+    normalizeOptional(formData.get('slug')),
+    normalizeOptional(formData.get('direction')) === 'up' ? 'up' : 'down'
+  );
 
-  const toIndex = direction === 'up'
-    ? Math.max(0, fromIndex - 1)
-    : Math.min(data.artists.length - 1, fromIndex + 1);
-
-  if (toIndex === fromIndex) return;
-  const [artist] = data.artists.splice(fromIndex, 1);
-  data.artists.splice(toIndex, 0, artist);
-
-  await commitArtistBuild(data, sitemap, `Move artist ${artist.name}`);
+  revalidatePath('/');
 };
 
 export const deleteArtistAction = async (formData: FormData) => {
   await requireAdmin();
 
-  const slug = normalizeOptional(formData.get('slug'));
-  const confirmation = normalizeOptional(formData.get('confirmation'));
-  if (confirmation !== 'BORRAR') throw new Error('Para borrar escribe BORRAR.');
+  if (normalizeOptional(formData.get('confirmation')) !== 'BORRAR') throw new Error('Para borrar escribe BORRAR.');
+  await deleteArtist(normalizeOptional(formData.get('slug')));
 
-  const [data, sitemap] = await readArtistBuildInputs();
-  const artist = findArtist(data, slug);
-  data.artists = data.artists.filter(item => item.slug !== slug);
-
-  await commitArtistBuild(data, sitemap, `Delete artist ${artist.name}`);
+  revalidatePath('/');
 };
 
 export const addArtistReleaseAction = async (formData: FormData) => {
   await requireAdmin();
 
-  const artistSlug = normalizeOptional(formData.get('artistSlug'));
-  const title = normalizeOptional(formData.get('title'));
-  const releaseSlug = slugifyArtist(normalizeOptional(formData.get('slug')) || title);
-  const link = normalizeOptional(formData.get('link'));
-  let cover = normalizeOptional(formData.get('cover'));
-
-  if (!artistSlug) throw new Error('Selecciona un artista.');
-  if (!title) throw new Error('El nombre del lanzamiento es obligatorio.');
-  if (!releaseSlug) throw new Error('El slug del lanzamiento es obligatorio.');
-  if (!link) throw new Error('El link del lanzamiento es obligatorio.');
-
-  const [data, history, sitemap, vision] = await Promise.all([
-    readJson<ArtistData>('artist-data.json', { artists: [] }),
-    readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
-    readFile('sitemap.xml'),
-    readVisionBuildInputs()
-  ]);
-
-  const artist = findArtist(data, artistSlug);
-  const coverSlug = `${artistSlug}-${releaseSlug}`;
-  const uploadedCover = await readUploadedImage(formData, 'coverFile', coverSlug, 'cover');
-  const smartLinkCover = !cover && !uploadedCover ? await fetchSmartLinkCover(link, coverSlug) : null;
-  const coverFile = uploadedCover || smartLinkCover;
-  const extraFiles: UploadedFile[] = [];
-
-  if (coverFile) {
-    cover = coverFile.path;
-    extraFiles.push(coverFile);
-  }
-
-  const version = getNextArtistPreviewVersion(history, artistSlug, releaseSlug);
-  const socialPages = cover
-    ? buildArtistReleaseSharePages({ artist, releaseTitle: title, releaseSlug, version, cover })
-    : null;
-  const release: ArtistRelease = {
-    title,
-    slug: releaseSlug,
-    link,
-    cover,
-    shareUrl: socialPages?.shareUrl,
-    statusUrl: socialPages?.statusUrl
-  };
-  const releases = Array.isArray(history.artists[artistSlug]) ? history.artists[artistSlug] : [];
-  const releaseIndex = releases.findIndex(item => item.slug === releaseSlug);
-  if (releaseIndex >= 0) releases[releaseIndex] = release;
-  else releases.push(release);
-
-  history.artists[artistSlug] = releases;
-  artist.release = release;
-
-  await commitFiles([
-    ...buildArtistFiles(data, sitemap, vision),
-    ...extraFiles,
-    ...(socialPages?.files || []),
-    { path: 'artist-release-history.json', content: `${JSON.stringify(history, null, 2)}\n` }
-  ], `Set ${title} as latest release for ${artist.name}`);
+  await addRelease({
+    artistSlug: normalizeOptional(formData.get('artistSlug')),
+    title: normalizeOptional(formData.get('title')),
+    slug: normalizeOptional(formData.get('slug')),
+    link: normalizeOptional(formData.get('link')),
+    cover: normalizeOptional(formData.get('cover')),
+    uploadedCover: await readUploadedImage(formData, 'coverFile')
+  });
 
   revalidatePath('/');
 };
@@ -655,21 +345,12 @@ export const addArtistReleaseAction = async (formData: FormData) => {
 export const reactivateArtistReleaseAction = async (formData: FormData) => {
   await requireAdmin();
 
-  const artistSlug = normalizeOptional(formData.get('artistSlug'));
-  const releaseSlug = normalizeOptional(formData.get('releaseSlug'));
+  await reactivateRelease(
+    normalizeOptional(formData.get('artistSlug')),
+    normalizeOptional(formData.get('releaseSlug'))
+  );
 
-  const [data, history, sitemap] = await Promise.all([
-    readJson<ArtistData>('artist-data.json', { artists: [] }),
-    readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
-    readFile('sitemap.xml')
-  ]);
-
-  const artist = findArtist(data, artistSlug);
-  const selected = (history.artists[artistSlug] || []).find(release => release.slug === releaseSlug);
-  if (!selected) throw new Error('No encontre ese lanzamiento del artista.');
-
-  artist.release = selected;
-  await commitArtistBuild(data, sitemap, `Reactivate ${selected.title} for ${artist.name}`);
+  revalidatePath('/');
 };
 
 export const addCasaCatalogPickAction = async (formData: FormData) => {

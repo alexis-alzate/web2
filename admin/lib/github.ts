@@ -4,13 +4,27 @@ type GithubContent = {
   sha: string;
 };
 
-type CommitFile = {
+export type CommitFile = {
   path: string;
   content: string;
   encoding?: 'utf-8' | 'base64';
 };
 
+type CommitOptions = {
+  // Rutas que deben desaparecer del repo en el mismo commit (paginas de
+  // artistas borrados, etc.). Si una ruta ya no existe se ignora.
+  deletes?: string[];
+};
+
+export class GithubApiError extends Error {
+  constructor(public status: number, body: string) {
+    super(`GitHub API ${status}: ${body}`);
+    this.name = 'GithubApiError';
+  }
+}
+
 const apiBase = 'https://api.github.com';
+const MAX_COMMIT_ATTEMPTS = 3;
 
 const getConfig = () => {
   const token = process.env.GITHUB_TOKEN;
@@ -39,8 +53,7 @@ const githubFetch = async <T>(path: string, init: RequestInit = {}): Promise<T> 
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`GitHub API ${response.status}: ${text}`);
+    throw new GithubApiError(response.status, await response.text());
   }
 
   return response.json() as Promise<T>;
@@ -67,17 +80,36 @@ export const readJson = async <T>(path: string, fallback: T): Promise<T> => {
   }
 };
 
-export const commitFiles = async (files: CommitFile[], message: string) => {
+const fileExists = async (path: string) => {
   const { owner, repo, branch } = getConfig();
-  const ref = await githubFetch<{ object: { sha: string } }>(
-    `/repos/${owner}/${repo}/git/ref/heads/${branch}`
-  );
-  const baseCommitSha = ref.object.sha;
-  const baseCommit = await githubFetch<{ tree: { sha: string } }>(
-    `/repos/${owner}/${repo}/git/commits/${baseCommitSha}`
-  );
+  try {
+    await githubFetch(`/repos/${owner}/${repo}/contents/${encodePath(path)}?ref=${branch}`);
+    return true;
+  } catch (error) {
+    if (error instanceof GithubApiError && error.status === 404) return false;
+    throw error;
+  }
+};
 
-  const treeItems = await Promise.all(files.map(async file => {
+// Mover la rama solo "hacia adelante" es lo que protege de pisar un commit
+// ajeno: si alguien publico entre que leimos la rama y la movimos, GitHub
+// responde 422. Como cada archivo que generamos es completo (no un parche),
+// es seguro reconstruir el commit sobre la punta nueva y reintentar.
+const isNotFastForward = (error: unknown) =>
+  error instanceof GithubApiError && error.status === 422 && /fast.?forward/i.test(error.message);
+
+export const commitFiles = async (files: CommitFile[], message: string, options: CommitOptions = {}) => {
+  const { owner, repo, branch } = getConfig();
+
+  const writtenPaths = new Set(files.map(file => file.path));
+  const deletePaths = Array.from(new Set(options.deletes ?? []))
+    .filter(path => !writtenPaths.has(path));
+  const existingDeletes = (await Promise.all(
+    deletePaths.map(async path => ((await fileExists(path)) ? path : null))
+  )).filter((path): path is string => path !== null);
+
+  // Los blobs no dependen de la punta de la rama: se suben una sola vez.
+  const blobItems = await Promise.all(files.map(async file => {
     const blob = await githubFetch<{ sha: string }>(`/repos/${owner}/${repo}/git/blobs`, {
       method: 'POST',
       body: JSON.stringify({
@@ -86,35 +118,51 @@ export const commitFiles = async (files: CommitFile[], message: string) => {
       })
     });
 
-    return {
-      path: file.path,
-      mode: '100644',
-      type: 'blob',
-      sha: blob.sha
-    };
+    return { path: file.path, mode: '100644', type: 'blob', sha: blob.sha as string | null };
   }));
 
-  const tree = await githubFetch<{ sha: string }>(`/repos/${owner}/${repo}/git/trees`, {
-    method: 'POST',
-    body: JSON.stringify({
-      base_tree: baseCommit.tree.sha,
-      tree: treeItems
-    })
-  });
+  // sha: null le dice a la API de GitHub que borre esa ruta del arbol.
+  const deleteItems = existingDeletes.map(path => ({
+    path,
+    mode: '100644',
+    type: 'blob',
+    sha: null as string | null
+  }));
+  const treeItems = [...blobItems, ...deleteItems];
 
-  const commit = await githubFetch<{ sha: string; html_url: string }>(`/repos/${owner}/${repo}/git/commits`, {
-    method: 'POST',
-    body: JSON.stringify({
-      message,
-      tree: tree.sha,
-      parents: [baseCommitSha]
-    })
-  });
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= MAX_COMMIT_ATTEMPTS; attempt += 1) {
+    const ref = await githubFetch<{ object: { sha: string } }>(
+      `/repos/${owner}/${repo}/git/ref/heads/${branch}`
+    );
+    const baseCommitSha = ref.object.sha;
+    const baseCommit = await githubFetch<{ tree: { sha: string } }>(
+      `/repos/${owner}/${repo}/git/commits/${baseCommitSha}`
+    );
 
-  await githubFetch(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ sha: commit.sha })
-  });
+    const tree = await githubFetch<{ sha: string }>(`/repos/${owner}/${repo}/git/trees`, {
+      method: 'POST',
+      body: JSON.stringify({ base_tree: baseCommit.tree.sha, tree: treeItems })
+    });
 
-  return commit;
+    const commit = await githubFetch<{ sha: string; html_url: string }>(`/repos/${owner}/${repo}/git/commits`, {
+      method: 'POST',
+      body: JSON.stringify({ message, tree: tree.sha, parents: [baseCommitSha] })
+    });
+
+    try {
+      await githubFetch(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ sha: commit.sha })
+      });
+      return commit;
+    } catch (error) {
+      if (!isNotFastForward(error)) throw error;
+      lastError = error;
+    }
+  }
+
+  throw new Error(
+    `Otro cambio se publico al mismo tiempo y no pude reintentar con exito. Vuelve a guardar. (${String(lastError)})`
+  );
 };

@@ -1,4 +1,12 @@
 import { readJson } from '@/lib/github';
+import { loadRoster } from '@/lib/artists/service';
+import type {
+  Artist,
+  ArtistData,
+  ArtistReleaseHistory,
+  CasaCatalogConfig,
+  CasaCatalogPick
+} from '@/lib/artist-renderer';
 import {
   addArtistReleaseAction,
   addCasaCatalogPickAction,
@@ -92,31 +100,6 @@ const OFFER_STATUS_LABELS: Record<BeatOffer['status'], string> = {
   closed: 'Cerrada'
 };
 
-type Artist = {
-  name: string;
-  cardName?: string;
-  slug: string;
-  role: string;
-  tagline: string;
-  bio?: string;
-  photo?: string;
-  links?: Record<string, string>;
-  socialOrder?: SocialKey[];
-  release?: {
-    title: string;
-    slug: string;
-    link: string;
-    cover?: string;
-  } | null;
-  beatsEmbed?: string;
-  productionsEmbed?: string;
-  contact?: { label?: string; url?: string } | null;
-};
-
-type ArtistData = {
-  artists: Artist[];
-};
-
 type ArtistAccessAccount = {
   id: string;
   email: string;
@@ -150,20 +133,6 @@ type AnalyticsRelease = {
   slug: string;
   cover?: string;
   artistSlug?: string | null;
-};
-
-type ArtistReleaseHistory = {
-  artists: Record<string, NonNullable<Artist['release']>[]>;
-};
-
-type CasaCatalogPick = {
-  source: 'zaetta' | 'artist';
-  artistSlug?: string;
-  releaseSlug: string;
-};
-
-type CasaCatalogConfig = {
-  picks: CasaCatalogPick[];
 };
 
 const emptyAnalyticsSummary = (error?: string): ReleaseAnalyticsSummary => ({
@@ -363,12 +332,17 @@ export default async function DashboardPage() {
   }
 
   try {
-    [artistData, releaseHistory, artistReleaseHistory, casaCatalog] = await Promise.all([
-      readJson<ArtistData>('artist-data.json', { artists: [] }),
+    // Artistas y lanzamientos salen de Supabase; Zaetta (release-history) y el
+    // catalogo de Casa siguen viviendo como JSON en el repo.
+    const [roster, zaettaHistory, catalog] = await Promise.all([
+      loadRoster(),
       readJson<ReleaseHistory>('release-history.json', { releases: [] }),
-      readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
       readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] })
     ]);
+    artistData = roster.data;
+    artistReleaseHistory = roster.history;
+    releaseHistory = zaettaHistory;
+    casaCatalog = catalog;
     analyticsReleases = [
       ...releaseHistory.releases.map(release => ({
         title: release.title,
@@ -377,12 +351,12 @@ export default async function DashboardPage() {
         artistSlug: null
       })),
       ...Object.entries(artistReleaseHistory.artists).flatMap(([artistSlug, releases]) =>
-        releases.map(release => ({
+        releases.flatMap(release => release.slug ? [{
           title: release.title,
           slug: release.slug,
           cover: release.cover,
           artistSlug
-        }))
+        }] : [])
       )
     ];
     analyticsSummary = await getReleaseAnalyticsSummary();
