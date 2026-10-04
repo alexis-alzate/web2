@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
-import { sendDownloadEmail, sendProducerSaleEmail } from '@/lib/email';
+import { sendDownloadEmail, sendExclusiveConflictEmail, sendProducerSaleEmail } from '@/lib/email';
 import type { Beat, LicenseType } from '@/lib/types';
 
 type SupabaseAdmin = ReturnType<typeof createSupabaseAdminClient>;
@@ -21,6 +21,7 @@ type OrderItemRow = {
 
 type ApprovalResult = {
   should_send_email?: boolean;
+  is_conflict?: boolean;
 };
 
 type ProducerEarningRow = {
@@ -96,6 +97,36 @@ const notifyProducersForOrder = async (supabase: SupabaseAdmin, orderId: string)
   }
 };
 
+// El pago se aprobo pero un beat de la orden ya estaba vendido en exclusiva
+// (migracion 016). Se avisa al admin una sola vez para que reembolse; si el
+// correo falla, se lanza el error para que Mercado Pago reintente el webhook.
+const notifyExclusiveConflict = async (supabase: SupabaseAdmin, orderId: string, paymentId: string) => {
+  const { data: order, error } = await supabase
+    .from('orders')
+    .select('id, buyer_email, total_amount, conflict_notified_at, order_items(beats(title))')
+    .eq('id', orderId)
+    .single();
+
+  if (error || !order) throw error ?? new Error('No se encontro la orden en conflicto.');
+  if (order.conflict_notified_at) return;
+
+  const items = (order.order_items as unknown as { beats: { title: string } | null }[]) ?? [];
+
+  await sendExclusiveConflictEmail({
+    orderId,
+    paymentId,
+    buyerEmail: order.buyer_email,
+    totalAmount: order.total_amount,
+    beatTitles: items.map((item) => item.beats?.title ?? 'Beat eliminado')
+  });
+
+  await supabase
+    .from('orders')
+    .update({ conflict_notified_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .is('conflict_notified_at', null);
+};
+
 export async function approveOrder(supabase: SupabaseAdmin, orderId: string, paymentId: string) {
   // La RPC bloquea la orden en Postgres, crea descargas faltantes y solo al
   // final marca la orden como aprobada. Webhooks duplicados no duplican tokens.
@@ -104,6 +135,13 @@ export async function approveOrder(supabase: SupabaseAdmin, orderId: string, pay
     .maybeSingle();
 
   if (approvalError) throw approvalError;
+
+  if ((approval as ApprovalResult | null)?.is_conflict) {
+    console.error(`Orden ${orderId} en conflicto: pago ${paymentId} de un beat ya vendido en exclusiva.`);
+    await notifyExclusiveConflict(supabase, orderId, paymentId);
+    return;
+  }
+
   if (!(approval as ApprovalResult | null)?.should_send_email) {
     await notifyProducersForOrder(supabase, orderId);
     return;

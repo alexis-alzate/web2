@@ -65,7 +65,12 @@ export default async function DescargaPage({
   if (order.status === 'pending' && status === 'approved' && payment_id) {
     const isApproved = await verifyApprovedPayment(payment_id, order_id);
     if (isApproved) {
-      await approveOrder(supabase, order_id, payment_id);
+      try {
+        await approveOrder(supabase, order_id, payment_id);
+      } catch (approvalError) {
+        // El webhook reintenta por su cuenta; no tumbar la pagina del comprador.
+        console.error('Fallo la aprobacion de respaldo en /descarga:', approvalError);
+      }
       const refetch = await supabase
         .from('orders')
         .select('*, order_items(*, beats(*), downloads(*))')
@@ -84,6 +89,22 @@ export default async function DescargaPage({
           Estamos confirmando tu pago con MercadoPago. Esta página se actualiza sola —
           cuando se confirme vas a poder descargar tus beats acá.
         </p>
+      </main>
+    );
+  }
+
+  if (order.status === 'conflict') {
+    return (
+      <main className="descarga-page">
+        <h1 className="descarga-title">Este beat ya fue vendido en exclusiva</h1>
+        <p className="descarga-text">
+          Recibimos tu pago, pero mientras lo procesabas otra persona compró este beat en exclusiva,
+          así que no podemos entregártelo. No tienes que hacer nada: te vamos a escribir a tu correo
+          para hacerte el reembolso completo.
+        </p>
+        <Link href="/" className="descarga-volver">
+          Volver a la tienda
+        </Link>
       </main>
     );
   }
