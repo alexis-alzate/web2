@@ -31,7 +31,7 @@ web2/
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..016, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..017, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
@@ -63,7 +63,8 @@ web2/
         ├── beats.ts                          # tipos Beat/LicenseType, slugify, beatCoverUrl, LICENSE_LABELS
         ├── email.ts                          # sendDownloadEmail() via fetch a Resend API (sin SDK)
         ├── auth.ts, admin-session.ts         # auth del panel (Supabase Auth)
-        ├── github.ts, artist-renderer.ts     # edición del sitio estático vía API de GitHub
+        ├── github.ts, artist-renderer.ts     # edición del sitio estático vía API de GitHub (commitFiles: borra y reintenta)
+        ├── artists/                          # capa de artistas: repository.ts (BD) → service.ts (reglas) → images.ts, release-pages.ts
         ├── analytics.ts                      # métricas de lanzamientos
         └── supabase/admin-client.ts          # cliente service-role
 ```
@@ -86,6 +87,38 @@ web2/
 - **Resend** para correos transaccionales, dominio verificado `lujourban.com`, remitente `pedidos@lujourban.com`.
 - **Vercel** para deploy de `tienda` y `admin` (push a `main` = deploy automático). El sitio estático principal también se sirve desde el repo.
 - **GitHub API** (token con permisos de lectura/escritura) usado por `admin` para editar el contenido del sitio estático sin tocar el repo localmente.
+
+## 4.1 Artistas: Supabase es la fuente de verdad
+
+Desde la migración 017 los artistas viven en tablas (`artists`, `artist_links`,
+`artist_releases`, `artist_access`) con RLS activo y sin políticas: solo
+`service_role` (el panel) puede leer o escribir.
+
+Capas en `admin/` (no mezclarlas):
+
+```
+Server Action (app/actions.ts, artist-portal-actions.ts)   solo lee el formulario + requireAdmin/requireActiveArtist
+   └─ lib/artists/service.ts                               reglas: validar, orden de operaciones, qué publicar o borrar
+        ├─ lib/artists/repository.ts                       único lugar que habla con las tablas
+        └─ lib/github.ts (commitFiles)                     publica el sitio estático
+```
+
+- Las páginas `artistas/*/index.html`, `artistas/index.html`, `sitemap.xml`,
+  `artist-data.json` y `artist-release-history.json` son una **proyección
+  generada** desde la base en cada cambio. **No se editan a mano**: el
+  siguiente guardado las sobrescribe.
+- Guardar / mover / lanzamiento: primero la base, después GitHub (si GitHub
+  falla, volver a guardar reintenta). Borrar: primero GitHub, después la base.
+- Borrar un artista borra su página y las de compartir de sus lanzamientos
+  (`commitFiles(..., { deletes })`) y, por cascada en la base, links,
+  lanzamientos y `artist_access`. Las imágenes de `assets/` se conservan.
+- `commitFiles` reintenta hasta 3 veces si otro commit entra a la rama al
+  mismo tiempo (422 "not a fast forward").
+- Subidas de imagen: solo JPG/PNG/WebP de hasta 5 MB (`lib/artists/images.ts`).
+- Pendiente: vincular usuarios por `artist_access` en lugar de
+  `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
+  que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug
+  desactualizado).
 
 ## 5. Flujo de compra digital (estado actual, ya en producción)
 

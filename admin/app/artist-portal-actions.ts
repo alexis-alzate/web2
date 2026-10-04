@@ -2,21 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireActiveArtist } from '@/lib/auth';
-import { commitFiles, readFile, readJson } from '@/lib/github';
-import {
-  buildArtistFiles,
-  type Artist,
-  type ArtistData,
-  type ArtistReleaseHistory,
-  type CasaCatalogConfig,
-  type VisionCatalogEntry
-} from '@/lib/artist-renderer';
-import { SOCIAL_KEYS, SOCIAL_LABELS, isSocialKey, parseSocialOrder, type SocialKey } from '@/lib/socials';
+import type { Artist } from '@/lib/artist-renderer';
+import { SOCIAL_KEYS, parseSocialOrder } from '@/lib/socials';
+import { applyPortalInput, savePortalProfile, type PortalInput } from '@/lib/artists/service';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { recordCurrentPortalActivity } from '@/lib/portal-activity';
-
-type ReleaseHistory = { releases: VisionCatalogEntry[] };
 
 const normalizedRecord = (value: Record<string, string> | undefined) =>
   Object.entries(value || {}).sort(([left], [right]) => left.localeCompare(right));
@@ -50,127 +41,45 @@ const recordProfileUpdate = async (userId: string, before: Artist, after: Artist
   });
 };
 
-const validHttpUrl = (value: FormDataEntryValue | null, label: string, required = false) => {
-  const text = String(value || '').trim();
-  if (!text) {
-    if (required) throw new Error(`${label} es obligatorio.`);
-    return '';
-  }
-
-  try {
-    const url = new URL(text);
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error('protocol');
-  } catch {
-    throw new Error(`${label} debe ser un enlace completo que empiece por https://.`);
-  }
-  return text;
-};
-
-const optionalSocialKey = (value: FormDataEntryValue | null, label: string): SocialKey | undefined => {
-  const key = String(value || '').trim();
-  if (!key) return undefined;
-  if (!isSocialKey(key)) throw new Error(`${label} no es una red válida.`);
-  return key;
-};
-
-const applyArtistPortalForm = (
-  artist: Artist,
-  formData: FormData,
-  onReleaseLink?: (releaseLink: string) => void
-) => {
-  const links: Record<string, string> = {};
-  SOCIAL_KEYS.forEach(key => {
-    const value = validHttpUrl(formData.get(key), key);
-    if (value) links[key] = value;
-  });
-  artist.links = links;
-  artist.socialOrder = parseSocialOrder(formData.get('socialOrder'));
-
-  const primary = optionalSocialKey(formData.get('heroPrimary'), 'El botón principal');
-  const secondary = optionalSocialKey(formData.get('heroSecondary'), 'El botón secundario');
-  if (primary && !links[primary]) {
-    throw new Error(`Agrega primero tu enlace de ${SOCIAL_LABELS[primary]} para usarlo en el botón principal.`);
-  }
-  if (secondary && !links[secondary]) {
-    throw new Error(`Agrega primero tu enlace de ${SOCIAL_LABELS[secondary]} para usarlo en el botón secundario.`);
-  }
-  if (primary && secondary && primary === secondary) {
-    throw new Error('Elige dos redes diferentes para los botones superiores.');
-  }
-  artist.heroButtons = primary || secondary ? { primary, secondary } : undefined;
-
-  if (artist.release) {
-    const releaseLink = validHttpUrl(formData.get('releaseLink'), 'El enlace de la canción actual', true);
-    artist.release = { ...artist.release, link: releaseLink };
-    onReleaseLink?.(releaseLink);
-  }
-
-  return artist;
-};
+// La accion solo LEE el formulario. Las reglas (links validos, botones
+// distintos, etc.) y el guardado viven en lib/artists/service.ts.
+const readPortalForm = (formData: FormData): PortalInput => ({
+  links: Object.fromEntries(SOCIAL_KEYS.map(key => [key, String(formData.get(key) || '').trim()])),
+  socialOrder: parseSocialOrder(formData.get('socialOrder')),
+  heroPrimary: String(formData.get('heroPrimary') || ''),
+  heroSecondary: String(formData.get('heroSecondary') || ''),
+  releaseLink: String(formData.get('releaseLink') || '')
+});
 
 export const saveOwnArtistPortalAction = async (formData: FormData) => {
   const access = await requireActiveArtist();
   const artistSlug = access.artistSlug;
   if (!artistSlug) throw new Error('Este acceso no esta vinculado a un artista.');
 
+  const input = readPortalForm(formData);
+
   if (artistSlug === TEST_ARTIST_SLUG) {
-    const artist = readTestArtist(access.user.app_metadata?.lujo_test_profile);
-    const before = JSON.parse(JSON.stringify(artist)) as Artist;
-    applyArtistPortalForm(artist, formData);
+    // La cuenta de prueba no existe en la tabla de artistas: su perfil vive
+    // en los metadatos del usuario y nunca publica nada.
+    const before = readTestArtist(access.user.app_metadata?.lujo_test_profile);
+    const after = applyPortalInput(before, input);
     const supabase = createSupabaseAdminClient();
     const { error } = await supabase.auth.admin.updateUserById(access.user.id, {
       app_metadata: {
         ...(access.user.app_metadata || {}),
-        lujo_test_profile: artist
+        lujo_test_profile: after
       }
     });
     if (error) throw new Error(`No pude guardar la prueba: ${error.message}`);
 
-    await recordProfileUpdate(access.user.id, before, artist);
+    await recordProfileUpdate(access.user.id, before, after);
 
     revalidatePath('/mi-perfil');
     return;
   }
 
-  const [data, sitemap, visionSource, releaseHistory, artistReleaseHistory, catalog] = await Promise.all([
-    readJson<ArtistData>('artist-data.json', { artists: [] }),
-    readFile('sitemap.xml'),
-    readFile('lujourban-vision/index.html'),
-    readJson<ReleaseHistory>('release-history.json', { releases: [] }),
-    readJson<ArtistReleaseHistory>('artist-release-history.json', { artists: {} }),
-    readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] })
-  ]);
-
-  const artist = data.artists.find(item => item.slug === artistSlug);
-  if (!artist) throw new Error('Tu cuenta ya no esta vinculada a un perfil publicado.');
-  const before = JSON.parse(JSON.stringify(artist)) as Artist;
-
-  applyArtistPortalForm(artist, formData, releaseLink => {
-    if (artist.release) {
-      const releases = artistReleaseHistory.artists[artistSlug] || [];
-      const releaseIndex = releases.findIndex(item =>
-        artist.release?.slug ? item.slug === artist.release.slug : item.title === artist.release?.title
-      );
-      if (releaseIndex >= 0) releases[releaseIndex] = { ...releases[releaseIndex], link: releaseLink };
-      else releases.push(artist.release);
-      artistReleaseHistory.artists[artistSlug] = releases;
-    }
-  });
-
-  await commitFiles([
-    ...buildArtistFiles(data, sitemap, {
-      source: visionSource,
-      releases: releaseHistory.releases,
-      artistReleases: artistReleaseHistory.artists,
-      catalog
-    }),
-    {
-      path: 'artist-release-history.json',
-      content: `${JSON.stringify(artistReleaseHistory, null, 2)}\n`
-    }
-  ], `Update artist links for ${artist.name}`);
-
-  await recordProfileUpdate(access.user.id, before, artist);
+  const { before, after } = await savePortalProfile(artistSlug, input);
+  await recordProfileUpdate(access.user.id, before, after);
 
   revalidatePath('/mi-perfil');
   revalidatePath('/');

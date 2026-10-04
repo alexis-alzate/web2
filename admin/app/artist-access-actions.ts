@@ -4,8 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getAppOrigin } from '@/lib/app-origin';
 import { sendArtistInviteEmail } from '@/lib/artist-invite-email';
 import { isAccessStatus, requireAdmin, type LujoAccessStatus } from '@/lib/auth';
-import { readJson } from '@/lib/github';
-import type { ArtistData } from '@/lib/artist-renderer';
+import { loadArtistBySlug } from '@/lib/artists/service';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { createTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import type { User } from '@supabase/supabase-js';
@@ -17,12 +16,11 @@ const requiredText = (formData: FormData, field: string, label: string) => {
 };
 
 const ensureArtistExists = async (artistSlug: string) => {
-  const data = await readJson<ArtistData>('artist-data.json', { artists: [] });
-  const artist = data.artists.find(item => item.slug === artistSlug);
-  if (!artist) {
+  const record = await loadArtistBySlug(artistSlug);
+  if (!record) {
     throw new Error('No encontre ese artista en el roster.');
   }
-  return artist;
+  return record.artist;
 };
 
 const artistMetadata = (
