@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ADMIN_SESSION_COOKIE, ADMIN_SESSION_MAX_AGE_SECONDS } from '@/lib/admin-session';
-import { readAccessMetadata } from '@/lib/auth';
+import { ADMIN_SESSION_COOKIE, ADMIN_SESSION_MAX_AGE_SECONDS } from '@/shared/admin-session';
+import { readAccessMetadata } from '@/backend/auth/auth';
 import {
   PORTAL_ACTIVITY_COOKIE_MAX_AGE_SECONDS,
   PORTAL_ACTIVITY_SESSION_COOKIE,
   startPortalSession
-} from '@/lib/portal-activity';
-import { createSupabaseRouteClient } from '@/lib/supabase/server';
+} from '@/backend/services/portal-activity';
+import { createSupabaseRouteClient } from '@/backend/supabase/server';
 
 export async function POST(request: NextRequest) {
   const response = NextResponse.json({ ok: true });

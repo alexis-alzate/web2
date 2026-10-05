@@ -1,5 +1,5 @@
-import { PasskeyLoginButton } from '../components/PasskeyLoginButton';
-import { PasswordField } from '../components/PasswordField';
+import { PasskeyLoginButton } from '@/frontend/components/auth/PasskeyLoginButton';
+import { PasswordField } from '@/frontend/components/auth/PasswordField';
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; reset?: string }> }) {
   const params = await searchParams;

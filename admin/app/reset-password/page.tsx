@@ -1,5 +1,5 @@
-import { updatePasswordAction } from '../auth-actions';
-import { PasswordField } from '../components/PasswordField';
+import { updatePasswordAction } from '@/backend/actions/auth';
+import { PasswordField } from '@/frontend/components/auth/PasswordField';
 
 const errorMessages: Record<string, string> = {
   short: 'La clave debe tener minimo 8 caracteres.',

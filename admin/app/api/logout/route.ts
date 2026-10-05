@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ADMIN_SESSION_COOKIE } from '@/lib/admin-session';
+import { ADMIN_SESSION_COOKIE } from '@/shared/admin-session';
 import {
   PORTAL_ACTIVITY_SESSION_COOKIE,
   endPortalSession
-} from '@/lib/portal-activity';
-import { createSupabaseRouteClient } from '@/lib/supabase/server';
+} from '@/backend/services/portal-activity';
+import { createSupabaseRouteClient } from '@/backend/supabase/server';
 
 export async function POST(request: NextRequest) {
   const response = NextResponse.redirect(new URL('/login', request.url));

@@ -6,8 +6,8 @@
 // comprobar el orden de operaciones (base primero y publicar despues, o al
 // reves al borrar).
 
-import type { Artist, ArtistRelease, CasaCatalogConfig } from '@/lib/artist-renderer';
-import { ArtistService } from '@/lib/artists/service';
+import type { Artist, ArtistRelease, CasaCatalogConfig } from '@/backend/integrations/artist-renderer';
+import { ArtistService } from '@/backend/artists/service';
 import type {
   ArtistRecord,
   ArtistRepository,
@@ -18,7 +18,7 @@ import type {
   ReleaseWrite,
   Roster,
   SitePublisher
-} from '@/lib/artists/types';
+} from '@/backend/artists/types';
 
 export type Log = string[];
 

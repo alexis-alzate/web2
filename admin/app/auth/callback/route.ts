@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseRouteClient } from '@/lib/supabase/server';
+import { createSupabaseRouteClient } from '@/backend/supabase/server';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

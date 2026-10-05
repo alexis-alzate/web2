@@ -1,14 +1,14 @@
 import { redirect } from 'next/navigation';
-import { getCurrentAccess } from '@/lib/auth';
-import { artistService } from '@/lib/artists';
-import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
-import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
-import { ActionForm } from '../components/ActionForm';
-import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
-import { PortalActivityTracker } from '../components/PortalActivityTracker';
-import { SocialOrderEditor } from '../components/SocialOrderEditor';
-import { SubmitButton } from '../components/SubmitButton';
-import { saveOwnArtistPortalAction } from '../artist-portal-actions';
+import { getCurrentAccess } from '@/backend/auth/auth';
+import { artistService } from '@/backend/artists';
+import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/shared/socials';
+import { readTestArtist, TEST_ARTIST_SLUG } from '@/backend/artists/test-artist';
+import { ActionForm } from '@/frontend/components/common/ActionForm';
+import { AutoLogoutTimer } from '@/frontend/components/auth/AutoLogoutTimer';
+import { PortalActivityTracker } from '@/frontend/components/panel/PortalActivityTracker';
+import { SocialOrderEditor } from '@/frontend/components/artists/SocialOrderEditor';
+import { SubmitButton } from '@/frontend/components/common/SubmitButton';
+import { saveOwnArtistPortalAction } from '@/backend/actions/artist-portal';
 
 const statusCopy = {
   suspended: {

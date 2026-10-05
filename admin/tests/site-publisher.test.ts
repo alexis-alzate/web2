@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import { GithubSitePublisher, type GithubPort } from '@/lib/artists/site-publisher';
-import type { PublishFile, Roster } from '@/lib/artists/types';
-import type { Artist, ArtistRelease } from '@/lib/artist-renderer';
-import { PublishError } from '@/lib/errors';
+import { GithubSitePublisher, type GithubPort } from '@/backend/artists/site-publisher';
+import type { PublishFile, Roster } from '@/backend/artists/types';
+import type { Artist, ArtistRelease } from '@/backend/integrations/artist-renderer';
+import { PublishError } from '@/backend/core/errors';
 
 // Usa los archivos REALES del sitio (sitemap y micrositio de Casa) como
 // entrada, asi se comprueba el generador de verdad, sin red.

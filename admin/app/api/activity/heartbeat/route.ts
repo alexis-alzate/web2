@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   PORTAL_ACTIVITY_SESSION_COOKIE,
   touchPortalSession
-} from '@/lib/portal-activity';
-import { createSupabaseRouteClient } from '@/lib/supabase/server';
+} from '@/backend/services/portal-activity';
+import { createSupabaseRouteClient } from '@/backend/supabase/server';
 
 export async function POST(request: NextRequest) {
   const response = NextResponse.json({ ok: true });
