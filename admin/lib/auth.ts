@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import { ForbiddenError, UnauthorizedError } from '@/lib/errors';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export type LujoRole = 'admin' | 'artist';
@@ -43,21 +44,21 @@ export const isAuthenticated = async () => Boolean(await getCurrentAccess());
 
 export const requireAdmin = async () => {
   const access = await getCurrentAccess();
-  if (!access) throw new Error('Tu sesion expiro. Inicia de nuevo.');
+  if (!access) throw new UnauthorizedError();
   if (access.role !== 'admin' || access.status !== 'active') {
-    throw new Error('No tienes permiso para realizar esta accion.');
+    throw new ForbiddenError();
   }
   return access;
 };
 
 export const requireActiveArtist = async () => {
   const access = await getCurrentAccess();
-  if (!access) throw new Error('Tu sesion expiro. Inicia de nuevo.');
+  if (!access) throw new UnauthorizedError();
   if (access.role !== 'artist' || !access.artistSlug) {
-    throw new Error('Este acceso no esta vinculado a un artista.');
+    throw new ForbiddenError('Este acceso no esta vinculado a un artista.');
   }
   if (access.status !== 'active') {
-    throw new Error('Tu acceso de artista no esta activo. Contacta a Lujo Urban.');
+    throw new ForbiddenError('Tu acceso de artista no esta activo. Contacta a Lujo Urban.');
   }
   return access;
 };

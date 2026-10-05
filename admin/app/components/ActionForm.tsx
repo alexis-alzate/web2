@@ -16,6 +16,16 @@ type ToastState = {
   progressLabel?: string;
 };
 
+// Las Server Actions con safeAction no lanzan: devuelven { ok: false, message }.
+// Las acciones antiguas (beats, ordenes...) todavia lanzan, asi que se
+// soportan las dos formas.
+const failureMessage = (result: unknown): string | null => {
+  if (!result || typeof result !== 'object') return null;
+  const candidate = result as { ok?: unknown; message?: unknown };
+  if (candidate.ok !== false) return null;
+  return typeof candidate.message === 'string' ? candidate.message : '';
+};
+
 type ActionFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, 'action' | 'onSubmit'> & {
   action: (formData: FormData) => Promise<unknown>;
   children: ReactNode;
@@ -124,7 +134,20 @@ export function ActionForm({
 
     startTransition(async () => {
       try {
-        await action(formData);
+        const result = await action(formData);
+        const failure = failureMessage(result);
+        if (failure !== null) {
+          stopProgress();
+          // Refrescar tambien al fallar: puede haberse guardado algo antes del
+          // error (por ejemplo "guardado pero no publicado").
+          router.refresh();
+          showToast({
+            type: 'error',
+            title: 'Revision necesaria',
+            message: failure || errorMessage
+          }, false);
+          return;
+        }
         stopProgress();
         if (showProgress) {
           setToast((current) => current ? { ...current, progress: 100, progressLabel: 'Publicacion completada.' } : current);

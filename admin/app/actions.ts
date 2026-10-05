@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
+import { ConflictError, NotFoundError, ValidationError } from '@/lib/errors';
 import { commitFiles, readFile, readJson } from '@/lib/github';
 import {
   type CasaCatalogConfig,
@@ -10,14 +11,8 @@ import {
 } from '@/lib/artist-renderer';
 import { SOCIAL_KEYS, parseSocialOrder } from '@/lib/socials';
 import { readUploadedImage } from '@/lib/artists/images';
-import {
-  addRelease,
-  deleteArtist,
-  moveArtist,
-  publishCasaCatalog,
-  reactivateRelease,
-  saveArtist
-} from '@/lib/artists/service';
+import { artistService } from '@/lib/artists';
+import { safeAction } from '@/lib/actions/safe-action';
 
 type Release = {
   title: string;
@@ -77,7 +72,7 @@ const formLinks = (formData: FormData) =>
   Object.fromEntries(SOCIAL_KEYS.map(key => [key, normalizeOptional(formData.get(key))]));
 
 const rebuildCasaCatalog = async (catalog: CasaCatalogConfig, message: string) => {
-  await publishCasaCatalog(catalog, message);
+  await artistService.publishCasaCatalog(catalog, message);
   revalidatePath('/');
 };
 
@@ -283,10 +278,10 @@ export const createHomeReleaseAction = async (formData: FormData) => {
   revalidatePath('/');
 };
 
-export const saveArtistAction = async (formData: FormData) => {
+export const saveArtistAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
-  await saveArtist({
+  await artistService.saveArtist({
     originalSlug: normalizeOptional(formData.get('originalSlug')),
     name: normalizeOptional(formData.get('name')),
     slug: normalizeOptional(formData.get('slug')),
@@ -305,32 +300,34 @@ export const saveArtistAction = async (formData: FormData) => {
   });
 
   revalidatePath('/');
-};
+});
 
-export const moveArtistAction = async (formData: FormData) => {
+export const moveArtistAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
-  await moveArtist(
+  await artistService.moveArtist(
     normalizeOptional(formData.get('slug')),
     normalizeOptional(formData.get('direction')) === 'up' ? 'up' : 'down'
   );
 
   revalidatePath('/');
-};
+});
 
-export const deleteArtistAction = async (formData: FormData) => {
+export const deleteArtistAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
-  if (normalizeOptional(formData.get('confirmation')) !== 'BORRAR') throw new Error('Para borrar escribe BORRAR.');
-  await deleteArtist(normalizeOptional(formData.get('slug')));
+  if (normalizeOptional(formData.get('confirmation')) !== 'BORRAR') {
+    throw new ValidationError('Para borrar escribe BORRAR.');
+  }
+  await artistService.deleteArtist(normalizeOptional(formData.get('slug')));
 
   revalidatePath('/');
-};
+});
 
-export const addArtistReleaseAction = async (formData: FormData) => {
+export const addArtistReleaseAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
-  await addRelease({
+  await artistService.addRelease({
     artistSlug: normalizeOptional(formData.get('artistSlug')),
     title: normalizeOptional(formData.get('title')),
     slug: normalizeOptional(formData.get('slug')),
@@ -340,55 +337,55 @@ export const addArtistReleaseAction = async (formData: FormData) => {
   });
 
   revalidatePath('/');
-};
+});
 
-export const reactivateArtistReleaseAction = async (formData: FormData) => {
+export const reactivateArtistReleaseAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
-  await reactivateRelease(
+  await artistService.reactivateRelease(
     normalizeOptional(formData.get('artistSlug')),
     normalizeOptional(formData.get('releaseSlug'))
   );
 
   revalidatePath('/');
-};
+});
 
-export const addCasaCatalogPickAction = async (formData: FormData) => {
+export const addCasaCatalogPickAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
   const pick = parseCasaCatalogPick(String(formData.get('pick') || ''));
-  if (!pick) throw new Error('Selecciona un lanzamiento valido.');
+  if (!pick) throw new ValidationError('Selecciona un lanzamiento valido.');
 
   const catalog = await readCasaCatalog();
-  if (catalog.picks.some(item => samePick(item, pick))) throw new Error('Ese lanzamiento ya esta fijado en el catalogo.');
-  if (catalog.picks.length >= VISION_MAX_CRATE) throw new Error(`Solo puedes fijar hasta ${VISION_MAX_CRATE} lanzamientos.`);
+  if (catalog.picks.some(item => samePick(item, pick))) throw new ConflictError('Ese lanzamiento ya esta fijado en el catalogo.');
+  if (catalog.picks.length >= VISION_MAX_CRATE) throw new ValidationError(`Solo puedes fijar hasta ${VISION_MAX_CRATE} lanzamientos.`);
 
   catalog.picks.push(pick);
   await rebuildCasaCatalog(catalog, 'Pin release to Casa catalog');
-};
+});
 
-export const removeCasaCatalogPickAction = async (formData: FormData) => {
+export const removeCasaCatalogPickAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
   const index = Number(formData.get('index'));
   const catalog = await readCasaCatalog();
-  if (!Number.isInteger(index) || index < 0 || index >= catalog.picks.length) throw new Error('No encontre esa posicion del catalogo.');
+  if (!Number.isInteger(index) || index < 0 || index >= catalog.picks.length) throw new NotFoundError('No encontre esa posicion del catalogo.');
 
   catalog.picks.splice(index, 1);
   await rebuildCasaCatalog(catalog, 'Unpin release from Casa catalog');
-};
+});
 
-export const moveCasaCatalogPickAction = async (formData: FormData) => {
+export const moveCasaCatalogPickAction = safeAction(async (formData: FormData) => {
   await requireAdmin();
 
   const index = Number(formData.get('index'));
   const direction = String(formData.get('direction') || '');
   const catalog = await readCasaCatalog();
-  if (!Number.isInteger(index) || index < 0 || index >= catalog.picks.length) throw new Error('No encontre esa posicion del catalogo.');
+  if (!Number.isInteger(index) || index < 0 || index >= catalog.picks.length) throw new NotFoundError('No encontre esa posicion del catalogo.');
 
   const targetIndex = direction === 'up' ? index - 1 : index + 1;
   if (targetIndex < 0 || targetIndex >= catalog.picks.length) return;
 
   [catalog.picks[index], catalog.picks[targetIndex]] = [catalog.picks[targetIndex], catalog.picks[index]];
   await rebuildCasaCatalog(catalog, 'Reorder Casa catalog');
-};
+});
