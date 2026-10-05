@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getCurrentAccess } from '@/lib/auth';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
-import type { BeatStoragePath } from '@/lib/beat-upload';
+import { getCurrentAccess } from '@/backend/auth/auth';
+import { createSupabaseAdminClient } from '@/backend/supabase/admin-client';
+import type { BeatStoragePath } from '@/shared/beat-upload';
 
 type CleanupRequest = {
   uploads?: BeatStoragePath[];

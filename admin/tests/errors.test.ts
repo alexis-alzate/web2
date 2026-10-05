@@ -8,7 +8,7 @@ import {
   UnauthorizedError,
   ValidationError,
   isAppError
-} from '@/lib/errors';
+} from '@/backend/core/errors';
 
 // Cada error lleva un codigo y un estado, igual que las excepciones de la API
 // de Java (ArtistValidationException = 400, DuplicateArtistException = 409).

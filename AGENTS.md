@@ -51,25 +51,46 @@ web2/
 │   │   └── supabase/server.ts                # clientes anon (catálogo) y service-role (route handlers)
 │   └── .env.example
 └── admin/                                     # Next.js — panel privado
-    ├── app/
-    │   ├── page.tsx                          # dashboard principal (todas las secciones)
-    │   ├── actions-beats.ts                  # CRUD de beats, upload a Storage, toggle demo beats
-    │   ├── actions-orders.ts                 # listar órdenes, reenviar correo de descarga
-    │   ├── actions.ts                        # acciones de contenido del sitio estático (GitHub)
-    │   ├── auth-actions.ts, auth/, login/, forgot-password/, reset-password/
-    │   ├── api/                              # endpoints internos del panel
-    │   └── components/                       # ActionForm, SubmitButton, AnalyticsDashboard, etc.
-    └── lib/
-        ├── beats.ts                          # tipos Beat/LicenseType, slugify, beatCoverUrl, LICENSE_LABELS
-        ├── email.ts                          # sendDownloadEmail() via fetch a Resend API (sin SDK)
-        ├── auth.ts, admin-session.ts         # auth del panel (Supabase Auth)
-        ├── github.ts, artist-renderer.ts     # edición del sitio estático vía API de GitHub (commitFiles: borra y reintenta)
-        ├── errors.ts                         # errores con tipo (Validation 400, Unauthorized 401, Forbidden 403, NotFound 404, Conflict 409, Publish 502)
-        ├── actions/safe-action.ts            # traductor central de errores de Server Actions ({ ok, code, message })
-        ├── artists/                          # capa de artistas: index.ts (composicion) → service.ts (reglas) → repository.ts (BD) + site-publisher.ts (GitHub)
-        ├── analytics.ts                      # métricas de lanzamientos
-        └── supabase/admin-client.ts          # cliente service-role
+    ├── app/                                  # SOLO lo que Next exige: rutas (page/layout/route.ts), delgadas
+    │   ├── page.tsx                          # dashboard principal (pendiente: partirlo en secciones)
+    │   ├── api/                              # endpoints internos del panel (route.ts)
+    │   ├── auth/, login/, forgot-password/, reset-password/, mi-perfil/
+    │   └── layout.tsx
+    ├── frontend/                             # TODO lo que se ve o corre en el navegador
+    │   ├── components/                       # common/ (ActionForm, SubmitButton...), auth/, beats/, artists/, panel/
+    │   ├── styles/globals.css
+    │   └── lib/supabase-browser.ts           # cliente de Supabase para el navegador (passkeys)
+    ├── backend/                              # TODO lo que corre en el servidor
+    │   ├── actions/                          # Server Actions = controllers: content.ts (sitio estatico/GitHub), beats.ts, orders.ts,
+    │   │                                     #   producers.ts, artist-access.ts, artist-portal.ts, auth.ts
+    │   ├── artists/                          # capa de artistas: index.ts (composicion) → service.ts (reglas) → repository.ts (BD)
+    │   │                                     #   + site-publisher.ts (GitHub), images.ts, release-pages.ts, types.ts, test-artist.ts
+    │   ├── core/                             # errors.ts (errores con tipo), safe-action.ts (traductor de errores), app-origin.ts
+    │   ├── integrations/                     # github.ts (commitFiles: borra y reintenta), email.ts (Resend por fetch), artist-renderer.ts
+    │   ├── auth/auth.ts                      # auth del panel (Supabase Auth)
+    │   ├── supabase/                         # admin-client.ts (service-role), server.ts
+    │   └── services/                         # analytics.ts (métricas de lanzamientos), portal-activity.ts
+    ├── shared/                               # puro y sin secretos: lo importan frontend Y backend
+    │   └── beats.ts, beat-upload.ts, socials.ts, admin-session.ts, portal-activity-types.ts
+    ├── proxy.ts                              # middleware de Next (debe estar en la raiz)
+    └── tests/                                # Vitest (ver seccion 9)
 ```
+
+### Dónde va cada cosa en `admin/` (regla de carpetas)
+
+Next.js obliga a que `page.tsx`, `layout.tsx` y `route.ts` vivan dentro de `app/`,
+así que las dos mitades se separan por carpetas, no por proyecto:
+
+- `frontend/` importa de `shared/` y de sí misma. **Nunca de `backend/`** (un
+  `import type` está bien; un import de valores arrastraría código y secretos
+  del servidor al navegador).
+- `backend/` importa de `shared/` y de sí misma. Nunca de `frontend/`.
+- `shared/` no importa de ninguna de las dos y no toca `process.env` secretos.
+- `app/` solo conecta: una página arma componentes de `frontend/` con datos de
+  `backend/`; un `route.ts` o una Server Action delega en `backend/`.
+- Archivo nuevo: ¿corre en el navegador? → `frontend/`. ¿Habla con Supabase,
+  GitHub, Resend o lee secretos? → `backend/`. ¿Constante o tipo puro que usan
+  ambos? → `shared/`.
 
 ## 3. Tienda pública vs. Admin — diferencia clave
 
@@ -77,7 +98,7 @@ web2/
 |---|---|---|
 | Audiencia | Pública (clientes) | Privada (solo Zaetta/equipo) |
 | Auth | Ninguna (compra como invitado) | Supabase Auth (login obligatorio) |
-| Acceso a Supabase | Cliente anon (catálogo, solo lectura con RLS) + service-role (route handlers de checkout/webhook/descarga) | Siempre service-role (`admin/lib/supabase/admin-client.ts`) |
+| Acceso a Supabase | Cliente anon (catálogo, solo lectura con RLS) + service-role (route handlers de checkout/webhook/descarga) | Siempre service-role (`admin/backend/supabase/admin-client.ts`) |
 | Función | Catálogo, carrito, checkout, descargas | Gestión de beats, órdenes, contenido del sitio estático, analíticas |
 | Variables de entorno | Propias en su proyecto Vercel | Propias en su proyecto Vercel — **NO se comparten automáticamente** con `tienda` aunque usen el mismo proyecto Supabase |
 
@@ -101,20 +122,20 @@ Capas en `admin/` (no mezclarlas). Es la misma arquitectura que la API de Java
 central.
 
 ```
-Server Action = controller   (app/actions.ts, artist-portal-actions.ts)
+Server Action = controller   (backend/actions/content.ts, artist-portal.ts)
    lee el formulario, comprueba permisos, llama al servicio. Envuelta en safeAction.
-   └─ ArtistService          (lib/artists/service.ts)
+   └─ ArtistService          (backend/artists/service.ts)
         reglas Y validaciones, orden de operaciones, qué publicar o borrar.
         Recibe por constructor (inyección de dependencias):
         ├─ ArtistRepository  → SupabaseArtistRepository (repository.ts): único que toca las tablas
         ├─ SitePublisher     → GithubSitePublisher (site-publisher.ts): sabe dónde viven las páginas
         └─ CoverFetcher      → fetchSmartLinkCover (images.ts)
-   lib/artists/index.ts = raíz de composición: único lugar que elige las implementaciones
-safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los errores con tipo
+   backend/artists/index.ts = raíz de composición: único lugar que elige las implementaciones
+safeAction (backend/core/safe-action.ts) = @RestControllerAdvice: atrapa los errores con tipo
    y devuelve { ok: false, code, message }; los inesperados se registran y se muestran genéricos.
 ```
 
-- **Errores**: las capas lanzan errores con tipo de `lib/errors.ts`
+- **Errores**: las capas lanzan errores con tipo de `backend/core/errors.ts`
   (`ValidationError`, `ConflictError`, `NotFoundError`, ...); nunca `new Error`
   para algo que el usuario deba leer. Solo `safeAction` decide cómo se muestran.
 - **Server Actions nuevas**: envolverlas en `safeAction`. Se devuelve el error
@@ -135,7 +156,7 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   lanzamientos y `artist_access`. Las imágenes de `assets/` se conservan.
 - `commitFiles` reintenta hasta 3 veces si otro commit entra a la rama al
   mismo tiempo (422 "not a fast forward").
-- Subidas de imagen: solo JPG/PNG/WebP de hasta 5 MB (`lib/artists/images.ts`).
+- Subidas de imagen: solo JPG/PNG/WebP de hasta 5 MB (`backend/artists/images.ts`).
 - Pendiente: vincular usuarios por `artist_access` en lugar de
   `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
   que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug
@@ -185,7 +206,7 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
 - Al aprobarse una orden con `license_type = 'exclusive'`, el beat correspondiente pasa a `sold_exclusive` **automáticamente** (en `approveOrder`).
 - El checkout rechaza (400) cualquier intento de comprar un beat que no esté `available`.
 - **Doble venta (migración 016)**: `approve_order_safely` bloquea los beats de la orden (`FOR UPDATE`) y, si una orden todavía no aprobada contiene un beat que ya está `sold_exclusive`, la deja en estado `conflict`: no crea descargas ni ganancias, la tienda manda un aviso a `pedidos@` (o `ORDER_ALERT_TO_EMAIL`) para reembolsar, y `/descarga` le explica al comprador. Se reembolsa a mano desde Mercado Pago.
-- El botón manual "Marcar vendido (exclusiva)" / "Marcar disponible" en el panel admin (`actions-beats.ts: toggleBeatStatusAction`) **sigue existiendo y es útil** para ventas externas (fuera de la tienda) o para revertir un estado manualmente.
+- El botón manual "Marcar vendido (exclusiva)" / "Marcar disponible" en el panel admin (`admin/backend/actions/beats.ts: toggleBeatStatusAction`) **sigue existiendo y es útil** para ventas externas (fuera de la tienda) o para revertir un estado manualmente.
 
 ## 8. Variables de entorno necesarias (sin valores reales)
 

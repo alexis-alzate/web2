@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { sendPasswordResetAction } from '../auth-actions';
-import { PasswordResetSubmitButton } from '../components/PasswordResetSubmitButton';
+import { sendPasswordResetAction } from '@/backend/actions/auth';
+import { PasswordResetSubmitButton } from '@/frontend/components/auth/PasswordResetSubmitButton';
 
 const errorMessages: Record<string, string> = {
   email: 'Escribe el correo de la cuenta.',

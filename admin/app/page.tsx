@@ -1,12 +1,12 @@
-import { readJson } from '@/lib/github';
-import { artistService } from '@/lib/artists';
+import { readJson } from '@/backend/integrations/github';
+import { artistService } from '@/backend/artists';
 import type {
   Artist,
   ArtistData,
   ArtistReleaseHistory,
   CasaCatalogConfig,
   CasaCatalogPick
-} from '@/lib/artist-renderer';
+} from '@/backend/integrations/artist-renderer';
 import {
   addArtistReleaseAction,
   addCasaCatalogPickAction,
@@ -18,39 +18,39 @@ import {
   removeCasaCatalogPickAction,
   saveArtistAction,
   reactivateHomeReleaseAction
-} from './actions';
-import { getCurrentAccess } from '@/lib/auth';
+} from '@/backend/actions/content';
+import { getCurrentAccess } from '@/backend/auth/auth';
 import { redirect } from 'next/navigation';
-import { SubmitButton } from './components/SubmitButton';
-import { PasskeyRegisterButton } from './components/PasskeyRegisterButton';
-import { AutoLogoutTimer } from './components/AutoLogoutTimer';
-import { PortalActivityTracker } from './components/PortalActivityTracker';
-import { ActionForm } from './components/ActionForm';
-import { SocialOrderEditor } from './components/SocialOrderEditor';
-import { ReleasePreview } from './components/ReleasePreview';
-import { CopyLinkButton } from './components/CopyLinkButton';
-import { AnalyticsDashboard } from './components/AnalyticsDashboard';
-import { BeatUploadForm } from './components/BeatUploadForm';
-import { BeatFilesUploadForm } from './components/BeatFilesUploadForm';
-import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/analytics';
-import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, updateBeatMetadataAction } from './actions-beats';
-import { resendOrderEmailAction } from './actions-orders';
-import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
-import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType, type Producer } from '@/lib/beats';
-import type { SocialKey } from '@/lib/socials';
-import { isAccessStatus, type LujoAccessStatus } from '@/lib/auth';
-import { TEST_ARTIST_SLUG } from '@/lib/test-artist';
-import { loadPortalUserActivities } from '@/lib/portal-activity';
-import type { PortalUserActivity } from '@/lib/portal-activity-types';
-import { UserActivityPanel } from './components/UserActivityPanel';
+import { SubmitButton } from '@/frontend/components/common/SubmitButton';
+import { PasskeyRegisterButton } from '@/frontend/components/auth/PasskeyRegisterButton';
+import { AutoLogoutTimer } from '@/frontend/components/auth/AutoLogoutTimer';
+import { PortalActivityTracker } from '@/frontend/components/panel/PortalActivityTracker';
+import { ActionForm } from '@/frontend/components/common/ActionForm';
+import { SocialOrderEditor } from '@/frontend/components/artists/SocialOrderEditor';
+import { ReleasePreview } from '@/frontend/components/artists/ReleasePreview';
+import { CopyLinkButton } from '@/frontend/components/common/CopyLinkButton';
+import { AnalyticsDashboard } from '@/frontend/components/panel/AnalyticsDashboard';
+import { BeatUploadForm } from '@/frontend/components/beats/BeatUploadForm';
+import { BeatFilesUploadForm } from '@/frontend/components/beats/BeatFilesUploadForm';
+import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/backend/services/analytics';
+import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, updateBeatMetadataAction } from '@/backend/actions/beats';
+import { resendOrderEmailAction } from '@/backend/actions/orders';
+import { createProducerAction, toggleProducerStatusAction } from '@/backend/actions/producers';
+import { createSupabaseAdminClient } from '@/backend/supabase/admin-client';
+import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType, type Producer } from '@/shared/beats';
+import type { SocialKey } from '@/shared/socials';
+import { isAccessStatus, type LujoAccessStatus } from '@/backend/auth/auth';
+import { TEST_ARTIST_SLUG } from '@/backend/artists/test-artist';
+import { loadPortalUserActivities } from '@/backend/services/portal-activity';
+import type { PortalUserActivity } from '@/shared/portal-activity-types';
+import { UserActivityPanel } from '@/frontend/components/panel/UserActivityPanel';
 import {
   convertArtistUserToTestAction,
   createTestArtistUserAction,
   inviteArtistUserAction,
   unlinkArtistUserAction,
   updateArtistUserAccessAction
-} from './artist-access-actions';
+} from '@/backend/actions/artist-access';
 
 type BeatOrder = {
   id: string;

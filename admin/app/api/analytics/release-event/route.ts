@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createAnalyticsSupabaseClient, type ReleaseEventType } from '@/lib/analytics';
+import { createAnalyticsSupabaseClient, type ReleaseEventType } from '@/backend/services/analytics';
 
 const allowedOrigins = new Set([
   'https://www.lujourban.com',

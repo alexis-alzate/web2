@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getCurrentAccess } from '@/lib/auth';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
+import { getCurrentAccess } from '@/backend/auth/auth';
+import { createSupabaseAdminClient } from '@/backend/supabase/admin-client';
 import {
   normalizeBeatMetadata,
   storageTargetForUpload,
   validateUploadFiles,
   type BeatUploadFileInput,
   type BeatUploadMetadata
-} from '@/lib/beat-upload';
+} from '@/shared/beat-upload';
 
 type UploadUrlRequest = {
   metadata?: BeatUploadMetadata;

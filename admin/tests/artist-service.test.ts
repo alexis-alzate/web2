@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { applyPortalInput, type PortalInput } from '@/lib/artists/service';
-import { ConflictError, NotFoundError, PublishError, ValidationError } from '@/lib/errors';
-import type { Artist } from '@/lib/artist-renderer';
+import { applyPortalInput, type PortalInput } from '@/backend/artists/service';
+import { ConflictError, NotFoundError, PublishError, ValidationError } from '@/backend/core/errors';
+import type { Artist } from '@/backend/integrations/artist-renderer';
 import { artistInput, makeService } from './helpers';
 
 type Ctx = ReturnType<typeof makeService>;

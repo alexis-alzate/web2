@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { SupabaseArtistRepository } from '@/lib/artists/repository';
-import type { ArtistWrite, ReleaseWrite } from '@/lib/artists/types';
-import { isAppError, ConflictError, ValidationError } from '@/lib/errors';
+import { SupabaseArtistRepository } from '@/backend/artists/repository';
+import type { ArtistWrite, ReleaseWrite } from '@/backend/artists/types';
+import { isAppError, ConflictError, ValidationError } from '@/backend/core/errors';
 import { fakeSupabase, type DbResult } from './fake-supabase';
 
 const repositoryWith = (responses: Record<string, DbResult | ((call: never) => DbResult)> = {}) => {

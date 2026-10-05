@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GithubApiError, commitFiles, readFile, readJson } from '@/lib/github';
+import { GithubApiError, commitFiles, readFile, readJson } from '@/backend/integrations/github';
 import { fakeGithub, type FakeGithubOptions } from './fake-github';
 
 const useGithub = (options?: FakeGithubOptions) => {

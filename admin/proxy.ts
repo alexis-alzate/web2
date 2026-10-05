@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ADMIN_SESSION_COOKIE } from '@/lib/admin-session';
+import { ADMIN_SESSION_COOKIE } from '@/shared/admin-session';
 
 const publicPaths = ['/login', '/forgot-password', '/reset-password', '/auth/callback', '/auth/confirm'];
 

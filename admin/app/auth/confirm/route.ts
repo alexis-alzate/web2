@@ -1,6 +1,6 @@
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { createSupabaseRouteClient } from '@/lib/supabase/server';
+import { createSupabaseRouteClient } from '@/backend/supabase/server';
 
 const allowedTypes = new Set<EmailOtpType>(['invite', 'recovery', 'signup', 'email']);
 

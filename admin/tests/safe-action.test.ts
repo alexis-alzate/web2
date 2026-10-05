@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { describe, expect, it, vi } from 'vitest';
-import { GENERIC_ERROR_MESSAGE, safeAction, toFailure } from '@/lib/actions/safe-action';
-import { ConflictError, ValidationError } from '@/lib/errors';
+import { GENERIC_ERROR_MESSAGE, safeAction, toFailure } from '@/backend/core/safe-action';
+import { ConflictError, ValidationError } from '@/backend/core/errors';
 
 // safeAction es el equivalente de @RestControllerAdvice: atrapa los errores
 // con tipo y los convierte en { ok: false, code, message }.
