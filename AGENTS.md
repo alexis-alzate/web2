@@ -121,7 +121,8 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   en vez de lanzarlo porque Next.js en producción oculta el texto de los
   errores lanzados desde una Server Action. `ActionForm` entiende ambas formas.
 - **Pruebas**: gracias a la inyección, el servicio se prueba con dobles
-  (repositorio y publicador falsos) sin Supabase ni GitHub.
+  (repositorio y publicador falsos) sin Supabase ni GitHub. Ver
+  `admin/tests/` y la sección 9.
 
 - Las páginas `artistas/*/index.html`, `artistas/index.html`, `sitemap.xml`,
   `artist-data.json` y `artist-release-history.json` son una **proyección
@@ -227,9 +228,28 @@ npm run build                       # build de producción (detecta errores de N
 npm run dev                         # servidor local (next dev)
 ```
 
-No hay test suite automatizada todavía. Después de tocar checkout, webhook,
+`admin/` tiene pruebas automatizadas con Vitest (`admin/tests/`):
+
+```bash
+cd admin
+npm test            # corre todas las pruebas una vez (vitest run)
+npm run test:watch  # modo observador mientras se programa
+```
+
+Cubren la capa de artistas: `errors.ts`, `safeAction`, `ArtistService`
+(reglas y orden de operaciones), `SupabaseArtistRepository` (traducción de
+errores de Postgres), `commitFiles` (borrado y reintento en 422) y
+`GithubSitePublisher`. Todo corre con dobles en memoria (`tests/helpers.ts`,
+`tests/fake-supabase.ts`, `tests/fake-github.ts`): sin red, sin secretos y sin
+tocar Supabase ni GitHub reales. Al cambiar el servicio, el repositorio o el
+publicador, agregar o ajustar la prueba que corresponda.
+
+`tienda/` todavía no tiene pruebas. Después de tocar checkout, webhook,
 `orders.ts`, descargas o el panel de beats/órdenes, correr **typecheck + build**
 de la app afectada como mínimo.
+
+GitHub Actions (`.github/workflows/ci.yml`) corre en cada PR y en cada push a
+`main`: `tsc`, pruebas y `next build` de `admin/`, y `tsc` de `tienda/`.
 
 ## 10. Reglas para futuros agentes
 
