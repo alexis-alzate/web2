@@ -1,0 +1,74 @@
+name: CI
+
+# Verifica cada Pull Request y cada push a main:
+#  - admin/: typecheck (tsc), pruebas (Vitest) y build de produccion (next build)
+#  - tienda/: typecheck (tsc)
+#
+# No usa secretos ni variables de entorno: las pruebas corren con repositorio y
+# publicador falsos (sin Supabase ni GitHub reales).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Si llega un commit nuevo a la misma rama, cancela la corrida anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  admin:
+    name: admin (tsc, tests, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Pruebas
+        run: npm test
+
+      - name: Build de produccion
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+
+  tienda:
+    name: tienda (tsc)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tienda
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tienda/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.json
