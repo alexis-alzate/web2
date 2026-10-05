@@ -1,0 +1,44 @@
+name: Avisar PR
+
+# Cuando se abre un Pull Request, el bot de GitHub (github-actions[bot]) deja un
+# comentario que menciona al autor. Asi GitHub le manda la notificacion al
+# celular: GitHub no avisa de las acciones que uno mismo hace, pero si de las de
+# otro usuario, y el bot cuenta como otro.
+#
+# No usa secretos: solo el GITHUB_TOKEN que GitHub da a cada corrida.
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  avisar:
+    name: avisar al autor
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    # Los PR desde forks no tienen permiso de escritura: no hay nada que hacer.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Comentar mencionando al autor
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Los datos del PR van por variables de entorno (no dentro del script)
+          # para que un titulo malicioso no pueda inyectar comandos.
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_DRAFT: ${{ github.event.pull_request.draft }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          EVENT_ACTION: ${{ github.event.action }}
+        run: |
+          if [ "$PR_DRAFT" = "true" ]; then estado="en borrador"; else estado="listo para revisar"; fi
+          if [ "$EVENT_ACTION" = "ready_for_review" ]; then
+            titulo="PR #${PR_NUMBER} marcado como listo para revisar"
+          else
+            titulo="PR #${PR_NUMBER} abierto"
+          fi
+          cuerpo="@${PR_AUTHOR} ${titulo} (${estado}, va hacia \`${PR_BASE}\`): ${PR_TITLE}"
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$cuerpo"
