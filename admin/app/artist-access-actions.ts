@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getAppOrigin } from '@/lib/app-origin';
 import { sendArtistInviteEmail } from '@/lib/artist-invite-email';
 import { isAccessStatus, requireAdmin, type LujoAccessStatus } from '@/lib/auth';
-import { loadArtistBySlug } from '@/lib/artists/service';
+import { artistService } from '@/lib/artists';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { createTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import type { User } from '@supabase/supabase-js';
@@ -16,7 +16,7 @@ const requiredText = (formData: FormData, field: string, label: string) => {
 };
 
 const ensureArtistExists = async (artistSlug: string) => {
-  const record = await loadArtistBySlug(artistSlug);
+  const record = await artistService.findArtistBySlug(artistSlug);
   if (!record) {
     throw new Error('No encontre ese artista en el roster.');
   }

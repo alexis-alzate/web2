@@ -1,5 +1,5 @@
 import { readJson } from '@/lib/github';
-import { loadRoster } from '@/lib/artists/service';
+import { artistService } from '@/lib/artists';
 import type {
   Artist,
   ArtistData,
@@ -335,7 +335,7 @@ export default async function DashboardPage() {
     // Artistas y lanzamientos salen de Supabase; Zaetta (release-history) y el
     // catalogo de Casa siguen viviendo como JSON en el repo.
     const [roster, zaettaHistory, catalog] = await Promise.all([
-      loadRoster(),
+      artistService.loadRoster(),
       readJson<ReleaseHistory>('release-history.json', { releases: [] }),
       readJson<CasaCatalogConfig>('casa-catalog.json', { picks: [] })
     ]);

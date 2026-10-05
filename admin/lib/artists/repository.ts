@@ -1,53 +1,25 @@
-// Repositorio de artistas: la UNICA capa que habla con las tablas `artists`,
-// `artist_links` y `artist_releases` (migracion 017).
+// Repositorio de artistas sobre Supabase: la UNICA clase que habla con las
+// tablas `artists`, `artist_links` y `artist_releases` (migracion 017).
 //
-// Regla de esta capa: solo lee y escribe filas. No valida reglas de negocio,
-// no toca GitHub, no conoce formularios. Eso vive en service.ts.
+// Solo lee y escribe filas. No valida reglas de negocio, no toca GitHub, no
+// conoce formularios (eso es del servicio). Su unico trabajo "extra" es
+// traducir los errores de Postgres a errores con tipo.
 //
-// Usa el cliente service_role del panel, asi que RLS no aplica: quien llame
-// a estas funciones ya tiene que haber pasado por requireAdmin() o
+// El cliente llega por constructor. En produccion es el cliente service_role
+// del panel, asi que RLS no aplica: quien llame ya paso por requireAdmin() o
 // requireActiveArtist().
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Artist, ArtistRelease } from '@/lib/artist-renderer';
-import { isSocialKey, type SocialKey } from '@/lib/socials';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
-
-export type ArtistRecord = {
-  id: string;
-  artist: Artist;
-  currentReleaseId: string | null;
-  // slug del lanzamiento -> id en la base (el historial publico no lleva ids).
-  releaseIdsBySlug: Record<string, string>;
-  // Historial completo (el lanzamiento actual tambien esta aqui), del mas
-  // viejo al mas nuevo.
-  releases: ArtistRelease[];
-};
-
-export type ArtistWrite = {
-  slug: string;
-  name: string;
-  cardName: string;
-  role: string;
-  tagline: string;
-  bio: string;
-  photoPath: string | null;
-  socialOrder: SocialKey[];
-  heroPrimary: SocialKey | null;
-  heroSecondary: SocialKey | null;
-  beatsEmbedUrl: string | null;
-  productionsEmbedUrl: string | null;
-  contactLabel: string | null;
-  contactUrl: string | null;
-};
-
-export type ReleaseWrite = {
-  slug: string;
-  title: string;
-  link: string;
-  coverPath: string | null;
-  shareUrl: string | null;
-  statusUrl: string | null;
-};
+import { ConflictError, ValidationError } from '@/lib/errors';
+import { isSocialKey } from '@/lib/socials';
+import type {
+  ArtistRecord,
+  ArtistRepository,
+  ArtistWrite,
+  PortalWrite,
+  ReleaseWrite
+} from './types';
 
 type ArtistRow = {
   id: string;
@@ -84,19 +56,21 @@ type ReleaseRow = {
 
 type DbError = { code?: string; message: string };
 
-const db = () => createSupabaseAdminClient();
-
-// Traduce errores de Postgres a mensajes que el admin pueda entender. Las
-// reglas (slug unico, URLs https, etc.) las hace cumplir la base de datos:
-// aqui solo se explican.
+// Traduce errores de Postgres a errores con tipo. Las reglas (slug unico,
+// URLs https, etc.) las hace cumplir la base de datos: aqui solo se explican.
+// Cualquier otro error de base es inesperado (INTERNAL): se conserva con su
+// causa para que quede en los logs.
 const fail = (action: string, error: DbError): never => {
   if (error.code === '23505') {
-    throw new Error(`No pude ${action}: ya existe un registro con ese slug.`);
+    throw new ConflictError(`No pude ${action}: ya existe un registro con ese slug.`, { cause: error });
   }
   if (error.code === '23514') {
-    throw new Error(`No pude ${action}: un dato no cumple las reglas de la base (${error.message}).`);
+    throw new ValidationError(
+      `No pude ${action}: un dato no cumple las reglas de la base (${error.message}).`,
+      { cause: error }
+    );
   }
-  throw new Error(`No pude ${action}: ${error.message}`);
+  throw new Error(`No pude ${action}: ${error.message}`, { cause: error });
 };
 
 const toRelease = (row: ReleaseRow): ArtistRelease => ({
@@ -113,61 +87,31 @@ const toRecord = (row: ArtistRow, links: LinkRow[], releases: ReleaseRow[]): Art
   const heroSecondary = row.hero_secondary && isSocialKey(row.hero_secondary) ? row.hero_secondary : undefined;
   const current = releases.find(release => release.id === row.current_release_id);
 
+  const artist: Artist = {
+    name: row.name,
+    cardName: row.card_name,
+    slug: row.slug,
+    role: row.role,
+    tagline: row.tagline,
+    bio: row.bio,
+    photo: row.photo_path ?? undefined,
+    links: Object.fromEntries(links.map(link => [link.network, link.url])),
+    socialOrder: row.social_order.filter(isSocialKey),
+    heroButtons: heroPrimary || heroSecondary ? { primary: heroPrimary, secondary: heroSecondary } : undefined,
+    release: current ? toRelease(current) : null,
+    beatsEmbed: row.beats_embed_url ?? '',
+    productionsEmbed: row.productions_embed_url ?? '',
+    contact: row.contact_url ? { label: row.contact_label ?? undefined, url: row.contact_url } : null
+  };
+
   return {
     id: row.id,
     currentReleaseId: row.current_release_id,
     releaseIdsBySlug: Object.fromEntries(releases.map(release => [release.slug, release.id])),
     releases: releases.map(toRelease),
-    artist: {
-      name: row.name,
-      cardName: row.card_name,
-      slug: row.slug,
-      role: row.role,
-      tagline: row.tagline,
-      bio: row.bio,
-      photo: row.photo_path ?? undefined,
-      links: Object.fromEntries(links.map(link => [link.network, link.url])),
-      socialOrder: row.social_order.filter(isSocialKey),
-      heroButtons: heroPrimary || heroSecondary ? { primary: heroPrimary, secondary: heroSecondary } : undefined,
-      release: current ? toRelease(current) : null,
-      beatsEmbed: row.beats_embed_url ?? '',
-      productionsEmbed: row.productions_embed_url ?? '',
-      contact: row.contact_url ? { label: row.contact_label ?? undefined, url: row.contact_url } : null
-    }
+    artist
   };
 };
-
-// Trae todo el roster en 3 consultas y lo une en memoria. Son pocos artistas;
-// si algun dia hay cientos, aqui es donde se optimiza (sin tocar nada mas).
-export const listArtists = async (): Promise<ArtistRecord[]> => {
-  const supabase = db();
-  const [artistsResult, linksResult, releasesResult] = await Promise.all([
-    supabase.from('artists').select('*').order('position', { ascending: true }).order('created_at', { ascending: true }),
-    supabase.from('artist_links').select('artist_id, network, url'),
-    supabase.from('artist_releases').select('*').order('created_at', { ascending: true })
-  ]);
-
-  if (artistsResult.error) fail('leer los artistas', artistsResult.error);
-  if (linksResult.error) fail('leer los links de los artistas', linksResult.error);
-  if (releasesResult.error) fail('leer los lanzamientos de los artistas', releasesResult.error);
-
-  const links = (linksResult.data ?? []) as LinkRow[];
-  const releases = (releasesResult.data ?? []) as ReleaseRow[];
-
-  return ((artistsResult.data ?? []) as ArtistRow[]).map(row =>
-    toRecord(
-      row,
-      links.filter(link => link.artist_id === row.id),
-      releases.filter(release => release.artist_id === row.id)
-    )
-  );
-};
-
-export const findArtistBySlug = async (slug: string): Promise<ArtistRecord | null> =>
-  (await listArtists()).find(record => record.artist.slug === slug) ?? null;
-
-export const findArtistById = async (id: string): Promise<ArtistRecord | null> =>
-  (await listArtists()).find(record => record.id === id) ?? null;
 
 const toArtistColumns = (write: ArtistWrite) => ({
   slug: write.slug,
@@ -186,122 +130,146 @@ const toArtistColumns = (write: ArtistWrite) => ({
   contact_url: write.contactUrl
 });
 
-// Crea el artista al final del roster y devuelve su id.
-export const insertArtist = async (write: ArtistWrite): Promise<string> => {
-  const supabase = db();
-  const { data: last, error: lastError } = await supabase
-    .from('artists')
-    .select('position')
-    .order('position', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (lastError) fail('calcular la posicion del artista', lastError);
+export class SupabaseArtistRepository implements ArtistRepository {
+  constructor(private readonly getClient: () => SupabaseClient) {}
 
-  const position = last ? (last as { position: number }).position + 1 : 0;
-  const { data, error } = await supabase
-    .from('artists')
-    .insert({ ...toArtistColumns(write), position })
-    .select('id')
-    .single();
-  if (error || !data) return fail('crear el artista', error ?? { message: 'sin respuesta' });
+  // Trae todo el roster en 3 consultas y lo une en memoria. Son pocos
+  // artistas; si algun dia hay cientos, aqui es donde se optimiza (sin tocar
+  // nada mas).
+  async listArtists(): Promise<ArtistRecord[]> {
+    const supabase = this.getClient();
+    const [artistsResult, linksResult, releasesResult] = await Promise.all([
+      supabase.from('artists').select('*').order('position', { ascending: true }).order('created_at', { ascending: true }),
+      supabase.from('artist_links').select('artist_id, network, url'),
+      supabase.from('artist_releases').select('*').order('created_at', { ascending: true })
+    ]);
 
-  return (data as { id: string }).id;
-};
+    if (artistsResult.error) fail('leer los artistas', artistsResult.error);
+    if (linksResult.error) fail('leer los links de los artistas', linksResult.error);
+    if (releasesResult.error) fail('leer los lanzamientos de los artistas', releasesResult.error);
 
-export const updateArtist = async (id: string, write: ArtistWrite) => {
-  const { error } = await db().from('artists').update(toArtistColumns(write)).eq('id', id);
-  if (error) fail('guardar el artista', error);
-};
+    const links = (linksResult.data ?? []) as LinkRow[];
+    const releases = (releasesResult.data ?? []) as ReleaseRow[];
 
-// Deja exactamente estos links: agrega/actualiza los nuevos y despues quita
-// los que ya no estan. Se hace en ese orden para que un fallo a medias nunca
-// borre un link sin haber guardado el reemplazo.
-export const replaceLinks = async (artistId: string, links: Record<string, string>) => {
-  const supabase = db();
-  const entries = Object.entries(links);
-
-  if (entries.length) {
-    const { error } = await supabase
-      .from('artist_links')
-      .upsert(
-        entries.map(([network, url]) => ({ artist_id: artistId, network, url })),
-        { onConflict: 'artist_id,network' }
-      );
-    if (error) fail('guardar los links', error);
+    return ((artistsResult.data ?? []) as ArtistRow[]).map(row =>
+      toRecord(
+        row,
+        links.filter(link => link.artist_id === row.id),
+        releases.filter(release => release.artist_id === row.id)
+      )
+    );
   }
 
-  const keep = entries.map(([network]) => network);
-  let removal = supabase.from('artist_links').delete().eq('artist_id', artistId);
-  if (keep.length) removal = removal.not('network', 'in', `(${keep.join(',')})`);
-  const { error: removeError } = await removal;
-  if (removeError) fail('quitar links antiguos', removeError);
-};
+  // Crea el artista al final del roster y devuelve su id.
+  async insertArtist(write: ArtistWrite): Promise<string> {
+    const supabase = this.getClient();
+    const { data: last, error: lastError } = await supabase
+      .from('artists')
+      .select('position')
+      .order('position', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (lastError) fail('calcular la posicion del artista', lastError);
 
-// `orderedIds` es el roster completo en el orden deseado.
-export const setPositions = async (orderedIds: string[]) => {
-  const supabase = db();
-  const results = await Promise.all(
-    orderedIds.map((id, position) => supabase.from('artists').update({ position }).eq('id', id))
-  );
-  const failed = results.find(result => result.error);
-  if (failed?.error) fail('reordenar los artistas', failed.error);
-};
+    const position = last ? (last as { position: number }).position + 1 : 0;
+    const { data, error } = await supabase
+      .from('artists')
+      .insert({ ...toArtistColumns(write), position })
+      .select('id')
+      .single();
+    if (error || !data) return fail('crear el artista', error ?? { message: 'sin respuesta' });
 
-// Borra al artista. La base se encarga en cascada de sus links, lanzamientos
-// y acceso al portal (artist_access).
-export const deleteArtistById = async (id: string) => {
-  const { error } = await db().from('artists').delete().eq('id', id);
-  if (error) fail('borrar el artista', error);
-};
+    return (data as { id: string }).id;
+  }
 
-// Crea o actualiza un lanzamiento (clave: artista + slug) y devuelve su id.
-export const upsertRelease = async (artistId: string, write: ReleaseWrite): Promise<string> => {
-  const { data, error } = await db()
-    .from('artist_releases')
-    .upsert(
-      {
-        artist_id: artistId,
-        slug: write.slug,
-        title: write.title,
-        link: write.link,
-        cover_path: write.coverPath,
-        share_url: write.shareUrl,
-        status_url: write.statusUrl
-      },
-      { onConflict: 'artist_id,slug' }
-    )
-    .select('id')
-    .single();
-  if (error || !data) return fail('guardar el lanzamiento', error ?? { message: 'sin respuesta' });
+  async updateArtist(id: string, write: ArtistWrite): Promise<void> {
+    const { error } = await this.getClient().from('artists').update(toArtistColumns(write)).eq('id', id);
+    if (error) fail('guardar el artista', error);
+  }
 
-  return (data as { id: string }).id;
-};
+  // Deja exactamente estos links: agrega/actualiza los nuevos y despues quita
+  // los que ya no estan. Se hace en ese orden para que un fallo a medias nunca
+  // borre un link sin haber guardado el reemplazo.
+  async replaceLinks(artistId: string, links: Record<string, string>): Promise<void> {
+    const supabase = this.getClient();
+    const entries = Object.entries(links);
 
-export const setCurrentRelease = async (artistId: string, releaseId: string) => {
-  const { error } = await db().from('artists').update({ current_release_id: releaseId }).eq('id', artistId);
-  if (error) fail('marcar el lanzamiento actual', error);
-};
+    if (entries.length) {
+      const { error } = await supabase
+        .from('artist_links')
+        .upsert(
+          entries.map(([network, url]) => ({ artist_id: artistId, network, url })),
+          { onConflict: 'artist_id,network' }
+        );
+      if (error) fail('guardar los links', error);
+    }
 
-export const updateReleaseLink = async (releaseId: string, link: string) => {
-  const { error } = await db().from('artist_releases').update({ link }).eq('id', releaseId);
-  if (error) fail('actualizar el enlace del lanzamiento', error);
-};
+    const keep = entries.map(([network]) => network);
+    let removal = supabase.from('artist_links').delete().eq('artist_id', artistId);
+    if (keep.length) removal = removal.not('network', 'in', `(${keep.join(',')})`);
+    const { error: removeError } = await removal;
+    if (removeError) fail('quitar links antiguos', removeError);
+  }
 
-// Campos que el artista puede editar desde su portal (nada mas).
-export type PortalWrite = {
-  socialOrder: SocialKey[];
-  heroPrimary: SocialKey | null;
-  heroSecondary: SocialKey | null;
-};
+  // `orderedIds` es el roster completo en el orden deseado.
+  async setPositions(orderedIds: string[]): Promise<void> {
+    const supabase = this.getClient();
+    const results = await Promise.all(
+      orderedIds.map((id, position) => supabase.from('artists').update({ position }).eq('id', id))
+    );
+    const failed = results.find(result => result.error);
+    if (failed?.error) fail('reordenar los artistas', failed.error);
+  }
 
-export const updatePortalFields = async (artistId: string, write: PortalWrite) => {
-  const { error } = await db()
-    .from('artists')
-    .update({
-      social_order: write.socialOrder,
-      hero_primary: write.heroPrimary,
-      hero_secondary: write.heroSecondary
-    })
-    .eq('id', artistId);
-  if (error) fail('guardar tu perfil', error);
-};
+  // Borra al artista. La base se encarga en cascada de sus links,
+  // lanzamientos y acceso al portal (artist_access).
+  async deleteArtistById(id: string): Promise<void> {
+    const { error } = await this.getClient().from('artists').delete().eq('id', id);
+    if (error) fail('borrar el artista', error);
+  }
+
+  // Crea o actualiza un lanzamiento (clave: artista + slug) y devuelve su id.
+  async upsertRelease(artistId: string, write: ReleaseWrite): Promise<string> {
+    const { data, error } = await this.getClient()
+      .from('artist_releases')
+      .upsert(
+        {
+          artist_id: artistId,
+          slug: write.slug,
+          title: write.title,
+          link: write.link,
+          cover_path: write.coverPath,
+          share_url: write.shareUrl,
+          status_url: write.statusUrl
+        },
+        { onConflict: 'artist_id,slug' }
+      )
+      .select('id')
+      .single();
+    if (error || !data) return fail('guardar el lanzamiento', error ?? { message: 'sin respuesta' });
+
+    return (data as { id: string }).id;
+  }
+
+  async setCurrentRelease(artistId: string, releaseId: string): Promise<void> {
+    const { error } = await this.getClient().from('artists').update({ current_release_id: releaseId }).eq('id', artistId);
+    if (error) fail('marcar el lanzamiento actual', error);
+  }
+
+  async updateReleaseLink(releaseId: string, link: string): Promise<void> {
+    const { error } = await this.getClient().from('artist_releases').update({ link }).eq('id', releaseId);
+    if (error) fail('actualizar el enlace del lanzamiento', error);
+  }
+
+  async updatePortalFields(artistId: string, write: PortalWrite): Promise<void> {
+    const { error } = await this.getClient()
+      .from('artists')
+      .update({
+        social_order: write.socialOrder,
+        hero_primary: write.heroPrimary,
+        hero_secondary: write.heroSecondary
+      })
+      .eq('id', artistId);
+    if (error) fail('guardar tu perfil', error);
+  }
+}

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentAccess } from '@/lib/auth';
-import { loadArtistBySlug } from '@/lib/artists/service';
+import { artistService } from '@/lib/artists';
 import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { ActionForm } from '../components/ActionForm';
@@ -32,7 +32,7 @@ export default async function ArtistPortalPage() {
   const isTestAccount = access.artistSlug === TEST_ARTIST_SLUG;
   const artist = isTestAccount
     ? readTestArtist(access.user.app_metadata?.lujo_test_profile)
-    : (await loadArtistBySlug(access.artistSlug))?.artist;
+    : (await artistService.findArtistBySlug(access.artistSlug))?.artist;
 
   if (!artist) {
     return (

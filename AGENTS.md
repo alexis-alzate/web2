@@ -64,7 +64,9 @@ web2/
         ├── email.ts                          # sendDownloadEmail() via fetch a Resend API (sin SDK)
         ├── auth.ts, admin-session.ts         # auth del panel (Supabase Auth)
         ├── github.ts, artist-renderer.ts     # edición del sitio estático vía API de GitHub (commitFiles: borra y reintenta)
-        ├── artists/                          # capa de artistas: repository.ts (BD) → service.ts (reglas) → images.ts, release-pages.ts
+        ├── errors.ts                         # errores con tipo (Validation 400, Unauthorized 401, Forbidden 403, NotFound 404, Conflict 409, Publish 502)
+        ├── actions/safe-action.ts            # traductor central de errores de Server Actions ({ ok, code, message })
+        ├── artists/                          # capa de artistas: index.ts (composicion) → service.ts (reglas) → repository.ts (BD) + site-publisher.ts (GitHub)
         ├── analytics.ts                      # métricas de lanzamientos
         └── supabase/admin-client.ts          # cliente service-role
 ```
@@ -94,14 +96,32 @@ Desde la migración 017 los artistas viven en tablas (`artists`, `artist_links`,
 `artist_releases`, `artist_access`) con RLS activo y sin políticas: solo
 `service_role` (el panel) puede leer o escribir.
 
-Capas en `admin/` (no mezclarlas):
+Capas en `admin/` (no mezclarlas). Es la misma arquitectura que la API de Java
+(`lujourban-api`): controller → service → repository + manejador de errores
+central.
 
 ```
-Server Action (app/actions.ts, artist-portal-actions.ts)   solo lee el formulario + requireAdmin/requireActiveArtist
-   └─ lib/artists/service.ts                               reglas: validar, orden de operaciones, qué publicar o borrar
-        ├─ lib/artists/repository.ts                       único lugar que habla con las tablas
-        └─ lib/github.ts (commitFiles)                     publica el sitio estático
+Server Action = controller   (app/actions.ts, artist-portal-actions.ts)
+   lee el formulario, comprueba permisos, llama al servicio. Envuelta en safeAction.
+   └─ ArtistService          (lib/artists/service.ts)
+        reglas Y validaciones, orden de operaciones, qué publicar o borrar.
+        Recibe por constructor (inyección de dependencias):
+        ├─ ArtistRepository  → SupabaseArtistRepository (repository.ts): único que toca las tablas
+        ├─ SitePublisher     → GithubSitePublisher (site-publisher.ts): sabe dónde viven las páginas
+        └─ CoverFetcher      → fetchSmartLinkCover (images.ts)
+   lib/artists/index.ts = raíz de composición: único lugar que elige las implementaciones
+safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los errores con tipo
+   y devuelve { ok: false, code, message }; los inesperados se registran y se muestran genéricos.
 ```
+
+- **Errores**: las capas lanzan errores con tipo de `lib/errors.ts`
+  (`ValidationError`, `ConflictError`, `NotFoundError`, ...); nunca `new Error`
+  para algo que el usuario deba leer. Solo `safeAction` decide cómo se muestran.
+- **Server Actions nuevas**: envolverlas en `safeAction`. Se devuelve el error
+  en vez de lanzarlo porque Next.js en producción oculta el texto de los
+  errores lanzados desde una Server Action. `ActionForm` entiende ambas formas.
+- **Pruebas**: gracias a la inyección, el servicio se prueba con dobles
+  (repositorio y publicador falsos) sin Supabase ni GitHub.
 
 - Las páginas `artistas/*/index.html`, `artistas/index.html`, `sitemap.xml`,
   `artist-data.json` y `artist-release-history.json` son una **proyección
