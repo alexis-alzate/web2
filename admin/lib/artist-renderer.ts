@@ -435,7 +435,11 @@ const renderArtistDiscovery = (artist: Artist) => {
     <span>Descubre más artistas de LUJO URBAN</span>
     <span class="artist-discovery-arrow" aria-hidden="true">→</span>
   </a>
-</section>`;
+</section>
+<aside class="artist-join" aria-label="Crea tu página de artista en Lujo Urban">
+  <p class="artist-join-copy">¿Eres artista? Ten una página como esta.</p>
+  <a href="/unete/" class="artist-join-link" data-track-event="artista_${eventSlug}_unete_click" data-track-label="artist_footer_join" data-track-content="${escapeHtml(artist.name)}">Quiero mi página</a>
+</aside>`;
 };
 
 const renderRelease = (artist: Artist) => {
@@ -637,6 +641,11 @@ ${artists.map(artist => `    <a href="/artistas/${artist.slug}/" class="artist-l
       <p>Calidad, estrategia y excelencia en cada proyecto.</p>
     </div>
   </section>
+
+  <aside class="artist-join artist-join--directory" aria-label="Crea tu página de artista en Lujo Urban">
+    <p class="artist-join-copy">¿Eres artista? Ten tu página en Lujo Urban.</p>
+    <a href="/unete/" class="artist-join-link" data-track-event="artistas_unete_click" data-track-label="artists_directory_join">Quiero mi página</a>
+  </aside>
 
   <a href="/" class="artists-label-cta" data-track-event="artistas_lujo_urban_cta_click" data-track-label="artists_label_cta">
     <img class="artists-label-logo" src="../assets/lujo.png" alt="" aria-hidden="true">

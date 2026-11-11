@@ -28,10 +28,11 @@ a partir de carpetas distintas de un mismo monorepo:
 web2/
 ├── index.html, styles.css, script.js, ...   # sitio estático principal
 ├── artistas/, lanzamientos/, servicios/, estados/  # contenido del sitio estático
+├── unete/                                    # formulario público de lista de espera (www.lujourban.com/unete/)
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..017, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..018, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
@@ -56,6 +57,8 @@ web2/
     │   ├── actions-beats.ts                  # CRUD de beats, upload a Storage, toggle demo beats
     │   ├── actions-orders.ts                 # listar órdenes, reenviar correo de descarga
     │   ├── actions.ts                        # acciones de contenido del sitio estático (GitHub)
+    │   ├── actions-waitlist.ts               # cambiar el estado de una solicitud de la lista de espera
+    │   ├── api/waitlist/route.ts             # endpoint PÚBLICO: recibe el formulario de /unete/
     │   ├── auth-actions.ts, auth/, login/, forgot-password/, reset-password/
     │   ├── api/                              # endpoints internos del panel
     │   └── components/                       # ActionForm, SubmitButton, AnalyticsDashboard, etc.
@@ -68,6 +71,7 @@ web2/
         ├── actions/safe-action.ts            # traductor central de errores de Server Actions ({ ok, code, message })
         ├── artists/                          # capa de artistas: index.ts (composicion) → service.ts (reglas) → repository.ts (BD) + site-publisher.ts (GitHub)
         ├── analytics.ts                      # métricas de lanzamientos
+        ├── waitlist.ts                       # lista de espera: validación y normalización de solicitudes
         └── supabase/admin-client.ts          # cliente service-role
 ```
 
@@ -140,6 +144,25 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
   que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug
   desactualizado).
+
+## 4.2 Lista de espera de artistas
+
+- Cada página de artista y el directorio terminan con la invitación
+  "Quiero mi página" (`renderArtistDiscovery` y `renderDirectory` en
+  `admin/lib/artist-renderer.ts`), que lleva a `www.lujourban.com/unete/`.
+- `unete/index.html` es una página estática escrita a mano (no la genera el
+  panel). Su formulario hace `POST https://admin.lujourban.com/api/waitlist`.
+- `admin/app/api/waitlist/route.ts` es el **único endpoint donde un visitante
+  escribe en la base**. Protecciones: Origin permitido, validación estricta
+  (`lib/waitlist.ts`), campo trampa `website`, tope de 40 solicitudes por hora
+  y WhatsApp único. No devuelve mensajes internos de la base. Si se cambia,
+  mantener todas esas protecciones.
+- Tabla `artist_waitlist` (migración 018): RLS activo y sin políticas, solo
+  `service_role`. Estados: `new`, `contacted`, `approved`, `rejected`.
+- En el panel, sección "Lista de espera". Marcar "Aprobado" es solo una marca:
+  la invitación se sigue enviando desde los accesos de artistas.
+- Colores: dorado (`--join-gold`) = Lujo Urban, la plataforma; verde = el
+  artista. Un solo botón dorado relleno por pantalla.
 
 ## 5. Flujo de compra digital (estado actual, ya en producción)
 
@@ -236,7 +259,7 @@ npm test            # corre todas las pruebas una vez (vitest run)
 npm run test:watch  # modo observador mientras se programa
 ```
 
-Cubren la capa de artistas: `errors.ts`, `safeAction`, `ArtistService`
+Cubren la lista de espera (`waitlist.ts`) y la capa de artistas: `errors.ts`, `safeAction`, `ArtistService`
 (reglas y orden de operaciones), `SupabaseArtistRepository` (traducción de
 errores de Postgres), `commitFiles` (borrado y reintento en 422) y
 `GithubSitePublisher`. Todo corre con dobles en memoria (`tests/helpers.ts`,
