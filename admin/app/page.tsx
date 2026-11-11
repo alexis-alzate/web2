@@ -36,6 +36,15 @@ import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/
 import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, updateBeatMetadataAction } from './actions-beats';
 import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
+import { updateWaitlistStatusAction } from './actions-waitlist';
+import {
+  FOLLOWERS_LABELS,
+  WAITLIST_STATUSES,
+  WAITLIST_STATUS_LABELS,
+  waitlistInstagramUrl,
+  waitlistWhatsappUrl,
+  type WaitlistEntry
+} from '@/lib/waitlist';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { beatCoverUrl, LICENSE_LABELS, type Beat, type LicenseType, type Producer } from '@/lib/beats';
 import type { SocialKey } from '@/lib/socials';
@@ -166,6 +175,14 @@ const initials = (name: string) => name
 
 const formatCOP = (value: number) => '$' + Number(value).toLocaleString('es-CO');
 
+const formatWaitlistDate = (value: string) =>
+  new Date(value).toLocaleDateString('es-CO', {
+    timeZone: 'America/Bogota',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
 const resolveCasaCatalogPickLabel = (
   pick: CasaCatalogPick,
   artistData: ArtistData,
@@ -281,6 +298,8 @@ export default async function DashboardPage() {
   let beatOffers: BeatOffer[] = [];
   let producers: Producer[] = [];
   let producerEarnings: ProducerEarning[] = [];
+  let waitlist: WaitlistEntry[] = [];
+  let waitlistAvailable = true;
   let artistAccessAccounts: ArtistAccessAccount[] = [];
   let artistAccessError = '';
   let artistActivityAvailable = true;
@@ -329,6 +348,20 @@ export default async function DashboardPage() {
     producerEarnings = (earningsData as unknown as ProducerEarning[]) || [];
   } catch {
     beats = [];
+  }
+
+  try {
+    // Aparte del bloque de la tienda: si la migracion 018 aun no se ha corrido,
+    // solo falla esta seccion y el resto del panel sigue igual.
+    const { data: waitlistData, error: waitlistError } = await createSupabaseAdminClient()
+      .from('artist_waitlist')
+      .select('id, stage_name, whatsapp, instagram, followers_range, status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (waitlistError) throw waitlistError;
+    waitlist = (waitlistData as WaitlistEntry[]) || [];
+  } catch {
+    waitlistAvailable = false;
   }
 
   try {
@@ -1276,6 +1309,83 @@ export default async function DashboardPage() {
                 </SubmitButton>
               </ActionForm>
             </details>
+          </div>
+        </details>
+      </section>
+
+      <section className="section">
+        <details className="folder">
+          <summary>
+            <span className="module-summary">
+              <ModuleIcon name="users" />
+              <span>
+                <strong>Lista de espera</strong>
+                <small>
+                  {waitlistAvailable
+                    ? `${waitlist.filter((entry) => entry.status === 'new').length} nueva(s) · ${waitlist.length} en total`
+                    : 'Falta correr la migracion 018'}
+                </small>
+              </span>
+            </span>
+          </summary>
+          <div className="folder-body">
+            {!waitlistAvailable && (
+              <p className="muted">
+                No pude leer la lista de espera. Corre supabase/migrations/018_artist_waitlist.sql en el SQL Editor de Supabase.
+              </p>
+            )}
+            {waitlistAvailable && waitlist.length === 0 && (
+              <p className="muted">
+                Todavia no hay solicitudes. Llegan desde el formulario de www.lujourban.com/unete/.
+              </p>
+            )}
+            {waitlist.length > 0 && (
+              <ol className="cards">
+                {waitlist.map((entry) => (
+                  <li className="card" key={entry.id}>
+                    <div>
+                      <h3>{entry.stage_name}</h3>
+                      <p className="muted">
+                        {WAITLIST_STATUS_LABELS[entry.status]}
+                        {' · '}
+                        {FOLLOWERS_LABELS[entry.followers_range]} seguidores
+                        {' · '}
+                        {formatWaitlistDate(entry.created_at)}
+                      </p>
+                      <p className="muted">
+                        <a href={waitlistWhatsappUrl(entry.whatsapp)} target="_blank" rel="noopener noreferrer">
+                          WhatsApp +{entry.whatsapp}
+                        </a>
+                        {' · '}
+                        <a href={waitlistInstagramUrl(entry.instagram)} target="_blank" rel="noopener noreferrer">
+                          @{entry.instagram}
+                        </a>
+                      </p>
+                    </div>
+                    <div className="actions">
+                      <ActionForm
+                        action={updateWaitlistStatusAction}
+                        savingMessage="Actualizando solicitud..."
+                        successMessage="Solicitud actualizada."
+                      >
+                        <input name="id" type="hidden" value={entry.id} />
+                        <label>
+                          Estado
+                          <select name="status" defaultValue={entry.status}>
+                            {WAITLIST_STATUSES.map((status) => (
+                              <option key={status} value={status}>
+                                {WAITLIST_STATUS_LABELS[status]}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <SubmitButton pendingText="...">Guardar</SubmitButton>
+                      </ActionForm>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
         </details>
       </section>

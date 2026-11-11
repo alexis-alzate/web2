@@ -1513,3 +1513,247 @@ a[href*="spotify"]{
     letter-spacing: 1.7px;
   }
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Lista de espera — invitacion "Quiero mi pagina" + pagina /unete/
+   Dorado = Lujo Urban (la plataforma). Verde = el artista.
+   Escala: espacios en multiplos de 4; controles de 48/52px de alto.
+   Ningun estado cambia el tamano de una caja (solo color y opacidad).
+   ─────────────────────────────────────────────────────────────── */
+:root {
+  --join-gold: #e3b873;
+  --join-gold-ink: #1a1206;
+  --join-field: #141414;
+  --join-copy: #a8a8a8;
+  --join-danger: #ff8a7a;
+}
+
+/* Invitacion al final del perfil de artista y del directorio */
+.artist-join {
+  width: min(100% - 48px, 520px);
+  margin: 0 auto;
+  padding: 28px 0 64px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.artist-join-copy {
+  margin: 0 0 16px;
+  color: var(--join-copy);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+.artist-join-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 28px;
+  border: 1px solid var(--join-gold);
+  border-radius: 999px;
+  color: var(--join-gold);
+  background: transparent;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background-color .18s ease, color .18s ease;
+}
+.artist-join-link:hover {
+  background: rgba(227,184,115,.12);
+}
+.artist-join-link:active {
+  background: rgba(227,184,115,.2);
+}
+.artist-join-link:focus-visible {
+  outline: 2px solid rgba(227,184,115,.6);
+  outline-offset: 4px;
+}
+.artist-join--directory {
+  padding: 32px 0 40px;
+  border-top: 0;
+}
+
+/* Pagina /unete/ */
+.join-page {
+  min-height: 100vh;
+  background: #000;
+}
+.join-nav {
+  display: flex;
+  justify-content: flex-end;
+  width: min(100%, 520px);
+  margin: 0 auto;
+  padding: 12px 12px 0;
+}
+.join-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: #fff;
+  opacity: .88;
+  transition: opacity .18s ease, background-color .18s ease;
+}
+.join-back:hover { opacity: 1; background: rgba(255,255,255,.06); }
+.join-back:focus-visible { outline: 2px solid rgba(227,184,115,.6); outline-offset: 2px; }
+.join-back svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.join-main {
+  width: min(100%, 520px);
+  margin: 0 auto;
+  padding: 20px 24px 72px;
+}
+.join-kicker {
+  margin: 0 0 16px;
+  color: var(--join-gold);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+.join-title {
+  margin: 0 0 12px;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(2.4rem, 10vw, 3.2rem);
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.join-lead {
+  margin: 0 0 28px;
+  color: var(--join-copy);
+  font-size: .98rem;
+  line-height: 1.55;
+}
+.join-field {
+  display: block;
+  margin: 0 0 16px;
+}
+.join-label {
+  display: block;
+  margin: 0 0 8px;
+  color: var(--join-copy);
+  font-size: .82rem;
+  line-height: 1.2;
+}
+.join-input {
+  display: block;
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  /* El anillo va por dentro (box-shadow): el foco y el error no mueven nada. */
+  box-shadow: inset 0 0 0 1px transparent;
+  background: var(--join-field);
+  color: #fff;
+  font-family: "Barlow", sans-serif;
+  font-size: 1rem; /* 16px: evita el zoom automatico de iOS al tocar el campo */
+  line-height: 1.2;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: box-shadow .18s ease, background-color .18s ease;
+}
+.join-input::placeholder { color: #6b6b6b; }
+.join-input:hover { background: #181818; }
+.join-input:focus-visible {
+  outline: 0;
+  box-shadow: inset 0 0 0 1px var(--join-gold);
+}
+.join-input[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 1px var(--join-danger);
+}
+select.join-input {
+  padding-right: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8a8a8' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px 18px;
+}
+select.join-input:invalid { color: #6b6b6b; }
+select.join-input option { color: #fff; background: #141414; }
+/* Campo trampa para bots: fuera de pantalla, nunca visible ni enfocable. */
+.join-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+/* Altura reservada: el mensaje aparece sin empujar el boton. */
+.join-status {
+  min-height: 40px;
+  margin: 4px 0 8px;
+  color: var(--join-danger);
+  font-size: .86rem;
+  line-height: 1.4;
+}
+.join-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--join-gold);
+  color: var(--join-gold-ink);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: .9rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color .18s ease, opacity .18s ease;
+}
+.join-submit:hover { background: #ecc688; }
+.join-submit:active { background: #d4a862; }
+.join-submit:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.join-submit[aria-busy="true"] { opacity: .6; cursor: progress; }
+.join-note {
+  margin: 16px 0 0;
+  color: #777;
+  font-size: .82rem;
+  line-height: 1.4;
+  text-align: center;
+}
+.join-done[hidden], .join-form[hidden] { display: none; }
+.join-done {
+  display: flex;
+  flex-direction: column;
+}
+.join-done-title {
+  margin: 0 0 12px;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 1.05;
+}
+.join-done-copy {
+  margin: 0 0 28px;
+  color: var(--join-copy);
+  font-size: .98rem;
+  line-height: 1.55;
+}
+.join-done .artist-join-link { align-self: flex-start; }
+@media (prefers-reduced-motion: reduce) {
+  .artist-join-link, .join-input, .join-submit, .join-back { transition: none; }
+}
