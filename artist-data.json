@@ -9,6 +9,14 @@
       "bio": "Perfil oficial de EL EVANGELISTA GONZALEZ dentro del ecosistema Lujo Urban.",
       "photo": "assets/evangelista-gonzalez-photo.jpg",
       "links": {},
+      "socialOrder": [
+        "tiktok",
+        "spotify",
+        "instagram",
+        "youtube",
+        "facebook",
+        "whatsapp"
+      ],
       "release": {
         "title": "Instrumento Del Señor",
         "slug": "instrumento-del-senor",
@@ -33,6 +41,14 @@
         "tiktok": "https://www.tiktok.com/@elsiervojhon?_r=1&_t=ZS-96uFZCQaekG",
         "instagram": "https://www.instagram.com/elsiervo_jhon?igsh=MTQ0NWt0dW1sOWZodg=="
       },
+      "socialOrder": [
+        "tiktok",
+        "spotify",
+        "instagram",
+        "youtube",
+        "facebook",
+        "whatsapp"
+      ],
       "release": {
         "title": "Murió Por Mi",
         "slug": "murio-por-mi",
@@ -60,17 +76,6 @@
         "youtube": "https://youtube.com/@julianramoslalibreta?si=4_HSF7cXMIX5MYcd",
         "facebook": "https://www.facebook.com/share/1EhzcfUQVw/?mibextid=wwXIfr"
       },
-      "release": {
-        "title": "CANTARLE A ÉL",
-        "slug": "cantarle-a-el",
-        "link": "https://hypeddit.com/cfv42c",
-        "cover": "assets/la-libreta-cantarle-a-el-cover.jpg",
-        "shareUrl": "https://www.lujourban.com/lanzamientos/la-libreta-cantarle-a-el-v1/",
-        "statusUrl": "https://www.lujourban.com/estados/la-libreta-cantarle-a-el-v1/"
-      },
-      "beatsEmbed": "",
-      "productionsEmbed": "",
-      "contact": null,
       "socialOrder": [
         "instagram",
         "tiktok",
@@ -82,7 +87,18 @@
       "heroButtons": {
         "primary": "spotify",
         "secondary": "youtube"
-      }
+      },
+      "release": {
+        "title": "CANTARLE A ÉL",
+        "slug": "cantarle-a-el",
+        "link": "https://ocom/track/1jWcIwj2V7?_sourc=copy-=",
+        "cover": "assets/la-libreta-cantarle-a-el-cover.jpg",
+        "shareUrl": "https://www.lujourban.com/lanzamientos/la-libreta-cantarle-a-el-v1/",
+        "statusUrl": "https://www.lujourban.com/estados/la-libreta-cantarle-a-el-v1/"
+      },
+      "beatsEmbed": "",
+      "productionsEmbed": "",
+      "contact": null
     }
   ]
 }

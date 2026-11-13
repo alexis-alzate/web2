@@ -1,15 +1,5 @@
 {
   "artists": {
-    "siervo-john": [
-      {
-        "title": "Murió Por Mi",
-        "slug": "murio-por-mi",
-        "link": "https://too.fm/p7k2g4d",
-        "cover": "assets/siervo-john-murio-por-mi-cover.jpg",
-        "shareUrl": "https://www.lujourban.com/lanzamientos/siervo-john-murio-por-mi-v1/",
-        "statusUrl": "https://www.lujourban.com/estados/siervo-john-murio-por-mi-v1/"
-      }
-    ],
     "evangelista-gonzalez": [
       {
         "title": "Instrumento Del Señor",
@@ -20,11 +10,21 @@
         "statusUrl": "https://www.lujourban.com/estados/evangelista-gonzalez-instrumento-del-senor-v1/"
       }
     ],
+    "siervo-john": [
+      {
+        "title": "Murió Por Mi",
+        "slug": "murio-por-mi",
+        "link": "https://too.fm/p7k2g4d",
+        "cover": "assets/siervo-john-murio-por-mi-cover.jpg",
+        "shareUrl": "https://www.lujourban.com/lanzamientos/siervo-john-murio-por-mi-v1/",
+        "statusUrl": "https://www.lujourban.com/estados/siervo-john-murio-por-mi-v1/"
+      }
+    ],
     "la-libreta": [
       {
         "title": "CANTARLE A ÉL",
         "slug": "cantarle-a-el",
-        "link": "https://hypeddit.com/cfv42c",
+        "link": "https://ocom/track/1jWcIwj2V7?_sourc=copy-=",
         "cover": "assets/la-libreta-cantarle-a-el-cover.jpg",
         "shareUrl": "https://www.lujourban.com/lanzamientos/la-libreta-cantarle-a-el-v1/",
         "statusUrl": "https://www.lujourban.com/estados/la-libreta-cantarle-a-el-v1/"
