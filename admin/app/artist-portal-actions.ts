@@ -5,6 +5,7 @@ import { requireActiveArtist } from '@/lib/auth';
 import type { Artist } from '@/lib/artist-renderer';
 import { SOCIAL_KEYS, parseSocialOrder } from '@/lib/socials';
 import { artistService, applyPortalInput, type PortalInput } from '@/lib/artists';
+import { readUploadedImage } from '@/lib/artists/images';
 import { safeAction } from '@/lib/actions/safe-action';
 import { ForbiddenError } from '@/lib/errors';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
@@ -25,8 +26,13 @@ const portalChanges = (before: Artist, after: Artist) => {
   if (JSON.stringify(before.socialOrder || []) !== JSON.stringify(after.socialOrder || [])) {
     changes.push({ key: 'social_order', label: 'orden de las redes' });
   }
-  if ((before.release?.link || '') !== (after.release?.link || '')) {
+  if ((before.release?.slug || '') !== (after.release?.slug || '')) {
+    changes.push({ key: 'new_release', label: `lanzamiento nuevo (${after.release?.title || ''})` });
+  } else if ((before.release?.link || '') !== (after.release?.link || '')) {
     changes.push({ key: 'release_link', label: 'enlace del lanzamiento' });
+  }
+  if ((before.photo || '') !== (after.photo || '')) {
+    changes.push({ key: 'photo', label: 'foto de perfil' });
   }
   return changes;
 };
@@ -45,24 +51,37 @@ const recordProfileUpdate = async (userId: string, before: Artist, after: Artist
 
 // La accion solo LEE el formulario. Las reglas (links validos, botones
 // distintos, etc.) y el guardado viven en lib/artists/service.ts.
-const readPortalForm = (formData: FormData): PortalInput => ({
-  links: Object.fromEntries(SOCIAL_KEYS.map(key => [key, String(formData.get(key) || '').trim()])),
-  socialOrder: parseSocialOrder(formData.get('socialOrder')),
-  heroPrimary: String(formData.get('heroPrimary') || ''),
-  heroSecondary: String(formData.get('heroSecondary') || ''),
-  releaseLink: String(formData.get('releaseLink') || '')
-});
+const readPortalForm = async (formData: FormData): Promise<PortalInput> => {
+  const newTitle = String(formData.get('newReleaseTitle') || '').trim();
+  const newLink = String(formData.get('newReleaseLink') || '').trim();
+  const newCover = await readUploadedImage(formData, 'newReleaseCover');
+
+  return {
+    links: Object.fromEntries(SOCIAL_KEYS.map(key => [key, String(formData.get(key) || '').trim()])),
+    socialOrder: parseSocialOrder(formData.get('socialOrder')),
+    heroPrimary: String(formData.get('heroPrimary') || ''),
+    heroSecondary: String(formData.get('heroSecondary') || ''),
+    releaseLink: String(formData.get('releaseLink') || ''),
+    uploadedPhoto: await readUploadedImage(formData, 'photoFile'),
+    // Basta con que llene uno de los tres campos para tratarlo como un
+    // lanzamiento nuevo; el servicio le dice cual le falta.
+    newRelease: newTitle || newLink || newCover
+      ? { title: newTitle, link: newLink, uploadedCover: newCover }
+      : null
+  };
+};
 
 export const saveOwnArtistPortalAction = safeAction(async (formData: FormData) => {
   const access = await requireActiveArtist();
   const artistSlug = access.artistSlug;
   if (!artistSlug) throw new ForbiddenError('Este acceso no esta vinculado a un artista.');
 
-  const input = readPortalForm(formData);
+  const input = await readPortalForm(formData);
 
   if (artistSlug === TEST_ARTIST_SLUG) {
     // La cuenta de prueba no existe en la tabla de artistas: su perfil vive
-    // en los metadatos del usuario y nunca publica nada.
+    // en los metadatos del usuario y nunca publica nada. Las imagenes se
+    // validan pero no se guardan en ninguna parte.
     const before = readTestArtist(access.user.app_metadata?.lujo_test_profile);
     const after = applyPortalInput(before, input);
     const supabase = createSupabaseAdminClient();

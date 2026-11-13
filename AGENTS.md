@@ -140,6 +140,16 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
 - `commitFiles` reintenta hasta 3 veces si otro commit entra a la rama al
   mismo tiempo (422 "not a fast forward").
 - Subidas de imagen: solo JPG/PNG/WebP de hasta 5 MB (`lib/artists/images.ts`).
+- Portal del artista (`/mi-perfil`): el artista edita sus links, botones,
+  orden de redes y el enlace del lanzamiento, y además puede **publicar un
+  lanzamiento nuevo** (nombre, enlace y portada) y **cambiar su foto de
+  perfil**. Todo va por `ArtistService.savePortalProfile` en un solo commit.
+  No puede tocar nombre, slug, bio ni embeds: eso sigue siendo del admin.
+  - La foto del portal se guarda como `assets/<slug>-photo-<huella>.<ext>`
+    (huella del contenido) para que una foto nueva no quede tapada por caché.
+  - `PortalImageField` reduce las imágenes en el navegador (máx. 1400 px, JPG)
+    antes de subirlas; el servidor igual valida tipo y peso.
+  - La cuenta de prueba valida lo mismo pero no guarda imágenes.
 - Pendiente: vincular usuarios por `artist_access` en lugar de
   `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
   que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug

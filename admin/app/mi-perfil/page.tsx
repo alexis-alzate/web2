@@ -4,8 +4,10 @@ import { artistService } from '@/lib/artists';
 import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { ActionForm } from '../components/ActionForm';
+import { MAX_RELEASE_TITLE_LENGTH } from '@/lib/artists';
 import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
 import { PortalActivityTracker } from '../components/PortalActivityTracker';
+import { PortalImageField } from '../components/PortalImageField';
 import { SocialOrderEditor } from '../components/SocialOrderEditor';
 import { SubmitButton } from '../components/SubmitButton';
 import { saveOwnArtistPortalAction } from '../artist-portal-actions';
@@ -85,6 +87,10 @@ export default async function ArtistPortalPage() {
   }
 
   const resolvedHeroButtons = resolveHeroButtons(artist.links, artist.heroButtons);
+  const siteUrl = (path?: string) => path ? `https://www.lujourban.com/${path}` : '';
+  // Cuando cambia el lanzamiento o la foto, estos bloques se montan de nuevo
+  // y los campos de "musica nueva" y de imagen vuelven a quedar vacios.
+  const mediaKey = `${artist.release?.slug || ''}|${artist.release?.title || ''}|${artist.photo || ''}`;
 
   return (
     <main className="artist-portal-shell">
@@ -130,7 +136,7 @@ export default async function ArtistPortalPage() {
         className="artist-portal-form"
         savingMessage={isTestAccount
           ? 'Guardando los cambios de la prueba privada...'
-          : 'Actualizando tus enlaces y publicando tu perfil...'}
+          : 'Actualizando tu perfil y publicándolo...'}
         successMessage={isTestAccount
           ? 'Prueba guardada. Ningún artista real fue modificado.'
           : 'Tu perfil quedó actualizado y se está publicando.'}
@@ -211,37 +217,101 @@ export default async function ArtistPortalPage() {
           <SocialOrderEditor initialOrder={artist.socialOrder} links={artist.links} />
         </section>
 
-        <section className="artist-portal-card">
+        <section className="artist-portal-card" key={`release-${mediaKey}`}>
           <div className="artist-portal-card-heading">
             <span>04</span>
             <div>
               <p className="eyebrow">Musica actual</p>
-              <h2>Enlace del lanzamiento</h2>
+              <h2>Tu lanzamiento</h2>
             </div>
           </div>
           {artist.release ? (
-            <label>
-              {artist.release.title}
-              <input
-                type="url"
-                name="releaseLink"
-                defaultValue={artist.release.link}
-                placeholder="https://..."
-                required
-              />
-              <small>Cambia adonde lleva “Escuchar ahora” dentro de la tarjeta de tu lanzamiento.</small>
-            </label>
+            <>
+              <div className="portal-release-current">
+                <span className="portal-image-preview">
+                  {artist.release.cover
+                    ? <img src={siteUrl(artist.release.cover)} alt="" />
+                    : <small>Sin portada</small>}
+                </span>
+                <div>
+                  <span className="artist-portal-status"><i /> En tu página</span>
+                  <strong>{artist.release.title}</strong>
+                </div>
+              </div>
+              <label>
+                Enlace para escuchar
+                <input
+                  type="url"
+                  name="releaseLink"
+                  defaultValue={artist.release.link}
+                  placeholder="https://..."
+                  required
+                />
+                <small>Adonde lleva “Escuchar ahora” en la tarjeta de «{artist.release.title}».</small>
+              </label>
+            </>
           ) : (
             <p className="artist-portal-help">
-              Aun no tienes un lanzamiento activo. Lujo Urban debe crear el primero desde el panel principal.
+              Todavía no tienes un lanzamiento en tu página. Publica el primero aquí abajo.
             </p>
           )}
+
+          <div className="portal-release-new">
+            <h3>{artist.release ? '¿Sacaste música nueva?' : 'Publica tu primer lanzamiento'}</h3>
+            <p className="artist-portal-help">
+              {artist.release
+                ? `Llena estos campos solo si quieres cambiar la canción de tu página. La nueva reemplaza a «${artist.release.title}» en la tarjeta de último lanzamiento.`
+                : 'Escribe el nombre de la canción y el enlace donde se escucha.'}
+            </p>
+            <div className="artist-portal-fields">
+              <label>
+                Nombre de la canción
+                <input
+                  name="newReleaseTitle"
+                  maxLength={MAX_RELEASE_TITLE_LENGTH}
+                  placeholder="Como aparece en plataformas"
+                  autoComplete="off"
+                />
+              </label>
+              <label>
+                Enlace para escuchar
+                <input type="url" name="newReleaseLink" placeholder="https://..." />
+              </label>
+            </div>
+            <PortalImageField
+              name="newReleaseCover"
+              label="Portada"
+              emptyLabel="Portada"
+              hint={isTestAccount
+                ? 'En la prueba privada las imágenes no se guardan.'
+                : 'Cuadrada, JPG, PNG o WebP. Si no subes una, intentamos tomarla del enlace.'}
+            />
+          </div>
+        </section>
+
+        <section className="artist-portal-card" key={`photo-${mediaKey}`}>
+          <div className="artist-portal-card-heading">
+            <span>05</span>
+            <div>
+              <p className="eyebrow">Tu imagen</p>
+              <h2>Foto de perfil</h2>
+            </div>
+          </div>
+          <PortalImageField
+            name="photoFile"
+            label="Cambiar foto"
+            emptyLabel="Sin foto"
+            currentUrl={siteUrl(artist.photo)}
+            hint={isTestAccount
+              ? 'En la prueba privada las imágenes no se guardan.'
+              : 'Cuadrada y con buena luz: es la que sale arriba en tu página y en el directorio.'}
+          />
         </section>
 
         <div className="artist-portal-savebar">
           <span>
             <strong>Diseño protegido</strong>
-            <small>Colores, tipografias y estructura siguen siendo Lujo Urban.</small>
+            <small>Tú pones la música y la foto. Colores, tipografías y estructura siguen siendo Lujo Urban.</small>
           </span>
           <SubmitButton className="primary" pendingText={isTestAccount ? 'Guardando prueba...' : 'Publicando...'}>
             {isTestAccount ? 'Guardar prueba privada' : 'Guardar y publicar'}

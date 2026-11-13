@@ -22,6 +22,6 @@ export const artistService = new ArtistService(
   fetchSmartLinkCover
 );
 
-export { applyPortalInput } from './service';
-export type { PortalInput, SaveArtistInput, AddReleaseInput } from './service';
+export { applyPortalInput, MAX_RELEASE_TITLE_LENGTH } from './service';
+export type { PortalInput, PortalReleaseInput, SaveArtistInput, AddReleaseInput } from './service';
 export type { ArtistRecord, Roster } from './types';

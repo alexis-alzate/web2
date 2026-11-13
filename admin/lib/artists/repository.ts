@@ -267,7 +267,8 @@ export class SupabaseArtistRepository implements ArtistRepository {
       .update({
         social_order: write.socialOrder,
         hero_primary: write.heroPrimary,
-        hero_secondary: write.heroSecondary
+        hero_secondary: write.heroSecondary,
+        ...(write.photoPath ? { photo_path: write.photoPath } : {})
       })
       .eq('id', artistId);
     if (error) fail('guardar tu perfil', error);
