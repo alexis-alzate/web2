@@ -350,13 +350,25 @@ describe('lanzamientos', () => {
 });
 
 describe('updatePortalFields', () => {
-  it('solo escribe los tres campos que el artista puede editar', async () => {
+  it('sin foto nueva solo escribe el orden y los botones', async () => {
     const { repository, on } = repositoryWith();
 
     await repository.updatePortalFields('a1', { socialOrder: ['spotify'], heroPrimary: 'spotify', heroSecondary: null });
 
     expect(on('artists')[0].ops[0].args[0]).toEqual({
       social_order: ['spotify'], hero_primary: 'spotify', hero_secondary: null
+    });
+  });
+
+  it('escribe la foto solo cuando el artista subio una nueva', async () => {
+    const { repository, on } = repositoryWith();
+
+    await repository.updatePortalFields('a1', {
+      socialOrder: ['spotify'], heroPrimary: null, heroSecondary: null, photoPath: 'assets/ana-photo-0123456789.jpg'
+    });
+
+    expect(on('artists')[0].ops[0].args[0]).toEqual({
+      social_order: ['spotify'], hero_primary: null, hero_secondary: null, photo_path: 'assets/ana-photo-0123456789.jpg'
     });
   });
 

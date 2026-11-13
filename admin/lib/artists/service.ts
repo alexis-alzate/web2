@@ -24,6 +24,7 @@
 // Errores: lanza errores con tipo (lib/errors.ts). Nunca decide como se
 // muestran: eso es de lib/actions/safe-action.ts.
 
+import { createHash } from 'node:crypto';
 import {
   compactArtistName,
   slugify,
@@ -152,6 +153,14 @@ export type AddReleaseInput = {
   uploadedCover: UploadedImage | null;
 };
 
+// Lanzamiento nuevo que el artista publica desde su portal.
+export type PortalReleaseInput = {
+  title: string;
+  link: string;
+  // null = intentar tomar la portada del enlace (og:image).
+  uploadedCover: UploadedImage | null;
+};
+
 export type PortalInput = {
   // Un valor por red (puede venir vacio = quitar ese link).
   links: Record<string, string>;
@@ -159,6 +168,26 @@ export type PortalInput = {
   heroPrimary: string;
   heroSecondary: string;
   releaseLink: string;
+  // null = el artista no cambio su foto.
+  uploadedPhoto: UploadedImage | null;
+  // null = el artista no publico musica nueva.
+  newRelease: PortalReleaseInput | null;
+};
+
+export const MAX_RELEASE_TITLE_LENGTH = 80;
+
+// Valida el lanzamiento nuevo del portal y calcula su slug. Lo usan el perfil
+// real y la cuenta de prueba.
+export const validatePortalRelease = (input: PortalReleaseInput) => {
+  const title = text(input.title);
+  if (!title) throw new ValidationError('Escribe el nombre de tu nueva canción.');
+  if (title.length > MAX_RELEASE_TITLE_LENGTH) {
+    throw new ValidationError(`El nombre de la canción no puede pasar de ${MAX_RELEASE_TITLE_LENGTH} caracteres.`);
+  }
+  const slug = slugify(title);
+  if (!slug) throw new ValidationError('El nombre de la canción debe tener letras o números.');
+  const link = validUrl(input.link, 'El enlace de tu nueva canción', { required: true });
+  return { title, slug, link };
 };
 
 // Aplica lo que el artista envio sobre una COPIA de su perfil y valida las
@@ -186,7 +215,12 @@ export const applyPortalInput = (current: Artist, input: PortalInput): Artist =>
     ? { primary: primary ?? undefined, secondary: secondary ?? undefined }
     : undefined;
 
-  if (artist.release) {
+  if (input.newRelease) {
+    // La cancion nueva reemplaza a la actual en la tarjeta: el enlace de la
+    // anterior no se toca. La portada la resuelve el servicio al guardar.
+    const release = validatePortalRelease(input.newRelease);
+    artist.release = { title: release.title, slug: release.slug, link: release.link };
+  } else if (artist.release) {
     const releaseLink = validUrl(input.releaseLink, 'El enlace de la canción actual', { required: true });
     artist.release = { ...artist.release, link: releaseLink };
   }
@@ -356,36 +390,53 @@ export class ArtistService {
     const record = await this.findArtistBySlug(artistSlug);
     if (!record) throw new NotFoundError('No encontre ese artista.');
 
-    const coverImage = input.uploadedCover ?? (text(input.cover) ? null : await this.fetchCover(link));
+    const files = await this.storeRelease(record, {
+      title, slug: releaseSlug, link, cover: text(input.cover), uploadedCover: input.uploadedCover
+    });
+
+    await this.publishAfterSave(await this.loadRoster(), {
+      message: `Set ${title} as latest release for ${record.artist.name}`,
+      extraFiles: files
+    });
+  }
+
+  // Guarda un lanzamiento en la base y lo deja como el actual. Devuelve los
+  // archivos (portada y paginas para compartir) que hay que publicar con el.
+  // Recibe los datos YA validados.
+  private async storeRelease(
+    record: ArtistRecord,
+    release: { title: string; slug: string; link: string; cover: string; uploadedCover: UploadedImage | null }
+  ): Promise<PublishFile[]> {
+    const artistSlug = record.artist.slug;
+    const coverImage = release.uploadedCover ?? (release.cover ? null : await this.fetchCover(release.link));
     const coverPath = coverImage
-      ? `assets/${artistSlug}-${releaseSlug}-cover.${coverImage.extension}`
-      : text(input.cover) || null;
+      ? `assets/${artistSlug}-${release.slug}-cover.${coverImage.extension}`
+      : release.cover || null;
     if (coverPath && !PHOTO_PATH.test(coverPath)) {
       throw new ValidationError('La portada debe estar en assets/ y ser JPG, PNG o WebP.');
     }
 
-    const version = nextPreviewVersion(record.releases, artistSlug, releaseSlug);
+    const version = nextPreviewVersion(record.releases, artistSlug, release.slug);
     const socialPages = coverPath
-      ? buildArtistReleaseSharePages({ artist: record.artist, releaseTitle: title, releaseSlug, version, cover: coverPath })
+      ? buildArtistReleaseSharePages({
+        artist: record.artist, releaseTitle: release.title, releaseSlug: release.slug, version, cover: coverPath
+      })
       : null;
 
     const releaseId = await this.repository.upsertRelease(record.id, {
-      slug: releaseSlug,
-      title,
-      link,
+      slug: release.slug,
+      title: release.title,
+      link: release.link,
       coverPath,
       shareUrl: socialPages?.shareUrl ?? null,
       statusUrl: socialPages?.statusUrl ?? null
     });
     await this.repository.setCurrentRelease(record.id, releaseId);
 
-    await this.publishAfterSave(await this.loadRoster(), {
-      message: `Set ${title} as latest release for ${record.artist.name}`,
-      extraFiles: [
-        ...(coverImage && coverPath ? [imageFile(coverPath, coverImage)] : []),
-        ...(socialPages?.files ?? [])
-      ]
-    });
+    return [
+      ...(coverImage && coverPath ? [imageFile(coverPath, coverImage)] : []),
+      ...(socialPages?.files ?? [])
+    ];
   }
 
   async reactivateRelease(artistSlug: string, releaseSlug: string) {
@@ -411,19 +462,47 @@ export class ArtistService {
     const before = record.artist;
     const after = applyPortalInput(before, input);
 
+    // La foto lleva en el nombre una huella de su contenido: una foto nueva
+    // estrena ruta y ni el navegador ni el CDN muestran la anterior guardada.
+    const photo = input.uploadedPhoto;
+    const photoPath = photo
+      ? `assets/${artistSlug}-photo-${createHash('sha256').update(photo.contentBase64).digest('hex').slice(0, 10)}.${photo.extension}`
+      : undefined;
+
     await this.repository.updatePortalFields(record.id, {
       socialOrder: after.socialOrder ?? normalizeSocialOrder(null),
       heroPrimary: after.heroButtons?.primary ?? null,
-      heroSecondary: after.heroButtons?.secondary ?? null
+      heroSecondary: after.heroButtons?.secondary ?? null,
+      photoPath
     });
     await this.repository.replaceLinks(record.id, after.links ?? {});
-    if (record.currentReleaseId && after.release && after.release.link !== before.release?.link) {
+
+    const extraFiles: PublishFile[] = photo && photoPath ? [imageFile(photoPath, photo)] : [];
+    if (photoPath) after.photo = photoPath;
+
+    if (input.newRelease && after.release) {
+      extraFiles.push(...await this.storeRelease(record, {
+        title: after.release.title,
+        slug: after.release.slug ?? slugify(after.release.title),
+        link: after.release.link,
+        cover: '',
+        uploadedCover: input.newRelease.uploadedCover
+      }));
+    } else if (record.currentReleaseId && after.release && after.release.link !== before.release?.link) {
       await this.repository.updateReleaseLink(record.currentReleaseId, after.release.link);
     }
 
-    await this.publishAfterSave(await this.loadRoster(), { message: `Update artist links for ${before.name}` });
+    const roster = await this.loadRoster();
+    const saved = roster.records.find(item => item.id === record.id)?.artist ?? after;
 
-    return { before, after };
+    await this.publishAfterSave(roster, {
+      message: input.newRelease
+        ? `Set ${saved.release?.title ?? 'new release'} as latest release for ${before.name}`
+        : `Update artist profile for ${before.name}`,
+      extraFiles
+    });
+
+    return { before, after: saved };
   }
 
   // Casa (lujourban-vision) muestra a los artistas mas recientes y un

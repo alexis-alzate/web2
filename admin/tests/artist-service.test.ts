@@ -503,6 +503,8 @@ describe('portal del artista: applyPortalInput y savePortalProfile', () => {
     heroPrimary: '',
     heroSecondary: '',
     releaseLink: 'https://x.co/hit',
+    uploadedPhoto: null,
+    newRelease: null,
     ...overrides
   });
 
@@ -603,6 +605,94 @@ describe('portal del artista: applyPortalInput y savePortalProfile', () => {
       await expect(ctx.service.savePortalProfile('ana', input({ heroPrimary: 'youtube' }))).rejects.toThrow(ValidationError);
 
       expect(ctx.log).not.toContain('repo.updatePortalFields');
+      expect(ctx.log).not.toContain('publisher.publishRoster');
+    });
+
+    it('una foto nueva estrena ruta (con la huella de su contenido) y se publica en el mismo commit', async () => {
+      await seedWithRelease();
+
+      const { before, after } = await ctx.service.savePortalProfile('ana', input({
+        uploadedPhoto: { extension: 'jpg', contentBase64: 'FOTO' }
+      }));
+
+      expect(after.photo).toMatch(/^assets\/ana-photo-[0-9a-f]{10}\.jpg$/);
+      expect(after.photo).not.toBe(before.photo);
+      expect(ctx.repository.records[0].artist.photo).toBe(after.photo);
+      expect(ctx.publisher.published).toHaveLength(1);
+      expect(ctx.publisher.published[0].options.extraFiles).toEqual([
+        { path: after.photo, content: 'FOTO', encoding: 'base64' }
+      ]);
+    });
+
+    it('sin foto nueva no toca la foto que ya tenia', async () => {
+      await seedWithRelease();
+      ctx.repository.records[0].artist.photo = 'assets/ana-photo.jpg';
+
+      const { after } = await ctx.service.savePortalProfile('ana', input());
+
+      expect(after.photo).toBe('assets/ana-photo.jpg');
+      expect(ctx.publisher.published[0].options.extraFiles).toEqual([]);
+    });
+
+    it('un lanzamiento nuevo queda como el actual, conserva el anterior en el historial y publica una sola vez', async () => {
+      await seedWithRelease();
+
+      const { after } = await ctx.service.savePortalProfile('ana', input({
+        newRelease: { title: 'Otra Canción', link: 'https://x.co/otra', uploadedCover: { extension: 'png', contentBase64: 'C' } }
+      }));
+
+      const record = ctx.repository.records[0];
+      expect(after.release).toMatchObject({ title: 'Otra Canción', slug: 'otra-cancion', link: 'https://x.co/otra', cover: 'assets/ana-otra-cancion-cover.png' });
+      expect(record.releases.map(release => release.slug)).toEqual(['hit', 'otra-cancion']);
+      expect(record.releases[0].link).toBe('https://x.co/hit');
+      expect(ctx.log).not.toContain('repo.updateReleaseLink');
+      expect(ctx.publisher.published).toHaveLength(1);
+      const paths = ctx.publisher.published[0].options.extraFiles?.map(file => file.path) ?? [];
+      expect(paths).toContain('assets/ana-otra-cancion-cover.png');
+      expect(paths.some(path => path.startsWith('lanzamientos/ana-otra-cancion-v1/'))).toBe(true);
+      expect(ctx.log.indexOf('repo.setCurrentRelease')).toBeLessThan(ctx.log.indexOf('publisher.publishRoster'));
+    });
+
+    it('sin portada subida intenta tomarla del enlace', async () => {
+      ctx = makeService({ cover: async () => ({ extension: 'webp', contentBase64: 'OG' }) });
+      await seedWithRelease();
+
+      const { after } = await ctx.service.savePortalProfile('ana', input({
+        newRelease: { title: 'Nueva', link: 'https://x.co/nueva', uploadedCover: null }
+      }));
+
+      expect(after.release?.cover).toBe('assets/ana-nueva-cover.webp');
+    });
+
+    it('un artista sin lanzamiento puede publicar el primero', async () => {
+      await seed(ctx, 'Ana');
+
+      const { after } = await ctx.service.savePortalProfile('ana', input({
+        links: {},
+        releaseLink: '',
+        newRelease: { title: 'Debut', link: 'https://x.co/debut', uploadedCover: null }
+      }));
+
+      expect(after.release).toMatchObject({ title: 'Debut', link: 'https://x.co/debut' });
+      expect(ctx.repository.records[0].currentReleaseId).not.toBeNull();
+    });
+
+    it.each([
+      ['sin nombre', { title: '  ', link: 'https://x.co/a' }],
+      ['sin enlace', { title: 'Nueva', link: '' }],
+      ['con un enlace que no es http', { title: 'Nueva', link: 'javascript:alert(1)' }],
+      ['con un nombre de mas de 80 caracteres', { title: 'a'.repeat(81), link: 'https://x.co/a' }],
+      ['con un nombre sin letras ni numeros', { title: '!!!', link: 'https://x.co/a' }]
+    ])('un lanzamiento nuevo %s se rechaza y no se escribe nada', async (_label, release) => {
+      await seedWithRelease();
+
+      await expect(ctx.service.savePortalProfile('ana', input({
+        uploadedPhoto: { extension: 'jpg', contentBase64: 'FOTO' },
+        newRelease: { ...release, uploadedCover: null }
+      }))).rejects.toThrow(ValidationError);
+
+      expect(ctx.log).not.toContain('repo.updatePortalFields');
+      expect(ctx.log).not.toContain('repo.upsertRelease');
       expect(ctx.log).not.toContain('publisher.publishRoster');
     });
 

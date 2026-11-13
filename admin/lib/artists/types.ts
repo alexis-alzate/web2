@@ -68,6 +68,8 @@ export type PortalWrite = {
   socialOrder: SocialKey[];
   heroPrimary: SocialKey | null;
   heroSecondary: SocialKey | null;
+  // undefined = no tocar la foto; el artista solo la cambia subiendo una nueva.
+  photoPath?: string;
 };
 
 export type PublishFile = {

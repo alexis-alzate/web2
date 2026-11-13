@@ -127,6 +127,7 @@ export class FakeRepository implements ArtistRepository {
     artist.heroButtons = write.heroPrimary || write.heroSecondary
       ? { primary: write.heroPrimary ?? undefined, secondary: write.heroSecondary ?? undefined }
       : undefined;
+    if (write.photoPath) artist.photo = write.photoPath;
   }
 }
 
