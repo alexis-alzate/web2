@@ -8,6 +8,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     config: 'Falta configurar Supabase en Vercel.',
     credentials: 'Correo o clave incorrectos.',
     access: 'Este usuario no tiene un acceso activo asignado por Lujo Urban.',
+    invite: 'Tu enlace ya se uso o vencio. Toca "Olvide mi clave" y te enviamos uno nuevo.',
     expired: 'Sesion expirada. Inicia de nuevo.',
     rate: 'Demasiados intentos. Espera un momento y vuelve a probar.',
     unconfirmed: 'El correo aun no esta confirmado en Supabase.'
