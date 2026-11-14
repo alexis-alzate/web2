@@ -30,14 +30,16 @@ web2/
 ├── vercel.json                               # reglas de enlaces cortos (lo genera el panel)
 ├── artistas/, lanzamientos/, servicios/, estados/  # contenido del sitio estático
 ├── unete/                                    # formulario público de lista de espera (www.lujourban.com/unete/)
+├── vender/                                   # solicitud de cuenta de productor (www.lujourban.com/vender/)
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..020, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..022, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
 │   │   ├── [slug]/page.tsx                   # detalle de beat + SEO
+│   │   ├── productor/[slug]/page.tsx         # tienda pública de un productor (tienda.lujourban.com/productor/<slug>)
 │   │   ├── descarga/page.tsx                 # post-compra: descargas + estado de la orden
 │   │   ├── descarga/AutoRefresh.tsx          # auto-refresh mientras el pago está pending
 │   │   ├── api/checkout/route.ts             # crea order + order_items + preferencia MercadoPago
@@ -49,6 +51,7 @@ web2/
 │   │   ├── types.ts                          # Beat, LicenseType, LICENSE_LABELS, helpers de precio/archivo
 │   │   ├── orders.ts                         # approveOrder() — idempotencia, exclusivas, email
 │   │   ├── email.ts                          # sendDownloadEmail() via Resend SDK
+│   │   ├── producers.ts                      # getProducerBySlug(): lectura pública mínima (id, slug, nombre) de un productor activo
 │   │   ├── format.ts                         # formatCOP, formatTime, publicUrl
 │   │   └── supabase/server.ts                # clientes anon (catálogo) y service-role (route handlers)
 │   └── .env.example
@@ -60,6 +63,8 @@ web2/
     │   ├── actions.ts                        # acciones de contenido del sitio estático (GitHub)
     │   ├── actions-waitlist.ts               # cambiar el estado de una solicitud de la lista de espera
     │   ├── api/waitlist/route.ts             # endpoint PÚBLICO: recibe el formulario de /unete/
+    │   ├── api/producer-applications/route.ts # endpoint PÚBLICO: recibe el formulario de /vender/
+    │   ├── actions-producer-applications.ts  # aprobar / rechazar solicitudes de productor (safeAction)
     │   ├── auth-actions.ts, auth/, login/, forgot-password/, reset-password/
     │   ├── productor/                        # portal del PRODUCTOR (/productor): layout, producer-data.ts (loadProducer), productor.css
     │   ├── producer-access-actions.ts        # invitar / pausar / desvincular el acceso de un productor (safeAction)
@@ -72,6 +77,7 @@ web2/
         ├── github.ts, artist-renderer.ts     # edición del sitio estático vía API de GitHub (commitFiles: borra y reintenta)
         ├── errors.ts                         # errores con tipo (Validation 400, Unauthorized 401, Forbidden 403, NotFound 404, Conflict 409, Publish 502)
         ├── actions/safe-action.ts            # traductor central de errores de Server Actions ({ ok, code, message })
+        ├── producer-applications/            # solicitudes de productor: rules.ts (puras) → service.ts → repository.ts; index.ts = composición
         ├── producers/                        # capa de productores: access-service.ts (reglas) → repository.ts + supabase-access-directory.ts + invite-email.ts; index.ts = composición
         ├── artists/                          # capa de artistas: index.ts (composicion) → service.ts (reglas) → repository.ts (BD) + site-publisher.ts (GitHub)
         ├── analytics.ts                      # métricas de lanzamientos
@@ -341,6 +347,71 @@ artistas.
      el dinero entra a la cuenta de Lujo Urban y `producer_earnings` registra cuánto
      le corresponde. Tocar pagos exige auditar y explicar riesgos antes (sección 10).
   3. Página pública del productor con sus beats.
+
+### Tienda pública del productor
+
+Cada productor tiene **su propia tienda** en
+`tienda.lujourban.com/productor/<slug>`, desde el momento en que existe, tenga
+beats o no (sin beats muestra "Los primeros beats están por llegar").
+
+- **Slug** (migración 022, `producers.slug`, único, `NOT NULL`, formato
+  `^[a-z0-9]+(-[a-z0-9]+)*$`): lo pone un **trigger** de la base al insertar
+  (`producers_set_slug`), a partir del nombre artístico (`producer_slug_base`:
+  sin tildes, guiones; si ya existe, `-2`, `-3`...). Así lo tienen los dos
+  caminos de creación (formulario del panel y aprobación de solicitudes) sin
+  repetir la regla en código. El slug **no cambia** si después se edita el
+  nombre: es la dirección que el productor comparte.
+- **Página** (`tienda/app/productor/[slug]/page.tsx`): lee la ficha con
+  `getProducerBySlug` (`tienda/lib/producers.ts`) y los beats con el cliente
+  anónimo filtrando por `producer_id`. `producers` tiene RLS sin políticas
+  (guarda correo y comisión), por eso ese helper usa el cliente de servicio
+  pero pide **solo** `id, slug, stage_name` y solo productores `active`. No
+  ampliar ese `select`: lo que se agregue se vuelve público.
+- **Dónde se ve el enlace** (`admin/lib/producers/store-url.ts`, puro):
+  correo de invitación (bloque "Tu tienda"), tarjeta "Tu tienda" en `/productor`
+  (abrir y copiar; cada beat de su lista enlaza a su página pública) y la tarjeta
+  del productor en el panel (con botón de copiar). El origen sale de `TIENDA_URL`
+  (por defecto `https://tienda.lujourban.com`).
+- **Orden de despliegue**: correr la migración 022 **antes** de desplegar el
+  código; el portal lee la columna `slug` y falla si no existe.
+- La comisión por defecto al crear un productor (formulario del panel) es 15 %
+  (`DEFAULT_COMMISSION_PERCENT`), igual que al aprobar una solicitud.
+- Pendiente: que "Prod. by X" en los beats lleve a la tienda del productor
+  (hoy `beats.producer` es solo texto), foto y bio del productor, y poder
+  reenviar el enlace de la tienda a un productor que ya tenía cuenta.
+
+### Solicitud de cuenta de productor (autoservicio con aprobación)
+
+Un productor nuevo **no** lo crea el admin a mano: pide su cuenta en
+`www.lujourban.com/vender/` (página estática escrita a mano, como `/unete/`) y
+el admin la aprueba con un clic. Abierto del todo se descartó a propósito:
+vende bajo la marca y se le pagará, así que alguien tiene que revisarlo.
+
+- `POST admin.lujourban.com/api/producer-applications` = controlador delgado
+  (Origin permitido, cuerpo ≤ 2 KB, campo trampa `website`). **Solo guarda la
+  solicitud**: no crea cuentas ni envía correos a quien llena el formulario, así
+  nadie puede usar el formulario para mandar correos a terceros.
+- Capas: `lib/producer-applications/` → `rules.ts` (puras: `parseApplication`,
+  `normalizeMusicUrl` que solo acepta http(s), `parseCommission`, 15 % por
+  defecto) → `service.ts` (`submit`, `approve`, `reject`, tope de 20 por hora) →
+  `repository.ts` (tabla `producer_applications` y la creación de la fila en
+  `producers`) ; `index.ts` = composición. Pruebas con dobles en
+  `tests/producer-applications.test.ts`.
+- **Aprobar** (`ProducerApplicationService.approve`): reclama la solicitud de
+  forma atómica (`UPDATE … WHERE status = 'new'`, dos clics no la aprueban
+  dos veces) → crea la ficha en `producers` con la comisión elegida → invita con
+  `ProducerAccessService.invite` (mismo enlace de dos pasos de §4.1). Si
+  cualquier paso falla, se borra la ficha creada y la solicitud vuelve a "por
+  revisar": nunca queda un productor a medias.
+- Rechazar solo marca la solicitud. El correo es único: quien repite el
+  formulario ve un éxito y no se crea otra fila.
+- Migración **021** (`producer_applications`, RLS activo y sin políticas). Hay que
+  correrla a mano en Supabase; hasta entonces el panel muestra el aviso.
+- `vender` está en `RESERVED_SHORT_LINKS`.
+- Pendiente: el portal "en revisión" del diseño original no se hizo, porque
+  exigiría crear la cuenta antes de aprobar. Tras aprobar, el productor entra
+  directo a `/productor`. Falta además una lista de pasos de perfil (foto,
+  historia) y la subida de beats (bloqueada hasta R2).
 
 ## 5. Flujo de compra digital (estado actual, ya en producción)
 

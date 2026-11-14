@@ -3,6 +3,8 @@ import type { EarningsSummary } from '@/lib/producers/earnings-summary';
 import { formatCOP, formatSaleDate } from '@/lib/producers/format';
 import type { EarningRow, ProducerBeat } from '@/lib/producers/types';
 import { plural } from '@/lib/portal-format';
+import { beatStoreUrl } from '@/lib/producers/store-url';
+import { ProducerStoreLink } from './ProducerStoreLink';
 
 // Vista pura: recibe todo por props y no lee nada (ni base de datos, ni
 // sesion), asi se puede renderizar aparte para revisarla.
@@ -15,18 +17,31 @@ type ProducerHomeViewProps = {
   summary: EarningsSummary;
   beats: ProducerBeatCard[];
   recentSales: EarningRow[];
+  // Su tienda publica y el origen de la tienda (para enlazar cada beat).
+  storeUrl: string | null;
+  storeOrigin: string;
 };
 
 const beatMeta = (beat: ProducerBeat) =>
   [beat.bpm ? `${beat.bpm} BPM` : '', beat.key ?? '', beat.genre ?? ''].filter(Boolean).join(' · ');
 
-export function ProducerHomeView({ stageName, commissionPercent, summary, beats, recentSales }: ProducerHomeViewProps) {
+export function ProducerHomeView({
+  stageName,
+  commissionPercent,
+  summary,
+  beats,
+  recentSales,
+  storeUrl,
+  storeOrigin
+}: ProducerHomeViewProps) {
   const firstName = stageName.split(/\s+/)[0];
   const share = Math.round((100 - commissionPercent) * 100) / 100;
 
   return (
     <>
       <h1 className="pt-title">Hola, {firstName}</h1>
+
+      {storeUrl ? <ProducerStoreLink url={storeUrl} /> : null}
 
       <section className="pt-prod-sales" aria-label="Tus ganancias">
         <p className="pt-prod-label">Lo que has ganado</p>
@@ -54,7 +69,7 @@ export function ProducerHomeView({ stageName, commissionPercent, summary, beats,
       <section className="pt-block">
         <h2 className="pt-h2">Tus beats</h2>
         {beats.length === 0 ? (
-          <p className="pt-empty">Todavía no tienes beats en la tienda. Aquí vas a subirlos y manejarlos tú mismo; esta parte se está terminando.</p>
+          <p className="pt-empty">Todavía no tienes beats en tu tienda. Tu tienda ya está abierta; aquí vas a subir y manejar tus beats cuando esa parte esté lista.</p>
         ) : (
           <ul className="pt-prod-rows">
             {beats.map(beat => (
@@ -63,7 +78,9 @@ export function ProducerHomeView({ stageName, commissionPercent, summary, beats,
                   ? <img className="pt-prod-cover" src={beat.coverUrl} alt="" width="56" height="56" loading="lazy" />
                   : <span className="pt-prod-cover" aria-hidden="true" />}
                 <div className="pt-prod-text">
-                  <strong>{beat.title}</strong>
+                  <strong>
+                    <a href={beatStoreUrl(beat.slug, storeOrigin)} target="_blank" rel="noopener noreferrer">{beat.title}</a>
+                  </strong>
                   <span>{beatMeta(beat) || 'Sin detalles todavía'}</span>
                 </div>
                 <span

@@ -39,6 +39,9 @@ import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, update
 import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { ProducerAccess } from './components/ProducerAccess';
+import { ProducerApplications } from './components/ProducerApplications';
+import { displayUrl, producerStoreUrl } from '@/lib/producers/store-url';
+import { producerApplicationService, type ProducerApplication } from '@/lib/producer-applications';
 import { producerAccessService, type ProducerAccessInfo } from '@/lib/producers';
 import { updateWaitlistStatusAction } from './actions-waitlist';
 import {
@@ -304,6 +307,8 @@ export default async function DashboardPage() {
   let producers: Producer[] = [];
   let producerAccess = new Map<string, ProducerAccessInfo>();
   let producerEarnings: ProducerEarning[] = [];
+  let producerApplications: ProducerApplication[] = [];
+  let producerApplicationsAvailable = true;
   let waitlist: WaitlistEntry[] = [];
   let waitlistAvailable = true;
   let artistAccessAccounts: ArtistAccessAccount[] = [];
@@ -328,6 +333,13 @@ export default async function DashboardPage() {
     // Si falla (p. ej. Supabase Auth no responde) las tarjetas se muestran
     // igual, solo sin el estado del acceso.
     producerAccess = await producerAccessService.listAccess().catch(() => new Map<string, ProducerAccessInfo>());
+
+    // Si la migracion 021 no se ha corrido, el panel avisa en vez de romperse.
+    try {
+      producerApplications = await producerApplicationService.list();
+    } catch {
+      producerApplicationsAvailable = false;
+    }
 
     const { data: settingData } = await supabaseAdmin
       .from('app_settings')
@@ -1421,6 +1433,11 @@ export default async function DashboardPage() {
         </details>
       </section>
 
+      <ProducerApplications
+        applications={producerApplications}
+        available={producerApplicationsAvailable}
+      />
+
       <section className="section">
         <details className="folder">
           <summary>
@@ -1471,7 +1488,7 @@ export default async function DashboardPage() {
                 </label>
                 <label>
                   Comisión LUJO URBAN (%)
-                  <input name="platform_commission_percent" type="number" min="0" max="100" step="0.01" defaultValue="30" />
+                  <input name="platform_commission_percent" type="number" min="0" max="100" step="0.01" defaultValue="15" />
                   <small className="muted">El resto queda como ganancia del productor.</small>
                 </label>
                 <label>
@@ -1495,6 +1512,15 @@ export default async function DashboardPage() {
                           {producer.status === 'active' ? 'Activo' : 'Inactivo'}
                         </p>
                         {producer.notes && <p className="muted">{producer.notes}</p>}
+                        {producer.slug && (
+                          <p className="muted">
+                            Tienda:{' '}
+                            <a href={producerStoreUrl(producer.slug)} target="_blank" rel="noopener noreferrer">
+                              {displayUrl(producerStoreUrl(producer.slug))}
+                            </a>{' '}
+                            <CopyTextButton text={producerStoreUrl(producer.slug)} />
+                          </p>
+                        )}
                         <ProducerAccess
                           producerId={producer.id}
                           stageName={producer.stage_name}
