@@ -4,6 +4,8 @@ import { getProducerBySlug } from '@/lib/producers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Beat } from '@/lib/types';
 import BeatCatalog from '../../components/BeatCatalog';
+import ProducerStoreEmpty from '../../components/producer-store/ProducerStoreEmpty';
+import ProducerStoreHero from '../../components/producer-store/ProducerStoreHero';
 
 // Tienda publica de un productor: tienda.lujourban.com/productor/<slug>.
 // Existe desde que el productor se crea, tenga beats o no.
@@ -25,15 +27,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-const initialsOf = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase();
-
 export default async function ProducerStorePage({ params }: PageProps) {
   const { slug } = await params;
   const producer = await getProducerBySlug(slug);
@@ -52,32 +45,11 @@ export default async function ProducerStorePage({ params }: PageProps) {
   const available = beats.filter((beat) => beat.status === 'available').length;
 
   return (
-    <main>
-      <header className="pstore-hero">
-        <span className="pstore-avatar" aria-hidden="true">{initialsOf(producer.stageName)}</span>
-        <div className="pstore-id">
-          <p className="pstore-kicker">Productor en Lujo Urban</p>
-          <h1 className="pstore-name">{producer.stageName}</h1>
-          <p className="pstore-count">
-            {beats.length === 0
-              ? 'Tienda abierta'
-              : `${available} ${available === 1 ? 'beat disponible' : 'beats disponibles'}`}
-          </p>
-        </div>
-      </header>
+    <main className="pstore-page">
+      <ProducerStoreHero stageName={producer.stageName} availableCount={available} />
 
       {error && <p className="beats-loading">No se pudieron cargar los beats.</p>}
-
-      {!error && beats.length === 0 && (
-        <section className="pstore-empty" aria-label="Tienda sin beats todavía">
-          <h2 className="pstore-empty-title">Los primeros beats están por llegar</h2>
-          <p className="pstore-empty-copy">
-            {producer.stageName} ya tiene su tienda en Lujo Urban. Vuelve pronto para escuchar y licenciar sus beats.
-          </p>
-          <a className="pstore-empty-link" href="/">Ver todos los beats</a>
-        </section>
-      )}
-
+      {!error && beats.length === 0 && <ProducerStoreEmpty stageName={producer.stageName} />}
       {!error && beats.length > 0 && <BeatCatalog beats={beats} />}
     </main>
   );
