@@ -15,6 +15,7 @@ export type ErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
+  | 'RATE_LIMITED'
   | 'PUBLISH_FAILED'
   | 'INTERNAL';
 
@@ -62,6 +63,13 @@ export class NotFoundError extends AppError {
 export class ConflictError extends AppError {
   constructor(message: string, options?: { cause?: unknown }) {
     super('CONFLICT', 409, message, options);
+  }
+}
+
+// Demasiadas peticiones en poco tiempo (429).
+export class RateLimitError extends AppError {
+  constructor(message = 'Estamos recibiendo muchas solicitudes. Intenta de nuevo mas tarde.') {
+    super('RATE_LIMITED', 429, message);
   }
 }
 
