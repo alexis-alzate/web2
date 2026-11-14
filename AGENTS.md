@@ -27,7 +27,7 @@ a partir de carpetas distintas de un mismo monorepo:
 ```
 web2/
 ├── index.html, styles.css, script.js, ...   # sitio estático principal
-├── vercel.json                               # redirecciones de enlaces cortos (lo genera el panel)
+├── vercel.json                               # reglas de enlaces cortos (lo genera el panel)
 ├── artistas/, lanzamientos/, servicios/, estados/  # contenido del sitio estático
 ├── unete/                                    # formulario público de lista de espera (www.lujourban.com/unete/)
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
@@ -168,17 +168,22 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   tope por hora. Si la tabla no existe o la lectura falla, la tarjeta se
   muestra igual, sin ese bloque de datos.
 - Enlace corto (migración 020, columna `artists.short_link`): el admin le
-  pone a cada artista un nombre corto y `www.lujourban.com/<nombre>` redirige
-  a `/artistas/<slug>/`. Las reglas están en `lib/artists/short-link.ts`
-  (formato, nombres reservados, que no choque con otro artista). El publicador
-  regenera las redirecciones en **`vercel.json` (raíz del repo)** en cada
-  guardado, conservando cualquier otra configuración. Dos cuidados:
-  - En Vercel una redirección gana sobre los archivos. Toda carpeta nueva de
-    primer nivel del sitio debe agregarse a `RESERVED_SHORT_LINKS` (hay una
+  pone a cada artista un nombre corto y `www.lujourban.com/<nombre>` muestra
+  su página **sin cambiar la dirección** (rewrite de Vercel hacia
+  `/artistas/<slug>/index.html`). Las reglas están en
+  `lib/artists/short-link.ts` (formato, nombres reservados, que no choque con
+  otro artista). El publicador regenera los rewrites en **`vercel.json` (raíz
+  del repo)** en cada guardado, conservando cualquier otra configuración.
+  Cuidados:
+  - La página del artista se sirve en dos direcciones, así que sus estilos e
+    imágenes usan rutas desde la raíz (`/styles.css`, `/assets/...`), nunca
+    `../../`.
+  - Un enlace corto no puede llamarse como una carpeta del sitio. Toda carpeta
+    nueva de primer nivel debe agregarse a `RESERVED_SHORT_LINKS` (hay una
     prueba que falla si falta).
   - Un `vercel.json` inválido hace fallar el despliegue del sitio principal.
-    No editarlo a mano sin validar; las redirecciones de enlaces cortos no se
-    editan a mano (el siguiente guardado las reescribe).
+    No editarlo a mano sin validar; las reglas de enlaces cortos no se editan
+    a mano (el siguiente guardado las reescribe).
   El artista ve su enlace con un botón de copiar en el portal (`PortalLink`),
   pero solo el admin puede cambiarlo.
 - Pendiente: vincular usuarios por `artist_access` en lugar de
