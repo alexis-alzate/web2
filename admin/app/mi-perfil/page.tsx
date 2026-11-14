@@ -6,6 +6,7 @@ import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { ActionForm } from '../components/ActionForm';
 import { MAX_RELEASE_TITLE_LENGTH } from '@/lib/artists';
+import { publicArtistUrl } from '@/lib/artists/short-link';
 import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
 import { PortalActivityTracker } from '../components/PortalActivityTracker';
 import { PortalImageField } from '../components/PortalImageField';
@@ -80,7 +81,7 @@ export default async function ArtistPortalPage() {
           {isTestAccount ? (
             <span className="artist-portal-private-label">Prueba privada</span>
           ) : (
-            <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">
+            <a className="button" href={publicArtistUrl(artist)} target="_blank" rel="noreferrer">
               Ver mi página pública
             </a>
           )}
@@ -130,7 +131,7 @@ export default async function ArtistPortalPage() {
         {isTestAccount ? (
           <span className="artist-portal-private-label">Solo prueba</span>
         ) : (
-          <a className="button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">
+          <a className="button" href={publicArtistUrl(artist)} target="_blank" rel="noreferrer">
             Ver perfil
           </a>
         )}
@@ -138,9 +139,7 @@ export default async function ArtistPortalPage() {
 
       {isTestAccount ? null : (
         <PortalLink
-          url={artist.shortLink
-            ? `https://www.lujourban.com/${artist.shortLink}`
-            : `https://www.lujourban.com/artistas/${artist.slug}/`}
+          url={publicArtistUrl(artist)}
           isShort={Boolean(artist.shortLink)}
         />
       )}

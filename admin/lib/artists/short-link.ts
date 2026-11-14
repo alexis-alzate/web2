@@ -123,3 +123,10 @@ export const withShortLinkRoutes = (current: unknown, artists: ShortLinkOwner[])
     rewrites: [...manual(config.rewrites), ...buildShortLinkRewrites(artists)]
   };
 };
+
+// Direccion publica del artista: la corta si tiene enlace corto valido; si
+// no, la larga. Es la que se muestra, se copia y abren los botones "Ver perfil".
+export const publicArtistUrl = (artist: ShortLinkOwner): string =>
+  artist.shortLink && isValidShortLinkFormat(artist.shortLink) && !RESERVED_SHORT_LINKS.has(artist.shortLink)
+    ? `https://www.lujourban.com/${artist.shortLink}`
+    : `https://www.lujourban.com/artistas/${artist.slug}/`;

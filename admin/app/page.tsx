@@ -29,6 +29,8 @@ import { ActionForm } from './components/ActionForm';
 import { SocialOrderEditor } from './components/SocialOrderEditor';
 import { ReleasePreview } from './components/ReleasePreview';
 import { CopyLinkButton } from './components/CopyLinkButton';
+import { CopyTextButton } from './components/CopyTextButton';
+import { publicArtistUrl } from '@/lib/artists/short-link';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { BeatUploadForm } from './components/BeatUploadForm';
 import { BeatFilesUploadForm } from './components/BeatFilesUploadForm';
@@ -950,8 +952,15 @@ export default async function DashboardPage() {
                     <div className="artist-folder-body">
                       <p className="muted">{artist.tagline}</p>
                       {artist.release ? <p className="muted">Release activo: {artist.release.title}</p> : null}
+                      <div className="artist-short-link">
+                        <span>
+                          <small>{artist.shortLink ? 'Enlace corto' : 'Enlace'}</small>
+                          <strong>{publicArtistUrl(artist).replace(/^https:\/\/www\./, '').replace(/\/$/, '')}</strong>
+                        </span>
+                        <CopyTextButton text={publicArtistUrl(artist)} />
+                      </div>
                       <div className="actions artist-actions">
-                        <a className="button artist-view-button" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Ver perfil</a>
+                        <a className="button artist-view-button" href={publicArtistUrl(artist)} target="_blank" rel="noreferrer">Ver perfil</a>
                         <details className="inline-details artist-edit-details">
                           <summary className="button artist-edit-toggle">
                             <span className="artist-edit-toggle-open">Editar perfil</span>
@@ -1055,7 +1064,7 @@ export default async function DashboardPage() {
                               </div>
                             </fieldset>
                             <div className="artist-edit-footer">
-                              <a className="button artist-edit-preview" href={`https://www.lujourban.com/artistas/${artist.slug}/`} target="_blank" rel="noreferrer">Vista pública</a>
+                              <a className="button artist-edit-preview" href={publicArtistUrl(artist)} target="_blank" rel="noreferrer">Vista pública</a>
                               <SubmitButton className="primary" pendingText="Guardando...">Guardar cambios</SubmitButton>
                             </div>
                           </ActionForm>
