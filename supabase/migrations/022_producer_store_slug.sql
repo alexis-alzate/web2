@@ -13,6 +13,7 @@ create or replace function producer_slug_base(p_name text)
 returns text
 language sql
 immutable
+set search_path = public
 as $$
   select coalesce(
     nullif(
@@ -29,6 +30,7 @@ $$;
 create or replace function producers_set_slug()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 declare
   base text;
