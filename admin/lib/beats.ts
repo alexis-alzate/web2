@@ -25,6 +25,7 @@ export type Beat = {
 export type Producer = {
   id: string;
   stage_name: string;
+  slug: string | null;
   email: string;
   platform_commission_percent: number;
   status: 'active' | 'inactive';

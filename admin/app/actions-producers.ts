@@ -1,6 +1,7 @@
 'use server';
 
 import { requireAdmin } from '@/lib/auth';
+import { DEFAULT_COMMISSION_PERCENT } from '@/lib/producer-applications/rules';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 
 const requiredText = (formData: FormData, field: string, label: string) => {
@@ -23,7 +24,7 @@ export const createProducerAction = async (formData: FormData) => {
   const stageName = requiredText(formData, 'stage_name', 'El nombre artistico');
   const email = requiredText(formData, 'email', 'El correo');
   const commissionRaw = formData.get('platform_commission_percent');
-  const commission = commissionRaw ? Number(commissionRaw) : 30;
+  const commission = commissionRaw ? Number(commissionRaw) : DEFAULT_COMMISSION_PERCENT;
 
   if (!email.includes('@')) throw new Error('El correo del productor no es valido.');
   if (Number.isNaN(commission) || commission < 0 || commission > 100) {

@@ -12,6 +12,7 @@ import type {
 export const PRODUCER: ProducerProfile = {
   id: 'prod-1',
   stageName: 'Helmentt',
+  slug: 'helmentt',
   email: 'helmentt@correo.com',
   commissionPercent: 15,
   status: 'active'
@@ -52,7 +53,7 @@ export class FakeDirectory implements AccessDirectory {
 }
 
 export class FakeMailer implements InviteMailer {
-  sent: Array<{ email: string; stageName: string; link: string }> = [];
+  sent: Array<{ email: string; stageName: string; link: string; storeUrl: string | null }> = [];
   ready = true;
   failSend = false;
 
@@ -60,7 +61,7 @@ export class FakeMailer implements InviteMailer {
     if (!this.ready) throw new Error('correo sin configurar');
   }
 
-  async send(input: { email: string; stageName: string; link: string }) {
+  async send(input: { email: string; stageName: string; link: string; storeUrl: string | null }) {
     if (this.failSend) throw new Error('resend caido');
     this.sent.push(input);
   }

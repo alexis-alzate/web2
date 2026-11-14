@@ -7,6 +7,7 @@
 // tipo de acceso (admin, artista o productor).
 
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '@/lib/errors';
+import { producerStoreUrl } from './store-url';
 import { linkedProducerId, PRODUCER_ROLE, producerMetadata, unlinkedProducerMetadata } from './access-metadata';
 import type {
   AccessDirectory,
@@ -27,7 +28,8 @@ export class ProducerAccessService {
     private readonly directory: AccessDirectory,
     private readonly mailer: InviteMailer,
     private readonly resolveOrigin: () => Promise<string>,
-    private readonly now: () => Date = () => new Date()
+    private readonly now: () => Date = () => new Date(),
+    private readonly storeUrlFor: (slug: string) => string = slug => producerStoreUrl(slug)
   ) {}
 
   async invite(producerId: string, rawEmail: string): Promise<InviteResult> {
@@ -87,7 +89,13 @@ export class ProducerAccessService {
     link.searchParams.set('next', '/reset-password');
 
     try {
-      await this.mailer.send({ email, stageName: producer.stageName, link: link.toString() });
+      await this.mailer.send({
+        email,
+        stageName: producer.stageName,
+        link: link.toString(),
+        // Su tienda existe desde que se crea el productor, tenga beats o no.
+        storeUrl: producer.slug ? this.storeUrlFor(producer.slug) : null
+      });
     } catch (error) {
       await this.discard(user.id);
       throw error;

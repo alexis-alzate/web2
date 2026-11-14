@@ -177,3 +177,27 @@ body:has(.pt-prod) {
     justify-self: start;
   }
 }
+
+/* Tu tienda: enlace publico del productor. Alto fijo; solo cambia el texto del boton. */
+.pt-prod-store-actions {
+  display: flex;
+  gap: 8px;
+}
+.pt-prod-store-actions .portal-link-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.pt-prod-text strong a {
+  color: inherit;
+  text-decoration: none;
+}
+.pt-prod-text strong a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pt-prod-text strong a:focus-visible {
+  outline: 2px solid var(--pt-green);
+  outline-offset: 2px;
+}

@@ -7,6 +7,7 @@ import type { EarningRow, ProducerBeat, ProducerProfile, ProducerRepository } fr
 type ProducerRow = {
   id: string;
   stage_name: string;
+  slug: string | null;
   email: string;
   platform_commission_percent: number | string;
   status: ProducerProfile['status'];
@@ -46,7 +47,7 @@ export class SupabaseProducerRepository implements ProducerRepository {
   async findById(id: string): Promise<ProducerProfile | null> {
     const { data, error } = await this.client()
       .from('producers')
-      .select('id, stage_name, email, platform_commission_percent, status')
+      .select('id, stage_name, slug, email, platform_commission_percent, status')
       .eq('id', id)
       .maybeSingle();
     if (error) throw unexpected('leer al productor', error.message);
@@ -56,6 +57,7 @@ export class SupabaseProducerRepository implements ProducerRepository {
     return {
       id: row.id,
       stageName: row.stage_name,
+      slug: row.slug,
       email: row.email,
       commissionPercent: Number(row.platform_commission_percent),
       status: row.status

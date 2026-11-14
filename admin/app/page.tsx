@@ -40,6 +40,7 @@ import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { ProducerAccess } from './components/ProducerAccess';
 import { ProducerApplications } from './components/ProducerApplications';
+import { displayUrl, producerStoreUrl } from '@/lib/producers/store-url';
 import { producerApplicationService, type ProducerApplication } from '@/lib/producer-applications';
 import { producerAccessService, type ProducerAccessInfo } from '@/lib/producers';
 import { updateWaitlistStatusAction } from './actions-waitlist';
@@ -1487,7 +1488,7 @@ export default async function DashboardPage() {
                 </label>
                 <label>
                   Comisión LUJO URBAN (%)
-                  <input name="platform_commission_percent" type="number" min="0" max="100" step="0.01" defaultValue="30" />
+                  <input name="platform_commission_percent" type="number" min="0" max="100" step="0.01" defaultValue="15" />
                   <small className="muted">El resto queda como ganancia del productor.</small>
                 </label>
                 <label>
@@ -1511,6 +1512,15 @@ export default async function DashboardPage() {
                           {producer.status === 'active' ? 'Activo' : 'Inactivo'}
                         </p>
                         {producer.notes && <p className="muted">{producer.notes}</p>}
+                        {producer.slug && (
+                          <p className="muted">
+                            Tienda:{' '}
+                            <a href={producerStoreUrl(producer.slug)} target="_blank" rel="noopener noreferrer">
+                              {displayUrl(producerStoreUrl(producer.slug))}
+                            </a>{' '}
+                            <CopyTextButton text={producerStoreUrl(producer.slug)} />
+                          </p>
+                        )}
                         <ProducerAccess
                           producerId={producer.id}
                           stageName={producer.stage_name}

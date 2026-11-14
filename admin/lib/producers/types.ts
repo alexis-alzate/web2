@@ -10,6 +10,8 @@ export interface ProducerProfile {
   id: string;
   stageName: string;
   email: string;
+  // Direccion de su tienda: tienda.lujourban.com/productor/<slug>.
+  slug: string | null;
   // Lo que se queda Lujo Urban. El productor recibe el resto.
   commissionPercent: number;
   status: ProducerStatus;
@@ -68,7 +70,7 @@ export interface AccessDirectory {
 export interface InviteMailer {
   // Falla pronto (antes de crear nada) si el correo no esta configurado.
   assertReady(): void;
-  send(input: { email: string; stageName: string; link: string }): Promise<void>;
+  send(input: { email: string; stageName: string; link: string; storeUrl: string | null }): Promise<void>;
 }
 
 // Lo que el panel muestra del acceso de un productor.

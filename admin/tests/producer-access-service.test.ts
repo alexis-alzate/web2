@@ -25,6 +25,18 @@ describe('ProducerAccessService.invite', () => {
     expect(mailer.sent[0].stageName).toBe('Helmentt');
   });
 
+  it('el correo lleva el enlace de su tienda', async () => {
+    const { service, mailer } = buildAccessService();
+    await service.invite('prod-1', 'helmentt@correo.com');
+    expect(mailer.sent[0].storeUrl).toBe('https://tienda.lujourban.com/productor/helmentt');
+  });
+
+  it('sin slug no inventa una tienda: el correo sale sin ese bloque', async () => {
+    const { service, mailer } = buildAccessService({ ...PRODUCER, slug: null });
+    await service.invite('prod-1', 'helmentt@correo.com');
+    expect(mailer.sent[0].storeUrl).toBeNull();
+  });
+
   it('rechaza un correo mal escrito sin tocar nada', async () => {
     const { service, directory } = buildAccessService();
     await expect(service.invite('prod-1', 'no-es-correo')).rejects.toBeInstanceOf(ValidationError);

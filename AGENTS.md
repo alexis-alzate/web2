@@ -34,11 +34,12 @@ web2/
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..020, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..022, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
 │   │   ├── [slug]/page.tsx                   # detalle de beat + SEO
+│   │   ├── productor/[slug]/page.tsx         # tienda pública de un productor (tienda.lujourban.com/productor/<slug>)
 │   │   ├── descarga/page.tsx                 # post-compra: descargas + estado de la orden
 │   │   ├── descarga/AutoRefresh.tsx          # auto-refresh mientras el pago está pending
 │   │   ├── api/checkout/route.ts             # crea order + order_items + preferencia MercadoPago
@@ -50,6 +51,7 @@ web2/
 │   │   ├── types.ts                          # Beat, LicenseType, LICENSE_LABELS, helpers de precio/archivo
 │   │   ├── orders.ts                         # approveOrder() — idempotencia, exclusivas, email
 │   │   ├── email.ts                          # sendDownloadEmail() via Resend SDK
+│   │   ├── producers.ts                      # getProducerBySlug(): lectura pública mínima (id, slug, nombre) de un productor activo
 │   │   ├── format.ts                         # formatCOP, formatTime, publicUrl
 │   │   └── supabase/server.ts                # clientes anon (catálogo) y service-role (route handlers)
 │   └── .env.example
@@ -345,6 +347,38 @@ artistas.
      el dinero entra a la cuenta de Lujo Urban y `producer_earnings` registra cuánto
      le corresponde. Tocar pagos exige auditar y explicar riesgos antes (sección 10).
   3. Página pública del productor con sus beats.
+
+### Tienda pública del productor
+
+Cada productor tiene **su propia tienda** en
+`tienda.lujourban.com/productor/<slug>`, desde el momento en que existe, tenga
+beats o no (sin beats muestra "Los primeros beats están por llegar").
+
+- **Slug** (migración 022, `producers.slug`, único, `NOT NULL`, formato
+  `^[a-z0-9]+(-[a-z0-9]+)*$`): lo pone un **trigger** de la base al insertar
+  (`producers_set_slug`), a partir del nombre artístico (`producer_slug_base`:
+  sin tildes, guiones; si ya existe, `-2`, `-3`...). Así lo tienen los dos
+  caminos de creación (formulario del panel y aprobación de solicitudes) sin
+  repetir la regla en código. El slug **no cambia** si después se edita el
+  nombre: es la dirección que el productor comparte.
+- **Página** (`tienda/app/productor/[slug]/page.tsx`): lee la ficha con
+  `getProducerBySlug` (`tienda/lib/producers.ts`) y los beats con el cliente
+  anónimo filtrando por `producer_id`. `producers` tiene RLS sin políticas
+  (guarda correo y comisión), por eso ese helper usa el cliente de servicio
+  pero pide **solo** `id, slug, stage_name` y solo productores `active`. No
+  ampliar ese `select`: lo que se agregue se vuelve público.
+- **Dónde se ve el enlace** (`admin/lib/producers/store-url.ts`, puro):
+  correo de invitación (bloque "Tu tienda"), tarjeta "Tu tienda" en `/productor`
+  (abrir y copiar; cada beat de su lista enlaza a su página pública) y la tarjeta
+  del productor en el panel (con botón de copiar). El origen sale de `TIENDA_URL`
+  (por defecto `https://tienda.lujourban.com`).
+- **Orden de despliegue**: correr la migración 022 **antes** de desplegar el
+  código; el portal lee la columna `slug` y falla si no existe.
+- La comisión por defecto al crear un productor (formulario del panel) es 15 %
+  (`DEFAULT_COMMISSION_PERCENT`), igual que al aprobar una solicitud.
+- Pendiente: que "Prod. by X" en los beats lleve a la tienda del productor
+  (hoy `beats.producer` es solo texto), foto y bio del productor, y poder
+  reenviar el enlace de la tienda a un productor que ya tenía cuenta.
 
 ### Solicitud de cuenta de productor (autoservicio con aprobación)
 
