@@ -20,6 +20,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="login-shell">
         <h1 className="title login-title">Lujo Urban</h1>
         <section className="section login-card">
+          <header className="login-head">
+            <h2 className="login-heading">Entra a tu cuenta</h2>
+            <p className="login-sub">Para artistas y productores de Lujo Urban.</p>
+          </header>
           <form action="/api/login" method="post" className="login-form">
             <label>
               Correo

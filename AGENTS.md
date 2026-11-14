@@ -310,6 +310,11 @@ artistas.
   `lib/access-destination.ts` (`destinationFor`) decide a dónde manda el login a
   cada rol; es pura y tiene pruebas. `/` manda a los productores a `/productor`
   y `/mi-perfil` también.
+- **Login común** (`admin/app/login/page.tsx`): artistas, productores y admin entran por la
+  misma pantalla; el rol sale de la cuenta, no de la pantalla. No hacer logins separados
+  (duplicaría recuperación de clave, invitaciones y errores sin ganar seguridad). Su acento
+  es el **dorado** de Lujo Urban, acotado a `.login` en `globals.css`; el verde del panel
+  no cambia. Nada debe cambiar de tamaño al enfocar o pasar el cursor.
 - **Datos siempre de la sesión**: `loadProducer()` (`app/productor/producer-data.ts`)
   toma el productor de la sesión, nunca de la petición. Igual que en el portal
   del artista, la comprobación va ahí y no solo en el layout.
