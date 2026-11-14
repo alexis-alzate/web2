@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Beat } from '@/lib/types';
 import { publicUrl } from '@/lib/format';
+import { withProducerSlugs } from '@/lib/producers';
 import BeatDetail from '../components/BeatDetail';
 
 export const revalidate = 60;
@@ -38,8 +39,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BeatPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const beat = await getBeat(slug);
-  if (!beat) notFound();
+  const found = await getBeat(slug);
+  if (!found) notFound();
+  const [beat] = await withProducerSlugs([found]);
 
   return (
     <main>

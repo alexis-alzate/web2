@@ -31,3 +31,37 @@ export async function getProducerBySlug(slug: string): Promise<PublicProducer | 
   const row = data as { id: string; slug: string; stage_name: string };
   return { id: row.id, slug: row.slug, stageName: row.stage_name };
 }
+
+// Slugs de varios productores a la vez, para enlazar "Prod. by X" desde los
+// beats. Mismo criterio que arriba: SOLO `id, slug` y solo productores activos
+// (nunca correo ni comision). Un productor pausado queda sin enlace.
+export async function getProducerSlugs(ids: string[]): Promise<Map<string, string>> {
+  const unique = [...new Set(ids.filter(Boolean))];
+  const slugs = new Map<string, string>();
+  if (unique.length === 0) return slugs;
+
+  const { data, error } = await createSupabaseAdminClient()
+    .from('producers')
+    .select('id, slug')
+    .in('id', unique)
+    .eq('status', 'active');
+
+  if (error || !data) return slugs;
+  for (const row of data as { id: string; slug: string }[]) {
+    if (SLUG_PATTERN.test(row.slug)) slugs.set(row.id, row.slug);
+  }
+  return slugs;
+}
+
+// Devuelve los beats con `producer_slug` puesto cuando su productor tiene tienda.
+export async function withProducerSlugs<T extends { producer_id: string | null }>(
+  beats: T[]
+): Promise<(T & { producer_slug: string | null })[]> {
+  const slugs = await getProducerSlugs(
+    beats.map((beat) => beat.producer_id).filter((id): id is string => !!id)
+  );
+  return beats.map((beat) => ({
+    ...beat,
+    producer_slug: beat.producer_id ? (slugs.get(beat.producer_id) ?? null) : null
+  }));
+}

@@ -9,6 +9,9 @@ export type Beat = {
   genre: string | null;
   producer: string | null;
   producer_id: string | null;
+  // No es una columna de `beats`: la agrega el servidor (withProducerSlugs)
+  // para poder enlazar "Prod. by X" a la tienda del productor.
+  producer_slug?: string | null;
   tags: string[] | null;
   cover_url: string | null;
   preview_url: string | null;
