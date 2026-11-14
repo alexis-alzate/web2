@@ -159,6 +159,7 @@ export const toArtist = (
   name: write.name,
   cardName: write.cardName,
   slug: write.slug,
+  shortLink: write.shortLink ?? undefined,
   role: write.role,
   tagline: write.tagline,
   bio: write.bio,

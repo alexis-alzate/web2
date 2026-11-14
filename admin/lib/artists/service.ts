@@ -40,6 +40,7 @@ import {
 import { SOCIAL_KEYS, SOCIAL_LABELS, isSocialKey, normalizeSocialOrder, type SocialKey } from '@/lib/socials';
 import type { UploadedImage } from './images';
 import { buildArtistReleaseSharePages } from './release-pages';
+import { validateShortLink } from './short-link';
 import type {
   ArtistRecord,
   ArtistRepository,
@@ -129,6 +130,9 @@ export type SaveArtistInput = {
   originalSlug: string;
   name: string;
   slug: string;
+  // Enlace corto (www.lujourban.com/<enlace>). null = no tocar el que ya
+  // tiene; '' = quitarlo.
+  shortLink?: string | null;
   role: string;
   cardName: string;
   tagline: string;
@@ -290,6 +294,18 @@ export class ArtistService {
       throw new ConflictError('Ya existe otro artista con ese slug.');
     }
 
+    // Se escribe como la gente lo dicta ("Julián Ramos") y se guarda limpio
+    // ("julian-ramos"). Se compara contra los DEMAS artistas.
+    const shortLink = input.shortLink == null
+      ? existing?.artist.shortLink ?? null
+      : validateShortLink(
+        slugify(text(input.shortLink)),
+        records.filter(record => record.id !== existing?.id).map(record => record.artist)
+      );
+    if (input.shortLink != null && text(input.shortLink) && !shortLink) {
+      throw new ValidationError('El enlace corto solo puede llevar letras, numeros y guiones.');
+    }
+
     const photoPath = input.uploadedPhoto
       ? `assets/${slug}-photo.${input.uploadedPhoto.extension}`
       : text(input.photo) || null;
@@ -300,6 +316,7 @@ export class ArtistService {
     const previous = existing?.artist;
     const write: ArtistWrite = {
       slug,
+      shortLink,
       name,
       cardName: text(input.cardName) || compactArtistName(name),
       role: text(input.role) || 'Artista oficial',

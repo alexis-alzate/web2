@@ -27,12 +27,13 @@ a partir de carpetas distintas de un mismo monorepo:
 ```
 web2/
 ├── index.html, styles.css, script.js, ...   # sitio estático principal
+├── vercel.json                               # redirecciones de enlaces cortos (lo genera el panel)
 ├── artistas/, lanzamientos/, servicios/, estados/  # contenido del sitio estático
 ├── unete/                                    # formulario público de lista de espera (www.lujourban.com/unete/)
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..019, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..020, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
@@ -166,6 +167,20 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   llave foránea a `artists(slug)`, sin mensajes internos de la base. No tiene
   tope por hora. Si la tabla no existe o la lectura falla, la tarjeta se
   muestra igual, sin ese bloque de datos.
+- Enlace corto (migración 020, columna `artists.short_link`): el admin le
+  pone a cada artista un nombre corto y `www.lujourban.com/<nombre>` redirige
+  a `/artistas/<slug>/`. Las reglas están en `lib/artists/short-link.ts`
+  (formato, nombres reservados, que no choque con otro artista). El publicador
+  regenera las redirecciones en **`vercel.json` (raíz del repo)** en cada
+  guardado, conservando cualquier otra configuración. Dos cuidados:
+  - En Vercel una redirección gana sobre los archivos. Toda carpeta nueva de
+    primer nivel del sitio debe agregarse a `RESERVED_SHORT_LINKS` (hay una
+    prueba que falla si falta).
+  - Un `vercel.json` inválido hace fallar el despliegue del sitio principal.
+    No editarlo a mano sin validar; las redirecciones de enlaces cortos no se
+    editan a mano (el siguiente guardado las reescribe).
+  El artista ve su enlace con un botón de copiar en el portal (`PortalLink`),
+  pero solo el admin puede cambiarlo.
 - Pendiente: vincular usuarios por `artist_access` en lugar de
   `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
   que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug
@@ -285,7 +300,7 @@ npm test            # corre todas las pruebas una vez (vitest run)
 npm run test:watch  # modo observador mientras se programa
 ```
 
-Cubren la lista de espera (`waitlist.ts`), los clics por enlace (`link-clicks.ts`) y la capa de artistas: `errors.ts`, `safeAction`, `ArtistService`
+Cubren la lista de espera (`waitlist.ts`), los clics por enlace (`link-clicks.ts`), el enlace corto (`short-link.ts`) y la capa de artistas: `errors.ts`, `safeAction`, `ArtistService`
 (reglas y orden de operaciones), `SupabaseArtistRepository` (traducción de
 errores de Postgres), `commitFiles` (borrado y reintento en 422) y
 `GithubSitePublisher`. Todo corre con dobles en memoria (`tests/helpers.ts`,

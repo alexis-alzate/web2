@@ -3507,6 +3507,72 @@ input[type="file"]::file-selector-button:hover {
   gap: 13px;
 }
 
+/* Portal del artista: "Tu enlace". El boton tiene ancho fijo para que al
+   copiar solo cambie el texto. */
+.portal-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 14px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.portal-link-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.portal-link-text .eyebrow {
+  margin: 0;
+  color: rgba(57, 255, 99, .72);
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.portal-link-text a {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 1.02rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-link-text a:hover,
+.portal-link-text a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.portal-link-text small {
+  color: rgba(255, 255, 255, .62);
+  font-size: .74rem;
+  line-height: 1.4;
+}
+
+.portal-link-copy {
+  width: 104px;
+  min-height: 44px;
+  padding: 10px 0;
+  font-size: .82rem;
+  white-space: nowrap;
+}
+
+/* En celular el boton va debajo, a todo el ancho, para que el enlace se lea
+   completo. */
+@media (max-width: 520px) {
+  .portal-link {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .portal-link-copy {
+    width: 100%;
+  }
+}
+
 /* Portal del artista: estadisticas. Una sola serie en el verde de la marca;
    los textos usan los colores de texto, nunca el de la serie. */
 .portal-stats {

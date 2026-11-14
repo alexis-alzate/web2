@@ -39,6 +39,8 @@ export type Roster = {
 
 export type ArtistWrite = {
   slug: string;
+  // null = sin enlace corto.
+  shortLink: string | null;
   name: string;
   cardName: string;
   role: string;

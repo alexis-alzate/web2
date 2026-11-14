@@ -285,6 +285,7 @@ export const saveArtistAction = safeAction(async (formData: FormData) => {
     originalSlug: normalizeOptional(formData.get('originalSlug')),
     name: normalizeOptional(formData.get('name')),
     slug: normalizeOptional(formData.get('slug')),
+    shortLink: formData.has('shortLink') ? normalizeOptional(formData.get('shortLink')) : null,
     role: normalizeOptional(formData.get('role')),
     cardName: normalizeOptional(formData.get('cardName')),
     tagline: normalizeOptional(formData.get('tagline')),

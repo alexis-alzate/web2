@@ -24,6 +24,7 @@ import type {
 type ArtistRow = {
   id: string;
   slug: string;
+  short_link?: string | null;
   name: string;
   card_name: string;
   role: string;
@@ -91,6 +92,7 @@ const toRecord = (row: ArtistRow, links: LinkRow[], releases: ReleaseRow[]): Art
     name: row.name,
     cardName: row.card_name,
     slug: row.slug,
+    shortLink: row.short_link ?? undefined,
     role: row.role,
     tagline: row.tagline,
     bio: row.bio,
@@ -115,6 +117,7 @@ const toRecord = (row: ArtistRow, links: LinkRow[], releases: ReleaseRow[]): Art
 
 const toArtistColumns = (write: ArtistWrite) => ({
   slug: write.slug,
+  short_link: write.shortLink,
   name: write.name,
   card_name: write.cardName,
   role: write.role,

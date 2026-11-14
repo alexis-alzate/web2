@@ -221,3 +221,58 @@ describe('publishCasaCatalog', () => {
       .rejects.toBeInstanceOf(PublishError);
   });
 });
+
+describe('publishRoster: enlaces cortos', () => {
+  const vercelOf = (files: PublishFile[]) =>
+    JSON.parse(files.find(file => file.path === 'vercel.json')!.content);
+
+  it('escribe las redirecciones en vercel.json dentro del mismo commit', async () => {
+    const { port, commits } = fakeGithubPort();
+
+    await new GithubSitePublisher(port).publishRoster(
+      rosterOf(artist('la-libreta', { shortLink: 'julian' }), artist('beto')),
+      { message: 'x' }
+    );
+
+    expect(commits).toHaveLength(1);
+    expect(vercelOf(commits[0].files).redirects).toEqual([
+      { source: '/julian', destination: '/artistas/la-libreta/', permanent: false },
+      { source: '/julian/', destination: '/artistas/la-libreta/', permanent: false }
+    ]);
+  });
+
+  it('conserva lo que vercel.json ya tenia y quita los enlaces cortos que ya no existen', async () => {
+    const existing = {
+      cleanUrls: false,
+      redirects: [
+        { source: '/promo', destination: 'https://tienda.lujourban.com/', permanent: true },
+        { source: '/viejo', destination: '/artistas/la-libreta/', permanent: false }
+      ]
+    };
+    const { port, commits } = fakeGithubPort({
+      readJson: async <T>(path: string, fallback: T) =>
+        (path === 'vercel.json' ? existing : path.endsWith('.json') ? JSON.parse(repoFile(path)) : fallback) as T
+    });
+
+    await new GithubSitePublisher(port).publishRoster(rosterOf(artist('la-libreta')), { message: 'x' });
+
+    const config = vercelOf(commits[0].files);
+    expect(config.cleanUrls).toBe(false);
+    expect(config.redirects).toEqual([{ source: '/promo', destination: 'https://tienda.lujourban.com/', permanent: true }]);
+  });
+
+  it('si vercel.json no se puede leer, no publica nada (no lo pisa a ciegas)', async () => {
+    const commitFiles = vi.fn();
+    const { port } = fakeGithubPort({
+      readJson: async <T>(path: string, fallback: T) => {
+        if (path === 'vercel.json') throw new Error('GitHub API 500');
+        return fallback;
+      },
+      commitFiles
+    });
+
+    await expect(new GithubSitePublisher(port).publishRoster(rosterOf(artist('ana')), { message: 'x' }))
+      .rejects.toThrow(PublishError);
+    expect(commitFiles).not.toHaveBeenCalled();
+  });
+});

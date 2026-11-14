@@ -19,6 +19,8 @@ export type Artist = {
   name: string;
   cardName?: string;
   slug: string;
+  // Enlace corto: www.lujourban.com/<shortLink> redirige a su pagina.
+  shortLink?: string;
   role: string;
   tagline: string;
   bio?: string;
