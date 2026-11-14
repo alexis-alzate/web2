@@ -9,6 +9,14 @@
     {
       "source": "/julianramos/",
       "destination": "/artistas/la-libreta/index.html"
+    },
+    {
+      "source": "/helementt",
+      "destination": "/artistas/helementt/index.html"
+    },
+    {
+      "source": "/helementt/",
+      "destination": "/artistas/helementt/index.html"
     }
   ]
 }

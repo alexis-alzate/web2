@@ -100,6 +100,28 @@
       "beatsEmbed": "",
       "productionsEmbed": "",
       "contact": null
+    },
+    {
+      "name": "Helementt",
+      "cardName": "Helementt",
+      "slug": "helementt",
+      "shortLink": "helementt",
+      "role": "Artista oficial",
+      "tagline": "Música con identidad, visión y propósito.",
+      "bio": "Perfil oficial de Helementt dentro del ecosistema Lujo Urban.",
+      "links": {},
+      "socialOrder": [
+        "tiktok",
+        "spotify",
+        "instagram",
+        "youtube",
+        "facebook",
+        "whatsapp"
+      ],
+      "release": null,
+      "beatsEmbed": "",
+      "productionsEmbed": "",
+      "contact": null
     }
   ]
 }
