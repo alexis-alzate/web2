@@ -141,18 +141,43 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
 - `commitFiles` reintenta hasta 3 veces si otro commit entra a la rama al
   mismo tiempo (422 "not a fast forward").
 - Subidas de imagen: solo JPG/PNG/WebP de hasta 5 MB (`lib/artists/images.ts`).
-- Portal del artista (`/mi-perfil`): el artista edita sus links, botones,
-  orden de redes y el enlace del lanzamiento, y además puede **publicar un
-  lanzamiento nuevo** (nombre, enlace y portada) y **cambiar su foto de
-  perfil**. Todo va por `ArtistService.savePortalProfile` en un solo commit.
+- Portal del artista (`/mi-perfil`): es lo que ve el cliente. Tiene cuatro
+  pantallas con navegación fija (abajo en celular, arriba en computador):
+  - **Inicio** (`/mi-perfil`): visitas del mes, su enlace para copiar, la
+    lista "Por hacer" (`lib/portal-todos.ts`: foto, portada, enlaces repetidos
+    entre canciones, redes) y la canción principal.
+  - **Mi música** (`/mi-perfil/musica`): canción principal, publicar música
+    nueva y "Más música". Cada canción se puede **corregir** (nombre, enlace,
+    portada), **volver principal** o **borrar** (la principal no se borra).
+    Servicio: `updatePortalRelease`, `promotePortalRelease`,
+    `deletePortalRelease`. El slug de la canción nunca cambia. Borrar sigue
+    la regla de siempre: primero el sitio, después la base.
+  - **Mi página** (`/mi-perfil/pagina`): foto y redes (enlaces, botones de
+    arriba y orden).
+  - **Estadísticas** (`/mi-perfil/estadisticas`): cifras, visitas por día
+    (`DailyBars`), de dónde llegan (`SourceVinyl`, el disco), qué enlaces
+    tocan y escuchas por canción.
   No puede tocar nombre, slug, bio ni embeds: eso sigue siendo del admin.
+  - `app/mi-perfil/portal-data.ts` (`loadPortal`) hace la comprobación de
+    acceso y la usan el layout **y** cada página: no confiar solo en el layout.
+  - Cada formulario es pequeño y manda solo sus campos; la acción
+    (`saveOwnArtistPortalAction`) completa lo que falta con el perfil actual,
+    así guardar la foto no toca los enlaces.
+  - Diseño: todo vive bajo `.pt` en `app/mi-perfil/portal.css`, con las
+    fuentes de la página pública (Bebas Neue y Barlow, vía `@fontsource`).
+    Reglas: texto en minúscula normal (sin etiquetas en mayúsculas ni
+    numeración 01/02), el verde solo para datos y la acción principal, y
+    medidas fijas: lo único que cambia de alto son los paneles "Editar".
+  - Las vistas (`app/components/portal/*View.tsx`) reciben datos por props y
+    no leen nada: así se pueden renderizar aparte para revisarlas.
   - La foto del portal se guarda como `assets/<slug>-photo-<huella>.<ext>`
-    (huella del contenido) para que una foto nueva no quede tapada por caché.
+    (huella del contenido) para que una foto nueva no quede tapada por caché;
+    las portadas corregidas, igual (`…-cover-<huella>.<ext>`).
   - `PortalImageField` reduce las imágenes en el navegador (máx. 1400 px, JPG)
     antes de subirlas; el servidor igual valida tipo y peso.
-  - La cuenta de prueba valida lo mismo pero no guarda imágenes.
-- Estadísticas del artista en el portal (`lib/artist-stats.ts` +
-  `PortalStats`): visitas, escuchas y compartidos de los últimos 30 días, las
+  - La cuenta de prueba valida lo mismo pero no guarda imágenes ni puede
+    editar canciones anteriores.
+- Estadísticas del artista en el portal (`lib/artist-stats.ts`): visitas, escuchas y compartidos de los últimos 30 días, las
   visitas por día y de dónde llegan. Salen de `release_events` filtrando por
   el `artist_slug` de la sesión (nunca del navegador). `summarizeArtistStats`
   es pura y tiene pruebas. La página pública registra como máximo una visita

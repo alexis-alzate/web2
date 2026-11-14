@@ -22,6 +22,8 @@ const MAX_SOURCES = 5;
 
 export type ArtistStatsRow = {
   event_type: string | null;
+  // Opcional para no romper a quien no lo pida; alimenta "Tus canciones".
+  release_slug?: string | null;
   referrer: string | null;
   source_url: string | null;
   created_at: string;
@@ -39,6 +41,11 @@ export type ArtistSourceStat = {
   visitors: number;
 };
 
+export type ArtistSongStat = {
+  slug: string;
+  listens: number;
+};
+
 export type ArtistStats = {
   periodDays: number;
   visitors: number;
@@ -51,6 +58,9 @@ export type ArtistStats = {
   // Personas que tocaron cada enlace (Spotify, Instagram...) en el periodo.
   // Vacio si nadie toco nada o si esa lectura fallo: nunca tumba la tarjeta.
   links: ArtistLinkStat[];
+  // Personas que tocaron "Escuchar" en cada cancion (por slug del
+  // lanzamiento), de mayor a menor. Solo las que tuvieron al menos una.
+  songs: ArtistSongStat[];
   hasData: boolean;
   // true = no se pudieron leer; la pagina muestra un aviso y sigue funcionando.
   failed: boolean;
@@ -150,6 +160,7 @@ export const summarizeArtistStats = (
   const current = emptyCounts();
   const previous = emptyCounts();
   const sources = new Map<string, number>();
+  const songs = new Map<string, number>();
 
   for (const row of rows) {
     const createdAt = new Date(row.created_at);
@@ -169,6 +180,7 @@ export const summarizeArtistStats = (
       }
     } else if (row.event_type === 'status_click') {
       bucket.listens += 1;
+      if (day && row.release_slug) songs.set(row.release_slug, (songs.get(row.release_slug) ?? 0) + 1);
     } else if (row.event_type === 'chat_click') {
       bucket.shares += 1;
     }
@@ -194,6 +206,9 @@ export const summarizeArtistStats = (
     daily: Array.from(daily.values()),
     sources: shown.map(([key, visitors]) => ({ key, label: SOURCE_LABELS[key] ?? key, visitors })),
     links,
+    songs: Array.from(songs.entries())
+      .map(([slug, listens]) => ({ slug, listens }))
+      .sort((left, right) => right.listens - left.listens || left.slug.localeCompare(right.slug)),
     hasData: current.visitors + current.listens + current.shares + links.length > 0,
     failed: false
   };
@@ -228,7 +243,7 @@ export const getArtistStats = async (artistSlug: string, now: Date = new Date())
     const [events, linkRows] = await Promise.all([
       createAnalyticsSupabaseClient()
         .from('release_events')
-        .select('event_type,referrer,source_url,created_at')
+        .select('event_type,release_slug,referrer,source_url,created_at')
         .eq('artist_slug', artistSlug)
         .gte('created_at', since.toISOString())
         .order('created_at', { ascending: false })

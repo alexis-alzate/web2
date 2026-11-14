@@ -1,0 +1,1080 @@
+/* Portal del artista (/mi-perfil).
+   Todo vive bajo `.pt` para no tocar el panel de administracion.
+
+   Tipografia: las mismas familias de la pagina publica del artista.
+     Bebas Neue  -> titulos de pantalla, nombres de canciones y cifras.
+     Barlow      -> todo el texto de interfaz.
+   Color: negro, el verde del artista y texto en blancos. El verde marca lo
+   que es dato o accion principal; nada mas lo usa.
+   Estabilidad: filas, botones y graficas tienen medidas fijas. Al pasar el
+   cursor o tocar solo cambian color u opacidad. */
+
+.pt {
+  --pt-surface: #0b110c;
+  --pt-surface-2: #101812;
+  --pt-line: rgba(255, 255, 255, .09);
+  --pt-line-strong: rgba(255, 255, 255, .16);
+  --pt-green: #39ff63;
+  --pt-text: #ffffff;
+  --pt-dim: rgba(255, 255, 255, .68);
+  --pt-faint: rgba(255, 255, 255, .5);
+  --pt-warn: #ffc56e;
+  --pt-danger: #ff9a9a;
+  --pt-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --pt-body: "Barlow", Arial, sans-serif;
+
+  width: min(640px, 100%);
+  margin: 0 auto;
+  padding: 18px 18px 112px;
+  color: var(--pt-text);
+  font-family: var(--pt-body);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.pt a {
+  color: inherit;
+}
+
+/* ---------- Cabecera ---------- */
+
+.pt-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 48px;
+}
+
+.pt-id {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pt-id-photo {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--pt-surface-2);
+}
+
+.pt-id-initials {
+  display: grid;
+  place-items: center;
+  color: var(--pt-green);
+  font-family: var(--pt-display);
+  font-size: 1.15rem;
+  text-transform: uppercase;
+}
+
+.pt-id-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pt-id-text strong {
+  overflow: hidden;
+  font-family: var(--pt-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: .03em;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-id-text a,
+.pt-id-text span {
+  color: var(--pt-dim);
+  font-size: .82rem;
+}
+
+.pt-id-text a {
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, .28);
+  text-underline-offset: 3px;
+}
+
+.pt-id-text a:hover,
+.pt-id-text a:focus-visible {
+  color: var(--pt-text);
+  text-decoration-color: var(--pt-green);
+}
+
+.pt .pt-logout {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--pt-line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--pt-dim);
+  font-size: .84rem;
+  transition: color .16s ease, border-color .16s ease;
+}
+
+.pt .pt-logout:hover {
+  border-color: rgba(255, 255, 255, .34);
+  color: var(--pt-text);
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---------- Navegacion ---------- */
+
+.pt-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0 6px env(safe-area-inset-bottom, 0);
+  border-top: 1px solid var(--pt-line);
+  background: rgba(4, 7, 5, .96);
+}
+
+.pt-nav-item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  height: 62px;
+  color: var(--pt-faint);
+  font-size: .7rem;
+  font-weight: 500;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .16s ease;
+}
+
+.pt-nav-item::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 28px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--pt-green);
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity .16s ease;
+}
+
+.pt-nav-item:hover {
+  color: var(--pt-text);
+}
+
+.pt-nav-item.is-active {
+  color: var(--pt-green);
+}
+
+.pt-nav-item.is-active::before {
+  opacity: 1;
+}
+
+.pt-nav-item:focus-visible {
+  outline: 2px solid var(--pt-green);
+  outline-offset: -4px;
+  border-radius: 12px;
+}
+
+@media (min-width: 760px) {
+  .pt {
+    padding-bottom: 64px;
+  }
+
+  .pt-nav {
+    position: static;
+    display: flex;
+    gap: 4px;
+    margin-top: 18px;
+    padding: 0;
+    border-top: 0;
+    border-bottom: 1px solid var(--pt-line);
+    background: none;
+  }
+
+  .pt-nav-item {
+    grid-auto-flow: column;
+    gap: 8px;
+    height: 48px;
+    padding: 0 14px;
+    font-size: .9rem;
+  }
+
+  .pt-nav-item::before {
+    top: auto;
+    bottom: -1px;
+    left: 14px;
+    width: calc(100% - 28px);
+    border-radius: 2px 2px 0 0;
+    transform: none;
+  }
+
+  .pt-nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ---------- Estructura de cada pantalla ---------- */
+
+.pt-main {
+  margin-top: 22px;
+}
+
+.pt-title {
+  margin: 0 0 18px;
+  font-family: var(--pt-display);
+  font-size: 2.5rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+  line-height: 1;
+}
+
+.pt-h2 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.pt-h3 {
+  margin: 10px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--pt-line);
+  font-size: .95rem;
+  font-weight: 600;
+}
+
+.pt-block {
+  margin-top: 30px;
+}
+
+.pt-help,
+.pt-empty,
+.pt-foot,
+.pt-period,
+.pt-chart-note {
+  margin: 0;
+  color: var(--pt-dim);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.pt-help {
+  margin-bottom: 12px;
+}
+
+.pt-period {
+  margin: -10px 0 18px;
+}
+
+.pt-foot {
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px solid var(--pt-line);
+  font-size: .82rem;
+}
+
+.pt-empty a,
+.pt-pulse-foot a,
+.pt-todos a {
+  color: var(--pt-green);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(57, 255, 99, .4);
+  text-underline-offset: 3px;
+}
+
+.pt-test {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 197, 110, .28);
+  border-radius: 12px;
+  color: var(--pt-warn);
+  font-size: .86rem;
+}
+
+.pt-blocked {
+  padding: 56px 0;
+  text-align: center;
+}
+
+.pt-blocked h1 {
+  margin: 0 0 10px;
+  font-family: var(--pt-display);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+
+.pt-blocked p {
+  max-width: 44ch;
+  margin: 0 auto;
+  color: var(--pt-dim);
+}
+
+.pt-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pt-warn {
+  color: var(--pt-warn);
+}
+
+.pt-cover-empty {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--pt-line-strong);
+  color: var(--pt-faint);
+  font-size: .62rem;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* ---------- Inicio ---------- */
+
+.pt-pulse-lead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: end;
+  margin: 0;
+  color: var(--pt-dim);
+  font-size: 1.02rem;
+  line-height: 1.35;
+}
+
+.pt-pulse-lead b {
+  color: var(--pt-text);
+  font-family: var(--pt-display);
+  font-size: 4.4rem;
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .82;
+}
+
+.pt-pulse-lead:not(:has(b)) {
+  display: block;
+}
+
+.pt-pulse-lead span {
+  padding-bottom: 2px;
+}
+
+.pt-pulse-note {
+  margin: 12px 0 0;
+  color: var(--pt-faint);
+  font-size: .86rem;
+}
+
+.pt-pulse-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  margin-top: 6px;
+  border-top: 1px solid var(--pt-line);
+  color: var(--pt-dim);
+  font-size: .86rem;
+}
+
+.pt-todos {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--pt-line);
+  border-radius: 14px;
+  background: var(--pt-surface);
+}
+
+.pt-todos li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 56px;
+  padding: 10px 14px;
+  font-size: .9rem;
+}
+
+.pt-todos li + li {
+  border-top: 1px solid var(--pt-line);
+}
+
+.pt-todos a {
+  white-space: nowrap;
+  font-size: .86rem;
+}
+
+.pt-now {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  height: 88px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--pt-line);
+  border-radius: 14px;
+  background: var(--pt-surface);
+  text-decoration: none;
+  transition: border-color .16s ease;
+}
+
+.pt-now:hover,
+.pt-now:focus-visible {
+  border-color: rgba(57, 255, 99, .42);
+}
+
+.pt-now img,
+.pt-now .pt-cover-empty {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.pt-now-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pt-now-text strong,
+.pt-song-text strong {
+  overflow: hidden;
+  font-family: var(--pt-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: .03em;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-now-text small {
+  color: var(--pt-dim);
+  font-size: .82rem;
+}
+
+.pt-now-go {
+  color: var(--pt-green);
+  font-size: .86rem;
+  font-weight: 600;
+}
+
+/* "Tu enlace" (componente compartido) con la piel del portal. */
+.pt .portal-link {
+  margin-top: 30px;
+  padding: 14px;
+  border: 1px solid var(--pt-line);
+  border-radius: 14px;
+  background: var(--pt-surface);
+  box-shadow: none;
+}
+
+.pt .portal-link-text .eyebrow {
+  color: var(--pt-dim);
+  font-size: .82rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.pt .portal-link-text a {
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.pt .portal-link-text small {
+  color: var(--pt-faint);
+  font-size: .8rem;
+}
+
+/* ---------- Mi musica ---------- */
+
+.pt-songs {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pt-song {
+  border: 1px solid var(--pt-line);
+  border-radius: 14px;
+  background: var(--pt-surface);
+}
+
+.pt-song-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 12px;
+}
+
+.pt-song-cover {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.pt-song-main .pt-song-cover {
+  width: 88px;
+  height: 88px;
+  border-radius: 12px;
+}
+
+.pt-song-main .pt-song-text strong {
+  font-size: 1.9rem;
+}
+
+.pt-song-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pt-song-text small {
+  overflow: hidden;
+  color: var(--pt-dim);
+  font-size: .82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-song-text small.pt-warn {
+  color: var(--pt-warn);
+  white-space: normal;
+}
+
+/* Paneles que se abren ("Editar cancion", "Publicar musica nueva"). Abrir es
+   su funcion: es el unico elemento del portal que cambia de alto, y lo hace
+   igual en todas partes. */
+.pt-fold > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding: 0 14px;
+  border-top: 1px solid var(--pt-line);
+  color: var(--pt-dim);
+  cursor: pointer;
+  font-size: .88rem;
+  font-weight: 500;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .16s ease;
+}
+
+.pt-fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.pt-fold > summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-right: 3px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform .18s ease;
+}
+
+.pt-fold[open] > summary {
+  color: var(--pt-text);
+}
+
+.pt-fold[open] > summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+
+.pt-fold > summary:hover {
+  color: var(--pt-text);
+}
+
+.pt-fold > summary:focus-visible {
+  outline: 2px solid var(--pt-green);
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+
+.pt-fold-body {
+  padding: 4px 14px 16px;
+}
+
+.pt-fold-new {
+  margin-top: 10px;
+  border: 1px solid rgba(57, 255, 99, .3);
+  border-radius: 14px;
+}
+
+.pt-fold-new > summary {
+  min-height: 52px;
+  border-top: 0;
+  color: var(--pt-green);
+  font-weight: 600;
+}
+
+.pt-fold-new[open] > summary {
+  color: var(--pt-green);
+}
+
+.pt-song-more {
+  display: grid;
+  gap: 0;
+  margin-top: 18px;
+  border-top: 1px solid var(--pt-line);
+}
+
+.pt-inline-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 0;
+}
+
+.pt-inline-form + .pt-inline-form {
+  border-top: 1px solid var(--pt-line);
+}
+
+.pt-inline-form p {
+  margin: 0;
+  color: var(--pt-dim);
+  font-size: .86rem;
+}
+
+.pt .pt-inline-form button {
+  min-width: 148px;
+  min-height: 44px;
+  border-color: var(--pt-line-strong);
+  background: transparent;
+  font-size: .86rem;
+}
+
+.pt .pt-danger button {
+  border-color: rgba(255, 154, 154, .4);
+  color: var(--pt-danger);
+}
+
+.pt .pt-check {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  color: var(--pt-dim);
+  font-size: .86rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.pt .pt-check input {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: var(--pt-green);
+}
+
+@media (max-width: 520px) {
+  .pt-inline-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pt .pt-inline-form button {
+    width: 100%;
+  }
+}
+
+/* ---------- Formularios ---------- */
+
+.pt-form {
+  display: grid;
+  gap: 14px;
+}
+
+.pt-card {
+  padding: 16px;
+  border: 1px solid var(--pt-line);
+  border-radius: 14px;
+  background: var(--pt-surface);
+}
+
+.pt-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 520px) {
+  .pt-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pt label {
+  color: var(--pt-dim);
+  font-size: .86rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.pt input,
+.pt select {
+  min-height: 46px;
+  font-size: 1rem;
+}
+
+.pt .pt-form > button,
+.pt .pt-form > .button {
+  justify-self: start;
+  min-width: 176px;
+  min-height: 46px;
+  font-size: .92rem;
+}
+
+@media (max-width: 520px) {
+  .pt .pt-form > button,
+  .pt .pt-form > .button {
+    justify-self: stretch;
+  }
+}
+
+/* ---------- Estadisticas ---------- */
+
+.pt-figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--pt-line);
+  border-bottom: 1px solid var(--pt-line);
+}
+
+.pt-figure {
+  display: grid;
+  gap: 2px;
+  padding: 16px 0 14px;
+}
+
+.pt-figure + .pt-figure {
+  padding-left: 16px;
+  border-left: 1px solid var(--pt-line);
+}
+
+.pt-figure strong {
+  font-family: var(--pt-display);
+  font-size: 2.6rem;
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .95;
+}
+
+.pt-figure span {
+  font-size: .9rem;
+}
+
+.pt-figure small {
+  color: var(--pt-faint);
+  font-size: .78rem;
+}
+
+.pt-chart {
+  margin-top: 34px;
+}
+
+.pt-chart-note {
+  margin-top: 12px;
+  color: var(--pt-faint);
+  font-size: .8rem;
+}
+
+/* Visitas por dia: ecualizador. */
+.pt-eq-readout {
+  height: 22px;
+  margin: 0 0 12px;
+  overflow: hidden;
+  color: var(--pt-dim);
+  font-size: .88rem;
+  line-height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-eq-readout b {
+  color: var(--pt-text);
+  font-weight: 600;
+}
+
+.pt-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 136px;
+  border-bottom: 1px solid var(--pt-line-strong);
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.pt-eq:focus-visible {
+  outline: 2px solid var(--pt-green);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+.pt-eq-mini {
+  height: 52px;
+  margin-top: 18px;
+  border-bottom-color: var(--pt-line);
+  cursor: default;
+}
+
+.pt-eq-slot {
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+}
+
+.pt-eq-bar {
+  width: 100%;
+  max-width: 12px;
+  border-radius: 3px 3px 0 0;
+  background: var(--pt-green);
+  opacity: .5;
+  transition: opacity .12s ease, background-color .12s ease;
+}
+
+.pt-eq-bar.is-zero {
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: rgba(255, 255, 255, .2);
+  opacity: 1;
+}
+
+.pt-eq-slot.is-peak .pt-eq-bar {
+  opacity: 1;
+}
+
+.pt-eq-slot.is-active .pt-eq-bar {
+  background: #ffffff;
+  opacity: 1;
+}
+
+.pt-eq-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: var(--pt-faint);
+  font-size: .78rem;
+}
+
+/* De donde llegan: el disco. */
+.pt-vinyl {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 26px;
+  align-items: center;
+}
+
+.pt-vinyl-disc {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+
+.pt-vinyl-arc {
+  transition: opacity .14s ease;
+}
+
+.pt-vinyl-arc.is-dim {
+  opacity: .26;
+}
+
+.pt-vinyl-label {
+  fill: #060a07;
+  stroke: rgba(255, 255, 255, .1);
+  stroke-width: 1;
+}
+
+.pt-vinyl-number {
+  fill: #ffffff;
+  font-family: var(--pt-display);
+  font-size: 30px;
+  letter-spacing: .5px;
+}
+
+.pt-vinyl-caption {
+  fill: rgba(255, 255, 255, .68);
+  font-family: var(--pt-body);
+  font-size: 11px;
+}
+
+.pt-vinyl-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pt-vinyl-list li + li {
+  border-top: 1px solid var(--pt-line);
+}
+
+.pt .pt-vinyl-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto 46px;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--pt-text);
+  font-size: .9rem;
+  text-align: left;
+  transition: background-color .14s ease;
+}
+
+.pt .pt-vinyl-row:hover,
+.pt .pt-vinyl-row.is-active {
+  background: rgba(255, 255, 255, .055);
+  transform: none;
+  box-shadow: none;
+}
+
+.pt-vinyl-row i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.pt-vinyl-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-vinyl-row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.pt-vinyl-row small {
+  color: var(--pt-faint);
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+@media (max-width: 560px) {
+  .pt-vinyl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    justify-items: center;
+  }
+
+  .pt-vinyl-list {
+    width: 100%;
+  }
+}
+
+/* Listas con barra: enlaces y canciones. Dos lineas por fila: nombre y cifra
+   arriba, la barra debajo a todo el ancho. */
+.pt-rank {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pt-rank li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name value"
+    "track track";
+  gap: 7px 12px;
+  align-items: center;
+  font-size: .92rem;
+}
+
+.pt-rank-name {
+  grid-area: name;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-rank b {
+  grid-area: value;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.pt-rank-track {
+  grid-area: track;
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .07);
+}
+
+.pt-rank-track span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--pt-green);
+}
+
+.pt-rank-track span.is-zero {
+  width: 0;
+}
+
+.pt-rank-songs li {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "cover name value"
+    "cover track track";
+}
+
+.pt-rank-songs img,
+.pt-rank-cover {
+  grid-area: cover;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt *,
+  .pt *::before,
+  .pt *::after {
+    transition: none !important;
+  }
+}

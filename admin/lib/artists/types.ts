@@ -106,6 +106,7 @@ export interface ArtistRepository {
   upsertRelease(artistId: string, write: ReleaseWrite): Promise<string>;
   setCurrentRelease(artistId: string, releaseId: string): Promise<void>;
   updateReleaseLink(releaseId: string, link: string): Promise<void>;
+  deleteRelease(releaseId: string): Promise<void>;
   updatePortalFields(artistId: string, write: PortalWrite): Promise<void>;
 }
 

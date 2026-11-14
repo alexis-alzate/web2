@@ -264,6 +264,14 @@ export class SupabaseArtistRepository implements ArtistRepository {
     if (error) fail('actualizar el enlace del lanzamiento', error);
   }
 
+  // Borra un lanzamiento. Quien llama garantiza que no es el actual del
+  // artista (la base tampoco lo permitiria en silencio: current_release_id
+  // apunta a esta tabla).
+  async deleteRelease(releaseId: string): Promise<void> {
+    const { error } = await this.getClient().from('artist_releases').delete().eq('id', releaseId);
+    if (error) fail('borrar el lanzamiento', error);
+  }
+
   async updatePortalFields(artistId: string, write: PortalWrite): Promise<void> {
     const { error } = await this.getClient()
       .from('artists')

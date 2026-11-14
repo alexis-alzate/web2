@@ -99,6 +99,8 @@ export class FakeRepository implements ArtistRepository {
     const index = record.releases.findIndex(item => item.slug === write.slug);
     if (index >= 0) record.releases[index] = release;
     else record.releases.push(release);
+    // Igual que la base: si es el lanzamiento actual, el artista lo ve cambiado.
+    if (record.currentReleaseId === id) record.artist.release = release;
     return id;
   }
 
@@ -108,6 +110,16 @@ export class FakeRepository implements ArtistRepository {
     record.currentReleaseId = releaseId;
     const slug = Object.entries(record.releaseIdsBySlug).find(([, id]) => id === releaseId)?.[0];
     record.artist.release = record.releases.find(release => release.slug === slug) ?? null;
+  }
+
+  async deleteRelease(releaseId: string) {
+    this.enter('deleteRelease');
+    for (const record of this.records) {
+      const slug = Object.entries(record.releaseIdsBySlug).find(([, id]) => id === releaseId)?.[0];
+      if (!slug) continue;
+      record.releases = record.releases.filter(release => release.slug !== slug);
+      delete record.releaseIdsBySlug[slug];
+    }
   }
 
   async updateReleaseLink(releaseId: string, link: string) {

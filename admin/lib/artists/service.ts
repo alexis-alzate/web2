@@ -470,6 +470,115 @@ export class ArtistService {
     });
   }
 
+  // --- Lanzamientos desde el portal del artista ("Mi música") ---------------
+
+  private async portalRelease(artistSlug: string, releaseSlug: string) {
+    const record = await this.findArtistBySlug(artistSlug);
+    if (!record) throw new NotFoundError('Tu cuenta ya no esta vinculada a un perfil publicado.');
+
+    const release = record.releases.find(item => item.slug === releaseSlug);
+    const releaseId = record.releaseIdsBySlug[releaseSlug];
+    if (!release || !releaseId) throw new NotFoundError('No encontramos esa canción. Recarga la página.');
+
+    return { record, release, releaseId, isCurrent: record.currentReleaseId === releaseId };
+  }
+
+  // El artista corrige una cancion que ya publico (la actual o una anterior):
+  // nombre, enlace y portada. El slug no cambia, asi sus estadisticas y su
+  // lugar en la pagina se conservan. Si cambia el nombre o la portada se
+  // estrenan paginas para compartir y se retiran las viejas.
+  async updatePortalRelease(artistSlug: string, releaseSlug: string, input: PortalReleaseInput) {
+    const { record, release } = await this.portalRelease(artistSlug, releaseSlug);
+
+    const title = text(input.title);
+    if (!title) throw new ValidationError('Escribe el nombre de la canción.');
+    if (title.length > MAX_RELEASE_TITLE_LENGTH) {
+      throw new ValidationError(`El nombre de la canción no puede pasar de ${MAX_RELEASE_TITLE_LENGTH} caracteres.`);
+    }
+    const link = validUrl(input.link, 'El enlace de la canción', { required: true });
+
+    // Portada nueva = ruta nueva (huella del contenido), para que ni el
+    // navegador ni el CDN sigan mostrando la anterior.
+    const cover = input.uploadedCover;
+    const coverPath = cover
+      ? `assets/${artistSlug}-${releaseSlug}-cover-${createHash('sha256').update(cover.contentBase64).digest('hex').slice(0, 10)}.${cover.extension}`
+      : release.cover ?? null;
+
+    const needsNewPages = Boolean(coverPath) && (Boolean(cover) || title !== release.title || !release.shareUrl);
+    const socialPages = needsNewPages && coverPath
+      ? buildArtistReleaseSharePages({
+        artist: record.artist,
+        releaseTitle: title,
+        releaseSlug,
+        version: nextPreviewVersion(record.releases, artistSlug, releaseSlug),
+        cover: coverPath
+      })
+      : null;
+
+    await this.repository.upsertRelease(record.id, {
+      slug: releaseSlug,
+      title,
+      link,
+      coverPath,
+      shareUrl: socialPages ? socialPages.shareUrl : release.shareUrl ?? null,
+      statusUrl: socialPages ? socialPages.statusUrl : release.statusUrl ?? null
+    });
+
+    await this.publishAfterSave(await this.loadRoster(), {
+      message: `Update release ${title} for ${record.artist.name}`,
+      extraFiles: [
+        ...(cover && coverPath ? [imageFile(coverPath, cover)] : []),
+        ...(socialPages?.files ?? [])
+      ],
+      // Solo las paginas de compartir que quedaron reemplazadas.
+      removedReleases: socialPages && release.shareUrl ? [release] : []
+    });
+
+    return { before: release, title };
+  }
+
+  // Vuelve a poner una cancion anterior como la principal de la pagina.
+  async promotePortalRelease(artistSlug: string, releaseSlug: string) {
+    const { record, release, releaseId, isCurrent } = await this.portalRelease(artistSlug, releaseSlug);
+    if (isCurrent) return { title: release.title };
+
+    await this.repository.setCurrentRelease(record.id, releaseId);
+    await this.publishAfterSave(await this.loadRoster(), {
+      message: `Set ${release.title} as latest release for ${record.artist.name}`
+    });
+    return { title: release.title };
+  }
+
+  // Borra una cancion anterior: sale de "Más música" y se retiran sus paginas
+  // para compartir. Igual que al borrar un artista: primero el sitio, despues
+  // la base. La principal no se puede borrar (la pagina quedaria sin estreno).
+  async deletePortalRelease(artistSlug: string, releaseSlug: string) {
+    const { record, release, releaseId, isCurrent } = await this.portalRelease(artistSlug, releaseSlug);
+    if (isCurrent) {
+      throw new ValidationError('Esta es tu canción principal. Pon otra de principal antes de borrarla.');
+    }
+
+    const records = await this.repository.listArtists();
+    const remaining = toRoster(records.map(item => item.id === record.id
+      ? { ...item, releases: item.releases.filter(entry => entry.slug !== releaseSlug) }
+      : item));
+
+    try {
+      await this.publisher.publishRoster(remaining, {
+        message: `Delete release ${release.title} for ${record.artist.name}`,
+        removedReleases: [release]
+      });
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new PublishError(
+        `No se borró nada: no pude retirar la canción de tu página (${reason}). Intenta de nuevo.`,
+        { cause: error }
+      );
+    }
+    await this.repository.deleteRelease(releaseId);
+    return { title: release.title };
+  }
+
   // Lo que el artista edita desde su portal. Devuelve el antes y el despues
   // para que la accion registre la actividad.
   async savePortalProfile(artistSlug: string, input: PortalInput) {

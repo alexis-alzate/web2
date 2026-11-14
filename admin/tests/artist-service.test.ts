@@ -822,3 +822,162 @@ describe('saveArtist: enlace corto', () => {
     expect(saved('ana').links?.spotify).toBe('https://open.spotify.com/artist/ana2');
   });
 });
+
+describe('Mi música: editar, volver principal y borrar canciones desde el portal', () => {
+  const cover = { extension: 'jpg' as const, contentBase64: 'AAAA' };
+  const record = () => ctx.repository.records.find(item => item.artist.slug === 'ana')!;
+  const bySlug = (slug: string) => record().releases.find(item => item.slug === slug)!;
+
+  // Ana con dos canciones: "uno" (anterior) y "dos" (la principal).
+  const seed = async () => {
+    await ctx.service.saveArtist(artistInput({ name: 'Ana' }));
+    for (const title of ['Uno', 'Dos']) {
+      await ctx.service.addRelease({
+        artistSlug: 'ana', title, slug: '', link: `https://too.fm/${title.toLowerCase()}`, cover: '', uploadedCover: cover
+      });
+    }
+    ctx.publisher.published.length = 0;
+    ctx.log.length = 0;
+  };
+
+  describe('updatePortalRelease', () => {
+    it('corrige el enlace de una canción anterior sin tocar la principal ni sus páginas de compartir', async () => {
+      await seed();
+      const shareBefore = bySlug('uno').shareUrl;
+
+      await ctx.service.updatePortalRelease('ana', 'uno', { title: 'Uno', link: 'https://youtu.be/nuevo', uploadedCover: null });
+
+      expect(bySlug('uno').link).toBe('https://youtu.be/nuevo');
+      expect(bySlug('uno').shareUrl).toBe(shareBefore);
+      expect(record().artist.release?.slug).toBe('dos');
+      expect(ctx.publisher.published).toHaveLength(1);
+      expect(ctx.publisher.published[0].options.removedReleases).toEqual([]);
+      expect(ctx.publisher.published[0].options.extraFiles).toEqual([]);
+    });
+
+    it('cambiar el nombre conserva el slug y estrena páginas de compartir (retira las viejas)', async () => {
+      await seed();
+      const before = structuredClone(bySlug('uno'));
+
+      await ctx.service.updatePortalRelease('ana', 'uno', { title: 'Uno (Remix)', link: before.link, uploadedCover: null });
+
+      const after = bySlug('uno');
+      expect(after.title).toBe('Uno (Remix)');
+      expect(after.shareUrl).toContain('/lanzamientos/ana-uno-v2/');
+      expect(after.cover).toBe(before.cover);
+      const options = ctx.publisher.published[0].options;
+      expect(options.removedReleases).toEqual([before]);
+      expect(options.extraFiles?.map(file => file.path)).toEqual(expect.arrayContaining([
+        'lanzamientos/ana-uno-v2/index.html',
+        'estados/ana-uno-v2/index.html'
+      ]));
+    });
+
+    it('una portada nueva estrena ruta (huella del contenido) y se sube en el mismo commit', async () => {
+      await seed();
+
+      await ctx.service.updatePortalRelease('ana', 'uno', {
+        title: 'Uno', link: 'https://too.fm/uno', uploadedCover: { extension: 'png', contentBase64: 'ZZZZ' }
+      });
+
+      expect(bySlug('uno').cover).toMatch(/^assets\/ana-uno-cover-[0-9a-f]{10}\.png$/);
+      expect(ctx.publisher.published[0].options.extraFiles?.map(file => file.path)).toContain(bySlug('uno').cover);
+    });
+
+    it('también sirve para la canción principal', async () => {
+      await seed();
+
+      await ctx.service.updatePortalRelease('ana', 'dos', { title: 'Dos', link: 'https://youtu.be/dos', uploadedCover: null });
+
+      expect(record().artist.release?.link).toBe('https://youtu.be/dos');
+      expect(record().currentReleaseId).toBe(record().releaseIdsBySlug.dos);
+    });
+
+    it('orden: primero la base, después publicar', async () => {
+      await seed();
+
+      await ctx.service.updatePortalRelease('ana', 'uno', { title: 'Uno', link: 'https://youtu.be/x', uploadedCover: null });
+
+      expect(indexOf(ctx.log, 'repo.upsertRelease')).toBeLessThan(indexOf(ctx.log, 'publisher.publishRoster'));
+    });
+
+    it.each([
+      ['sin nombre', { title: '  ', link: 'https://too.fm/uno' }],
+      ['nombre demasiado largo', { title: 'x'.repeat(81), link: 'https://too.fm/uno' }],
+      ['sin enlace', { title: 'Uno', link: '' }],
+      ['enlace que no es enlace', { title: 'Uno', link: 'youtube punto com' }]
+    ])('rechaza: %s, y no guarda nada', async (_name, input) => {
+      await seed();
+
+      await expect(ctx.service.updatePortalRelease('ana', 'uno', { ...input, uploadedCover: null }))
+        .rejects.toThrow(ValidationError);
+      expect(bySlug('uno').link).toBe('https://too.fm/uno');
+      expect(ctx.publisher.published).toHaveLength(0);
+    });
+
+    it('una canción que no es suya (o no existe) da no encontrado', async () => {
+      await seed();
+      await ctx.service.saveArtist(artistInput({ name: 'Beto' }));
+
+      await expect(ctx.service.updatePortalRelease('beto', 'uno', { title: 'Uno', link: 'https://too.fm/x', uploadedCover: null }))
+        .rejects.toThrow(NotFoundError);
+      await expect(ctx.service.updatePortalRelease('ana', 'no-existe', { title: 'Uno', link: 'https://too.fm/x', uploadedCover: null }))
+        .rejects.toThrow(NotFoundError);
+      await expect(ctx.service.updatePortalRelease('nadie', 'uno', { title: 'Uno', link: 'https://too.fm/x', uploadedCover: null }))
+        .rejects.toThrow(NotFoundError);
+      expect(bySlug('uno').link).toBe('https://too.fm/uno');
+    });
+  });
+
+  describe('promotePortalRelease', () => {
+    it('vuelve principal una canción anterior y publica', async () => {
+      await seed();
+
+      await ctx.service.promotePortalRelease('ana', 'uno');
+
+      expect(record().artist.release?.slug).toBe('uno');
+      expect(record().releases.map(item => item.slug)).toEqual(['uno', 'dos']);
+      expect(ctx.publisher.published).toHaveLength(1);
+    });
+
+    it('si ya es la principal no hace nada', async () => {
+      await seed();
+
+      await ctx.service.promotePortalRelease('ana', 'dos');
+
+      expect(ctx.publisher.published).toHaveLength(0);
+    });
+  });
+
+  describe('deletePortalRelease', () => {
+    it('borra una canción anterior: primero la retira del sitio, después de la base', async () => {
+      await seed();
+      const removed = structuredClone(bySlug('uno'));
+
+      await ctx.service.deletePortalRelease('ana', 'uno');
+
+      expect(record().releases.map(item => item.slug)).toEqual(['dos']);
+      expect(indexOf(ctx.log, 'publisher.publishRoster')).toBeLessThan(indexOf(ctx.log, 'repo.deleteRelease'));
+      const published = ctx.publisher.published[0];
+      expect(published.options.removedReleases).toEqual([removed]);
+      expect(published.roster.history.artists.ana.map(item => item.slug)).toEqual(['dos']);
+    });
+
+    it('no deja borrar la canción principal', async () => {
+      await seed();
+
+      await expect(ctx.service.deletePortalRelease('ana', 'dos')).rejects.toThrow(ValidationError);
+      expect(record().releases).toHaveLength(2);
+      expect(ctx.publisher.published).toHaveLength(0);
+    });
+
+    it('si el sitio falla, no se borra nada de la base', async () => {
+      await seed();
+      ctx.publisher.failure = new Error('GitHub caido');
+
+      await expect(ctx.service.deletePortalRelease('ana', 'uno')).rejects.toThrow(PublishError);
+      expect(record().releases).toHaveLength(2);
+      expect(ctx.log).not.toContain('repo.deleteRelease');
+    });
+  });
+});
