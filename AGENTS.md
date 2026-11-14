@@ -61,6 +61,8 @@ web2/
     │   ├── actions-waitlist.ts               # cambiar el estado de una solicitud de la lista de espera
     │   ├── api/waitlist/route.ts             # endpoint PÚBLICO: recibe el formulario de /unete/
     │   ├── auth-actions.ts, auth/, login/, forgot-password/, reset-password/
+    │   ├── productor/                        # portal del PRODUCTOR (/productor): layout, producer-data.ts (loadProducer), productor.css
+    │   ├── producer-access-actions.ts        # invitar / pausar / desvincular el acceso de un productor (safeAction)
     │   ├── api/                              # endpoints internos del panel
     │   └── components/                       # ActionForm, SubmitButton, AnalyticsDashboard, etc.
     └── lib/
@@ -70,6 +72,7 @@ web2/
         ├── github.ts, artist-renderer.ts     # edición del sitio estático vía API de GitHub (commitFiles: borra y reintenta)
         ├── errors.ts                         # errores con tipo (Validation 400, Unauthorized 401, Forbidden 403, NotFound 404, Conflict 409, Publish 502)
         ├── actions/safe-action.ts            # traductor central de errores de Server Actions ({ ok, code, message })
+        ├── producers/                        # capa de productores: access-service.ts (reglas) → repository.ts + supabase-access-directory.ts + invite-email.ts; index.ts = composición
         ├── artists/                          # capa de artistas: index.ts (composicion) → service.ts (reglas) → repository.ts (BD) + site-publisher.ts (GitHub)
         ├── analytics.ts                      # métricas de lanzamientos
         ├── waitlist.ts                       # lista de espera: validación y normalización de solicitudes
@@ -288,6 +291,56 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   la invitación se sigue enviando desde los accesos de artistas.
 - Colores: dorado (`--join-gold`) = Lujo Urban, la plataforma; verde = el
   artista. Un solo botón dorado relleno por pantalla.
+
+## 4.3 Productores: acceso y portal (`/productor`)
+
+Un productor es una tercera clase de cuenta, al lado de admin y artista. Entra
+con el mismo login y cae en **su** zona; nunca ve el panel ni el portal de
+artistas.
+
+- **Rol**: `app_metadata.lujo_role = 'producer'` + `lujo_producer_id` (el `id` de
+  `producers`) + `lujo_access`. `readAccessMetadata` lo lee (`producerId`) y
+  `requireActiveProducer()` es el guardia para código de productores.
+  `lib/access-destination.ts` (`destinationFor`) decide a dónde manda el login a
+  cada rol; es pura y tiene pruebas. `/` manda a los productores a `/productor`
+  y `/mi-perfil` también.
+- **Datos siempre de la sesión**: `loadProducer()` (`app/productor/producer-data.ts`)
+  toma el productor de la sesión, nunca de la petición. Igual que en el portal
+  del artista, la comprobación va ahí y no solo en el layout.
+- **Capas** (no mezclarlas, mismo estilo que los artistas):
+  ```
+  Server Action = controller  (app/producer-access-actions.ts, safeAction, requireAdmin)
+    └─ ProducerAccessService   (lib/producers/access-service.ts)  reglas: a quién invitar,
+         │                      un correo = un solo tipo de acceso, un productor = una cuenta
+         ├─ ProducerRepository → SupabaseProducerRepository (repository.ts)
+         ├─ AccessDirectory    → SupabaseAccessDirectory (único que usa supabase.auth.admin)
+         └─ InviteMailer       → ResendInviteMailer (invite-email.ts)
+  lib/producers/index.ts = raíz de composición
+  ```
+  Pruebas con dobles en memoria: `tests/producer-helpers.ts`.
+- **Invitar**: desde el panel, en la tarjeta del productor ("Productores") →
+  "Invitar al portal". Usa el mismo enlace de dos pasos de la sección 4.1 (el
+  correo lleva a `/auth/confirm`, no valida al abrirse). Un productor inactivo no
+  se puede invitar. "Cambiar el correo" lo desvincula (si nunca creó su clave, la
+  invitación se borra).
+- **Portal** (`/productor`): ganancias (`lib/producers/earnings-summary.ts`, pura,
+  mes en hora de Colombia), sus beats y sus últimas ventas. La vista
+  (`components/producer/ProducerHomeView.tsx`) recibe todo por props.
+  Diseño: reutiliza la base de `mi-perfil/portal.css` y agrega `productor.css`;
+  el acento es el **dorado** de Lujo Urban (`#e3b873`), no el verde (que es del
+  artista). Filas de alto fijo.
+- **Los productores NO se registran en la bitácora de actividad** (`portal_sessions`
+  solo admite `admin` y `artist`); el login lo omite.
+- **Lo que todavía NO hace** (pendiente, por orden):
+  1. Subir y editar beats desde el portal. **Bloqueado a propósito** hasta mover el
+     almacenamiento de beats a Cloudflare R2: el plan gratis de Supabase limita cada
+     archivo a 50 MB y 1 GB en total. No habilitar la subida del productor sobre
+     Supabase Storage. Cuando se haga: rutas por productor (`productores/<id>/...`),
+     que el productor solo toque lo suyo, y revisión del admin antes de publicar.
+  2. Pago directo al productor (Split de Mercado Pago). Hoy es liquidación manual:
+     el dinero entra a la cuenta de Lujo Urban y `producer_earnings` registra cuánto
+     le corresponde. Tocar pagos exige auditar y explicar riesgos antes (sección 10).
+  3. Página pública del productor con sus beats.
 
 ## 5. Flujo de compra digital (estado actual, ya en producción)
 

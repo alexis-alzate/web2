@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ADMIN_SESSION_COOKIE, ADMIN_SESSION_MAX_AGE_SECONDS } from '@/lib/admin-session';
+import { destinationFor } from '@/lib/access-destination';
 import { readAccessMetadata } from '@/lib/auth';
 import {
   PORTAL_ACTIVITY_COOKIE_MAX_AGE_SECONDS,
@@ -31,11 +32,7 @@ export async function POST(request: Request) {
     }
 
     const access = data.user ? readAccessMetadata(data.user) : null;
-    const destination = access?.role === 'admin' && access.status === 'active'
-      ? '/'
-      : access?.role === 'artist' && access.artistSlug
-        ? '/mi-perfil'
-        : null;
+    const destination = destinationFor(access);
 
     if (!destination) {
       await supabase.auth.signOut();
@@ -52,13 +49,17 @@ export async function POST(request: Request) {
       secure: request.url.startsWith('https://')
     });
 
-    const activitySessionId = await startPortalSession({
-      userId: data.user.id,
-      role: access?.role === 'admin' ? 'admin' : 'artist',
-      artistSlug: access?.artistSlug || null,
-      loginMethod: 'password',
-      userAgent: request.headers.get('user-agent')
-    });
+    // El registro de actividad es del panel y del portal de artistas; la tabla
+    // solo admite esos dos roles, asi que los productores no se registran ahi.
+    const activitySessionId = access?.role === 'producer'
+      ? null
+      : await startPortalSession({
+        userId: data.user.id,
+        role: access?.role === 'admin' ? 'admin' : 'artist',
+        artistSlug: access?.artistSlug || null,
+        loginMethod: 'password',
+        userAgent: request.headers.get('user-agent')
+      });
     if (activitySessionId) {
       response.cookies.set(PORTAL_ACTIVITY_SESSION_COOKIE, activitySessionId, {
         httpOnly: true,
