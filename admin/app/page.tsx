@@ -39,6 +39,8 @@ import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, update
 import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { ProducerAccess } from './components/ProducerAccess';
+import { ProducerApplications } from './components/ProducerApplications';
+import { producerApplicationService, type ProducerApplication } from '@/lib/producer-applications';
 import { producerAccessService, type ProducerAccessInfo } from '@/lib/producers';
 import { updateWaitlistStatusAction } from './actions-waitlist';
 import {
@@ -304,6 +306,8 @@ export default async function DashboardPage() {
   let producers: Producer[] = [];
   let producerAccess = new Map<string, ProducerAccessInfo>();
   let producerEarnings: ProducerEarning[] = [];
+  let producerApplications: ProducerApplication[] = [];
+  let producerApplicationsAvailable = true;
   let waitlist: WaitlistEntry[] = [];
   let waitlistAvailable = true;
   let artistAccessAccounts: ArtistAccessAccount[] = [];
@@ -328,6 +332,13 @@ export default async function DashboardPage() {
     // Si falla (p. ej. Supabase Auth no responde) las tarjetas se muestran
     // igual, solo sin el estado del acceso.
     producerAccess = await producerAccessService.listAccess().catch(() => new Map<string, ProducerAccessInfo>());
+
+    // Si la migracion 021 no se ha corrido, el panel avisa en vez de romperse.
+    try {
+      producerApplications = await producerApplicationService.list();
+    } catch {
+      producerApplicationsAvailable = false;
+    }
 
     const { data: settingData } = await supabaseAdmin
       .from('app_settings')
@@ -1420,6 +1431,11 @@ export default async function DashboardPage() {
           </div>
         </details>
       </section>
+
+      <ProducerApplications
+        applications={producerApplications}
+        available={producerApplicationsAvailable}
+      />
 
       <section className="section">
         <details className="folder">
