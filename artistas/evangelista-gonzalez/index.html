@@ -228,6 +228,60 @@ fbq('track', 'PageView');
     }
   };
 
+  // Clics en los enlaces del artista (Spotify, Instagram...). Se guarda como
+  // maximo uno por navegador, por enlace y por dia, sin importar si se toco
+  // el boton de arriba o el de la cuadricula: son personas, no clics totales.
+  const linkClickEndpoint = 'https://admin.lujourban.com/api/analytics/link-click';
+  const linkClicksSent = new Set();
+
+  const sendLinkClick = (artistSlug, linkKey, placement) => {
+    if (!artistSlug || !linkKey) return;
+    if (isReleaseAnalyticsOwner()) return;
+
+    const persistentKey = 'lu_link_click:' + artistSlug + ':' + linkKey + ':' + analyticsBogotaDateKey();
+
+    try {
+      if (window.localStorage.getItem(persistentKey)) return;
+    } catch {
+      // Tracking still works when localStorage is unavailable.
+    }
+
+    const key = artistSlug + ':' + linkKey;
+    if (linkClicksSent.has(key)) return;
+    linkClicksSent.add(key);
+
+    try {
+      window.fetch(linkClickEndpoint, {
+        method: 'POST',
+        mode: 'cors',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          artist_slug: artistSlug,
+          link_key: linkKey,
+          placement: placement === 'hero' ? 'hero' : 'grid',
+          device_type: detectAnalyticsDevice()
+        })
+      }).then(response => {
+        if (!response.ok) {
+          linkClicksSent.delete(key);
+          return;
+        }
+        try {
+          window.localStorage.setItem(persistentKey, '1');
+        } catch {
+          // Analytics must never block the artist profile.
+        }
+      }).catch(() => {
+        linkClicksSent.delete(key);
+      });
+    } catch {
+      // Analytics must never block the artist profile.
+    }
+  };
+
   const trackedOnce = new Set();
   const trackEvent = (eventName, params = {}, once = false) => {
     const key = eventName + ':' + (params.label || params.section || params.content_name || '');
@@ -275,6 +329,12 @@ fbq('track', 'PageView');
         content_name: element.dataset.trackContent || element.textContent.trim(),
         destination: element.href || ''
       });
+    });
+  });
+
+  document.querySelectorAll('[data-artist-link]').forEach(link => {
+    link.addEventListener('click', () => {
+      sendLinkClick(link.dataset.artistSlug || '', link.dataset.artistLink || '', link.dataset.linkPlace || '');
     });
   });
 

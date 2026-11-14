@@ -1,4 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "redirects": []
+  "redirects": [
+    {
+      "source": "/la-libreta",
+      "destination": "/artistas/la-libreta/",
+      "permanent": false
+    },
+    {
+      "source": "/la-libreta/",
+      "destination": "/artistas/la-libreta/",
+      "permanent": false
+    }
+  ]
 }
