@@ -9,6 +9,7 @@ import { MAX_RELEASE_TITLE_LENGTH } from '@/lib/artists';
 import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
 import { PortalActivityTracker } from '../components/PortalActivityTracker';
 import { PortalImageField } from '../components/PortalImageField';
+import { PortalLink } from '../components/PortalLink';
 import { PortalStats } from '../components/PortalStats';
 import { SocialOrderEditor } from '../components/SocialOrderEditor';
 import { SubmitButton } from '../components/SubmitButton';
@@ -134,6 +135,15 @@ export default async function ArtistPortalPage() {
           </a>
         )}
       </section>
+
+      {isTestAccount ? null : (
+        <PortalLink
+          url={artist.shortLink
+            ? `https://www.lujourban.com/${artist.shortLink}`
+            : `https://www.lujourban.com/artistas/${artist.slug}/`}
+          isShort={Boolean(artist.shortLink)}
+        />
+      )}
 
       <PortalStats stats={stats} isTestAccount={isTestAccount} />
 

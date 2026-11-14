@@ -741,3 +741,84 @@ describe('lecturas', () => {
     expect(await ctx.service.findArtistBySlug('fantasma')).toBeNull();
   });
 });
+
+describe('saveArtist: enlace corto', () => {
+  const saved = (slug: string) => ctx.repository.records.find(record => record.artist.slug === slug)!.artist;
+
+  it('lo guarda limpio (sin tildes, espacios ni mayusculas)', async () => {
+    await ctx.service.saveArtist(artistInput({ name: 'Julián Ramos', slug: 'la-libreta', shortLink: ' Julián ' }));
+
+    expect(saved('la-libreta').shortLink).toBe('julian');
+  });
+
+  it('sin enlace corto queda vacio', async () => {
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', shortLink: '' }));
+
+    expect(saved('ana').shortLink).toBeUndefined();
+  });
+
+  it('null no toca el que ya tenia; vacio lo quita', async () => {
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', shortLink: 'anita' }));
+
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', originalSlug: 'ana', shortLink: null }));
+    expect(saved('ana').shortLink).toBe('anita');
+
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', originalSlug: 'ana' }));
+    expect(saved('ana').shortLink).toBe('anita');
+
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', originalSlug: 'ana', shortLink: '' }));
+    expect(saved('ana').shortLink).toBeUndefined();
+  });
+
+  it('el artista puede conservar su propio enlace al editar otra cosa', async () => {
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', shortLink: 'anita' }));
+
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', originalSlug: 'ana', shortLink: 'anita', role: 'Productora' }));
+
+    expect(saved('ana').shortLink).toBe('anita');
+    expect(saved('ana').role).toBe('Productora');
+  });
+
+  it('rechaza el enlace corto o el slug de otro artista, y no guarda nada', async () => {
+    await ctx.service.saveArtist(artistInput({ name: 'Ana', shortLink: 'anita' }));
+    await ctx.service.saveArtist(artistInput({ name: 'Beto' }));
+    const publishedBefore = ctx.publisher.published.length;
+
+    await expect(ctx.service.saveArtist(artistInput({ name: 'Beto', originalSlug: 'beto', shortLink: 'anita' })))
+      .rejects.toThrow(ConflictError);
+    await expect(ctx.service.saveArtist(artistInput({ name: 'Beto', originalSlug: 'beto', shortLink: 'ana' })))
+      .rejects.toThrow(ConflictError);
+
+    expect(saved('beto').shortLink).toBeUndefined();
+    expect(ctx.publisher.published).toHaveLength(publishedBefore);
+  });
+
+  it('rechaza nombres reservados y texto que no deja ni una letra', async () => {
+    await expect(ctx.service.saveArtist(artistInput({ name: 'Ana', shortLink: 'Artistas' }))).rejects.toThrow(ValidationError);
+    await expect(ctx.service.saveArtist(artistInput({ name: 'Ana', shortLink: '!!!' }))).rejects.toThrow(ValidationError);
+    await expect(ctx.service.saveArtist(artistInput({ name: 'Ana', shortLink: 'ab' }))).rejects.toThrow(ValidationError);
+    expect(ctx.repository.records).toHaveLength(0);
+  });
+
+  it('guardar desde el portal no borra el enlace corto', async () => {
+    await ctx.service.saveArtist(artistInput({
+      name: 'Ana',
+      shortLink: 'anita',
+      links: { spotify: 'https://open.spotify.com/artist/ana' }
+    }));
+    const current = saved('ana');
+
+    await ctx.service.savePortalProfile('ana', {
+      links: { spotify: 'https://open.spotify.com/artist/ana2' },
+      socialOrder: current.socialOrder ?? [],
+      heroPrimary: '',
+      heroSecondary: '',
+      releaseLink: '',
+      uploadedPhoto: null,
+      newRelease: null
+    });
+
+    expect(saved('ana').shortLink).toBe('anita');
+    expect(saved('ana').links?.spotify).toBe('https://open.spotify.com/artist/ana2');
+  });
+});

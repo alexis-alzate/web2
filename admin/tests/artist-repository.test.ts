@@ -11,6 +11,7 @@ const repositoryWith = (responses: Record<string, DbResult | ((call: never) => D
 
 const write: ArtistWrite = {
   slug: 'ana',
+  shortLink: 'anita',
   name: 'Ana',
   cardName: 'Ana',
   role: 'Artista oficial',
@@ -213,6 +214,7 @@ describe('insertArtist', () => {
     const insert = on('artists')[1].ops.find(op => op.method === 'insert');
     expect(insert?.args[0]).toEqual({
       slug: 'ana',
+      short_link: 'anita',
       name: 'Ana',
       card_name: 'Ana',
       role: 'Artista oficial',

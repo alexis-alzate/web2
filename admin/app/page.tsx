@@ -636,6 +636,11 @@ export default async function DashboardPage() {
                   Slug
                   <input name="slug" placeholder="siervo-jhon" />
                 </label>
+                <label className="span-2">
+                  Enlace corto (opcional)
+                  <input name="shortLink" placeholder="jhon" maxLength={30} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+                  <small>Queda como lujourban.com/jhon y lleva a su página. Para la bio de Instagram o TikTok.</small>
+                </label>
                 <label>
                   Nombre tarjeta
                   <input name="cardName" placeholder="El Siervo Jhon" />
@@ -974,6 +979,15 @@ export default async function DashboardPage() {
                             <label>
                               Slug
                               <input name="slug" defaultValue={artist.slug} />
+                            </label>
+                            <label>
+                              Enlace corto
+                              <input name="shortLink" defaultValue={artist.shortLink || ''} placeholder="julian" maxLength={30} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+                              <small>
+                                {artist.shortLink
+                                  ? `Activo: lujourban.com/${artist.shortLink}. Déjalo vacío para quitarlo.`
+                                  : 'Opcional. Queda como lujourban.com/nombre y lleva a su página.'}
+                              </small>
                             </label>
                             <label>
                               Nombre tarjeta

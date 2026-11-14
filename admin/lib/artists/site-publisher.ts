@@ -18,6 +18,7 @@ import {
   type VisionCatalogEntry
 } from '@/lib/artist-renderer';
 import { PublishError } from '@/lib/errors';
+import { withShortLinkRedirects } from './short-link';
 import type { PublishFile, PublishOptions, Roster, SitePublisher } from './types';
 
 export interface GithubPort {
@@ -62,9 +63,12 @@ export class GithubSitePublisher implements SitePublisher {
   // solo commit. Es idempotente: publicar dos veces lo mismo no cambia nada.
   async publishRoster(roster: Roster, options: PublishOptions): Promise<void> {
     try {
-      const [sitemap, vision] = await Promise.all([
+      const [sitemap, vision, vercelConfig] = await Promise.all([
         this.github.readFile('sitemap.xml'),
-        this.loadVisionInputs(roster.history)
+        this.loadVisionInputs(roster.history),
+        // Enlaces cortos: se regeneran aqui las redirecciones del sitio,
+        // conservando cualquier otra configuracion que tenga vercel.json.
+        this.github.readJson<unknown>('vercel.json', {})
       ]);
 
       const deletes = [
@@ -75,6 +79,10 @@ export class GithubSitePublisher implements SitePublisher {
       await this.github.commitFiles([
         ...buildArtistFiles(roster.data, sitemap, vision),
         { path: 'artist-release-history.json', content: `${JSON.stringify(roster.history, null, 2)}\n` },
+        {
+          path: 'vercel.json',
+          content: `${JSON.stringify(withShortLinkRedirects(vercelConfig, roster.data.artists), null, 2)}\n`
+        },
         ...(options.extraFiles ?? [])
       ], options.message, { deletes });
     } catch (error) {
