@@ -366,6 +366,13 @@ beats o no (sin beats muestra "Los primeros beats están por llegar").
   caminos de creación (formulario del panel y aprobación de solicitudes) sin
   repetir la regla en código. El slug **no cambia** si después se edita el
   nombre: es la dirección que el productor comparte.
+- **Diseño de la página**: cabecera con portada, avatar con iniciales, nombre, cantidad de beats,
+  sello "Aprobado por Lujo Urban" y botón de compartir (`components/producer-store/`:
+  `ProducerStoreHero`, `ShareStoreButton`, `ProducerStoreEmpty`; reciben todo por props). Con
+  beats sigue el `BeatCatalog`; sin beats muestra "Los primeros beats llegan pronto" y las
+  licencias (`LICENSE_LABELS`). **No enlaza al catálogo general**: la tienda es del productor.
+  Oculta el banner genérico de Lujo Urban con `body:has(.pstore-page)`. Márgenes laterales
+  iguales a los del catálogo (12 px en celular).
 - **Página** (`tienda/app/productor/[slug]/page.tsx`): lee la ficha con
   `getProducerBySlug` (`tienda/lib/producers.ts`) y los beats con el cliente
   anónimo filtrando por `producer_id`. `producers` tiene RLS sin políticas

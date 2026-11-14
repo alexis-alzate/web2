@@ -3789,80 +3789,195 @@ body:has(.descarga-page) .tienda-frame {
   }
 }
 
-/* ===== TIENDA DE UN PRODUCTOR (/productor/[slug]) ===== */
+/* ===== TIENDA DE UN PRODUCTOR (/productor/[slug]) =====
+   Aqui manda la tienda del productor: se oculta el banner generico de Lujo
+   Urban (igual que en /descarga). Medidas fijas; nada cambia de tamano al
+   pasar el cursor. */
+body:has(.pstore-page) .marketplace-top {
+  display: none;
+}
+
 .pstore-hero {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 28px 18px 8px;
+  padding: 18px 18px 6px;
+}
+.pstore-cover {
+  height: 124px;
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 12% 0%, rgba(var(--t-gold-rgb), 0.34), transparent 58%),
+    radial-gradient(90% 120% at 100% 100%, rgba(var(--t-gold-rgb), 0.16), transparent 62%),
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 14px),
+    #15120c;
+  box-shadow: inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.22);
+}
+.pstore-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+  margin-top: -40px;
+  padding: 0 14px;
 }
 .pstore-avatar {
   display: flex;
-  flex: 0 0 64px;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
-  background: rgba(var(--t-gold-rgb), 0.12);
-  box-shadow: inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.45);
+  background: #1d1810;
+  box-shadow:
+    0 0 0 4px var(--t-bg),
+    inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.6);
   color: var(--t-gold);
-  font-size: 1.35rem;
-  font-weight: 600;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 2.3rem;
   letter-spacing: 1px;
 }
-.pstore-id { min-width: 0; }
-.pstore-kicker {
-  margin: 0 0 4px;
+.pstore-id {
+  min-width: 0;
+  padding-bottom: 4px;
+}
+.pstore-name {
+  margin: 0;
+  font-family: var(--font-bebas), sans-serif;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+.pstore-sub {
+  margin: 6px 0 0;
+  color: var(--t-muted);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+.pstore-share-wrap {
+  position: relative;
+  align-self: end;
+  margin-bottom: 4px;
+}
+.pstore-share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  color: var(--t-text);
+  cursor: pointer;
+  transition: background .18s var(--t-ease), box-shadow .18s var(--t-ease), color .18s var(--t-ease);
+}
+.pstore-share svg {
+  width: 20px;
+  height: 20px;
+}
+.pstore-share:hover {
+  background: rgba(var(--t-gold-rgb), 0.12);
+  box-shadow: inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.55);
   color: var(--t-gold);
-  font-size: 0.72rem;
+}
+.pstore-share:focus-visible {
+  outline: 2px solid var(--t-gold);
+  outline-offset: 3px;
+}
+.pstore-share-note {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  white-space: nowrap;
+  color: var(--t-gold);
+  font-size: 0.74rem;
+  pointer-events: none;
+}
+.pstore-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 14px 0;
+  color: rgba(var(--t-gold-rgb), 0.95);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pstore-badge-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+
+.pstore-soon {
+  margin: 26px 18px 0;
+  padding: 34px 22px 32px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(var(--t-gold-rgb), 0.06), rgba(255, 255, 255, 0.015));
+  box-shadow: inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.18);
+  text-align: center;
+}
+.pstore-wave {
+  display: block;
+  width: 132px;
+  height: 56px;
+  margin: 0 auto 20px;
+  fill: rgba(var(--t-gold-rgb), 0.55);
+}
+.pstore-soon-title {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.pstore-soon-copy {
+  margin: 0 auto;
+  max-width: 440px;
+  color: var(--t-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.pstore-licenses {
+  margin: 30px 18px 26px;
+}
+.pstore-section-title {
+  margin: 0 0 6px;
+  color: var(--t-gold);
+  font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
-.pstore-name {
+.pstore-license-list {
   margin: 0;
-  font-size: clamp(1.6rem, 6vw, 2.2rem);
-  font-weight: 600;
-  line-height: 1.1;
-  overflow-wrap: anywhere;
+  padding: 0;
+  list-style: none;
 }
-.pstore-count {
-  margin: 6px 0 0;
+.pstore-license {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 16px;
+  min-height: 56px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pstore-license:last-child {
+  border-bottom: 0;
+}
+.pstore-license strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.pstore-license span {
   color: var(--t-muted);
   font-size: 0.9rem;
 }
-.pstore-empty {
-  margin: 24px 18px;
-  padding: 36px 24px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  box-shadow: inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.22);
-  text-align: center;
-}
-.pstore-empty-title {
-  margin: 0 0 10px;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-.pstore-empty-copy {
-  margin: 0 auto 20px;
-  max-width: 420px;
-  color: var(--t-muted);
-  line-height: 1.55;
-}
-.pstore-empty-link {
-  display: inline-flex;
-  align-items: center;
-  height: 44px;
-  padding: 0 22px;
-  border-radius: 999px;
-  background: var(--t-gold);
-  color: #1a1206;
-  font-weight: 600;
-  text-decoration: none;
-}
-.pstore-empty-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
 /* "Prod. by X" enlazado a la tienda del productor. Mismo color y tamaño que el
    texto plano; solo cambia el subrayado, que ya existe (transparente), para que
@@ -3883,4 +3998,11 @@ body:has(.descarga-page) .tienda-frame {
   outline: 2px solid rgba(var(--t-gold-rgb), 0.7);
   outline-offset: 3px;
   border-radius: 2px;
+}
+
+/* Mismos margenes laterales que el catalogo en celular (12 px). */
+@media (max-width: 540px) {
+  .pstore-hero { padding: 12px 12px 6px; }
+  .pstore-soon { margin: 22px 12px 0; }
+  .pstore-licenses { margin: 26px 12px 22px; }
 }
