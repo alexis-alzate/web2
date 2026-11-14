@@ -150,6 +150,13 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   - `PortalImageField` reduce las imágenes en el navegador (máx. 1400 px, JPG)
     antes de subirlas; el servidor igual valida tipo y peso.
   - La cuenta de prueba valida lo mismo pero no guarda imágenes.
+- Estadísticas del artista en el portal (`lib/artist-stats.ts` +
+  `PortalStats`): visitas, escuchas y compartidos de los últimos 30 días, las
+  visitas por día y de dónde llegan. Salen de `release_events` filtrando por
+  el `artist_slug` de la sesión (nunca del navegador). `summarizeArtistStats`
+  es pura y tiene pruebas. La página pública registra como máximo una visita
+  y una acción por navegador, lanzamiento y día, así que son "personas", no
+  clics totales. Los clics a cada red social todavía no se guardan en la base.
 - Pendiente: vincular usuarios por `artist_access` en lugar de
   `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
   que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug
