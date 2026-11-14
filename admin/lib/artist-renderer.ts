@@ -227,6 +227,60 @@ const trackingBodyScript = `<script>
     }
   };
 
+  // Clics en los enlaces del artista (Spotify, Instagram...). Se guarda como
+  // maximo uno por navegador, por enlace y por dia, sin importar si se toco
+  // el boton de arriba o el de la cuadricula: son personas, no clics totales.
+  const linkClickEndpoint = 'https://admin.lujourban.com/api/analytics/link-click';
+  const linkClicksSent = new Set();
+
+  const sendLinkClick = (artistSlug, linkKey, placement) => {
+    if (!artistSlug || !linkKey) return;
+    if (isReleaseAnalyticsOwner()) return;
+
+    const persistentKey = 'lu_link_click:' + artistSlug + ':' + linkKey + ':' + analyticsBogotaDateKey();
+
+    try {
+      if (window.localStorage.getItem(persistentKey)) return;
+    } catch {
+      // Tracking still works when localStorage is unavailable.
+    }
+
+    const key = artistSlug + ':' + linkKey;
+    if (linkClicksSent.has(key)) return;
+    linkClicksSent.add(key);
+
+    try {
+      window.fetch(linkClickEndpoint, {
+        method: 'POST',
+        mode: 'cors',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          artist_slug: artistSlug,
+          link_key: linkKey,
+          placement: placement === 'hero' ? 'hero' : 'grid',
+          device_type: detectAnalyticsDevice()
+        })
+      }).then(response => {
+        if (!response.ok) {
+          linkClicksSent.delete(key);
+          return;
+        }
+        try {
+          window.localStorage.setItem(persistentKey, '1');
+        } catch {
+          // Analytics must never block the artist profile.
+        }
+      }).catch(() => {
+        linkClicksSent.delete(key);
+      });
+    } catch {
+      // Analytics must never block the artist profile.
+    }
+  };
+
   const trackedOnce = new Set();
   const trackEvent = (eventName, params = {}, once = false) => {
     const key = eventName + ':' + (params.label || params.section || params.content_name || '');
@@ -274,6 +328,12 @@ const trackingBodyScript = `<script>
         content_name: element.dataset.trackContent || element.textContent.trim(),
         destination: element.href || ''
       });
+    });
+  });
+
+  document.querySelectorAll('[data-artist-link]').forEach(link => {
+    link.addEventListener('click', () => {
+      sendLinkClick(link.dataset.artistSlug || '', link.dataset.artistLink || '', link.dataset.linkPlace || '');
     });
   });
 
@@ -395,7 +455,7 @@ const renderSocialGrid = (artist: Artist) => {
   return `<div class="divider"></div>
 <section class="fade-up" data-view-event="artista_${eventSlug}_redes_vista" data-view-label="artist_social_grid">
   <div class="social-grid">
-${items.map(key => `    <a href="${escapeHtml(artist.links?.[key] || '')}" target="_blank" rel="noopener" class="social-item" data-track-event="artista_${eventSlug}_${key}_click" data-track-label="artist_${key}">
+${items.map(key => `    <a href="${escapeHtml(artist.links?.[key] || '')}" target="_blank" rel="noopener" class="social-item" data-artist-link="${key}" data-link-place="grid" data-artist-slug="${escapeHtml(artist.slug)}" data-track-event="artista_${eventSlug}_${key}_click" data-track-label="artist_${key}">
       ${svg[key] || ''}
       ${SOCIAL_LABELS[key] || key}
     </a>`).join('\n')}
@@ -420,7 +480,7 @@ const heroButtons = (artist: Artist) => {
     );
     const label = slot === 'primary' && key === 'spotify' ? 'Escucha ahora' : SOCIAL_LABELS[key];
 
-    return [`<a href="${escapeHtml(artist.links[key])}" target="_blank" rel="noopener" class="${className}" data-track-event="artista_${eventSlug}_hero_${key}_click" data-track-label="artist_hero_${key}">
+    return [`<a href="${escapeHtml(artist.links[key])}" target="_blank" rel="noopener" class="${className}" data-artist-link="${key}" data-link-place="hero" data-artist-slug="${escapeHtml(artist.slug)}" data-track-event="artista_${eventSlug}_hero_${key}_click" data-track-label="artist_hero_${key}">
       ${icon}
       ${label}
     </a>`];

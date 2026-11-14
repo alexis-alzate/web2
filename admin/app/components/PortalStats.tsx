@@ -4,8 +4,8 @@ import { useState } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
 import type { ArtistStats } from '@/lib/artist-stats';
 
-// Estadisticas del artista en su portal: tres cifras, las visitas por dia y
-// de donde llegan. Todo con alturas fijas: tocar una barra solo cambia el
+// Estadisticas del artista en su portal: tres cifras, las visitas por dia,
+// de donde llegan y que enlaces tocan. Todo con alturas fijas: tocar una barra solo cambia el
 // texto de la linea de lectura, nunca el tamano de la tarjeta.
 
 type PortalStatsProps = {
@@ -37,6 +37,7 @@ export function PortalStats({ stats, isTestAccount = false }: PortalStatsProps) 
   const days = stats.daily;
   const maxVisitors = Math.max(1, ...days.map(day => day.visitors));
   const maxSource = Math.max(1, ...stats.sources.map(source => source.visitors));
+  const maxLink = Math.max(1, ...stats.links.map(link => link.clicks));
   const activeDay = activeIndex === null ? null : days[activeIndex];
 
   const indexFromPointer = (event: PointerEvent<HTMLDivElement>) => {
@@ -157,9 +158,34 @@ export function PortalStats({ stats, isTestAccount = false }: PortalStatsProps) 
         </div>
       ) : null}
 
+      <div className="portal-stats-block">
+        <div className="portal-stats-block-heading">
+          <h3>Qué enlaces tocan</h3>
+        </div>
+        {stats.links.length ? (
+          <ul className="portal-stats-sources">
+            {stats.links.map(link => (
+              <li key={link.key}>
+                <span>{link.label}</span>
+                <span className="portal-stats-source-track" aria-hidden="true">
+                  <span style={{ width: `${Math.max(2, (link.clicks / maxLink) * 100)}%` }} />
+                </span>
+                <b>{formatNumber(link.clicks)}</b>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="portal-stats-block-empty">
+            Todavía nadie ha tocado tus enlaces en estos {stats.periodDays} días. Aquí vas a ver cuántas
+            personas salen de tu página hacia Spotify, Instagram y tus otras redes.
+          </p>
+        )}
+      </div>
+
       <p className="portal-stats-note">
-        Contamos una visita por persona y por día. «Antes» son los {stats.periodDays} días anteriores.
-        Quien llega desde WhatsApp suele aparecer como enlace directo.
+        Contamos una visita por persona y por día, y un toque por persona, enlace y día.
+        «Antes» son los {stats.periodDays} días anteriores. Quien llega desde WhatsApp suele
+        aparecer como enlace directo.
       </p>
     </section>
   );

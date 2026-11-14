@@ -12,6 +12,7 @@
 // probarla sin Supabase.
 
 import { createAnalyticsSupabaseClient } from '@/lib/analytics';
+import { summarizeLinkClicks, type ArtistLinkStat, type LinkClickStatsRow } from '@/lib/link-clicks';
 
 export const STATS_PERIOD_DAYS = 30;
 
@@ -47,6 +48,9 @@ export type ArtistStats = {
   previous: { visitors: number; listens: number; shares: number };
   daily: ArtistDailyStat[];
   sources: ArtistSourceStat[];
+  // Personas que tocaron cada enlace (Spotify, Instagram...) en el periodo.
+  // Vacio si nadie toco nada o si esa lectura fallo: nunca tumba la tarjeta.
+  links: ArtistLinkStat[];
   hasData: boolean;
   // true = no se pudieron leer; la pagina muestra un aviso y sigue funcionando.
   failed: boolean;
@@ -128,7 +132,11 @@ const emptyCounts = () => ({ visitors: 0, listens: 0, shares: 0 });
 export const emptyArtistStats = (now: Date = new Date(), failed = false): ArtistStats =>
   ({ ...summarizeArtistStats([], now), failed });
 
-export const summarizeArtistStats = (rows: ArtistStatsRow[], now: Date = new Date()): ArtistStats => {
+export const summarizeArtistStats = (
+  rows: ArtistStatsRow[],
+  now: Date = new Date(),
+  linkRows: LinkClickStatsRow[] = []
+): ArtistStats => {
   const daily = new Map<string, ArtistDailyStat>();
   for (let offset = STATS_PERIOD_DAYS - 1; offset >= 0; offset--) {
     const date = bogotaDateKey(new Date(now.getTime() - offset * DAY_MS));
@@ -174,15 +182,41 @@ export const summarizeArtistStats = (rows: ArtistStatsRow[], now: Date = new Dat
   const rest = ranked.slice(MAX_SOURCES).reduce((sum, [, count]) => sum + count, 0) + (sources.get('other') ?? 0);
   if (rest > 0) shown.push(['other', rest]);
 
+  // Los clics usan los mismos 30 dias de calendario (hora de Bogota) que la
+  // grafica: desde la medianoche del primer dia mostrado.
+  const firstDay = daily.keys().next().value as string;
+  const links = summarizeLinkClicks(linkRows, new Date(`${firstDay}T00:00:00-05:00`), now);
+
   return {
     periodDays: STATS_PERIOD_DAYS,
     ...current,
     previous,
     daily: Array.from(daily.values()),
     sources: shown.map(([key, visitors]) => ({ key, label: SOURCE_LABELS[key] ?? key, visitors })),
-    hasData: current.visitors + current.listens + current.shares > 0,
+    links,
+    hasData: current.visitors + current.listens + current.shares + links.length > 0,
     failed: false
   };
+};
+
+// Los clics por enlace viven en otra tabla (migracion 019). Si esa lectura
+// falla (por ejemplo, la migracion aun no se ha corrido) se devuelve vacio:
+// el resto de la tarjeta sigue funcionando.
+const readLinkClicks = async (artistSlug: string, since: Date): Promise<LinkClickStatsRow[]> => {
+  try {
+    const { data, error } = await createAnalyticsSupabaseClient()
+      .from('artist_link_clicks')
+      .select('link_key,created_at')
+      .eq('artist_slug', artistSlug)
+      .gte('created_at', since.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(20000);
+    if (error) throw error;
+    return (data ?? []) as LinkClickStatsRow[];
+  } catch (error) {
+    console.error('[artist-stats] No se pudieron leer los clics por enlace', error);
+    return [];
+  }
 };
 
 // Lee los eventos de UN artista. El slug viene siempre de la sesion (nunca
@@ -190,16 +224,20 @@ export const summarizeArtistStats = (rows: ArtistStatsRow[], now: Date = new Dat
 export const getArtistStats = async (artistSlug: string, now: Date = new Date()): Promise<ArtistStats> => {
   try {
     const since = new Date(now.getTime() - (STATS_PERIOD_DAYS * 2 + 1) * DAY_MS);
-    const { data, error } = await createAnalyticsSupabaseClient()
-      .from('release_events')
-      .select('event_type,referrer,source_url,created_at')
-      .eq('artist_slug', artistSlug)
-      .gte('created_at', since.toISOString())
-      .order('created_at', { ascending: false })
-      .limit(20000);
-    if (error) throw error;
+    const linksSince = new Date(now.getTime() - (STATS_PERIOD_DAYS + 1) * DAY_MS);
+    const [events, linkRows] = await Promise.all([
+      createAnalyticsSupabaseClient()
+        .from('release_events')
+        .select('event_type,referrer,source_url,created_at')
+        .eq('artist_slug', artistSlug)
+        .gte('created_at', since.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(20000),
+      readLinkClicks(artistSlug, linksSince)
+    ]);
+    if (events.error) throw events.error;
 
-    return summarizeArtistStats((data ?? []) as ArtistStatsRow[], now);
+    return summarizeArtistStats((events.data ?? []) as ArtistStatsRow[], now, linkRows);
   } catch (error) {
     console.error('[artist-stats] No se pudieron leer las estadisticas', error);
     return emptyArtistStats(now, true);
