@@ -3507,6 +3507,210 @@ input[type="file"]::file-selector-button:hover {
   gap: 13px;
 }
 
+/* Portal del artista: estadisticas. Una sola serie en el verde de la marca;
+   los textos usan los colores de texto, nunca el de la serie. */
+.portal-stats {
+  margin-top: 14px;
+}
+
+.portal-stats .artist-portal-card-heading > span svg {
+  display: block;
+}
+
+.portal-stats-empty {
+  margin: 0;
+}
+
+.portal-stats-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.portal-stats-tile {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 12px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .28);
+}
+
+/* Sin mayusculas ni espaciado: "Compartieron" tiene que caber entero en un
+   celular de 360 px. */
+.portal-stats-tile span {
+  color: var(--muted);
+  font-size: .72rem;
+  white-space: nowrap;
+}
+
+.portal-stats-tile strong {
+  color: var(--text);
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+
+.portal-stats-tile small {
+  color: rgba(255, 255, 255, .45);
+  font-size: .68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.portal-stats-block {
+  margin-top: 20px;
+}
+
+.portal-stats-block-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 20px;
+  margin-bottom: 10px;
+}
+
+.portal-stats-block-heading h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: .84rem;
+}
+
+.portal-stats-block-heading span {
+  color: var(--muted);
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.portal-stats-plot {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 104px;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 4px 4px 0 0;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.portal-stats-plot:focus-visible {
+  outline: 2px solid rgba(57, 255, 99, .85);
+  outline-offset: 4px;
+}
+
+.portal-stats-bar-slot {
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  min-width: 0;
+  border-radius: 4px 4px 0 0;
+  transition: background .15s ease;
+}
+
+.portal-stats-bar-slot.is-active {
+  background: rgba(255, 255, 255, .07);
+}
+
+.portal-stats-bar {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  background: var(--green);
+  opacity: .72;
+  transition: opacity .15s ease;
+}
+
+.portal-stats-bar.is-zero {
+  height: 2px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, .16);
+  opacity: 1;
+}
+
+.portal-stats-bar-slot.is-active .portal-stats-bar:not(.is-zero) {
+  opacity: 1;
+}
+
+.portal-stats-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, .45);
+  font-size: .66rem;
+}
+
+/* La misma serie como tabla, solo para lectores de pantalla. */
+.portal-stats-table {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.portal-stats-sources {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-stats-sources li {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 34px;
+  gap: 10px;
+  align-items: center;
+  color: var(--text);
+  font-size: .78rem;
+}
+
+.portal-stats-sources li > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-stats-source-track {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .06);
+}
+
+.portal-stats-source-track span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--green);
+  opacity: .72;
+}
+
+.portal-stats-sources b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+}
+
+.portal-stats-block-empty {
+  margin: 0;
+  color: rgba(255, 255, 255, .62);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.portal-stats-note {
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, .45);
+  font-size: .7rem;
+  line-height: 1.5;
+}
+
 /* Portal del artista: imagenes y lanzamiento. Las cajas de vista previa y
    la linea de estado tienen tamano fijo para que nada se mueva al elegir. */
 .portal-image-field {
@@ -3811,6 +4015,14 @@ label .portal-image-status.is-error {
 
   .artist-portal-card {
     padding: 16px 13px;
+  }
+
+  .portal-stats-tiles {
+    gap: 8px;
+  }
+
+  .portal-stats-tile {
+    padding: 12px 10px;
   }
 
   .portal-image-field {

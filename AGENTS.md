@@ -32,7 +32,7 @@ web2/
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..018, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..019, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
@@ -150,6 +150,22 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
   - `PortalImageField` reduce las imágenes en el navegador (máx. 1400 px, JPG)
     antes de subirlas; el servidor igual valida tipo y peso.
   - La cuenta de prueba valida lo mismo pero no guarda imágenes.
+- Estadísticas del artista en el portal (`lib/artist-stats.ts` +
+  `PortalStats`): visitas, escuchas y compartidos de los últimos 30 días, las
+  visitas por día y de dónde llegan. Salen de `release_events` filtrando por
+  el `artist_slug` de la sesión (nunca del navegador). `summarizeArtistStats`
+  es pura y tiene pruebas. La página pública registra como máximo una visita
+  y una acción por navegador, lanzamiento y día, así que son "personas", no
+  clics totales.
+- Clics por enlace (migración 019, tabla `artist_link_clicks`): la página
+  pública avisa a `admin/app/api/analytics/link-click/route.ts` cuando alguien
+  toca Spotify, Instagram, etc. (botones de arriba o cuadrícula; atributos
+  `data-artist-link`). Máximo un clic por navegador, enlace y día. Es un
+  endpoint **público** con las mismas reglas que el de la lista de espera:
+  Origin permitido, solo valores de listas cerradas (`lib/link-clicks.ts`),
+  llave foránea a `artists(slug)`, sin mensajes internos de la base. No tiene
+  tope por hora. Si la tabla no existe o la lectura falla, la tarjeta se
+  muestra igual, sin ese bloque de datos.
 - Pendiente: vincular usuarios por `artist_access` en lugar de
   `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
   que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug
@@ -269,7 +285,7 @@ npm test            # corre todas las pruebas una vez (vitest run)
 npm run test:watch  # modo observador mientras se programa
 ```
 
-Cubren la lista de espera (`waitlist.ts`) y la capa de artistas: `errors.ts`, `safeAction`, `ArtistService`
+Cubren la lista de espera (`waitlist.ts`), los clics por enlace (`link-clicks.ts`) y la capa de artistas: `errors.ts`, `safeAction`, `ArtistService`
 (reglas y orden de operaciones), `SupabaseArtistRepository` (traducción de
 errores de Postgres), `commitFiles` (borrado y reintento en 422) y
 `GithubSitePublisher`. Todo corre con dobles en memoria (`tests/helpers.ts`,

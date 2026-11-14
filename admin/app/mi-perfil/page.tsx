@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentAccess } from '@/lib/auth';
 import { artistService } from '@/lib/artists';
+import { emptyArtistStats, getArtistStats } from '@/lib/artist-stats';
 import { SOCIAL_KEYS, SOCIAL_LABELS, resolveHeroButtons } from '@/lib/socials';
 import { readTestArtist, TEST_ARTIST_SLUG } from '@/lib/test-artist';
 import { ActionForm } from '../components/ActionForm';
@@ -8,6 +9,7 @@ import { MAX_RELEASE_TITLE_LENGTH } from '@/lib/artists';
 import { AutoLogoutTimer } from '../components/AutoLogoutTimer';
 import { PortalActivityTracker } from '../components/PortalActivityTracker';
 import { PortalImageField } from '../components/PortalImageField';
+import { PortalStats } from '../components/PortalStats';
 import { SocialOrderEditor } from '../components/SocialOrderEditor';
 import { SubmitButton } from '../components/SubmitButton';
 import { saveOwnArtistPortalAction } from '../artist-portal-actions';
@@ -87,6 +89,8 @@ export default async function ArtistPortalPage() {
   }
 
   const resolvedHeroButtons = resolveHeroButtons(artist.links, artist.heroButtons);
+  // El slug sale de la sesion: un artista solo puede ver sus propios numeros.
+  const stats = isTestAccount ? emptyArtistStats() : await getArtistStats(artist.slug);
   const siteUrl = (path?: string) => path ? `https://www.lujourban.com/${path}` : '';
   // Cuando cambia el lanzamiento o la foto, estos bloques se montan de nuevo
   // y los campos de "musica nueva" y de imagen vuelven a quedar vacios.
@@ -130,6 +134,8 @@ export default async function ArtistPortalPage() {
           </a>
         )}
       </section>
+
+      <PortalStats stats={stats} isTestAccount={isTestAccount} />
 
       <ActionForm
         action={saveOwnArtistPortalAction}
