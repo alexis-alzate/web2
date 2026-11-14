@@ -77,7 +77,7 @@ export class GithubSitePublisher implements SitePublisher {
       ];
 
       await this.github.commitFiles([
-        ...buildArtistFiles(roster.data, sitemap, vision),
+        ...buildArtistFiles(roster.data, sitemap, vision, roster.history.artists),
         { path: 'artist-release-history.json', content: `${JSON.stringify(roster.history, null, 2)}\n` },
         {
           path: 'vercel.json',

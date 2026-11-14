@@ -1757,3 +1757,141 @@ select.join-input option { color: #fff; background: #141414; }
 @media (prefers-reduced-motion: reduce) {
   .artist-join-link, .join-input, .join-submit, .join-back { transition: none; }
 }
+
+/* ===== MÁS MÚSICA: lanzamientos anteriores del artista =====
+   Lista tipo tracklist, a propósito más discreta que "Último lanzamiento":
+   el estreno es el protagonista y esto es su continuación. Las filas tienen
+   alto fijo; al pasar el cursor solo cambian color y la flecha (transform),
+   nunca el tamaño. */
+.more-music {
+  padding-top: 6px;
+  padding-bottom: 26px;
+}
+
+.more-music-label {
+  margin: 0 0 14px;
+  color: var(--green);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.more-music-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: 1px solid rgba(57,255,99,.10);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #090909, #020202);
+}
+
+.more-music-list li + li {
+  border-top: 1px solid rgba(255,255,255,.055);
+}
+
+.more-music-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 14px;
+  height: 80px;
+  padding: 0 18px 0 12px;
+  color: #fff;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .18s ease;
+}
+
+.more-music-cover {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #0d0d0d;
+  box-shadow: 0 8px 20px rgba(0,0,0,.55);
+}
+
+.more-music-cover-empty {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(57,255,99,.16);
+  color: var(--green);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.more-music-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+/* Hasta dos lineas: un titulo largo se lee completo y la fila no crece. */
+.more-music-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 1.1px;
+  line-height: 1.08;
+  padding: .08em 0 .06em;
+  overflow-wrap: anywhere;
+}
+
+.more-music-action {
+  color: rgba(255,255,255,.62);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: .64rem;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: color .18s ease;
+}
+
+.more-music-arrow {
+  color: rgba(255,255,255,.42);
+  transition: color .18s ease, transform .18s ease;
+}
+
+@media (hover: hover) {
+  .more-music-row:hover {
+    background-color: rgba(57,255,99,.045);
+  }
+
+  .more-music-row:hover .more-music-action,
+  .more-music-row:hover .more-music-arrow {
+    color: var(--green);
+  }
+
+  .more-music-row:hover .more-music-arrow {
+    transform: translate(2px, -2px);
+  }
+}
+
+.more-music-row:active {
+  background-color: rgba(57,255,99,.07);
+}
+
+.more-music-row:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: -3px;
+  border-radius: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .more-music-row,
+  .more-music-action,
+  .more-music-arrow {
+    transition: none;
+  }
+}

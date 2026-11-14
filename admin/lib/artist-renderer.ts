@@ -537,6 +537,55 @@ const renderRelease = (artist: Artist) => {
 </section>`;
 };
 
+// "Más música": los lanzamientos anteriores del artista, del mas nuevo al mas
+// viejo, sin el actual (ese ya es el protagonista de la pagina). Es una lista
+// tipo tracklist: discreta, para no competir con el ultimo lanzamiento.
+export const MAX_PAST_RELEASES = 8;
+
+export const pastReleasesOf = (artist: Artist, history: ArtistRelease[] = []): ArtistRelease[] => {
+  const currentSlug = artist.release ? artist.release.slug || slugify(artist.release.title) : '';
+  const seen = new Set<string>(currentSlug ? [currentSlug] : []);
+
+  return [...history].reverse().filter(release => {
+    if (!release?.title || !release?.link) return false;
+    const slug = release.slug || slugify(release.title);
+    if (!slug || seen.has(slug)) return false;
+    seen.add(slug);
+    return true;
+  }).slice(0, MAX_PAST_RELEASES);
+};
+
+const renderMoreMusic = (artist: Artist, history: ArtistRelease[] = []) => {
+  const releases = pastReleasesOf(artist, history);
+  if (!releases.length) return '';
+
+  const eventSlug = trackingSlug(artist);
+  const rows = releases.map(release => {
+    const releaseSlug = release.slug || slugify(release.title);
+    const cover = release.cover
+      ? `<img class="more-music-cover" src="/${escapeHtml(release.cover)}" alt="" width="56" height="56" loading="lazy" decoding="async">`
+      : `<span class="more-music-cover more-music-cover-empty" aria-hidden="true">${escapeHtml(initials(release.title))}</span>`;
+
+    return `    <li>
+      <a href="${escapeHtml(release.link)}" target="_blank" rel="noopener" class="more-music-row" data-artist-release-status data-release-slug="${escapeHtml(releaseSlug)}" data-artist-slug="${escapeHtml(artist.slug)}" data-track-event="artista_${eventSlug}_mas_musica_click" data-track-label="artist_more_music" data-track-content="${escapeHtml(release.title)}">
+        ${cover}
+        <span class="more-music-copy">
+          <span class="more-music-title">${escapeHtml(release.title)}</span>
+          <span class="more-music-action">Escuchar</span>
+        </span>
+        <svg class="more-music-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+      </a>
+    </li>`;
+  }).join('\n');
+
+  return `<section class="fade-up more-music" data-view-event="artista_${eventSlug}_mas_musica_vista" data-view-label="artist_more_music">
+  <h2 class="more-music-label">Más música</h2>
+  <ul class="more-music-list">
+${rows}
+  </ul>
+</section>`;
+};
+
 const renderEmbedSection = (title: string, kicker: string, embed: string | undefined, eventName: string) => {
   if (!embed) return '';
 
@@ -575,7 +624,7 @@ const renderContact = (artist: Artist) => {
 
 // Las rutas a estilos e imagenes empiezan en "/" (no "../../"): la misma
 // pagina se sirve en /artistas/<slug>/ y en su enlace corto (/<nombre>).
-export const renderArtistPage = (artist: Artist) => {
+export const renderArtistPage = (artist: Artist, history: ArtistRelease[] = []) => {
   const eventSlug = trackingSlug(artist);
   return `<!DOCTYPE html>
 <html lang="es">
@@ -618,6 +667,7 @@ ${renderHeroPhoto(artist)}
 </div>
 ${renderSocialGrid(artist)}
 ${renderRelease(artist)}
+${renderMoreMusic(artist, history)}
 ${renderEmbedSection('Beats', 'Catálogo de beats', artist.beatsEmbed, `artista_${eventSlug}_beats_visto`)}
 ${renderEmbedSection('Producciones', 'Producciones destacadas', artist.productionsEmbed, `artista_${eventSlug}_producciones_visto`)}
 ${renderContact(artist)}
@@ -944,13 +994,20 @@ export type VisionBuildInputs = {
   catalog: CasaCatalogConfig;
 };
 
-export const buildArtistFiles = (data: ArtistData, sitemap: string, vision?: VisionBuildInputs) => [
+// `history` = lanzamientos de cada artista por slug (del mas viejo al mas
+// nuevo); alimenta la seccion "Más música" de cada pagina.
+export const buildArtistFiles = (
+  data: ArtistData,
+  sitemap: string,
+  vision?: VisionBuildInputs,
+  history: ArtistReleaseHistory['artists'] = {}
+) => [
   { path: 'artist-data.json', content: `${JSON.stringify(data, null, 2)}\n` },
   { path: 'artistas/index.html', content: renderDirectory(data.artists) },
   { path: 'sitemap.xml', content: updateSitemapContent(sitemap, data.artists) },
   ...data.artists.map(artist => ({
     path: `artistas/${artist.slug}/index.html`,
-    content: renderArtistPage(artist)
+    content: renderArtistPage(artist, history[artist.slug] ?? [])
   })),
   ...(vision ? [{
     path: 'lujourban-vision/index.html',
