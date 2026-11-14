@@ -22,6 +22,13 @@ const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
 
 export type InviteResult = { kind: 'invited' | 'relinked'; email: string };
 
+// Nombre para el administrador del tipo de acceso que ya tiene un correo.
+const roleLabel = (role: unknown): string => {
+  if (role === 'artist') return 'artista';
+  if (role === 'admin') return 'administrador';
+  return 'otro tipo de usuario del panel';
+};
+
 export class ProducerAccessService {
   constructor(
     private readonly producers: Pick<ProducerRepository, 'findById'>,
@@ -53,7 +60,10 @@ export class ProducerAccessService {
     const existing = users.find(user => user.email?.toLowerCase() === email);
     if (existing) {
       if (existing.metadata.lujo_role !== PRODUCER_ROLE) {
-        throw new ConflictError('Ese correo ya pertenece a otra clase de acceso del panel. Usa un correo diferente.');
+        throw new ConflictError(
+          `Ese correo ya tiene acceso como ${roleLabel(existing.metadata.lujo_role)}. ` +
+            'Un correo solo puede tener un tipo de acceso: usa otro correo para el productor.'
+        );
       }
       if (linkedProducerId(existing.metadata)) {
         throw new ConflictError('Ese correo ya está vinculado a otro productor. Desvincúlalo primero.');

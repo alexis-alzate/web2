@@ -64,32 +64,35 @@ export function ProducerApplications({ applications, available }: ProducerApplic
             </p>
           )}
           {ordered.length > 0 && (
-            <ol className="cards">
+            <ol className="cards request-list">
               {ordered.map(item => (
-                <li className="card" key={item.id}>
-                  <div>
+                <li className="card request-card" key={item.id}>
+                  <div className="request-info">
                     <h3>{item.stageName}</h3>
-                    <p className="muted">
-                      {APPLICATION_STATUS_LABELS[item.status]} · {formatDate(item.createdAt)}
+                    <p className="request-meta">
+                      <span className={`request-status request-status-${item.status}`}>
+                        {APPLICATION_STATUS_LABELS[item.status]}
+                      </span>
+                      <span>{formatDate(item.createdAt)}</span>
                     </p>
-                    <p className="muted">
+                    <p className="request-links">
                       <a href={`mailto:${item.email}`}>{item.email}</a>
-                      {' · '}
                       <a href={item.musicUrl} target="_blank" rel="noopener noreferrer">
                         {hostOf(item.musicUrl)}
                       </a>
                     </p>
                   </div>
                   {item.status === 'new' && (
-                    <div className="actions">
+                    <div className="request-actions">
                       <ActionForm
+                        className="request-approve"
                         action={approveProducerApplicationAction}
                         savingMessage="Aprobando y enviando la invitacion..."
                         successMessage="Aprobada. Le enviamos la invitacion."
                       >
                         <input name="id" type="hidden" value={item.id} />
                         <label>
-                          Comision Lujo Urban (%)
+                          Comision (%)
                           <input
                             name="commission"
                             type="number"
@@ -100,15 +103,16 @@ export function ProducerApplications({ applications, available }: ProducerApplic
                             defaultValue={DEFAULT_COMMISSION_PERCENT}
                           />
                         </label>
-                        <SubmitButton pendingText="Aprobando...">Aprobar</SubmitButton>
+                        <SubmitButton className="primary" pendingText="Aprobando...">Aprobar</SubmitButton>
                       </ActionForm>
                       <ActionForm
+                        className="request-reject"
                         action={rejectProducerApplicationAction}
                         savingMessage="Rechazando solicitud..."
                         successMessage="Solicitud rechazada."
                       >
                         <input name="id" type="hidden" value={item.id} />
-                        <SubmitButton pendingText="...">Rechazar</SubmitButton>
+                        <SubmitButton pendingText="Rechazando...">Rechazar</SubmitButton>
                       </ActionForm>
                     </div>
                   )}

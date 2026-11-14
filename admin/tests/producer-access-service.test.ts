@@ -72,6 +72,15 @@ describe('ProducerAccessService.invite', () => {
     await expect(service.invite('prod-1', 'yo@correo.com')).rejects.toBeInstanceOf(ConflictError);
   });
 
+  it('el error dice que tipo de acceso ya tiene el correo', async () => {
+    const { service, directory } = buildAccessService();
+    directory.add({ id: 'a1', email: 'lex@correo.com', metadata: { lujo_role: 'artist' } });
+    directory.add({ id: 'a2', email: 'jefe@correo.com', metadata: { lujo_role: 'admin' } });
+
+    await expect(service.invite('prod-1', 'lex@correo.com')).rejects.toThrow('acceso como artista');
+    await expect(service.invite('prod-1', 'jefe@correo.com')).rejects.toThrow('acceso como administrador');
+  });
+
   it('no usa un correo que ya es de otro productor', async () => {
     const { service, directory } = buildAccessService();
     directory.add({
