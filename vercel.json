@@ -2,12 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
-      "source": "/la-libreta",
+      "source": "/julianramos",
       "destination": "/artistas/la-libreta/",
       "permanent": false
     },
     {
-      "source": "/la-libreta/",
+      "source": "/julianramos/",
       "destination": "/artistas/la-libreta/",
       "permanent": false
     }
