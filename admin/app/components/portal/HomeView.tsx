@@ -5,6 +5,7 @@ import { formatNumber, plural } from '@/lib/portal-format';
 import type { PortalTodo } from '@/lib/portal-todos';
 import { PortalLink } from '../PortalLink';
 import { DailyBars } from './DailyBars';
+import { PortalQr } from './PortalQr';
 
 type HomeViewProps = {
   artist: Artist;
@@ -60,6 +61,7 @@ export function HomeView({ artist, stats, todos, publicUrl, coverUrl, isTestAcco
       </section>
 
       {isTestAccount ? null : <PortalLink url={publicUrl} isShort={Boolean(artist.shortLink)} />}
+      {isTestAccount ? null : <PortalQr isShort={Boolean(artist.shortLink)} />}
 
       {todos.length ? (
         <section className="pt-block">

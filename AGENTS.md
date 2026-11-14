@@ -143,9 +143,10 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
 - Subidas de imagen: solo JPG/PNG/WebP de hasta 5 MB (`lib/artists/images.ts`).
 - Portal del artista (`/mi-perfil`): es lo que ve el cliente. Tiene cuatro
   pantallas con navegación fija (abajo en celular, arriba en computador):
-  - **Inicio** (`/mi-perfil`): visitas del mes, su enlace para copiar, la
-    lista "Por hacer" (`lib/portal-todos.ts`: foto, portada, enlaces repetidos
-    entre canciones, redes) y la canción principal.
+  - **Inicio** (`/mi-perfil`): visitas del mes, su enlace para copiar, su
+    código QR para descargar, la lista "Por hacer" (`lib/portal-todos.ts`:
+    foto, portada, enlaces repetidos entre canciones, redes) y la canción
+    principal.
   - **Mi música** (`/mi-perfil/musica`): canción principal, publicar música
     nueva y "Más música". Cada canción se puede **corregir** (nombre, enlace,
     portada), **volver principal** o **borrar** (la principal no se borra).
@@ -177,6 +178,37 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
     antes de subirlas; el servidor igual valida tipo y peso.
   - La cuenta de prueba valida lo mismo pero no guarda imágenes ni puede
     editar canciones anteriores.
+- Código QR del artista (tarjeta "Tu código QR" en Inicio,
+  `components/portal/PortalQr.tsx`): lleva a su enlace público
+  (`publicArtistUrl`: el corto si existe, si no la dirección larga). Capas:
+  - `app/api/portal/qr/route.ts` = controlador delgado. `GET
+    /api/portal/qr?formato=png|svg` (`&descargar=1` lo baja como archivo).
+    El artista sale **siempre de la sesión** (`requireActiveArtist`), nunca de
+    la petición; el proxy no cubre `/api/`, así que la sesión se comprueba en
+    la ruta. La cuenta de prueba no tiene QR (no tiene página pública).
+  - `lib/artist-qr.ts` = reglas puras: formato (`parseQrFormat`), destino
+    permitido (`assertQrTarget`: solo `https` de `lujourban.com` y
+    `www.lujourban.com`), nombre del archivo y `qrPath`.
+  - `lib/qr/renderer.ts` = único que conoce la librería `qrcode` (puerto
+    `QrRenderer`); `lib/qr/index.ts` es su raíz de composición. Dibuja negro
+    sobre blanco, corrección de errores Q y margen de 4 módulos: no invertir
+    colores ni quitar el margen, las cámaras dejan de leerlo. PNG de 1200 px.
+  - Botón "Copiar QR" (como el QR de Instagram: se copia y se pega la imagen en
+    WhatsApp, etc.): `components/portal/QrCopyButton.tsx` (cliente, solo el
+    estado del botón) + `lib/clipboard-image.ts` (la lógica; recibe el
+    navegador por parámetro y tiene pruebas). Entrega al portapapeles la
+    **promesa** de la imagen, no la imagen, porque Safari exige crear el item
+    dentro del toque del usuario. Necesita HTTPS y un navegador con
+    `ClipboardItem`; si no, el botón lo avisa y quedan las descargas.
+  - Errores de rutas API: `lib/route-error.ts` (`errorResponse`), el hermano de
+    `safeAction` para Route Handlers.
+  - Un QR impreso queda fijo: apunta a la dirección vigente al descargarlo. La
+    dirección larga sigue sirviéndose aunque después se asigne enlace corto,
+    pero si se cambia el slug o el enlace corto de un artista, sus QR ya
+    impresos dejan de funcionar. Conviene asignar el enlace corto **antes** de
+    que imprima.
+  - Pendiente (opcional): contar escaneos añadiendo `?origen=qr` y leyéndolo en
+    la página pública y en `release_events`.
 - Estadísticas del artista en el portal (`lib/artist-stats.ts`): visitas, escuchas y compartidos de los últimos 30 días, las
   visitas por día y de dónde llegan. Salen de `release_events` filtrando por
   el `artist_slug` de la sesión (nunca del navegador). `summarizeArtistStats`
