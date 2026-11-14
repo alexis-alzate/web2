@@ -5,6 +5,7 @@ import { ConflictError, ValidationError } from '@/lib/errors';
 import {
   RESERVED_SHORT_LINKS,
   buildShortLinkRewrites,
+  publicArtistUrl,
   validateShortLink,
   withShortLinkRoutes
 } from '@/lib/artists/short-link';
@@ -141,5 +142,18 @@ describe('withShortLinkRoutes', () => {
   it('es idempotente', () => {
     const first = withShortLinkRoutes({}, artists);
     expect(withShortLinkRoutes(first, artists)).toEqual(first);
+  });
+});
+
+describe('publicArtistUrl', () => {
+  it('usa el enlace corto cuando el artista tiene uno', () => {
+    expect(publicArtistUrl({ slug: 'la-libreta', shortLink: 'julianramos' })).toBe('https://www.lujourban.com/julianramos');
+  });
+
+  it('sin enlace corto (o con uno invalido) usa la direccion larga', () => {
+    expect(publicArtistUrl({ slug: 'ana' })).toBe('https://www.lujourban.com/artistas/ana/');
+    expect(publicArtistUrl({ slug: 'ana', shortLink: null })).toBe('https://www.lujourban.com/artistas/ana/');
+    expect(publicArtistUrl({ slug: 'ana', shortLink: 'artistas' })).toBe('https://www.lujourban.com/artistas/ana/');
+    expect(publicArtistUrl({ slug: 'ana', shortLink: 'a/b' })).toBe('https://www.lujourban.com/artistas/ana/');
   });
 });

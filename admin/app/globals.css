@@ -3507,6 +3507,62 @@ input[type="file"]::file-selector-button:hover {
   gap: 13px;
 }
 
+/* Panel: enlace publico del artista con boton de copiar. El boton tiene
+   ancho fijo; al copiar solo cambia la palabra. */
+.artist-short-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 12px;
+  align-items: center;
+  margin: 4px 0 12px;
+  padding: 10px 10px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .02);
+}
+
+.artist-short-link > span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.artist-short-link small {
+  color: rgba(255, 255, 255, .62);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.artist-short-link strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: .92rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-text-button {
+  width: 104px;
+  min-height: 44px;
+  padding: 10px 0;
+  font-size: .82rem;
+  white-space: nowrap;
+}
+
+/* En celular el boton va debajo para que el enlace se lea completo. */
+@media (max-width: 520px) {
+  .artist-short-link {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+  }
+
+  .artist-short-link .copy-text-button {
+    width: 100%;
+  }
+}
+
 /* Portal del artista: "Tu enlace". El boton tiene ancho fijo para que al
    copiar solo cambie el texto. */
 .portal-link {

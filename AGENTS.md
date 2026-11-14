@@ -185,7 +185,10 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
     No editarlo a mano sin validar; las reglas de enlaces cortos no se editan
     a mano (el siguiente guardado las reescribe).
   El artista ve su enlace con un botón de copiar en el portal (`PortalLink`),
-  pero solo el admin puede cambiarlo.
+  pero solo el admin puede cambiarlo. En el panel cada artista muestra su
+  enlace con botón de copiar (`CopyTextButton`). `publicArtistUrl` decide la
+  dirección que se muestra, se copia y abren los botones "Ver perfil": la
+  corta si existe, si no la larga.
 - "Más música" en la página pública: debajo de "Último lanzamiento" se
   listan los lanzamientos anteriores del artista (`renderMoreMusic` y
   `pastReleasesOf` en `artist-renderer.ts`), del más nuevo al más viejo, sin
