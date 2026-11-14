@@ -10,6 +10,7 @@ import { useCart } from '../providers/CartProvider';
 import { CartIcon, CheckIcon, PlayIcon, PauseIcon, SpectrumModeIcon } from './Icons';
 import AudioWaveform from './AudioWaveform';
 import LicensePickerModal from './LicensePickerModal';
+import ProducerName from './ProducerName';
 
 export default function FeaturedBeat({ beat }: { beat: Beat }) {
   const { track, isPlaying, progress, toggle, togglePlayPause, seekToPercent, getSpectrumSnapshot, spectrumMode, toggleSpectrumMode } = usePlayer();
@@ -25,6 +26,7 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
   const displayTitle = track?.title ?? beat.title;
   const displayGenre = track?.genre ?? beat.genre;
   const displayProducer = track?.producer ?? beat.producer;
+  const displayProducerSlug = track ? track.producerSlug : beat.producer_slug;
   const displayBpm = track?.bpm ?? beat.bpm;
   const displayKey = track?.key ?? beat.key;
   const displayPrice = track?.price ?? beat.price_basic;
@@ -78,7 +80,8 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
       priceExclusive: beat.price_exclusive,
       bpm: beat.bpm,
       key: beat.key,
-      producer: beat.producer
+      producer: beat.producer,
+      producerSlug: beat.producer_slug
     });
   };
 
@@ -139,7 +142,9 @@ export default function FeaturedBeat({ beat }: { beat: Beat }) {
           <span className="featured-eyebrow">Beat destacado</span>
           <Link href={`/${displaySlug}`} className="featured-title">{displayTitle}</Link>
           {displayProducer && (
-            <span className="featured-producer">Prod. by {displayProducer}</span>
+            <span className="featured-producer">
+              Prod. by <ProducerName name={displayProducer} slug={displayProducerSlug} />
+            </span>
           )}
           {!!meta.length && (
             <div className="featured-meta">

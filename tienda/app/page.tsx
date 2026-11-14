@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { withProducerSlugs } from '@/lib/producers';
 import type { Beat } from '@/lib/types';
 import BeatCatalog from './components/BeatCatalog';
 
@@ -17,7 +18,7 @@ export default async function HomePage({
     .select('*')
     .order('created_at', { ascending: false });
 
-  let beats: Beat[] = error ? [] : (data as Beat[]);
+  let beats: Beat[] = error ? [] : await withProducerSlugs(data as Beat[]);
 
   const { data: setting } = await supabase
     .from('app_settings')
