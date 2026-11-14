@@ -46,7 +46,7 @@ export default async function ProducerStorePage({ params }: PageProps) {
 
   return (
     <main className="pstore-page">
-      <ProducerStoreHero stageName={producer.stageName} availableCount={available} />
+      <ProducerStoreHero slug={producer.slug} stageName={producer.stageName} availableCount={available} />
 
       {error && <p className="beats-loading">No se pudieron cargar los beats.</p>}
       {!error && beats.length === 0 && <ProducerStoreEmpty stageName={producer.stageName} />}
