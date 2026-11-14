@@ -3813,30 +3813,47 @@ body:has(.pstore-page) .marketplace-top {
 .pstore-head {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: end;
+  align-items: start;
   gap: 14px;
-  margin-top: -40px;
+  margin-top: -32px;
   padding: 0 14px;
 }
 .pstore-avatar {
+  --av-from: #e7c777;
+  --av-to: #b8903a;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 88px;
-  height: 88px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: #1d1810;
+  background: linear-gradient(145deg, var(--av-from), var(--av-to));
   box-shadow:
-    0 0 0 4px var(--t-bg),
-    inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.6);
-  color: var(--t-gold);
+    0 0 0 3px var(--t-bg),
+    0 10px 22px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: #1a1206;
   font-family: var(--font-bebas), sans-serif;
-  font-size: 2.3rem;
+  font-size: 2rem;
   letter-spacing: 1px;
+  line-height: 1;
+}
+/* Cinco tonos de la paleta de Lujo Urban; cada tienda toma uno segun su slug. */
+.pstore-avatar[data-tone="1"] { --av-from: #f0e2bd; --av-to: #c4aa70; }
+.pstore-avatar[data-tone="2"] { --av-from: #e6a982; --av-to: #a8683f; }
+.pstore-avatar[data-tone="3"] { --av-from: #ebbaa6; --av-to: #b6786a; }
+.pstore-avatar[data-tone="4"] {
+  --av-from: #2b2418;
+  --av-to: #120f08;
+  box-shadow:
+    0 0 0 3px var(--t-bg),
+    0 10px 22px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(var(--t-gold-rgb), 0.7);
+  color: var(--t-gold);
 }
 .pstore-id {
   min-width: 0;
-  padding-bottom: 4px;
+  padding-top: 38px;
 }
 .pstore-name {
   margin: 0;
@@ -3855,8 +3872,8 @@ body:has(.pstore-page) .marketplace-top {
 }
 .pstore-share-wrap {
   position: relative;
-  align-self: end;
-  margin-bottom: 4px;
+  align-self: start;
+  margin-top: 34px;
 }
 .pstore-share {
   display: flex;

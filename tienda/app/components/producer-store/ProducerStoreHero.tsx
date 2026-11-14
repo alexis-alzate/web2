@@ -1,3 +1,4 @@
+import { avatarTone } from '@/lib/avatar';
 import { CheckIcon } from '../Icons';
 import ShareStoreButton from './ShareStoreButton';
 
@@ -13,11 +14,12 @@ const initialsOf = (name: string) =>
     .toUpperCase();
 
 type ProducerStoreHeroProps = {
+  slug: string;
   stageName: string;
   availableCount: number;
 };
 
-export default function ProducerStoreHero({ stageName, availableCount }: ProducerStoreHeroProps) {
+export default function ProducerStoreHero({ slug, stageName, availableCount }: ProducerStoreHeroProps) {
   const sub = availableCount === 0
     ? 'Tienda abierta'
     : `${availableCount} ${availableCount === 1 ? 'beat disponible' : 'beats disponibles'}`;
@@ -26,7 +28,7 @@ export default function ProducerStoreHero({ stageName, availableCount }: Produce
     <header className="pstore-hero">
       <div className="pstore-cover" aria-hidden="true" />
       <div className="pstore-head">
-        <span className="pstore-avatar" aria-hidden="true">{initialsOf(stageName)}</span>
+        <span className="pstore-avatar" data-tone={avatarTone(slug)} aria-hidden="true">{initialsOf(stageName)}</span>
         <div className="pstore-id">
           <h1 className="pstore-name">{stageName}</h1>
           <p className="pstore-sub">{sub}</p>

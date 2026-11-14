@@ -371,6 +371,9 @@ beats o no (sin beats muestra "Los primeros beats están por llegar").
   `ProducerStoreHero`, `ShareStoreButton`, `ProducerStoreEmpty`; reciben todo por props). Con
   beats sigue el `BeatCatalog`; sin beats muestra "Los primeros beats llegan pronto" y las
   licencias (`LICENSE_LABELS`). **No enlaza al catálogo general**: la tienda es del productor.
+  Sin foto, el avatar es un círculo **lleno** de 72 px con la inicial: toma uno de 5 tonos de la
+  paleta según el slug (`lib/avatar.ts`, determinista, `data-tone` en CSS), así cada tienda se
+  distingue sin guardar nada. Cuando haya foto del productor, reemplaza este círculo.
   Oculta el banner genérico de Lujo Urban con `body:has(.pstore-page)`. Márgenes laterales
   iguales a los del catálogo (12 px en celular).
 - **Página** (`tienda/app/productor/[slug]/page.tsx`): lee la ficha con
