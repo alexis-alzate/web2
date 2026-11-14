@@ -186,6 +186,15 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
     a mano (el siguiente guardado las reescribe).
   El artista ve su enlace con un botón de copiar en el portal (`PortalLink`),
   pero solo el admin puede cambiarlo.
+- "Más música" en la página pública: debajo de "Último lanzamiento" se
+  listan los lanzamientos anteriores del artista (`renderMoreMusic` y
+  `pastReleasesOf` en `artist-renderer.ts`), del más nuevo al más viejo, sin
+  el actual y con un máximo de 8. Sale del historial (`artist_releases`), no
+  hay nada que llenar; si no hay anteriores, la sección no se genera. Tocar
+  una fila cuenta como escucha de ese lanzamiento. Los estilos
+  (`.more-music*`) están en `styles.css` de la raíz, que es un archivo escrito
+  a mano: es a propósito más discreta que el lanzamiento actual y sus filas
+  tienen alto fijo.
 - Pendiente: vincular usuarios por `artist_access` en lugar de
   `app_metadata.lujo_artist_slug` (hoy el slug en metadatos sigue siendo lo
   que usa `getCurrentAccess`; renombrar o borrar un artista deja ese slug
