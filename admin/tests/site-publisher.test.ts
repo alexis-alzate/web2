@@ -226,18 +226,21 @@ describe('publishRoster: enlaces cortos', () => {
   const vercelOf = (files: PublishFile[]) =>
     JSON.parse(files.find(file => file.path === 'vercel.json')!.content);
 
-  it('escribe las redirecciones en vercel.json dentro del mismo commit', async () => {
-    const { port, commits } = fakeGithubPort();
+  it('escribe las reglas en vercel.json dentro del mismo commit', async () => {
+    const { port, commits } = fakeGithubPort({
+      readJson: async <T>(path: string, fallback: T) =>
+        (path === 'vercel.json' ? {} : path.endsWith('.json') ? JSON.parse(repoFile(path)) : fallback) as T
+    });
 
     await new GithubSitePublisher(port).publishRoster(
-      rosterOf(artist('la-libreta', { shortLink: 'julian' }), artist('beto')),
+      rosterOf(artist('la-libreta', { shortLink: 'julianramos' }), artist('beto')),
       { message: 'x' }
     );
 
     expect(commits).toHaveLength(1);
-    expect(vercelOf(commits[0].files).redirects).toEqual([
-      { source: '/julian', destination: '/artistas/la-libreta/', permanent: false },
-      { source: '/julian/', destination: '/artistas/la-libreta/', permanent: false }
+    expect(vercelOf(commits[0].files).rewrites).toEqual([
+      { source: '/julianramos', destination: '/artistas/la-libreta/index.html' },
+      { source: '/julianramos/', destination: '/artistas/la-libreta/index.html' }
     ]);
   });
 
@@ -247,7 +250,8 @@ describe('publishRoster: enlaces cortos', () => {
       redirects: [
         { source: '/promo', destination: 'https://tienda.lujourban.com/', permanent: true },
         { source: '/viejo', destination: '/artistas/la-libreta/', permanent: false }
-      ]
+      ],
+      rewrites: [{ source: '/otro-viejo', destination: '/artistas/la-libreta/index.html' }]
     };
     const { port, commits } = fakeGithubPort({
       readJson: async <T>(path: string, fallback: T) =>
@@ -259,6 +263,25 @@ describe('publishRoster: enlaces cortos', () => {
     const config = vercelOf(commits[0].files);
     expect(config.cleanUrls).toBe(false);
     expect(config.redirects).toEqual([{ source: '/promo', destination: 'https://tienda.lujourban.com/', permanent: true }]);
+    expect(config.rewrites).toEqual([]);
+  });
+
+  it('la pagina del artista carga estilos e imagenes con rutas desde la raiz', async () => {
+    const { port, commits } = fakeGithubPort();
+
+    await new GithubSitePublisher(port).publishRoster(
+      rosterOf(artist('ana', {
+        photo: 'assets/ana-photo.jpg',
+        release: { title: 'Uno', slug: 'uno', link: 'https://too.fm/uno', cover: 'assets/ana-uno-cover.jpg' }
+      })),
+      { message: 'x' }
+    );
+
+    const page = commits[0].files.find(file => file.path === 'artistas/ana/index.html')!.content;
+    expect(page).toContain('href="/styles.css"');
+    expect(page).toContain('src="/assets/ana-photo.jpg"');
+    expect(page).toContain('src="/assets/ana-uno-cover.jpg"');
+    expect(page).not.toMatch(/(src|href)="\.\.\//);
   });
 
   it('si vercel.json no se puede leer, no publica nada (no lo pisa a ciegas)', async () => {

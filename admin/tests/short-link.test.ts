@@ -4,9 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { ConflictError, ValidationError } from '@/lib/errors';
 import {
   RESERVED_SHORT_LINKS,
-  buildShortLinkRedirects,
+  buildShortLinkRewrites,
   validateShortLink,
-  withShortLinkRedirects
+  withShortLinkRoutes
 } from '@/lib/artists/short-link';
 
 const others = [
@@ -50,8 +50,7 @@ describe('validateShortLink', () => {
     expect(() => validateShortLink('siervo-john', others)).toThrow(ConflictError);
   });
 
-  // En Vercel una redireccion gana sobre los archivos: un enlace corto con el
-  // nombre de una carpeta del sitio la dejaria inaccesible.
+  // Un enlace corto con el nombre de una carpeta del sitio podria taparla.
   it('toda carpeta de primer nivel del sitio esta reservada', () => {
     const root = resolve(__dirname, '../../');
     const folders = readdirSync(root, { withFileTypes: true })
@@ -65,16 +64,16 @@ describe('validateShortLink', () => {
   });
 });
 
-describe('buildShortLinkRedirects', () => {
-  it('crea dos redirecciones temporales por artista (con y sin barra final)', () => {
-    expect(buildShortLinkRedirects([{ slug: 'la-libreta', shortLink: 'julian' }, { slug: 'ana' }])).toEqual([
-      { source: '/julian', destination: '/artistas/la-libreta/', permanent: false },
-      { source: '/julian/', destination: '/artistas/la-libreta/', permanent: false }
+describe('buildShortLinkRewrites', () => {
+  it('crea dos reglas por artista (con y sin barra final) hacia su pagina', () => {
+    expect(buildShortLinkRewrites([{ slug: 'la-libreta', shortLink: 'julianramos' }, { slug: 'ana' }])).toEqual([
+      { source: '/julianramos', destination: '/artistas/la-libreta/index.html' },
+      { source: '/julianramos/', destination: '/artistas/la-libreta/index.html' }
     ]);
   });
 
-  it('nunca escribe una redireccion peligrosa aunque el dato venga danado', () => {
-    expect(buildShortLinkRedirects([
+  it('nunca escribe una regla peligrosa aunque el dato venga danado', () => {
+    expect(buildShortLinkRewrites([
       { slug: 'ana', shortLink: 'artistas' },
       { slug: 'beto', shortLink: '(.*)' },
       { slug: 'caro', shortLink: 'ok/../x' },
@@ -82,53 +81,65 @@ describe('buildShortLinkRedirects', () => {
       { slug: 'dani', shortLink: 'repetido' },
       { slug: 'edu', shortLink: 'repetido' }
     ])).toEqual([
-      { source: '/repetido', destination: '/artistas/dani/', permanent: false },
-      { source: '/repetido/', destination: '/artistas/dani/', permanent: false }
+      { source: '/repetido', destination: '/artistas/dani/index.html' },
+      { source: '/repetido/', destination: '/artistas/dani/index.html' }
     ]);
   });
 });
 
-describe('withShortLinkRedirects', () => {
-  const artists = [{ slug: 'la-libreta', shortLink: 'julian' }];
+describe('withShortLinkRoutes', () => {
+  const artists = [{ slug: 'la-libreta', shortLink: 'julianramos' }];
+  const ours = [
+    { source: '/julianramos', destination: '/artistas/la-libreta/index.html' },
+    { source: '/julianramos/', destination: '/artistas/la-libreta/index.html' }
+  ];
 
   it('parte de cero si no hay vercel.json', () => {
-    expect(withShortLinkRedirects({}, artists)).toEqual({
+    expect(withShortLinkRoutes({}, artists)).toEqual({
       $schema: 'https://openapi.vercel.sh/vercel.json',
-      redirects: [
-        { source: '/julian', destination: '/artistas/la-libreta/', permanent: false },
-        { source: '/julian/', destination: '/artistas/la-libreta/', permanent: false }
-      ]
+      redirects: [],
+      rewrites: ours
     });
-    expect(withShortLinkRedirects(null, []).redirects).toEqual([]);
-    expect(withShortLinkRedirects(['raro'], []).redirects).toEqual([]);
+    expect(withShortLinkRoutes(null, []).rewrites).toEqual([]);
+    expect(withShortLinkRoutes(['raro'], []).rewrites).toEqual([]);
   });
 
-  it('conserva la configuracion y las redirecciones puestas a mano', () => {
-    const manual = { source: '/promo', destination: 'https://tienda.lujourban.com/', permanent: true };
-    const deep = { source: '/viejo/:path*', destination: '/artistas/:path*' };
-    const config = withShortLinkRedirects({
+  it('retira las redirecciones de la primera version de los enlaces cortos', () => {
+    const config = withShortLinkRoutes({
+      redirects: [
+        { source: '/julianramos', destination: '/artistas/la-libreta/', permanent: false },
+        { source: '/julianramos/', destination: '/artistas/la-libreta/', permanent: false }
+      ]
+    }, artists);
+
+    expect(config.redirects).toEqual([]);
+    expect(config.rewrites).toEqual(ours);
+  });
+
+  it('conserva la configuracion y las reglas puestas a mano', () => {
+    const manualRedirect = { source: '/promo', destination: 'https://tienda.lujourban.com/', permanent: true };
+    const deepRedirect = { source: '/viejo/:path*', destination: '/artistas/:path*' };
+    const manualRewrite = { source: '/api/:path*', destination: 'https://admin.lujourban.com/api/:path*' };
+    const config = withShortLinkRoutes({
       trailingSlash: true,
       headers: [{ source: '/(.*)', headers: [] }],
-      redirects: [manual, deep, { source: '/viejo-alias', destination: '/artistas/la-libreta/', permanent: false }]
+      redirects: [manualRedirect, deepRedirect],
+      rewrites: [manualRewrite, { source: '/viejo-alias', destination: '/artistas/la-libreta/index.html' }]
     }, artists);
 
     expect(config.trailingSlash).toBe(true);
     expect(config.headers).toEqual([{ source: '/(.*)', headers: [] }]);
-    expect(config.redirects).toEqual([
-      manual,
-      deep,
-      { source: '/julian', destination: '/artistas/la-libreta/', permanent: false },
-      { source: '/julian/', destination: '/artistas/la-libreta/', permanent: false }
-    ]);
+    expect(config.redirects).toEqual([manualRedirect, deepRedirect]);
+    expect(config.rewrites).toEqual([manualRewrite, ...ours]);
   });
 
-  it('quitar el enlace corto quita sus redirecciones', () => {
-    const first = withShortLinkRedirects({}, artists);
-    expect(withShortLinkRedirects(first, [{ slug: 'la-libreta', shortLink: null }]).redirects).toEqual([]);
+  it('quitar el enlace corto quita sus reglas', () => {
+    const first = withShortLinkRoutes({}, artists);
+    expect(withShortLinkRoutes(first, [{ slug: 'la-libreta', shortLink: null }]).rewrites).toEqual([]);
   });
 
   it('es idempotente', () => {
-    const first = withShortLinkRedirects({}, artists);
-    expect(withShortLinkRedirects(first, artists)).toEqual(first);
+    const first = withShortLinkRoutes({}, artists);
+    expect(withShortLinkRoutes(first, artists)).toEqual(first);
   });
 });

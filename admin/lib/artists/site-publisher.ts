@@ -18,7 +18,7 @@ import {
   type VisionCatalogEntry
 } from '@/lib/artist-renderer';
 import { PublishError } from '@/lib/errors';
-import { withShortLinkRedirects } from './short-link';
+import { withShortLinkRoutes } from './short-link';
 import type { PublishFile, PublishOptions, Roster, SitePublisher } from './types';
 
 export interface GithubPort {
@@ -66,7 +66,7 @@ export class GithubSitePublisher implements SitePublisher {
       const [sitemap, vision, vercelConfig] = await Promise.all([
         this.github.readFile('sitemap.xml'),
         this.loadVisionInputs(roster.history),
-        // Enlaces cortos: se regeneran aqui las redirecciones del sitio,
+        // Enlaces cortos: se regeneran aqui las reglas (rewrites) del sitio,
         // conservando cualquier otra configuracion que tenga vercel.json.
         this.github.readJson<unknown>('vercel.json', {})
       ]);
@@ -81,7 +81,7 @@ export class GithubSitePublisher implements SitePublisher {
         { path: 'artist-release-history.json', content: `${JSON.stringify(roster.history, null, 2)}\n` },
         {
           path: 'vercel.json',
-          content: `${JSON.stringify(withShortLinkRedirects(vercelConfig, roster.data.artists), null, 2)}\n`
+          content: `${JSON.stringify(withShortLinkRoutes(vercelConfig, roster.data.artists), null, 2)}\n`
         },
         ...(options.extraFiles ?? [])
       ], options.message, { deletes });

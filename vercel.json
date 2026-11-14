@@ -1,15 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "redirects": [
+  "redirects": [],
+  "rewrites": [
     {
       "source": "/julianramos",
-      "destination": "/artistas/la-libreta/",
-      "permanent": false
+      "destination": "/artistas/la-libreta/index.html"
     },
     {
       "source": "/julianramos/",
-      "destination": "/artistas/la-libreta/",
-      "permanent": false
+      "destination": "/artistas/la-libreta/index.html"
     }
   ]
 }

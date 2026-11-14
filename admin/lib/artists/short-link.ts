@@ -1,10 +1,12 @@
-// Enlace corto del artista: www.lujourban.com/<enlace> -> /artistas/<slug>/.
+// Enlace corto del artista: www.lujourban.com/<enlace> muestra la pagina de
+// /artistas/<slug>/ sin cambiar la direccion.
 //
-// Aqui viven las reglas (que nombre es valido) y la traduccion a
-// redirecciones de Vercel. Todo es puro y tiene pruebas.
+// Aqui viven las reglas (que nombre es valido) y la traduccion a reglas de
+// Vercel (rewrites). Todo es puro y tiene pruebas.
 //
-// OJO: en Vercel una redireccion gana sobre los archivos del sitio. Un enlace
-// corto llamado "artistas" secuestraria www.lujourban.com/artistas. Por eso
+// OJO: un enlace corto nunca debe llamarse igual que una carpeta del sitio
+// ("artistas", "unete"...): segun el tipo de regla, Vercel podria servir la
+// pagina del artista en lugar de esa carpeta. Por eso
 // RESERVED_SHORT_LINKS debe incluir toda carpeta de primer nivel del sitio
 // (hay una prueba que lo comprueba contra el repo).
 
@@ -57,7 +59,7 @@ export const validateShortLink = (value: string, others: ShortLinkOwner[]): stri
   return value;
 };
 
-export type VercelRedirect = {
+export type VercelRoute = {
   source: string;
   destination: string;
   permanent?: boolean;
@@ -65,27 +67,29 @@ export type VercelRedirect = {
 };
 
 export type VercelConfig = {
-  redirects?: VercelRedirect[];
+  redirects?: VercelRoute[];
+  rewrites?: VercelRoute[];
   [key: string]: unknown;
 };
 
-const ARTIST_DESTINATION = /^\/artistas\/[a-z0-9-]+\/$/;
+// Con o sin index.html: la primera version de los enlaces cortos redirigia a
+// /artistas/<slug>/; la actual sirve /artistas/<slug>/index.html.
+const ARTIST_DESTINATION = /^\/artistas\/[a-z0-9-]+\/(index\.html)?$/;
 const SINGLE_SEGMENT_SOURCE = /^\/[a-z0-9-]+\/?$/;
 
-// Una redireccion es "nuestra" si lleva de un solo segmento a la pagina de
-// un artista. Las demas (puestas a mano) se respetan tal cual.
-const isShortLinkRedirect = (redirect: VercelRedirect) =>
-  typeof redirect?.source === 'string'
-  && typeof redirect?.destination === 'string'
-  && SINGLE_SEGMENT_SOURCE.test(redirect.source)
-  && ARTIST_DESTINATION.test(redirect.destination);
+// Una regla es "nuestra" si lleva de un solo segmento a la pagina de un
+// artista. Las demas (puestas a mano) se respetan tal cual.
+const isShortLinkRoute = (route: VercelRoute) =>
+  typeof route?.source === 'string'
+  && typeof route?.destination === 'string'
+  && SINGLE_SEGMENT_SOURCE.test(route.source)
+  && ARTIST_DESTINATION.test(route.destination);
 
-// Dos entradas por artista (con y sin barra final). Temporal (307) para que
-// cambiar o quitar un enlace corto no quede pegado en la cache del navegador.
-// Vercel conserva los parametros de la URL (?utm_source=...) y el navegador
-// conserva el sitio de origen, asi las estadisticas siguen viendo de donde
-// llego la visita.
-export const buildShortLinkRedirects = (artists: ShortLinkOwner[]): VercelRedirect[] => {
+// Dos reglas por artista (con y sin barra final). Son "rewrites": Vercel
+// entrega la pagina del artista SIN cambiar la direccion, asi la barra del
+// navegador sigue mostrando www.lujourban.com/<enlace>. Por eso la pagina
+// del artista usa rutas que empiezan en "/" para estilos e imagenes.
+export const buildShortLinkRewrites = (artists: ShortLinkOwner[]): VercelRoute[] => {
   const seen = new Set<string>();
   return artists.flatMap(artist => {
     const shortLink = artist.shortLink ?? '';
@@ -94,27 +98,28 @@ export const buildShortLinkRedirects = (artists: ShortLinkOwner[]): VercelRedire
     if (!SHORT_LINK_PATTERN.test(artist.slug)) return [];
     seen.add(shortLink);
 
-    const destination = `/artistas/${artist.slug}/`;
+    const destination = `/artistas/${artist.slug}/index.html`;
     return [
-      { source: `/${shortLink}`, destination, permanent: false },
-      { source: `/${shortLink}/`, destination, permanent: false }
+      { source: `/${shortLink}`, destination },
+      { source: `/${shortLink}/`, destination }
     ];
   });
 };
 
-// Devuelve el vercel.json con las redirecciones de enlaces cortos al dia.
-// Conserva cualquier otra configuracion o redireccion que ya tuviera.
-export const withShortLinkRedirects = (current: unknown, artists: ShortLinkOwner[]): VercelConfig => {
+// Devuelve el vercel.json con las reglas de enlaces cortos al dia. Conserva
+// cualquier otra configuracion, redireccion o rewrite que ya tuviera, y
+// retira las redirecciones de enlaces cortos de la primera version.
+export const withShortLinkRoutes = (current: unknown, artists: ShortLinkOwner[]): VercelConfig => {
   const config: VercelConfig = current && typeof current === 'object' && !Array.isArray(current)
     ? { ...(current as VercelConfig) }
     : {};
-  const manual = Array.isArray(config.redirects)
-    ? config.redirects.filter(redirect => !isShortLinkRedirect(redirect))
-    : [];
+  const manual = (routes: unknown) =>
+    Array.isArray(routes) ? (routes as VercelRoute[]).filter(route => !isShortLinkRoute(route)) : [];
 
   return {
     $schema: 'https://openapi.vercel.sh/vercel.json',
     ...config,
-    redirects: [...manual, ...buildShortLinkRedirects(artists)]
+    redirects: manual(config.redirects),
+    rewrites: [...manual(config.rewrites), ...buildShortLinkRewrites(artists)]
   };
 };

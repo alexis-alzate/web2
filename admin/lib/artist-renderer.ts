@@ -442,7 +442,7 @@ const imageOrPlaceholder = (artist: Artist, className: string, prefix = '') => a
 
 const renderHeroPhoto = (artist: Artist) => artist.photo
   ? `<div class="hero-photo">
-  <img src="../../${artist.photo}" alt="${escapeHtml(artist.name)}">
+  <img src="/${artist.photo}" alt="${escapeHtml(artist.name)}">
 </div>`
   : `<div class="hero-photo artist-hero-placeholder" aria-label="Foto pendiente de ${escapeHtml(artist.name)}">
   <span>${escapeHtml(initials(artist.name))}</span>
@@ -512,7 +512,7 @@ const renderRelease = (artist: Artist) => {
   const shareUrl = artist.release.shareUrl || `https://www.lujourban.com/artistas/${artist.slug}/`;
   const shareText = `Escucha ${artist.release.title}, el nuevo lanzamiento de ${artist.name}.`;
   const cover = artist.release.cover
-    ? `<img src="../../${artist.release.cover}" alt="Portada de ${escapeHtml(artist.release.title)}">`
+    ? `<img src="/${artist.release.cover}" alt="Portada de ${escapeHtml(artist.release.title)}">`
     : `<div class="artist-photo-placeholder" aria-hidden="true"><span>${escapeHtml(initials(artist.release.title))}</span></div>`;
 
   return `<div class="divider divider-music-inner"></div>
@@ -573,6 +573,8 @@ const renderContact = (artist: Artist) => {
 </section>`;
 };
 
+// Las rutas a estilos e imagenes empiezan en "/" (no "../../"): la misma
+// pagina se sirve en /artistas/<slug>/ y en su enlace corto (/<nombre>).
 export const renderArtistPage = (artist: Artist) => {
   const eventSlug = trackingSlug(artist);
   return `<!DOCTYPE html>
@@ -595,8 +597,8 @@ export const renderArtistPage = (artist: Artist) => {
 <meta name="twitter:description" content="${escapeHtml(artist.tagline)}">
 <meta name="twitter:image" content="https://www.lujourban.com/${artist.photo || 'assets/zaetta-music-logo.jpg'}">
 <title>${escapeHtml(`${artist.name} - Lujo Urban`)}</title>
-<link rel="icon" href="../../assets/zaetta-music-logo.jpg" type="image/jpeg">
-<link rel="stylesheet" href="../../styles.css">
+<link rel="icon" href="/assets/zaetta-music-logo.jpg" type="image/jpeg">
+<link rel="stylesheet" href="/styles.css">
 ${trackingHead}
 </head>
 <body class="artist-page">
