@@ -23,6 +23,7 @@ export const loadPortal = cache(async (): Promise<PortalContext> => {
   const access = await getCurrentAccess();
   if (!access) redirect('/login');
   if (access.role === 'admin') redirect('/');
+  if (access.role === 'producer') redirect('/productor');
   if (access.role !== 'artist' || !access.artistSlug) redirect('/login?error=access');
 
   const isTestAccount = access.artistSlug === TEST_ARTIST_SLUG;

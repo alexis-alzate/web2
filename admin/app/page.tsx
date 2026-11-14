@@ -38,6 +38,8 @@ import { getReleaseAnalyticsSummary, type ReleaseAnalyticsSummary } from '@/lib/
 import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, updateBeatMetadataAction } from './actions-beats';
 import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
+import { ProducerAccess } from './components/ProducerAccess';
+import { producerAccessService, type ProducerAccessInfo } from '@/lib/producers';
 import { updateWaitlistStatusAction } from './actions-waitlist';
 import {
   FOLLOWERS_LABELS,
@@ -286,6 +288,7 @@ export default async function DashboardPage() {
   const access = await getCurrentAccess();
   if (!access) redirect('/login');
   if (access.role === 'artist') redirect('/mi-perfil');
+  if (access.role === 'producer') redirect('/productor');
   if (access.role !== 'admin' || access.status !== 'active') redirect('/login?error=access');
 
   let artistData: ArtistData;
@@ -299,6 +302,7 @@ export default async function DashboardPage() {
   let beatOrders: BeatOrder[] = [];
   let beatOffers: BeatOffer[] = [];
   let producers: Producer[] = [];
+  let producerAccess = new Map<string, ProducerAccessInfo>();
   let producerEarnings: ProducerEarning[] = [];
   let waitlist: WaitlistEntry[] = [];
   let waitlistAvailable = true;
@@ -320,6 +324,10 @@ export default async function DashboardPage() {
       .select('*')
       .order('stage_name', { ascending: true });
     producers = (producersData as Producer[]) || [];
+
+    // Si falla (p. ej. Supabase Auth no responde) las tarjetas se muestran
+    // igual, solo sin el estado del acceso.
+    producerAccess = await producerAccessService.listAccess().catch(() => new Map<string, ProducerAccessInfo>());
 
     const { data: settingData } = await supabaseAdmin
       .from('app_settings')
@@ -1487,6 +1495,12 @@ export default async function DashboardPage() {
                           {producer.status === 'active' ? 'Activo' : 'Inactivo'}
                         </p>
                         {producer.notes && <p className="muted">{producer.notes}</p>}
+                        <ProducerAccess
+                          producerId={producer.id}
+                          stageName={producer.stage_name}
+                          producerActive={producer.status === 'active'}
+                          access={producerAccess.get(producer.id)}
+                        />
                       </div>
                       <div className="actions">
                         <ActionForm

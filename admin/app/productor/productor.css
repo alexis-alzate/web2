@@ -1,0 +1,179 @@
+/* Portal del productor (/productor).
+   Reutiliza la base del portal del artista (`mi-perfil/portal.css`) y solo
+   agrega lo propio. Todo vive bajo `.pt`.
+
+   Color: el dorado de Lujo Urban (el mismo de la pagina de la lista de espera)
+   en lugar del verde, que es del artista. El dorado marca cifras y la accion
+   principal; nada mas lo usa.
+   Estabilidad: las filas tienen alto fijo; nada cambia de tamano al tocarlo. */
+
+.pt.pt-prod {
+  --pt-green: #e3b873;
+  padding-bottom: 56px;
+}
+
+/* El fondo del panel tiene un brillo verde (el del artista). En el portal del
+   productor el brillo es dorado, como el resto de su color. */
+body:has(.pt-prod) {
+  background:
+    radial-gradient(circle at 50% 0, rgba(227, 184, 115, .13), transparent 34%),
+    linear-gradient(180deg, #0d0a05, var(--bg) 52%);
+}
+
+/* ---------- Ganancias ---------- */
+
+.pt-prod-sales {
+  padding: 20px;
+  border: 1px solid var(--pt-line);
+  border-radius: 16px;
+  background: var(--pt-surface);
+}
+
+.pt-prod-label {
+  margin: 0;
+  color: var(--pt-dim);
+  font-size: .9rem;
+}
+
+.pt-prod-total {
+  margin: 6px 0 4px;
+  color: var(--pt-green);
+  font-family: var(--pt-display);
+  font-size: 3.4rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-prod-note {
+  margin: 0;
+  color: var(--pt-dim);
+  font-size: .92rem;
+}
+
+.pt-prod-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--pt-line);
+}
+
+.pt-prod-split div {
+  display: grid;
+  gap: 2px;
+}
+
+.pt-prod-split dt {
+  color: var(--pt-faint);
+  font-size: .84rem;
+}
+
+.pt-prod-split dd {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-prod-terms {
+  margin: 16px 0 0;
+}
+
+/* ---------- Filas (beats y ventas) ---------- */
+
+.pt-prod-rows {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pt-prod-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 80px;
+  padding: 12px;
+  border: 1px solid var(--pt-line);
+  border-radius: 14px;
+  background: var(--pt-surface);
+}
+
+.pt-prod-row.is-sale {
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 64px;
+}
+
+.pt-prod-cover {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--pt-surface-2);
+}
+
+.pt-prod-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pt-prod-text strong {
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-prod-text span {
+  overflow: hidden;
+  color: var(--pt-dim);
+  font-size: .84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-prod-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid var(--pt-line-strong);
+  border-radius: 999px;
+  color: var(--pt-dim);
+  font-size: .78rem;
+  white-space: nowrap;
+}
+
+.pt-prod-chip.is-sold {
+  border-color: rgba(227, 184, 115, .5);
+  color: var(--pt-green);
+}
+
+.pt-prod-amount {
+  font-size: 1.05rem;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Solo en pantallas muy angostas (menos de 360 px) la etiqueta pasa debajo del
+   texto para no apretar el titulo; la fila conserva un alto fijo. */
+@media (max-width: 359px) {
+  .pt-prod-row:not(.is-sale) {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 112px;
+  }
+
+  .pt-prod-row:not(.is-sale) .pt-prod-chip {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
