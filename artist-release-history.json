@@ -28,6 +28,14 @@
         "cover": "assets/la-libreta-cantarle-a-el-cover.jpg",
         "shareUrl": "https://www.lujourban.com/lanzamientos/la-libreta-cantarle-a-el-v1/",
         "statusUrl": "https://www.lujourban.com/estados/la-libreta-cantarle-a-el-v1/"
+      },
+      {
+        "title": "REBELIONES",
+        "slug": "rebeliones",
+        "link": "https://youtu.be/rJ3rmvjncLM?si=r4yxmmg5307iIaJ2",
+        "cover": "assets/la-libreta-rebeliones-cover.jpg",
+        "shareUrl": "https://www.lujourban.com/lanzamientos/la-libreta-rebeliones-v1/",
+        "statusUrl": "https://www.lujourban.com/estados/la-libreta-rebeliones-v1/"
       }
     ]
   }
