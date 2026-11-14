@@ -1754,6 +1754,8 @@ select.join-input option { color: #fff; background: #141414; }
   line-height: 1.55;
 }
 .join-done .artist-join-link { align-self: flex-start; }
+.join-done-copy strong { color: #fff; font-weight: 600; overflow-wrap: anywhere; }
+.sell-card .join-done-copy { margin-bottom: 0; }
 @media (prefers-reduced-motion: reduce) {
   .artist-join-link, .join-input, .join-submit, .join-back { transition: none; }
 }

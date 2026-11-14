@@ -122,7 +122,7 @@ fbq('track', 'PageView');
   </section>
 
   <section class="sell-card" id="solicitud">
-    <h2 class="sell-heading">Solicita tu cuenta</h2>
+    <h2 class="sell-heading" id="sell-card-heading">Solicita tu cuenta</h2>
     <form class="join-form" id="join-form" novalidate>
       <label class="join-field">
         <span class="join-label">Nombre artístico</span>
@@ -146,8 +146,7 @@ fbq('track', 'PageView');
 
     <div class="join-done" id="join-done" tabindex="-1" hidden>
       <h2 class="join-done-title">Recibimos tu solicitud</h2>
-      <p class="join-done-copy">La revisamos a mano. Si te aprobamos, te llega un correo para crear tu clave. Si no lo ves, mira también en spam.</p>
-      <a href="https://tienda.lujourban.com" class="artist-join-link">Conocer la tienda de beats</a>
+      <p class="join-done-copy">Revisamos cada solicitud a mano. Si te aprobamos, te llega un correo a <strong id="join-done-email"></strong> para crear tu clave, y tu tienda queda lista. Si no lo ves, mira también en spam.</p>
     </div>
   </section>
 </main>
@@ -233,8 +232,8 @@ fbq('track', 'PageView');
           showError(result.data && result.data.error ? result.data.error : 'No pudimos guardar tu solicitud. Intenta de nuevo en un momento.');
           return;
         }
-        // Misma altura que el formulario: el cambio no hace saltar la pagina.
-        done.style.minHeight = form.offsetHeight + 'px';
+        document.getElementById('join-done-email').textContent = payload.email;
+        document.getElementById('sell-card-heading').hidden = true;
         form.hidden = true;
         done.hidden = false;
         done.focus();
