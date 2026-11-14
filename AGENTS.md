@@ -141,6 +141,16 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
 - `commitFiles` reintenta hasta 3 veces si otro commit entra a la rama al
   mismo tiempo (422 "not a fast forward").
 - Subidas de imagen: solo JPG/PNG/WebP de hasta 5 MB (`lib/artists/images.ts`).
+- Enlace de invitación y de recuperación en **dos pasos**: el correo lleva a
+  `/auth/confirm` (página con un botón, **no valida nada**) y la validación con
+  Supabase (`verifyOtp`) ocurre al tocar el botón, en `POST /api/auth/confirm`.
+  Es a propósito: Gmail, Outlook, antivirus y las vistas previas de WhatsApp
+  abren los enlaces solos, y como el enlace sirve una sola vez, un GET que
+  validara lo gastaría antes que la persona (llegaba a `/login` y tenía que usar
+  "Olvidé mi clave"). Reglas puras en `lib/auth-confirm.ts` (tipos permitidos,
+  destino interno, textos). No volver a validar en un GET. Si el enlace ya se
+  usó o venció, `/login?error=invite` lo explica. El vencimiento lo fija
+  Supabase (Authentication → "Email OTP expiration", máx. 24 h).
 - Portal del artista (`/mi-perfil`): es lo que ve el cliente. Tiene cuatro
   pantallas con navegación fija (abajo en celular, arriba en computador):
   - **Inicio** (`/mi-perfil`): visitas del mes, su enlace para copiar, su
