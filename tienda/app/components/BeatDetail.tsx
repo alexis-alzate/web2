@@ -7,6 +7,7 @@ import { formatCOP, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
 import { useCart } from '../providers/CartProvider';
 import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
+import ProducerName from './ProducerName';
 
 const LICENSES: LicenseType[] = ['basic', 'premium', 'exclusive'];
 
@@ -51,7 +52,7 @@ export default function BeatDetail({ beat }: { beat: Beat }) {
           <button
             type="button"
             className={`beat-detail-play ${isActive && isPlaying ? 'playing' : ''}`}
-            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key, producer: beat.producer })}
+            onClick={() => toggle({ beatId: beat.id, slug: beat.slug, title: beat.title, genre: beat.genre, coverUrl, previewUrl, price: beat.price_basic, pricePremium: beat.price_premium, priceExclusive: beat.price_exclusive, bpm: beat.bpm, key: beat.key, producer: beat.producer, producerSlug: beat.producer_slug })}
             aria-label="Reproducir preview"
           >
             {isActive && isPlaying ? <PauseIcon /> : <PlayIcon />}
@@ -61,7 +62,11 @@ export default function BeatDetail({ beat }: { beat: Beat }) {
 
       <div className="beat-detail-info">
         <h1 className="beat-detail-title">{beat.title}</h1>
-        {beat.producer && <p className="beat-detail-producer">Prod. by {beat.producer}</p>}
+        {beat.producer && (
+          <p className="beat-detail-producer">
+            Prod. by <ProducerName name={beat.producer} slug={beat.producer_slug} />
+          </p>
+        )}
         <p className="beat-detail-meta">{meta}</p>
         {beat.tags && beat.tags.length > 0 && (
           <p className="beat-detail-tags">{beat.tags.join(' · ')}</p>

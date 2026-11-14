@@ -15,6 +15,7 @@ export type PlayerTrack = {
   bpm?: number | null;
   key?: string | null;
   producer?: string | null;
+  producerSlug?: string | null;
 };
 
 type RepeatMode = 'off' | 'all' | 'one';

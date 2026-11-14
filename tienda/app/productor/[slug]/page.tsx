@@ -45,7 +45,10 @@ export default async function ProducerStorePage({ params }: PageProps) {
     .eq('producer_id', producer.id)
     .order('created_at', { ascending: false });
 
-  const beats = error ? [] : ((data as Beat[]) ?? []);
+  // Todos los beats de esta pagina son del mismo productor: el slug ya se conoce.
+  const beats: Beat[] = error
+    ? []
+    : ((data as Beat[]) ?? []).map((beat) => ({ ...beat, producer_slug: producer.slug }));
   const available = beats.filter((beat) => beat.status === 'available').length;
 
   return (

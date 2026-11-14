@@ -51,7 +51,7 @@ web2/
 │   │   ├── types.ts                          # Beat, LicenseType, LICENSE_LABELS, helpers de precio/archivo
 │   │   ├── orders.ts                         # approveOrder() — idempotencia, exclusivas, email
 │   │   ├── email.ts                          # sendDownloadEmail() via Resend SDK
-│   │   ├── producers.ts                      # getProducerBySlug(): lectura pública mínima (id, slug, nombre) de un productor activo
+│   │   ├── producers.ts                      # getProducerBySlug() / getProducerSlugs() / withProducerSlugs(): lectura pública mínima (id, slug, nombre) de productores activos
 │   │   ├── format.ts                         # formatCOP, formatTime, publicUrl
 │   │   └── supabase/server.ts                # clientes anon (catálogo) y service-role (route handlers)
 │   └── .env.example
@@ -376,9 +376,16 @@ beats o no (sin beats muestra "Los primeros beats están por llegar").
   código; el portal lee la columna `slug` y falla si no existe.
 - La comisión por defecto al crear un productor (formulario del panel) es 15 %
   (`DEFAULT_COMMISSION_PERCENT`), igual que al aprobar una solicitud.
-- Pendiente: que "Prod. by X" en los beats lleve a la tienda del productor
-  (hoy `beats.producer` es solo texto), foto y bio del productor, y poder
-  reenviar el enlace de la tienda a un productor que ya tenía cuenta.
+- **"Prod. by X" enlaza a la tienda**: `BeatDetail` y `FeaturedBeat` pintan el nombre con
+  `ProducerName` (`tienda/app/components/ProducerName.tsx`): enlace a
+  `/productor/<slug>` si el productor tiene tienda, texto plano si no (beat con
+  `producer_id` nulo o productor pausado). `beats` no tiene columna de slug: las
+  páginas del servidor lo agregan con `withProducerSlugs` (`lib/producers.ts`, una
+  consulta por página, solo `id, slug`) y viaja como `Beat.producer_slug` y en el
+  track del reproductor (`producerSlug`). `PlayerBar` y `BeatRow` no lo enlazan a
+  propósito (son zonas de reproducir).
+- Pendiente: foto y bio del productor, y poder reenviar el enlace de la tienda a un
+  productor que ya tenía cuenta.
 
 ### Solicitud de cuenta de productor (autoservicio con aprobación)
 

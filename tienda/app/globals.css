@@ -3863,3 +3863,24 @@ body:has(.descarga-page) .tienda-frame {
   text-decoration: none;
 }
 .pstore-empty-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* "Prod. by X" enlazado a la tienda del productor. Mismo color y tamaño que el
+   texto plano; solo cambia el subrayado, que ya existe (transparente), para que
+   nada se mueva de sitio al pasar el mouse. */
+.producer-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color .18s ease, color .18s ease;
+}
+.producer-link:hover,
+.producer-link:focus-visible {
+  color: rgb(var(--t-gold-rgb));
+  text-decoration-color: currentColor;
+}
+.producer-link:focus-visible {
+  outline: 2px solid rgba(var(--t-gold-rgb), 0.7);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
