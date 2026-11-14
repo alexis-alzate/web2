@@ -4299,3 +4299,101 @@ label .portal-image-status.is-error {
   padding: 10px 14px;
   margin: -10px 0;
 }
+
+/* Tarjeta de solicitud de productor. `.card` es una cuadricula de 3 columnas
+   pensada para artistas (miniatura de 64 px); aqui va en una sola columna y
+   la informacion deja de caer en la columna de la miniatura. Sin movimiento
+   al pasar el cursor. */
+.card.request-card {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  padding: 16px;
+}
+
+.card.request-card:hover {
+  transform: none;
+}
+
+.request-card h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.request-meta,
+.request-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: .86rem;
+  line-height: 1.35;
+}
+
+.request-links {
+  margin-top: 4px;
+}
+
+.request-links a {
+  overflow-wrap: anywhere;
+}
+
+.request-status {
+  padding: 2px 9px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 999px;
+  color: #fff;
+  font-size: .72rem;
+  letter-spacing: .06em;
+  line-height: 1.4;
+}
+
+.request-status-new {
+  border-color: rgba(227, 184, 115, .55);
+  color: #e3b873;
+}
+
+.request-status-approved {
+  border-color: rgba(57, 255, 99, .45);
+  color: var(--green);
+}
+
+.request-actions {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.request-approve {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.request-approve input,
+.request-approve button,
+.request-reject button {
+  min-height: 46px;
+}
+
+.request-approve button {
+  padding-inline: 22px;
+}
+
+.request-reject button {
+  width: 100%;
+}
+
+.request-actions button:hover {
+  transform: none;
+}
+
+.request-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
