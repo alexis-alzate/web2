@@ -1071,6 +1071,105 @@
   object-fit: cover;
 }
 
+/* ---------- Codigo QR (Inicio) ----------
+   Medidas fijas: la imagen reserva su lugar antes de cargar y los botones no
+   cambian de tamano al pasar el cursor. El QR siempre es negro sobre blanco:
+   es lo que mejor leen las camaras, no se le aplica el tema del portal. */
+
+.pt-qr {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid var(--pt-line);
+  border-radius: 14px;
+  background: var(--pt-surface);
+}
+
+.pt-qr-img {
+  display: block;
+  width: 176px;
+  height: 176px;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.pt-qr-body {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pt-qr-lead,
+.pt-qr-note {
+  margin: 0;
+  color: var(--pt-dim);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.pt-qr-note {
+  color: var(--pt-faint);
+  font-size: .82rem;
+}
+
+.pt-qr-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pt-qr-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--pt-line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--pt-text);
+  font-size: .86rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .16s ease, background-color .16s ease, color .16s ease;
+}
+
+.pt-qr-btn:hover {
+  border-color: rgba(255, 255, 255, .34);
+}
+
+.pt-qr-btn.is-main {
+  border-color: var(--pt-green);
+  background: var(--pt-green);
+  color: #04210d;
+}
+
+.pt-qr-btn.is-main:hover {
+  background-color: #6bff8a;
+  border-color: #6bff8a;
+}
+
+.pt-qr-btn:focus-visible {
+  outline: 2px solid var(--pt-green);
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .pt-qr {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+
+  .pt-qr-body {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pt *,
   .pt *::before,
