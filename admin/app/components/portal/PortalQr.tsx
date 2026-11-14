@@ -1,4 +1,5 @@
 import { qrPath } from '@/lib/artist-qr';
+import { QrCopyButton } from './QrCopyButton';
 
 // "Tu codigo QR": el artista lo descarga y lo pone en flyers, camisetas o
 // pantallas; quien lo escanea entra a su pagina. Solo muestra: el dibujo y los
@@ -27,10 +28,11 @@ export function PortalQr({ isShort }: PortalQrProps) {
             Quien lo escanee con la cámara del celular entra a tu página. Úsalo en flyers, camisetas o en la pantalla de tus shows.
           </p>
           <div className="pt-qr-actions">
-            <a className="pt-qr-btn is-main" href={qrPath('png', true)} download>Descargar PNG</a>
+            <QrCopyButton />
+            <a className="pt-qr-btn" href={qrPath('png', true)} download>Descargar PNG</a>
             <a className="pt-qr-btn" href={qrPath('svg', true)} download>Descargar SVG</a>
           </div>
-          <p className="pt-qr-note">PNG para redes y pantallas. SVG para imprimir en grande sin que se pixele.</p>
+          <p className="pt-qr-note">Copia el QR y pégalo en WhatsApp o Instagram. El PNG sirve para redes y pantallas; el SVG, para imprimir en grande sin que se pixele.</p>
           {isShort ? null : (
             <p className="pt-qr-note">Pídele a Lujo Urban tu enlace corto antes de imprimirlo: el código queda más limpio.</p>
           )}

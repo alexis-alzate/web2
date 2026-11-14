@@ -193,6 +193,13 @@ safeAction (lib/actions/safe-action.ts) = @RestControllerAdvice: atrapa los erro
     `QrRenderer`); `lib/qr/index.ts` es su raíz de composición. Dibuja negro
     sobre blanco, corrección de errores Q y margen de 4 módulos: no invertir
     colores ni quitar el margen, las cámaras dejan de leerlo. PNG de 1200 px.
+  - Botón "Copiar QR" (como el QR de Instagram: se copia y se pega la imagen en
+    WhatsApp, etc.): `components/portal/QrCopyButton.tsx` (cliente, solo el
+    estado del botón) + `lib/clipboard-image.ts` (la lógica; recibe el
+    navegador por parámetro y tiene pruebas). Entrega al portapapeles la
+    **promesa** de la imagen, no la imagen, porque Safari exige crear el item
+    dentro del toque del usuario. Necesita HTTPS y un navegador con
+    `ClipboardItem`; si no, el botón lo avisa y quedan las descargas.
   - Errores de rutas API: `lib/route-error.ts` (`errorResponse`), el hermano de
     `safeAction` para Route Handlers.
   - Un QR impreso queda fijo: apunta a la dirección vigente al descargarlo. La
