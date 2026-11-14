@@ -19,7 +19,7 @@ const SHORT_LINK_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 export const RESERVED_SHORT_LINKS: ReadonlySet<string> = new Set([
   // Carpetas y paginas que ya existen en el sitio.
-  'artistas', 'lanzamientos', 'servicios', 'estados', 'unete', 'assets',
+  'artistas', 'lanzamientos', 'servicios', 'estados', 'unete', 'vender', 'assets',
   'admin', 'tienda', 'supabase', 'lujourban-vision', 'comandos-lanzamientos',
   // Nombres que el sitio o la plataforma pueden necesitar despues.
   'api', 'casa', 'panel', 'www', 'index', 'inicio', 'home', 'login', 'beats',

@@ -1895,3 +1895,141 @@ select.join-input option { color: #fff; background: #141414; }
     transition: none;
   }
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Pagina /vender/ — solicitud de cuenta de productor.
+   Reusa los campos y el boton de /unete/ (.join-*). Dorado = Lujo Urban.
+   ─────────────────────────────────────────────────────────────── */
+.sell-nav {
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px 0;
+}
+.sell-brand {
+  color: var(--join-gold);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 3px;
+}
+.sell-nav-link {
+  color: var(--join-copy);
+  font-size: .86rem;
+  transition: color .18s ease;
+}
+.sell-nav-link:hover { color: #fff; }
+.sell-main { padding-top: 28px; }
+.sell-hero { margin: 0 0 32px; }
+.sell-hero .join-title { font-size: clamp(2.6rem, 11vw, 3.6rem); }
+.sell-cta { text-decoration: none; }
+.sell-hero-note { margin-top: 12px; }
+.sell-share {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 0 0 40px;
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--join-field);
+  box-shadow: inset 0 0 0 1px rgba(227,184,115,.22);
+}
+.sell-share-number {
+  flex: 0 0 auto;
+  color: var(--join-gold);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 3.4rem;
+  line-height: 1;
+}
+.sell-share-copy {
+  margin: 0;
+  color: #d8d2c8;
+  font-size: .95rem;
+  line-height: 1.5;
+}
+.sell-block { margin: 0 0 40px; }
+.sell-heading {
+  margin: 0 0 20px;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+.sell-list, .sell-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sell-item, .sell-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.sell-item strong, .sell-step strong {
+  display: block;
+  color: #fff;
+  font-size: .98rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.sell-item small, .sell-step small {
+  display: block;
+  margin-top: 4px;
+  color: var(--join-copy);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+.sell-icon {
+  display: flex;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #1b1810;
+  box-shadow: inset 0 0 0 1px rgba(227,184,115,.28);
+  color: var(--join-gold);
+}
+.sell-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sell-step-n {
+  display: flex;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--join-gold);
+  color: var(--join-gold);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+}
+.sell-card {
+  margin: 0;
+  padding: 24px 20px 20px;
+  border-radius: 16px;
+  background: #0d0d0d;
+  box-shadow: inset 0 0 0 1px #222;
+  scroll-margin-top: 16px;
+}
+.sell-card .sell-heading { margin-bottom: 16px; }
+@media (prefers-reduced-motion: reduce) {
+  .sell-nav-link { transition: none; }
+}
+/* La regla global de `section` mete relleno propio; aqui el ancho lo da .join-main. */
+.sell-main > section { padding: 0 !important; max-width: none; }
+.sell-main > .sell-share { padding: 20px !important; }
+.sell-main > .sell-card { padding: 24px 20px 20px !important; }
