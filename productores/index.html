@@ -52,6 +52,12 @@
 
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
+  /* Sin recuadro azul al tocar: lo reemplaza un leve atenuado al presionar
+     (solo opacidad, nada cambia de tamano). La seleccion de texto va en dorado. */
+  * { -webkit-tap-highlight-color: transparent; }
+  a, button { -webkit-touch-callout: none; }
+  a:active, button:active { opacity: .78; }
+  ::selection { background: rgba(227, 184, 115, .32); color: var(--ink); }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
     font-family: var(--text); font-size: 1.0625rem; line-height: 1.55;
