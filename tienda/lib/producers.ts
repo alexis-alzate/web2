@@ -4,13 +4,18 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
 //
 // La tabla `producers` tiene RLS sin politicas (guarda correo y comision, que
 // NUNCA deben salir), asi que el cliente anonimo no la puede leer. Por eso este
-// helper usa el cliente de servicio, pero pide SOLO tres columnas y solo
+// helper usa el cliente de servicio, pero pide SOLO las columnas de abajo y solo
 // productores activos: no ampliar el `select` sin pensar que se vuelve publico.
+// `bio` y `photo_path` son publicos a proposito: es lo que el productor pone en
+// su tienda (migracion 024).
 
 export type PublicProducer = {
   id: string;
   slug: string;
   stageName: string;
+  // Descripcion corta (max. 160 caracteres) y ruta de su foto; null = no puso.
+  bio: string | null;
+  photoPath: string | null;
 };
 
 // Los slugs son minusculas, numeros y guiones (lo garantiza la base). Cortar
@@ -22,14 +27,14 @@ export async function getProducerBySlug(slug: string): Promise<PublicProducer | 
 
   const { data, error } = await createSupabaseAdminClient()
     .from('producers')
-    .select('id, slug, stage_name')
+    .select('id, slug, stage_name, bio, photo_path')
     .eq('slug', slug)
     .eq('status', 'active')
     .maybeSingle();
 
   if (error || !data) return null;
-  const row = data as { id: string; slug: string; stage_name: string };
-  return { id: row.id, slug: row.slug, stageName: row.stage_name };
+  const row = data as { id: string; slug: string; stage_name: string; bio: string | null; photo_path: string | null };
+  return { id: row.id, slug: row.slug, stageName: row.stage_name, bio: row.bio, photoPath: row.photo_path };
 }
 
 // Slugs de varios productores a la vez, para enlazar "Prod. by X" desde los

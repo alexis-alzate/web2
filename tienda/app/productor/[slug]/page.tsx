@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { publicUrl } from '@/lib/format';
 import { getProducerBySlug } from '@/lib/producers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Beat } from '@/lib/types';
@@ -60,7 +61,13 @@ export default async function ProducerStorePage({ params, searchParams }: PagePr
 
   return (
     <main className="pstore-page">
-      <ProducerStoreHero slug={producer.slug} stageName={producer.stageName} availableCount={available} />
+      <ProducerStoreHero
+        slug={producer.slug}
+        stageName={producer.stageName}
+        availableCount={available}
+        photoUrl={publicUrl('beats-covers', producer.photoPath)}
+        bio={producer.bio}
+      />
 
       {error && <p className="beats-loading">No se pudieron cargar los beats.</p>}
       {!error && allBeats.length === 0 && <ProducerStoreEmpty stageName={producer.stageName} />}

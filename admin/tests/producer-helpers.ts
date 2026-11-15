@@ -15,7 +15,9 @@ export const PRODUCER: ProducerProfile = {
   slug: 'helmentt',
   email: 'helmentt@correo.com',
   commissionPercent: 15,
-  status: 'active'
+  status: 'active',
+  bio: null,
+  photoPath: null
 };
 
 export class FakeDirectory implements AccessDirectory {

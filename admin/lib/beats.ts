@@ -30,6 +30,10 @@ export type Producer = {
   platform_commission_percent: number;
   status: 'active' | 'inactive';
   notes: string | null;
+  // Perfil publico (migracion 024). Pueden venir vacios o, si la migracion aun
+  // no se corrio, no venir.
+  bio?: string | null;
+  photo_path?: string | null;
   created_at: string;
 };
 
