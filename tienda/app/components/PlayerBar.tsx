@@ -77,7 +77,8 @@ export default function PlayerBar() {
       title: track.title,
       coverUrl: track.coverUrl,
       license,
-      price: priceForLicense(playerBeat, license)
+      price: priceForLicense(playerBeat, license),
+      producerSlug: track.producerSlug ?? null
     });
     setLicenseModalOpen(false);
   };
