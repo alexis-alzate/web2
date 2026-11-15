@@ -114,12 +114,12 @@ try {
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
-<meta http-equiv="refresh" content="0;url=/">
+<meta http-equiv="refresh" content="0;url=/zaetta/">
 <title>${escapeHtml(socialTitle)}</title>
-<script>window.location.replace('/');</script>
+<script>window.location.replace('/zaetta/');</script>
 </head>
 <body>
-<p><a href="/">Ir al sitio oficial de Zaetta</a></p>
+<p><a href="/zaetta/">Ir al sitio oficial de Zaetta</a></p>
 </body>
 </html>
 `;
@@ -147,7 +147,7 @@ try {
 </head>
 <body style="margin:0;background:#020302;color:#fff;font-family:Arial,sans-serif;">
 <main style="min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center;">
-<a href="/" style="color:inherit;text-decoration:none;">
+<a href="/zaetta/" style="color:inherit;text-decoration:none;">
 <img src="${shareImageUrl}" alt="${escapeHtml(socialTitle)}" style="display:block;width:min(100%,1200px);height:auto;border:0;">
 <p>Ir al sitio oficial de Zaetta</p>
 </a>
@@ -158,7 +158,7 @@ try {
 
   const [scriptSource, htmlSource, imageResponse] = await Promise.all([
     readFile('script.js', 'utf8'),
-    readFile('index.html', 'utf8'),
+    readFile('zaetta/index.html', 'utf8'),
     fetchSpotifyCover(metadata.thumbnail_url)
   ]);
 
@@ -215,7 +215,7 @@ try {
 
   await Promise.all([
     writeFile('script.js', nextScript),
-    writeFile('index.html', nextHtml),
+    writeFile('zaetta/index.html', nextHtml),
     writeFile('release-history.json', `${JSON.stringify(history, null, 2)}\n`),
     writeFile(`${shareDirectory}/index.html`, sharePage),
     writeFile(`${statusDirectory}/index.html`, statusPage)

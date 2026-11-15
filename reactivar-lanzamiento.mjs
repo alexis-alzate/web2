@@ -19,7 +19,7 @@ try {
   const [{ releases }, scriptSource, htmlSource] = await Promise.all([
     readFile('release-history.json', 'utf8').then(JSON.parse),
     readFile('script.js', 'utf8'),
-    readFile('index.html', 'utf8')
+    readFile('zaetta/index.html', 'utf8')
   ]);
 
   if (!releases.length) throw new Error('No hay lanzamientos guardados.');
@@ -66,7 +66,7 @@ try {
 
   await Promise.all([
     writeFile('script.js', scriptSource.replace(previousConfig[0], config)),
-    writeFile('index.html', nextHtml)
+    writeFile('zaetta/index.html', nextHtml)
   ]);
 
   console.log(`\n${selected.title} quedo activo nuevamente.`);

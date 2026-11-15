@@ -843,7 +843,7 @@ const ZAETTA_VISION_PERSON: VisionPerson = {
   role: 'Artista · Productor',
   tagline: 'Música con propósito. Sonidos que trascienden.',
   photo: 'https://lujourban.com/assets/hero.jpg',
-  link: 'https://lujourban.com/index.html'
+  link: 'https://lujourban.com/zaetta/'
 };
 
 const artistToVisionPerson = (artist: Artist): VisionPerson => ({

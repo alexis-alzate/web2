@@ -12,7 +12,14 @@ varios sitios independientes desplegados por separado en Vercel/GitHub Pages
 a partir de carpetas distintas de un mismo monorepo:
 
 - **Sitio principal** (raíz del repo) — sitio estático (HTML/CSS/JS) en
-  `www.lujourban.com`, con páginas de artistas, lanzamientos, servicios, etc.
+  `www.lujourban.com`. La raíz (`index.html`) es la **carátula de la plataforma**
+  para productores (escrita a mano, sin depender de `styles.css` ni `script.js`).
+  La página personal de Zaetta (artista) vive en `www.lujourban.com/zaetta/`
+  (`zaetta/index.html`) como un artista más: usa `<base href="/">` para seguir
+  cargando `styles.css`, `script.js` y `assets/` desde la raíz. El panel y los
+  scripts de lanzamientos (`admin/app/actions.ts`, `admin-panel.mjs`,
+  `update-release.mjs`, `reactivar-lanzamiento.mjs`) editan `zaetta/index.html`
+  y las páginas de compartir/estado redirigen a `/zaetta/`, no a `/`.
 - **`tienda/`** — tienda de beats (Next.js), en `tienda.lujourban.com`.
   Catálogo, carrito, checkout con MercadoPago, descargas digitales.
 - **`admin/`** — panel privado de administración (Next.js), en
@@ -26,7 +33,9 @@ a partir de carpetas distintas de un mismo monorepo:
 
 ```
 web2/
-├── index.html, styles.css, script.js, ...   # sitio estático principal
+├── index.html                                # carátula de la plataforma (www.lujourban.com)
+├── zaetta/index.html                         # página personal de Zaetta (www.lujourban.com/zaetta/)
+├── styles.css, script.js, ...                # estilos y script de la página de Zaetta y de las páginas de artistas
 ├── vercel.json                               # reglas de enlaces cortos (lo genera el panel)
 ├── artistas/, lanzamientos/, servicios/, estados/  # contenido del sitio estático
 ├── unete/                                    # formulario público de lista de espera (www.lujourban.com/unete/)
