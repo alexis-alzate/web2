@@ -12,8 +12,14 @@ varios sitios independientes desplegados por separado en Vercel/GitHub Pages
 a partir de carpetas distintas de un mismo monorepo:
 
 - **Sitio principal** (raíz del repo) — sitio estático (HTML/CSS/JS) en
-  `www.lujourban.com`. La raíz (`index.html`) es la **carátula de la plataforma**
-  para productores (escrita a mano, sin depender de `styles.css` ni `script.js`).
+  `www.lujourban.com`. La raíz (`index.html`) es la **carátula de la plataforma**:
+  la casa con **dos puertas del mismo peso** (Productores → `/vender/` y
+  `/productores/`; Artistas → `/unete/`) y un botón **"Entrar"** al login común
+  (`admin.lujourban.com/login`). Lleva su CSS dentro del archivo (sin depender de
+  `styles.css` ni `script.js`). Lo que antes era la raíz, la página completa del
+  producto de productores (tienda de ejemplo, el 85 %, cómo se entra, preguntas),
+  vive ahora en `www.lujourban.com/productores/` (`productores/index.html`).
+  Son **dos productos bajo una marca**: no volver a hablarle solo a uno en la raíz.
   La página personal de Zaetta (artista) vive en `www.lujourban.com/zaetta/`
   (`zaetta/index.html`) como un artista más: usa `<base href="/">` para seguir
   cargando `styles.css`, `script.js` y `assets/` desde la raíz. El panel y los
@@ -33,7 +39,8 @@ a partir de carpetas distintas de un mismo monorepo:
 
 ```
 web2/
-├── index.html                                # carátula de la plataforma (www.lujourban.com)
+├── index.html                                # carátula: la casa con dos puertas (productores / artistas) y "Entrar" (www.lujourban.com)
+├── productores/index.html                    # producto de productores completo (www.lujourban.com/productores/)
 ├── zaetta/index.html                         # página personal de Zaetta (www.lujourban.com/zaetta/)
 ├── styles.css, script.js, ...                # estilos y script de la página de Zaetta y de las páginas de artistas
 ├── vercel.json                               # reglas de enlaces cortos (lo genera el panel)
