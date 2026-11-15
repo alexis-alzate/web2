@@ -1,0 +1,4 @@
+/* Sin recuadro azul al tocar en el celular, en todo el panel (enlaces, botones, campos, etiquetas). */
+* {
+  -webkit-tap-highlight-color: transparent;
+}

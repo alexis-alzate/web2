@@ -1517,12 +1517,12 @@ a[href*="spotify"]{
   }
 }
 
-/* ──────────────────────────────────────────────────────────────────────────────────────
+/* ───────────────────────────────────────────────────────────────
    Lista de espera — invitacion "Quiero mi pagina" + pagina /unete/
    Dorado = Lujo Urban (la plataforma). Verde = el artista.
    Escala: espacios en multiplos de 4; controles de 48/52px de alto.
    Ningun estado cambia el tamano de una caja (solo color y opacidad).
-   ────────────────────────────────────────────────────────────────────────────────────── */
+   ─────────────────────────────────────────────────────────────── */
 :root {
   --join-gold: #e3b873;
   --join-gold-ink: #1a1206;
@@ -1901,10 +1901,10 @@ select.join-input option { color: #fff; background: #141414; }
   }
 }
 
-/* ──────────────────────────────────────────────────────────────────────────────────────
+/* ───────────────────────────────────────────────────────────────
    Pagina /vender/ — solicitud de cuenta de productor.
    Reusa los campos y el boton de /unete/ (.join-*). Dorado = Lujo Urban.
-   ────────────────────────────────────────────────────────────────────────────────────── */
+   ─────────────────────────────────────────────────────────────── */
 .sell-nav {
   align-items: center;
   justify-content: space-between;

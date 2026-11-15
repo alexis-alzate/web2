@@ -26,7 +26,7 @@ html.lv-night {
   --v-glow-soft: rgba(157, 182, 199, 0.018);
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; padding: 0; scroll-behavior: smooth; }
 
 body {
