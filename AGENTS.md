@@ -460,6 +460,10 @@ vende bajo la marca y se le pagará, así que alguien tiene que revisarlo.
    - Si sigue `pending`, muestra "Procesando tu pago…" y se **auto-refresca cada 5s** (`AutoRefresh.tsx`).
    - Si `rejected`, muestra "Pago no aprobado".
    - Si `approved`, lista cada `order_item` con su botón de descarga (`/api/download/[token]`) y un botón "Volver a la tienda".
+     Ese botón (y el de la pantalla de conflicto) vuelve a la tienda del productor
+     (`/productor/<slug>`) cuando **todo** lo comprado es de un solo productor con tienda;
+     con un carrito mezclado, beats sin productor o un productor pausado vuelve al
+     catálogo general (`lib/store-home.ts`, `storeHomeHref`, pura)
 
 ## 6. Flujo de descargas
 
