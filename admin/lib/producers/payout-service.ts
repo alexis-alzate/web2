@@ -1,0 +1,51 @@
+// Reglas de los pagos a productores.
+//
+//  - El productor guarda DONDE quiere recibir su plata (su portal).
+//  - El admin registra el pago DESPUES de hacer la transferencia. Esta app no
+//    mueve dinero: solo lleva la cuenta de lo que se debe y lo que ya se pagó.
+//
+// Quien llama (la Server Action) ya comprobo la sesion: el id del productor
+// sale de la sesion y el nombre del admin, de su cuenta.
+
+import { ForbiddenError, NotFoundError, ValidationError } from '@/lib/errors';
+import { parsePayoutDetails, parseReference } from './payout-rules';
+import type { PayoutResult, ProducerRepository } from './types';
+
+export type PayoutDetailsInput = { method: unknown; account: unknown; holder: unknown };
+
+export class ProducerPayoutService {
+  constructor(private readonly producers: ProducerRepository) {}
+
+  // El productor guarda (o cambia) como quiere cobrar.
+  async saveDetails(producerId: string, input: PayoutDetailsInput): Promise<void> {
+    const producer = await this.producers.findById(producerId);
+    if (!producer) throw new NotFoundError('No encontré tu cuenta de productor.');
+    if (producer.status !== 'active') {
+      throw new ForbiddenError('Tu cuenta de productor no está activa. Contacta a Lujo Urban.');
+    }
+
+    // Se valida todo ANTES de guardar nada.
+    const details = parsePayoutDetails(input);
+    await this.producers.updatePayoutDetails(producerId, details);
+  }
+
+  // El admin ya transfirio: queda registrado y las ventas pasan a "pagadas".
+  async registerPayout(producerId: string, input: { reference: unknown; paidBy: string }): Promise<PayoutResult> {
+    const producer = await this.producers.findById(producerId);
+    if (!producer) throw new NotFoundError('No encontré a ese productor.');
+    if (!producer.payout) {
+      throw new ValidationError('Este productor todavía no dijo cómo quiere recibir su pago.');
+    }
+
+    const reference = parseReference(input.reference);
+
+    // La base vuelve a comprobar que la cuenta no cambió mientras el admin
+    // miraba la pantalla, y que haya algo pendiente.
+    return this.producers.registerPayout({
+      producerId,
+      reference,
+      paidBy: input.paidBy,
+      expectedAccount: producer.payout.account
+    });
+  }
+}

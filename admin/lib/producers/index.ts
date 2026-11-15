@@ -6,6 +6,8 @@
 //     ├─ SupabaseAccessDirectory      (Supabase Auth)
 //     ├─ ResendInviteMailer           (correo de invitacion)
 //     └─ getAppOrigin                 (direccion del panel para el enlace)
+//   ProducerPayoutService          (como cobra el productor y registro de pagos)
+//     └─ SupabaseProducerRepository
 //   ProducerProfileService
 //     ├─ SupabaseProducerRepository
 //     └─ SupabaseProducerPhotoStore   (bucket beats-covers, carpeta productores/)
@@ -13,6 +15,7 @@
 import { getAppOrigin } from '@/lib/app-origin';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin-client';
 import { ProducerAccessService } from './access-service';
+import { ProducerPayoutService } from './payout-service';
 import { ProducerProfileService } from './profile-service';
 import { SupabaseProducerPhotoStore } from './supabase-photo-store';
 import { ResendInviteMailer } from './invite-email';
@@ -33,4 +36,14 @@ export const producerProfileService = new ProducerProfileService(
   new SupabaseProducerPhotoStore(createSupabaseAdminClient)
 );
 
-export type { ProducerAccessInfo, ProducerBeat, ProducerProfile, EarningRow } from './types';
+export const producerPayoutService = new ProducerPayoutService(producerRepository);
+
+export type {
+  PayoutDetails,
+  PayoutRow,
+  PendingTotal,
+  ProducerAccessInfo,
+  ProducerBeat,
+  ProducerProfile,
+  EarningRow
+} from './types';

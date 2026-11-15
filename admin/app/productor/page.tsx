@@ -22,6 +22,8 @@ export default async function ProducerHomePage() {
       storeOrigin={origin}
       bio={producer.profile.bio ?? ''}
       photoUrl={beatCoverUrl(producer.profile.photoPath)}
+      payout={producer.profile.payout}
+      payouts={producer.payouts}
     />
   );
 }

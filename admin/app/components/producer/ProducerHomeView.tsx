@@ -1,9 +1,10 @@
 import { LICENSE_LABELS } from '@/lib/beats';
 import type { EarningsSummary } from '@/lib/producers/earnings-summary';
 import { formatCOP, formatSaleDate } from '@/lib/producers/format';
-import type { EarningRow, ProducerBeat } from '@/lib/producers/types';
+import type { EarningRow, PayoutDetails, PayoutRow, ProducerBeat } from '@/lib/producers/types';
 import { plural } from '@/lib/portal-format';
 import { beatStoreUrl } from '@/lib/producers/store-url';
+import { ProducerPayoutSection } from './ProducerPayoutSection';
 import { ProducerProfileSection } from './ProducerProfileSection';
 import { ProducerStoreLink } from './ProducerStoreLink';
 
@@ -24,6 +25,9 @@ type ProducerHomeViewProps = {
   // Perfil publico: descripcion y URL completa de la foto ('' = sin foto).
   bio: string;
   photoUrl: string;
+  // Como cobra (null = todavia no lo dijo) y los pagos que ya recibio.
+  payout: PayoutDetails | null;
+  payouts: PayoutRow[];
 };
 
 const beatMeta = (beat: ProducerBeat) =>
@@ -38,7 +42,9 @@ export function ProducerHomeView({
   storeUrl,
   storeOrigin,
   bio,
-  photoUrl
+  photoUrl,
+  payout,
+  payouts
 }: ProducerHomeViewProps) {
   const firstName = stageName.split(/\s+/)[0];
   const share = Math.round((100 - commissionPercent) * 100) / 100;
@@ -73,6 +79,8 @@ export function ProducerHomeView({
           De cada venta te corresponde el {share} %. Lujo Urban se queda con el {commissionPercent} %.
         </p>
       </section>
+
+      <ProducerPayoutSection payout={payout} payouts={payouts} pendingAmount={summary.pendingAmount} />
 
       <section className="pt-block">
         <h2 className="pt-h2">Tus beats</h2>

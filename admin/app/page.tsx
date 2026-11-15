@@ -40,10 +40,18 @@ import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { ProducerAccess } from './components/ProducerAccess';
 import { ProducerPhotoControl } from './components/ProducerPhotoControl';
+import { ProducerPayoutControl } from './components/ProducerPayoutControl';
 import { ProducerApplications } from './components/ProducerApplications';
 import { displayUrl, producerStoreUrl } from '@/lib/producers/store-url';
 import { producerApplicationService, type ProducerApplication } from '@/lib/producer-applications';
-import { producerAccessService, type ProducerAccessInfo } from '@/lib/producers';
+import {
+  producerAccessService,
+  producerRepository,
+  type PayoutRow,
+  type PendingTotal,
+  type ProducerAccessInfo
+} from '@/lib/producers';
+import { payoutMethodLabel } from '@/lib/producers/payout-rules';
 import { updateWaitlistStatusAction } from './actions-waitlist';
 import {
   FOLLOWERS_LABELS,
@@ -308,6 +316,8 @@ export default async function DashboardPage() {
   let producers: Producer[] = [];
   let producerAccess = new Map<string, ProducerAccessInfo>();
   let producerEarnings: ProducerEarning[] = [];
+  let pendingByProducer = new Map<string, PendingTotal>();
+  let recentPayouts: PayoutRow[] = [];
   let producerApplications: ProducerApplication[] = [];
   let producerApplicationsAvailable = true;
   let waitlist: WaitlistEntry[] = [];
@@ -369,6 +379,11 @@ export default async function DashboardPage() {
       .order('created_at', { ascending: false })
       .limit(50);
     producerEarnings = (earningsData as unknown as ProducerEarning[]) || [];
+
+    // Si la migracion 025 aun no se corrio estas lecturas fallan: el resto del
+    // panel se muestra igual, solo sin la parte de pagos.
+    pendingByProducer = await producerRepository.pendingTotals().catch(() => new Map<string, PendingTotal>());
+    recentPayouts = await producerRepository.listRecentPayouts(50).catch(() => [] as PayoutRow[]);
   } catch {
     beats = [];
   }
@@ -1527,6 +1542,21 @@ export default async function DashboardPage() {
                           stageName={producer.stage_name}
                           photoUrl={beatCoverUrl(producer.photo_path ?? null)}
                         />
+                        <ProducerPayoutControl
+                          producerId={producer.id}
+                          stageName={producer.stage_name}
+                          pendingAmount={pendingByProducer.get(producer.id)?.amount ?? 0}
+                          pendingCount={pendingByProducer.get(producer.id)?.count ?? 0}
+                          payout={
+                            producer.payout_method && producer.payout_account
+                              ? {
+                                  method: producer.payout_method,
+                                  account: producer.payout_account,
+                                  holder: producer.payout_holder ?? ''
+                                }
+                              : null
+                          }
+                        />
                         <ProducerAccess
                           producerId={producer.id}
                           stageName={producer.stage_name}
@@ -1709,6 +1739,39 @@ export default async function DashboardPage() {
                           {earning.producer_notified_at ? 'Productor notificado' : 'Notificacion pendiente'}
                           {' · '}
                           {new Date(earning.created_at).toLocaleString('es-CO', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                          })}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </details>
+
+            <details className="subfolder">
+              <summary>Pagos a productores ({recentPayouts.length})</summary>
+              {recentPayouts.length === 0 ? (
+                <p className="muted">Todavía no has registrado pagos a productores.</p>
+              ) : (
+                <ol className="cards">
+                  {recentPayouts.map((payout) => (
+                    <li className="card" key={payout.id}>
+                      <div>
+                        <h3>
+                          {payout.producerName ?? 'Productor eliminado'} · {formatCOP(payout.amount)}
+                        </h3>
+                        <p className="muted">
+                          {payoutMethodLabel(payout.method)} {payout.account}
+                          {payout.holder ? ` · ${payout.holder}` : ''}
+                          {' · '}
+                          {payout.earningsCount === 1 ? '1 venta' : `${payout.earningsCount} ventas`}
+                        </p>
+                        <p className="muted">
+                          Referencia: {payout.reference} · Registró {payout.paidBy}
+                          {' · '}
+                          {new Date(payout.paidAt).toLocaleString('es-CO', {
                             dateStyle: 'medium',
                             timeStyle: 'short'
                           })}

@@ -34,6 +34,10 @@ export type Producer = {
   // no se corrio, no venir.
   bio?: string | null;
   photo_path?: string | null;
+  // Como cobra (migracion 025). Pueden venir vacios o no venir.
+  payout_method?: 'nequi' | 'daviplata' | 'bancolombia' | 'otro' | null;
+  payout_account?: string | null;
+  payout_holder?: string | null;
   created_at: string;
 };
 

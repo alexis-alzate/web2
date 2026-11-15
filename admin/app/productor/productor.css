@@ -240,3 +240,19 @@ body:has(.pt-prod) {
   min-height: 20px;
   height: 20px;
 }
+
+/* ---------- Tu pago: la ayuda del campo siempre ocupa su linea ---------- */
+
+.pt .pt-hint-fixed {
+  display: block;
+  min-height: 2.6em;
+  color: var(--pt-dim);
+  font-size: .8rem;
+  line-height: 1.3;
+}
+
+.pt .pt-h3 {
+  margin: 20px 0 10px;
+  font-size: 1rem;
+  font-weight: 600;
+}
