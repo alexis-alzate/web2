@@ -43,7 +43,7 @@ web2/
 ├── lujourban-vision/                         # micrositio casa.lujourban.com
 ├── *.mjs, panel.sh, publicar.sh              # scripts de gestión de contenido estático
 ├── supabase/
-│   └── migrations/                           # 001..022, SQL incremental, se corre a mano en Supabase SQL Editor
+│   └── migrations/                           # 001..025, SQL incremental, se corre a mano en Supabase SQL Editor
 ├── tienda/                                    # Next.js — tienda de beats (pública)
 │   ├── app/
 │   │   ├── page.tsx                          # catálogo (server component)
@@ -77,6 +77,7 @@ web2/
     │   ├── auth-actions.ts, auth/, login/, forgot-password/, reset-password/
     │   ├── productor/                        # portal del PRODUCTOR (/productor): layout, producer-data.ts (loadProducer), productor.css
     │   ├── producer-access-actions.ts        # invitar / pausar / desvincular el acceso de un productor (safeAction)
+    │   ├── producer-payout-actions.ts        # el productor dice cómo cobra; el admin registra un pago (safeAction)
     │   ├── api/                              # endpoints internos del panel
     │   └── components/                       # ActionForm, SubmitButton, AnalyticsDashboard, etc.
     └── lib/
@@ -358,9 +359,68 @@ artistas.
      Supabase Storage. Cuando se haga: rutas por productor (`productores/<id>/...`),
      que el productor solo toque lo suyo, y revisión del admin antes de publicar.
   2. Pago directo al productor (Split de Mercado Pago). Hoy es liquidación manual:
-     el dinero entra a la cuenta de Lujo Urban y `producer_earnings` registra cuánto
-     le corresponde. Tocar pagos exige auditar y explicar riesgos antes (sección 10).
+     el dinero entra a la cuenta de Lujo Urban, `producer_earnings` registra cuánto
+     le corresponde y el admin le transfiere por fuera (Nequi, banco) y lo registra
+     (ver "Liquidaciones a productores" abajo). Tocar el flujo de cobro exige auditar
+     y explicar riesgos antes (sección 10).
   3. Página pública del productor con sus beats.
+
+### Liquidaciones a productores (migración 025)
+
+Lujo Urban cobra todo y le debe a cada productor su parte (`producer_earnings`,
+estado `pending`). Esta app **no mueve dinero**: el admin transfiere por fuera
+y aquí deja el registro.
+
+- **Cómo cobra el productor**: en su portal, sección "Tu pago" (Nequi, Daviplata,
+  Bancolombia u otro banco + nombre del titular). Se guarda en `producers`
+  (`payout_method`, `payout_account`, `payout_holder`). Nequi y Daviplata se
+  validan como celular colombiano (10 dígitos, empieza por 3). Es un dato
+  **sensible**: `producers` sigue con RLS sin políticas y la tienda pública NO lo
+  selecciona (`getProducerBySlug` pide solo columnas concretas; no ampliarlo).
+- **Dias de espera y pago minimo**: cada venta se **libera 7 dias despues** de la compra
+  (`producer_earnings.available_at`, valor por defecto de la columna: la funcion que
+  aprueba ordenes NO cambia) para cubrir devoluciones. El panel solo deja pagar lo
+  **liberado** y exige un total de al menos **$50.000** (`HOLD_DAYS` y
+  `MIN_PAYOUT_AMOUNT` en `payout-rules.ts`; si cambia `HOLD_DAYS`, cambia tambien el
+  `interval '7 days'` de la migracion 025). La funcion SQL lo vuelve a comprobar:
+  si lo liberado no llega al minimo, no paga nada.
+- **Transparencia para el productor**: al venderse un beat le llega un correo con lo que
+  va a recibir y la fecha en que se libera (`tienda/lib/email.ts`); en `/productor` ve
+  Disponible / En espera / Ya pagado y, en cada venta, "En espera · se libera el X";
+  y al registrarse un pago le llega otro correo con monto, ultimos 4 digitos de la
+  cuenta y referencia (`payout-email.ts`). Si ese correo falla, el pago NO se deshace:
+  el panel avisa para que se lo comuniques tu.
+- **Pagar** (panel, tarjeta del productor → `ProducerPayoutControl`): muestra lo
+  liberado ("Para pagar hoy"), lo que sigue en espera y la cuenta; el admin transfiere,
+  escribe la referencia (comprobante), marca "Ya transferí $X a esa cuenta" y
+  registra. Un solo clic paga **todo lo liberado** del productor.
+- **Atomicidad**: la función SQL `register_producer_payout` bloquea al productor,
+  marca las ventas pendientes como pagadas y crea el pago en una sola transacción;
+  el monto del pago es exactamente la suma de lo marcado. Dos clics (o dos
+  pestañas) no pagan dos veces. Si el productor cambia su cuenta mientras el admin
+  mira la pantalla, la función se niega (`p_expected_account`). Los mensajes que
+  empiezan con `LU:` se muestran tal cual al admin. Permisos: solo `service_role`.
+- **Libro de pagos**: `producer_payouts` (monto, cantidad de ventas, copia de la
+  cuenta usada, referencia, quién lo registró, cuándo). `producer_earnings.payout_id`
+  enlaza cada venta con su pago; las pagadas antes de la 025 quedan sin enlace.
+- **Capas**: `producer-payout-actions.ts` (controladores; productor y admin salen de
+  la sesión) → `lib/producers/payout-service.ts` → `repository.ts` + RPC;
+  `payout-rules.ts` tiene las reglas puras. Pruebas: `tests/producer-payout.test.ts`.
+  La función SQL se probó contra un Postgres real (suma, doble clic, 4 clics
+  simultáneos, rollback, cuenta cambiada, permisos); no hay forma de probarla con
+  dobles en memoria, así que si se cambia hay que volver a probarla en Postgres.
+- **Orden de despliegue**: correr la migración 025 **antes** de desplegar el
+  código; el portal, el panel **y el correo de venta de la tienda** leen las columnas
+  nuevas (si falta `available_at`, el correo al productor no sale, aunque el pago del
+  comprador se aprueba igual).
+- **Medios de pago del comprador**: Checkout Pro Colombia ofrece tarjetas, cuenta
+  Mercado Pago, PSE y Efecty; Nequi y Daviplata se pagan **a través de PSE**. No
+  hay nada que configurar en el código para recibirlos.
+- Pendiente: reembolsos (un reembolso después de pagarle al productor deja la venta
+  pagada; hoy se resuelve a mano), exportar el libro, y cuando haya muchos productores
+  **automatizar la transferencia** (pagos a terceros de Wompi/ePayco; la auditoría del
+  Split de Mercado Pago quedó en `AUDITORIA-SPLIT-MERCADOPAGO.md`, con un posible
+  bloqueante sin confirmar sobre PSE/Nequi).
 
 ### Tienda pública del productor
 

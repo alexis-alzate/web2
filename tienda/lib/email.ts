@@ -15,7 +15,18 @@ type ProducerSaleEmailItem = {
   grossAmount: number;
   platformFeeAmount: number;
   producerAmount: number;
+  // Dia desde el cual esta venta se puede pagar (producer_earnings.available_at).
+  availableAt: string;
 };
+
+// Debe coincidir con MIN_PAYOUT_AMOUNT de admin/lib/producers/payout-rules.ts.
+const MIN_PAYOUT_AMOUNT = 50_000;
+
+// "22 nov" con la fecha de Colombia.
+const formatDay = (iso: string) =>
+  new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', timeZone: 'America/Bogota' })
+    .format(new Date(iso))
+    .replace('.', '');
 
 const escapeHtml = (value: string) =>
   value
@@ -87,6 +98,8 @@ export async function sendProducerSaleEmail(
 
   const resend = new Resend(apiKey);
   const totalProducerAmount = items.reduce((sum, item) => sum + item.producerAmount, 0);
+  // Todas las ventas de una orden se crean juntas; si difirieran, se avisa la ultima.
+  const releaseAt = items.reduce((latest, item) => (item.availableAt > latest ? item.availableAt : latest), items[0]?.availableAt ?? '');
 
   const rows = items
     .map((item) => `
@@ -99,7 +112,7 @@ export async function sendProducerSaleEmail(
         </td>
         <td style="padding:12px 0;border-bottom:1px solid rgba(243,195,94,0.2);text-align:right;">
           <p style="margin:0;color:#f3c35e;font-weight:800;">${formatCOP(item.producerAmount)}</p>
-          <p style="margin:4px 0 0;color:rgba(244,239,231,0.45);font-size:12px;">LUJO URBAN ${formatCOP(item.platformFeeAmount)}</p>
+          <p style="margin:4px 0 0;color:rgba(244,239,231,0.45);font-size:12px;">Comisión Lujo Urban ${formatCOP(item.platformFeeAmount)}</p>
         </td>
       </tr>
     `)
@@ -114,10 +127,18 @@ export async function sendProducerSaleEmail(
           ${rows}
         </table>
         <p style="color:#f3c35e;font-weight:800;font-size:18px;margin:22px 0 0;text-align:right;">
-          Para productor: ${formatCOP(totalProducerAmount)}
+          Vas a recibir: ${formatCOP(totalProducerAmount)}
         </p>
+        <div style="margin:20px 0 0;padding:14px 16px;border:1px solid rgba(243,195,94,0.3);border-radius:12px;">
+          <p style="margin:0 0 6px;color:#f4efe7;font-weight:700;font-size:14px;">Cuándo te pagamos</p>
+          <p style="margin:0;color:rgba(244,239,231,0.72);font-size:13px;line-height:1.55;">
+            Esta venta se libera el <strong>${escapeHtml(formatDay(releaseAt))}</strong>, unos días después de la compra,
+            por si hay una devolución. Cuando tengas ${formatCOP(MIN_PAYOUT_AMOUNT)} o más liberados te transferimos a la
+            cuenta que registraste en tu portal ("Tu pago") y te llega un correo con el comprobante.
+          </p>
+        </div>
         <p style="color:rgba(244,239,231,0.5);font-size:12px;margin-top:20px;">
-          Este correo es una notificación automática. El pago al productor se liquida internamente según el acuerdo vigente con LUJO URBAN.
+          Este correo es una notificación automática. Puedes ver tus ventas y tus pagos en tu portal de productor.
         </p>
       </div>
     </div>

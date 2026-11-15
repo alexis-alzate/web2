@@ -1,9 +1,11 @@
 import { LICENSE_LABELS } from '@/lib/beats';
-import type { EarningsSummary } from '@/lib/producers/earnings-summary';
+import { earningPhaseLabel, type EarningsSummary } from '@/lib/producers/earnings-summary';
 import { formatCOP, formatSaleDate } from '@/lib/producers/format';
-import type { EarningRow, ProducerBeat } from '@/lib/producers/types';
+import { HOLD_DAYS, MIN_PAYOUT_AMOUNT } from '@/lib/producers/payout-rules';
+import type { EarningRow, PayoutDetails, PayoutRow, ProducerBeat } from '@/lib/producers/types';
 import { plural } from '@/lib/portal-format';
 import { beatStoreUrl } from '@/lib/producers/store-url';
+import { ProducerPayoutSection } from './ProducerPayoutSection';
 import { ProducerProfileSection } from './ProducerProfileSection';
 import { ProducerStoreLink } from './ProducerStoreLink';
 
@@ -24,6 +26,11 @@ type ProducerHomeViewProps = {
   // Perfil publico: descripcion y URL completa de la foto ('' = sin foto).
   bio: string;
   photoUrl: string;
+  // Como cobra (null = todavia no lo dijo) y los pagos que ya recibio.
+  payout: PayoutDetails | null;
+  payouts: PayoutRow[];
+  // "Hoy" para decidir si una venta ya se libero. Se puede fijar para revisar la vista.
+  now?: Date;
 };
 
 const beatMeta = (beat: ProducerBeat) =>
@@ -38,7 +45,10 @@ export function ProducerHomeView({
   storeUrl,
   storeOrigin,
   bio,
-  photoUrl
+  photoUrl,
+  payout,
+  payouts,
+  now = new Date()
 }: ProducerHomeViewProps) {
   const firstName = stageName.split(/\s+/)[0];
   const share = Math.round((100 - commissionPercent) * 100) / 100;
@@ -61,8 +71,12 @@ export function ProducerHomeView({
         </p>
         <dl className="pt-prod-split">
           <div>
-            <dt>Por pagar</dt>
-            <dd>{formatCOP(summary.pendingAmount)}</dd>
+            <dt>Disponible</dt>
+            <dd>{formatCOP(summary.availableAmount)}</dd>
+          </div>
+          <div>
+            <dt>En espera</dt>
+            <dd>{formatCOP(summary.holdingAmount)}</dd>
           </div>
           <div>
             <dt>Ya pagado</dt>
@@ -71,8 +85,14 @@ export function ProducerHomeView({
         </dl>
         <p className="pt-help pt-prod-terms">
           De cada venta te corresponde el {share} %. Lujo Urban se queda con el {commissionPercent} %.
+          {' '}
+          Cada venta se libera {HOLD_DAYS} días después de la compra, por si hay una devolución, y pasa a
+          disponible. Te pagamos cuando tengas {formatCOP(MIN_PAYOUT_AMOUNT)} o más disponibles.
+          {summary.nextReleaseAt ? ` Tu próxima liberación es el ${formatSaleDate(summary.nextReleaseAt)}.` : ''}
         </p>
       </section>
+
+      <ProducerPayoutSection payout={payout} payouts={payouts} pendingAmount={summary.pendingAmount} />
 
       <section className="pt-block">
         <h2 className="pt-h2">Tus beats</h2>
@@ -116,7 +136,7 @@ export function ProducerHomeView({
                   <span>
                     Licencia {LICENSE_LABELS[sale.license].name.toLowerCase()} · {formatSaleDate(sale.createdAt)}
                     {' · '}
-                    {sale.status === 'paid' ? 'Pagada' : 'Por pagar'}
+                    {earningPhaseLabel(sale, now)}
                   </span>
                 </div>
                 <b className="pt-prod-amount">{formatCOP(sale.producerAmount)}</b>

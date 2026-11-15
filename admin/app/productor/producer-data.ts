@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentAccess, type LujoAccessStatus } from '@/lib/auth';
 import { producerRepository } from '@/lib/producers';
 import { summarizeEarnings, type EarningsSummary } from '@/lib/producers/earnings-summary';
-import type { EarningRow, ProducerBeat, ProducerProfile } from '@/lib/producers/types';
+import type { EarningRow, PayoutRow, ProducerBeat, ProducerProfile } from '@/lib/producers/types';
 
 // Lo que necesita cualquier pantalla del portal del productor. El layout y cada
 // pagina llaman a `loadProducer()`; `cache` hace que en una misma peticion se
@@ -16,6 +16,8 @@ export type ProducerPortal = {
   profile: ProducerProfile | null;
   beats: ProducerBeat[];
   earnings: EarningRow[];
+  // Pagos que Lujo Urban ya le hizo (el mas reciente primero).
+  payouts: PayoutRow[];
   summary: EarningsSummary;
 };
 
@@ -29,16 +31,17 @@ export const loadProducer = cache(async (): Promise<ProducerPortal> => {
   const profile = await producerRepository.findById(access.producerId);
   const usable = profile?.status === 'active' && access.status === 'active';
   if (!usable) {
-    return { status: access.status, profile, beats: [], earnings: [], summary: summarizeEarnings([]) };
+    return { status: access.status, profile, beats: [], earnings: [], payouts: [], summary: summarizeEarnings([]) };
   }
 
   // Solo se leen los datos del productor de la SESION, nunca de la peticion.
-  const [beats, earnings] = await Promise.all([
+  const [beats, earnings, payouts] = await Promise.all([
     producerRepository.listBeats(access.producerId),
-    producerRepository.listEarnings(access.producerId)
+    producerRepository.listEarnings(access.producerId),
+    producerRepository.listPayouts(access.producerId)
   ]);
 
-  return { status: access.status, profile, beats, earnings, summary: summarizeEarnings(earnings) };
+  return { status: access.status, profile, beats, earnings, payouts, summary: summarizeEarnings(earnings) };
 });
 
 // Para las paginas: solo devuelve cuando hay un productor activo. En cualquier

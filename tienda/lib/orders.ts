@@ -30,6 +30,7 @@ type ProducerEarningRow = {
   gross_amount: number;
   platform_fee_amount: number;
   producer_amount: number;
+  available_at: string;
   producers: {
     stage_name: string;
     email: string;
@@ -45,7 +46,7 @@ const isUsableDownload = (download: DownloadRow) =>
 const notifyProducersForOrder = async (supabase: SupabaseAdmin, orderId: string) => {
   const { data, error } = await supabase
     .from('producer_earnings')
-    .select('id, license_type, gross_amount, platform_fee_amount, producer_amount, producers(stage_name, email), beats(title)')
+    .select('id, license_type, gross_amount, platform_fee_amount, producer_amount, available_at, producers(stage_name, email), beats(title)')
     .eq('order_id', orderId)
     .is('producer_notified_at', null);
 
@@ -71,7 +72,8 @@ const notifyProducersForOrder = async (supabase: SupabaseAdmin, orderId: string)
       licenseType: earning.license_type,
       grossAmount: earning.gross_amount,
       platformFeeAmount: earning.platform_fee_amount,
-      producerAmount: earning.producer_amount
+      producerAmount: earning.producer_amount,
+      availableAt: earning.available_at
     });
     byProducer.set(earning.producers.email, current);
   }

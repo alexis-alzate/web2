@@ -17,7 +17,8 @@ export const PRODUCER: ProducerProfile = {
   commissionPercent: 15,
   status: 'active',
   bio: null,
-  photoPath: null
+  photoPath: null,
+  payout: null
 };
 
 export class FakeDirectory implements AccessDirectory {

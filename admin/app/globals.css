@@ -4397,3 +4397,34 @@ label .portal-image-status.is-error {
   padding: 0;
   list-style: none;
 }
+
+/* Pago a un productor (tarjeta del panel). Sin cambios de tamano al interactuar. */
+.producer-payout {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.producer-payout p {
+  margin: 0;
+}
+
+.producer-payout-form {
+  gap: 10px;
+}
+
+.producer-payout .producer-payout-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.producer-payout .producer-payout-check input {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+  flex: none;
+}
