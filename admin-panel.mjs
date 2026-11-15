@@ -282,7 +282,7 @@ const reactivateHomeRelease = async payload => {
   const [{ releases }, scriptSource, htmlSource] = await Promise.all([
     readJson('release-history.json', { releases: [] }),
     readFile('script.js', 'utf8'),
-    readFile('index.html', 'utf8')
+    readFile('zaetta/index.html', 'utf8')
   ]);
   const selected = releases.find(release => release.slug === selectedSlug);
   if (!selected) throw new Error('No encontre ese lanzamiento del home.');
@@ -322,7 +322,7 @@ const reactivateHomeRelease = async payload => {
 
   await Promise.all([
     writeFile('script.js', scriptSource.replace(previousConfig[0], config)),
-    writeFile('index.html', nextHtml)
+    writeFile('zaetta/index.html', nextHtml)
   ]);
 
   return selected;
@@ -378,19 +378,19 @@ const addHomeRelease = async payload => {
 <meta name="twitter:title" content="${escapeHtml(socialTitle)}">
 <meta name="twitter:description" content="${escapeHtml(socialDescription)}">
 <meta name="twitter:image" content="${shareImageUrl}">
-<meta http-equiv="refresh" content="0;url=/">
+<meta http-equiv="refresh" content="0;url=/zaetta/">
 <title>${escapeHtml(socialTitle)}</title>
-<script>window.location.replace('/');</script>
+<script>window.location.replace('/zaetta/');</script>
 </head>
 <body>
-<p><a href="/">Ir al sitio oficial de Zaetta</a></p>
+<p><a href="/zaetta/">Ir al sitio oficial de Zaetta</a></p>
 </body>
 </html>
 `;
 
   const [scriptSource, htmlSource, imageResponse] = await Promise.all([
     readFile('script.js', 'utf8'),
-    readFile('index.html', 'utf8'),
+    readFile('zaetta/index.html', 'utf8'),
     fetch(metadata.thumbnail_url)
   ]);
 
@@ -442,7 +442,7 @@ const addHomeRelease = async payload => {
   await Promise.all([
     writeFile(coverPath, Buffer.from(await imageResponse.arrayBuffer())),
     writeFile('script.js', scriptSource.replace(previousConfig[0], config)),
-    writeFile('index.html', nextHtml),
+    writeFile('zaetta/index.html', nextHtml),
     writeJson('release-history.json', history),
     writeFile(`${shareDirectory}/index.html`, sharePage)
   ]);
