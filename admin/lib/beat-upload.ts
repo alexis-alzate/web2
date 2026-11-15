@@ -12,6 +12,9 @@ export const MAX_FILE_BYTES = {
 
 export type UploadField = keyof typeof MAX_FILE_BYTES;
 
+// Archivos que se venden (bucket privado).
+const SALE_FIELDS: UploadField[] = ['basic', 'premium', 'exclusive'];
+
 export type BeatUploadMetadata = {
   title: string;
   slug?: string;
@@ -117,6 +120,19 @@ export const validateUploadFiles = (files: BeatUploadFileInput[]) => {
   const uploadTotal = files.reduce((sum, file) => sum + file.size, 0);
   if (uploadTotal > MAX_TOTAL_UPLOAD_BYTES) {
     throw new Error(`La subida total pesa ${formatBytes(uploadTotal)}. Maximo permitido por publicacion: ${formatBytes(MAX_TOTAL_UPLOAD_BYTES)}.`);
+  }
+
+  // El preview queda en un bucket PUBLICO: si es el mismo archivo que se vende,
+  // cualquiera lo baja gratis. Mismo nombre y mismo peso = mismo archivo.
+  const preview = files.find((file) => file.field === 'preview');
+  const sameAsPreview = preview && files.find((file) =>
+    SALE_FIELDS.includes(file.field) && file.name === preview.name && file.size === preview.size
+  );
+  if (sameAsPreview) {
+    throw new Error(
+      `El preview (${preview.name}) es el mismo archivo que la licencia ${sameAsPreview.field}. `
+      + 'El preview es publico: sube una version distinta, con tag de voz y menor calidad.'
+    );
   }
 
   for (const file of files) {

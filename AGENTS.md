@@ -525,6 +525,23 @@ vende bajo la marca y se le pagará, así que alguien tiene que revisarlo.
   directo a `/productor`. Falta además una lista de pasos de perfil (foto,
   historia) y la subida de beats (bloqueada hasta R2).
 
+## 4.4 Despliegues y el cupo de Vercel (plan Hobby: 100 por dia)
+
+- Cada proyecto de Vercel lee el `vercel.json` de **su** carpeta: raiz (sitio),
+  `tienda/`, `admin/` y `lujourban-vision/`.
+- `git.deploymentEnabled` apaga los despliegues de vista previa: solo `main`
+  despliega. Una rama o un PR ya no crea despliegues.
+- `ignoreCommand` cancela el build si la carpeta del proyecto no cambio desde
+  el ultimo despliegue bueno (`VERCEL_GIT_PREVIOUS_SHA`). Ante cualquier duda
+  construye. **Ojo:** un build cancelado asi ahorra minutos pero SI cuenta para
+  el cupo de 100; por eso existe el paso siguiente.
+- `.github/workflows/deploy.yml` despliega por Deploy Hook solo el proyecto cuya
+  carpeta cambio. No hace nada hasta que existan los secretos `VERCEL_HOOK_*`;
+  al activarlo hay que poner `"main": false` en cada `vercel.json` para que
+  Vercel no despliegue ademas por su cuenta. Los pasos estan en ese archivo.
+- El panel reescribe el `vercel.json` de la raiz en cada guardado y conserva
+  estas llaves (`withShortLinkRoutes`).
+
 ## 5. Flujo de compra digital (estado actual, ya en producción)
 
 1. El carrito (`CartProvider`, localStorage) hace `POST /api/checkout` con `{ buyer_email, items: [{ beat_id, license_type }] }`.
@@ -538,7 +555,7 @@ vende bajo la marca y se le pagará, así que alguien tiene que revisarlo.
    - Extrae el `payment_id` del query/body.
    - **Re-consulta el pago contra la API de MercadoPago** (nunca confía en el payload directo del webhook).
    - Si la consulta a MP falla por un error transitorio (no 404), responde **500** para que MercadoPago reintente la notificación. Si el pago no existe (404), responde 200 (no generar reintentos basura).
-   - Si `status === 'approved'` → `approveOrder(supabase, orderId, paymentId)`.
+   - Si `status === 'approved'` → comprueba que el pago cubre la orden (`lib/payment-check.ts`: moneda COP y monto no menor que `orders.total_amount`) y solo entonces `approveOrder(supabase, orderId, paymentId)`. Si no la cubre, no entrega nada y lo deja en el log. `/descarga` aplica la misma comprobacion en su respaldo.
    - Si `status === 'rejected'` o `'cancelled'` → marca la orden `rejected` (solo si seguía `pending`).
 5. `lib/orders.ts: approveOrder()`:
    - **Idempotencia atómica**: `UPDATE orders SET status='approved', mp_payment_id=... WHERE id=orderId AND status != 'approved'`. Si la fila no se actualiza (ya estaba aprobada), sale sin hacer nada — así webhooks duplicados/concurrentes no generan tokens ni correos repetidos.

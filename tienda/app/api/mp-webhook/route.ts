@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import { approveOrder } from '@/lib/orders';
+import { checkPaymentCoversOrder } from '@/lib/payment-check';
 
 function getPaymentId(url: URL, body: unknown): string | null {
   const topic = url.searchParams.get('topic') ?? url.searchParams.get('type');
@@ -102,6 +103,30 @@ export async function POST(request: Request) {
   const supabase = createSupabaseAdminClient();
 
   if (payment.status === 'approved') {
+    // El pago debe cubrir el total de la orden antes de entregar nada.
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('total_amount')
+      .eq('id', orderId)
+      .maybeSingle();
+
+    // Fallo leyendo la orden: 500 para que Mercado Pago reintente.
+    if (orderError) {
+      return NextResponse.json({ error: 'No se pudo leer la orden.' }, { status: 500 });
+    }
+    // Referencia que no es una orden nuestra: nada que aprobar.
+    if (!order) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const check = checkPaymentCoversOrder(payment, order.total_amount);
+    if (!check.ok) {
+      // No se aprueba ni se entrega. Queda en el log para revisarlo a mano;
+      // se responde 200 porque reintentar no cambia el resultado.
+      console.error(`Pago ${payment.id} NO cubre la orden ${orderId}: ${check.reason}`);
+      return NextResponse.json({ ok: true });
+    }
+
     await approveOrder(supabase, orderId, String(payment.id));
     return NextResponse.json({ ok: true });
   }

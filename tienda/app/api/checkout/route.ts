@@ -5,17 +5,36 @@ import { LICENSE_LABELS, priceForLicense, filePathForLicense, type Beat, type Li
 
 type CheckoutItem = { beat_id: string; license_type: LicenseType };
 
+const MAX_ITEMS = 20;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const isCheckoutItem = (value: unknown): value is CheckoutItem => {
+  if (!value || typeof value !== 'object') return false;
+  const item = value as Record<string, unknown>;
+  return typeof item.beat_id === 'string'
+    && item.beat_id.length <= 80
+    && typeof item.license_type === 'string';
+};
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
-  const buyerEmail: string | undefined = body?.buyer_email;
-  const items: CheckoutItem[] | undefined = body?.items;
+  const buyerEmail = typeof body?.buyer_email === 'string' ? body.buyer_email.trim() : '';
+  const rawItems: unknown = body?.items;
 
-  if (!buyerEmail || !buyerEmail.includes('@')) {
+  if (!EMAIL_PATTERN.test(buyerEmail) || buyerEmail.length > 254) {
     return NextResponse.json({ error: 'Correo inválido.' }, { status: 400 });
   }
-  if (!items || !items.length) {
+  if (!Array.isArray(rawItems) || !rawItems.length) {
     return NextResponse.json({ error: 'El carrito está vacío.' }, { status: 400 });
   }
+  if (rawItems.length > MAX_ITEMS) {
+    return NextResponse.json({ error: `El carrito admite hasta ${MAX_ITEMS} beats por orden.` }, { status: 400 });
+  }
+  // Cada item debe traer textos: un cuerpo mal formado responde 400, no 500.
+  if (!rawItems.every(isCheckoutItem)) {
+    return NextResponse.json({ error: 'El carrito tiene un item inválido.' }, { status: 400 });
+  }
+  const items: CheckoutItem[] = rawItems;
 
   const supabase = createSupabaseAdminClient();
 
