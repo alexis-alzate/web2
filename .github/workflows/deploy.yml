@@ -1,0 +1,89 @@
+name: Deploy
+
+# Despliega en Vercel SOLO el proyecto cuya carpeta cambio.
+#
+# Por que existe: el plan Hobby de Vercel admite 100 despliegues por dia y cada
+# push a main creaba uno por proyecto (sitio, tienda, panel, casa), cambiara o
+# no. Un despliegue cancelado por "Ignored Build Step" tambien cuenta para ese
+# cupo, asi que la unica forma de no gastarlo es no crearlo.
+#
+# Como se activa (una sola vez, ver el PR que agrego este archivo):
+#  1. En cada proyecto de Vercel: Settings > Git > Deploy Hooks, crear un hook
+#     para la rama main.
+#  2. Guardar cada URL como secreto del repo en GitHub:
+#     VERCEL_HOOK_SITIO, VERCEL_HOOK_TIENDA, VERCEL_HOOK_ADMIN, VERCEL_HOOK_CASA.
+#  3. En el vercel.json de cada proyecto poner "main": false dentro de
+#     git.deploymentEnabled, para que Vercel deje de desplegar por su cuenta.
+#
+# Mientras un secreto no exista, su paso no hace nada: este archivo es inofensivo
+# hasta que se active. La URL de un hook es un secreto: quien la tenga puede
+# disparar despliegues.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: desplegar lo que cambio
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detectar carpetas con cambios
+        id: cambios
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          # Primer push de la rama o historial reescrito: desplegar todo.
+          if ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+            echo "sitio=true" >> "$GITHUB_OUTPUT"
+            echo "tienda=true" >> "$GITHUB_OUTPUT"
+            echo "admin=true" >> "$GITHUB_OUTPUT"
+            echo "casa=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          cambio() { if git diff --quiet "$BEFORE" "$AFTER" -- "$@"; then echo false; else echo true; fi; }
+          echo "tienda=$(cambio tienda)" >> "$GITHUB_OUTPUT"
+          echo "admin=$(cambio admin)" >> "$GITHUB_OUTPUT"
+          echo "casa=$(cambio lujourban-vision)" >> "$GITHUB_OUTPUT"
+          echo "sitio=$(cambio . ':(exclude)tienda' ':(exclude)admin' ':(exclude)lujourban-vision' ':(exclude)supabase' ':(exclude).github' ':(exclude)*.md')" >> "$GITHUB_OUTPUT"
+
+      - name: Desplegar sitio (www.lujourban.com)
+        if: steps.cambios.outputs.sitio == 'true'
+        env:
+          HOOK: ${{ secrets.VERCEL_HOOK_SITIO }}
+        run: |
+          if [ -n "$HOOK" ]; then curl -fsS -X POST "$HOOK" -o /dev/null; else echo "Sin hook, no se despliega desde aqui."; fi
+
+      - name: Desplegar tienda
+        if: steps.cambios.outputs.tienda == 'true'
+        env:
+          HOOK: ${{ secrets.VERCEL_HOOK_TIENDA }}
+        run: |
+          if [ -n "$HOOK" ]; then curl -fsS -X POST "$HOOK" -o /dev/null; else echo "Sin hook, no se despliega desde aqui."; fi
+
+      - name: Desplegar panel
+        if: steps.cambios.outputs.admin == 'true'
+        env:
+          HOOK: ${{ secrets.VERCEL_HOOK_ADMIN }}
+        run: |
+          if [ -n "$HOOK" ]; then curl -fsS -X POST "$HOOK" -o /dev/null; else echo "Sin hook, no se despliega desde aqui."; fi
+
+      - name: Desplegar casa (casa.lujourban.com)
+        if: steps.cambios.outputs.casa == 'true'
+        env:
+          HOOK: ${{ secrets.VERCEL_HOOK_CASA }}
+        run: |
+          if [ -n "$HOOK" ]; then curl -fsS -X POST "$HOOK" -o /dev/null; else echo "Sin hook, no se despliega desde aqui."; fi
