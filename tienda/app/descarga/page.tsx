@@ -2,6 +2,7 @@ import Link from 'next/link';
 import AutoRefresh from './AutoRefresh';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import { approveOrder } from '@/lib/orders';
+import { checkPaymentCoversOrder } from '@/lib/payment-check';
 import { formatCOP } from '@/lib/format';
 import { getProducerSlugs } from '@/lib/producers';
 import { storeHomeHref } from '@/lib/store-home';
@@ -17,7 +18,7 @@ type OrderItem = {
   downloads: { token: string; download_count: number; max_downloads: number; expires_at: string }[];
 };
 
-const verifyApprovedPayment = async (paymentId: string, orderId: string) => {
+const verifyApprovedPayment = async (paymentId: string, orderId: string, orderTotal: number) => {
   const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
   if (!accessToken) return false;
 
@@ -29,7 +30,14 @@ const verifyApprovedPayment = async (paymentId: string, orderId: string) => {
   if (!paymentRes.ok) return false;
 
   const payment = await paymentRes.json();
-  return payment.status === 'approved' && payment.external_reference === orderId;
+  if (payment.status !== 'approved' || payment.external_reference !== orderId) return false;
+
+  const check = checkPaymentCoversOrder(payment, orderTotal);
+  if (!check.ok) {
+    console.error(`Pago ${paymentId} NO cubre la orden ${orderId}: ${check.reason}`);
+    return false;
+  }
+  return true;
 };
 
 // "Volver a la tienda": a la tienda del productor si todo lo comprado es suyo;
@@ -78,7 +86,7 @@ export default async function DescargaPage({
   // Respaldo para entornos donde MercadoPago no puede llamar al webhook (ej. localhost):
   // nunca confiamos en la URL; se reconsulta MercadoPago y se valida external_reference.
   if (order.status === 'pending' && status === 'approved' && payment_id) {
-    const isApproved = await verifyApprovedPayment(payment_id, order_id);
+    const isApproved = await verifyApprovedPayment(payment_id, order_id, order.total_amount);
     if (isApproved) {
       try {
         await approveOrder(supabase, order_id, payment_id);

@@ -52,7 +52,7 @@ export async function sendDownloadEmail(buyerEmail: string, items: DownloadEmail
       return `
         <tr>
           <td style="padding:12px 0;border-bottom:1px solid rgba(243,195,94,0.2);">
-            <p style="margin:0;color:#f4efe7;font-weight:600;">${item.beat.title}</p>
+            <p style="margin:0;color:#f4efe7;font-weight:600;">${escapeHtml(item.beat.title)}</p>
             <p style="margin:4px 0 0;color:rgba(244,239,231,0.6);font-size:13px;">
               Licencia ${LICENSE_LABELS[item.license_type].name} — ${formatCOP(item.amount)}
             </p>
