@@ -3,6 +3,8 @@ import AutoRefresh from './AutoRefresh';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
 import { approveOrder } from '@/lib/orders';
 import { formatCOP } from '@/lib/format';
+import { getProducerSlugs } from '@/lib/producers';
+import { storeHomeHref } from '@/lib/store-home';
 import { LICENSE_LABELS, type Beat, type LicenseType } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -28,6 +30,19 @@ const verifyApprovedPayment = async (paymentId: string, orderId: string) => {
 
   const payment = await paymentRes.json();
   return payment.status === 'approved' && payment.external_reference === orderId;
+};
+
+// "Volver a la tienda": a la tienda del productor si todo lo comprado es suyo;
+// si no, al catalogo general. Si algo falla, el catalogo general (nunca romper la pagina).
+const resolveStoreHref = async (items: OrderItem[]) => {
+  try {
+    const ids = items.map((item) => item.beats?.producer_id ?? null);
+    const slugs = await getProducerSlugs(ids.filter((id): id is string => !!id));
+    return storeHomeHref(ids, slugs);
+  } catch (storeError) {
+    console.error('No se pudo resolver la tienda de vuelta en /descarga:', storeError);
+    return '/';
+  }
 };
 
 export default async function DescargaPage({
@@ -94,6 +109,7 @@ export default async function DescargaPage({
   }
 
   if (order.status === 'conflict') {
+    const conflictStoreHref = await resolveStoreHref((order.order_items as OrderItem[]) ?? []);
     return (
       <main className="descarga-page">
         <h1 className="descarga-title">Este beat ya fue vendido en exclusiva</h1>
@@ -102,7 +118,7 @@ export default async function DescargaPage({
           así que no podemos entregártelo. No tienes que hacer nada: te vamos a escribir a tu correo
           para hacerte el reembolso completo.
         </p>
-        <Link href="/" className="descarga-volver">
+        <Link href={conflictStoreHref} className="descarga-volver">
           Volver a la tienda
         </Link>
       </main>
@@ -119,6 +135,7 @@ export default async function DescargaPage({
   }
 
   const items = (order.order_items as OrderItem[]) ?? [];
+  const storeHref = await resolveStoreHref(items);
 
   return (
     <main className="descarga-page">
@@ -150,7 +167,7 @@ export default async function DescargaPage({
         })}
       </ul>
 
-      <Link href="/" className="descarga-volver">
+      <Link href={storeHref} className="descarga-volver">
         Volver a la tienda
       </Link>
     </main>
