@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/server';
+import { withProducerSlugs } from '@/lib/producers';
 import { LICENSE_LABELS, priceForLicense, filePathForLicense, type Beat, type LicenseType } from '@/lib/types';
 
 type CheckoutItem = { beat_id: string; license_type: LicenseType };
@@ -107,6 +108,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Falta configurar MercadoPago.' }, { status: 500 });
   }
 
+  // Si todo el carrito es de un solo productor con tienda, un pago fallido
+  // devuelve al comprador a esa tienda y no a la raiz.
+  const slugs = new Set(
+    (await withProducerSlugs(orderItems.map((it) => it.beat))).map((beat) => beat.producer_slug)
+  );
+  const onlySlug = slugs.size === 1 ? [...slugs][0] : null;
+  const failureBase = onlySlug ? `${siteUrl}/productor/${onlySlug}` : siteUrl;
+
   const preference: Record<string, unknown> = {
     items: orderItems.map((it) => ({
       title: `${it.beat.title} — Licencia ${LICENSE_LABELS[it.license_type].name}`,
@@ -119,7 +128,7 @@ export async function POST(request: Request) {
     back_urls: {
       success: `${siteUrl}/descarga?order_id=${order.id}`,
       pending: `${siteUrl}/descarga?order_id=${order.id}`,
-      failure: `${siteUrl}/?checkout=failure`
+      failure: `${failureBase}?checkout=failure`
     }
   };
 
