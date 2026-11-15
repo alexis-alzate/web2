@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lujo Urban: vende tus beats con una tienda que lleva tu nombre</title>
+<meta name="description" content="Lujo Urban es la plataforma de Cali para productores de música urbana: tu tienda, tus licencias y el 85 % de cada venta. Sin mensualidad.">
+<!-- BORRADOR: sin indexar hasta que se apruebe y se publique en la raíz -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="../assets/lujo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Sistema ---------- */
+  :root {
+    --bg: #000;
+    --ink: #f5efe4;
+    --ink-2: rgba(245, 239, 228, .74);
+    --ink-3: rgba(245, 239, 228, .52);
+    --gold: #e3b873;
+    --gold-deep: #b9874a;
+    --gold-hi: #fff3d9;
+    --line: rgba(227, 184, 115, .22);
+    --surface: #0c0c0c;
+
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+    --r-s: 12px; --r-m: 20px; --r-pill: 999px;
+
+    --display: "Bebas Neue", "Arial Narrow", Impact, sans-serif;
+    --text: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    --gutter: clamp(20px, 5vw, 48px);
+    --section-y: clamp(72px, 11vw, 136px);
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--text);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, p, ol, ul, dl, dd { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  a { color: inherit; }
+
+  :focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: var(--gutter); }
+
+  /* ---------- Botones y enlaces (el tamaño nunca cambia al interactuar) ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 52px; padding: 0 var(--s6);
+    border-radius: var(--r-pill);
+    font-family: var(--text); font-size: 1rem; font-weight: 600; letter-spacing: .01em;
+    text-decoration: none; cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
+  }
+  .btn-primary { background: var(--gold); color: #000; }
+  .btn-primary:hover { background: var(--gold-hi); }
+  .btn-ghost { border-color: var(--line); color: var(--ink); }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold-hi); }
+  .btn-sm { min-height: 44px; padding: 0 var(--s5); font-size: .95rem; }
+
+  .link {
+    display: inline-flex; align-items: center; min-height: 44px;
+    color: var(--ink); font-weight: 500;
+    text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 6px;
+    transition: text-decoration-color .18s var(--ease), color .18s var(--ease);
+  }
+  .link:hover { color: var(--gold-hi); text-decoration-color: var(--gold); }
+
+  /* ---------- Encabezado ---------- */
+  .top { padding-block: var(--s4); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); }
+  .mark {
+    font-family: var(--display); font-size: 1.75rem; letter-spacing: .1em; line-height: 1;
+    text-decoration: none;
+    background: linear-gradient(110deg, var(--gold-deep) 20%, var(--gold) 45%, var(--gold-hi) 55%, var(--gold) 70%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-block: clamp(40px, 8vw, 96px) var(--section-y); }
+  .hero-grid { display: grid; gap: var(--s8); align-items: end; }
+  .hero h1 {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(3.9rem, 18.5vw, 8.5rem);
+    line-height: .9; letter-spacing: .01em; color: var(--ink);
+  }
+  .hero-sub { margin-top: var(--s6); max-width: 34rem; font-size: 1.1875rem; color: var(--ink-2); }
+  .hero-cta { margin-top: var(--s6); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s5); }
+  .hero-note { margin-top: var(--s5); max-width: 30rem; font-size: .9375rem; color: var(--ink-3); }
+
+  /* Tienda de ejemplo */
+  .store-wrap { max-width: 440px; width: 100%; }
+  .store {
+    border: 1px solid var(--line); border-radius: var(--r-m);
+    background: var(--surface); overflow: hidden;
+  }
+  .store-cover {
+    height: 104px; display: flex; align-items: center; justify-content: center; gap: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    width: 4px; height: calc(var(--h) * 1%); max-height: 72px; min-height: 8px;
+    border-radius: 2px; background: var(--gold);
+    transform-origin: center;
+    animation: rise .8s var(--ease) both; animation-delay: calc(var(--i) * 26ms + 150ms);
+  }
+  @keyframes rise { from { transform: scaleY(.06); opacity: .2; } to { transform: scaleY(1); opacity: 1; } }
+  .store-head { display: flex; align-items: center; gap: var(--s4); padding: var(--s5); }
+  .avatar {
+    flex: none; width: 56px; height: 56px; border-radius: 50%;
+    border: 1px solid var(--gold-deep); display: grid; place-items: center;
+    font-family: var(--display); font-size: 1.5rem; color: var(--gold); letter-spacing: .04em;
+  }
+  .store-name { font-family: var(--display); font-size: 2rem; line-height: 1; letter-spacing: .02em; }
+  .store-sub { font-size: .9375rem; color: var(--ink-3); }
+  .store-badge {
+    display: flex; align-items: center; gap: var(--s2);
+    padding: 0 var(--s5) var(--s5); font-size: .9375rem; font-weight: 500; color: var(--gold);
+  }
+  .store-badge svg { width: 18px; height: 18px; flex: none; }
+  .lic { border-top: 1px solid var(--line); }
+  .lic li { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); min-height: 68px; padding: var(--s3) var(--s5); }
+  .lic li + li { border-top: 1px solid var(--line); }
+  .lic strong { display: block; font-weight: 600; }
+  .lic span { font-size: .875rem; color: var(--ink-3); }
+  .lic em { flex: none; font-style: normal; font-size: .9375rem; color: var(--ink-2); }
+  .store-cap { margin-top: var(--s3); font-size: .875rem; color: var(--ink-3); }
+
+  /* ---------- Secciones ---------- */
+  .sec { padding-block: var(--section-y); border-top: 1px solid var(--line); }
+  .sec-grid { display: grid; gap: var(--s6); }
+  h2 {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(2.6rem, 8vw, 4rem); line-height: .95; letter-spacing: .01em;
+  }
+  .prose { max-width: 36rem; display: grid; align-content: start; gap: var(--s5); font-size: 1.1875rem; color: var(--ink-2); }
+  .prose strong { color: var(--ink); font-weight: 600; }
+
+  .rows > li { display: grid; gap: var(--s2); padding-block: var(--s5); border-top: 1px solid var(--line); }
+  .rows > li:first-child { border-top: 0; padding-top: 0; }
+  .rows h3 { font-family: var(--display); font-weight: 400; font-size: 2rem; line-height: 1; letter-spacing: .02em; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); }
+  .rows p { max-width: 34rem; color: var(--ink-2); }
+  .tag {
+    font-family: var(--text); font-size: .8125rem; font-weight: 500; letter-spacing: 0;
+    border: 1px solid var(--gold-deep); color: var(--gold); border-radius: var(--r-pill); padding: 2px 10px;
+  }
+
+  /* ---------- Banda del 85 ---------- */
+  .band { background: var(--gold); color: #000; padding-block: var(--section-y); }
+  .band-grid { display: grid; gap: var(--s6); align-items: end; }
+  .big {
+    font-family: var(--display); font-size: clamp(9rem, 44vw, 21rem); line-height: .78; letter-spacing: -.01em;
+    display: flex; align-items: flex-start; gap: .04em;
+  }
+  .big small { font-size: .32em; line-height: 1; padding-top: .12em; }
+  .band h2 { max-width: 14ch; }
+  .band p { margin-top: var(--s5); max-width: 32rem; font-size: 1.125rem; color: rgba(0, 0, 0, .78); }
+  .facts { margin-top: var(--s6); display: grid; gap: 0; max-width: 32rem; }
+  .facts li { padding-block: var(--s3); border-top: 1px solid rgba(0, 0, 0, .28); font-weight: 600; }
+  .facts li:last-child { border-bottom: 1px solid rgba(0, 0, 0, .28); }
+
+  /* ---------- Pasos (esto sí es una secuencia) ---------- */
+  .steps { counter-reset: paso; }
+  .steps > li { counter-increment: paso; display: grid; grid-template-columns: 3.4rem 1fr; gap: var(--s4); padding-block: var(--s5); border-top: 1px solid var(--line); }
+  .steps > li:first-child { border-top: 0; padding-top: 0; }
+  .steps > li::before { content: counter(paso); font-family: var(--display); font-size: 3rem; line-height: .9; color: var(--gold); }
+  .steps h3 { font-family: var(--display); font-weight: 400; font-size: 2rem; line-height: 1; letter-spacing: .02em; }
+  .steps p { margin-top: var(--s2); max-width: 32rem; color: var(--ink-2); }
+
+  /* ---------- Sello ---------- */
+  .label-strip { display: grid; gap: var(--s5); align-items: center; }
+  .label-strip p { max-width: 34rem; font-size: 1.1875rem; color: var(--ink-2); }
+
+  /* ---------- Preguntas ---------- */
+  .qa { display: grid; gap: var(--s6); }
+  .qa dt { font-weight: 600; font-size: 1.125rem; }
+  .qa dd { margin-top: var(--s2); max-width: 30rem; color: var(--ink-2); }
+
+  /* ---------- Cierre ---------- */
+  .close h2 { font-size: clamp(3.4rem, 13vw, 8rem); line-height: .9; }
+  .close p { margin-top: var(--s5); max-width: 30rem; font-size: 1.1875rem; color: var(--ink-2); }
+  .close .btn { margin-top: var(--s6); }
+
+  /* ---------- Pie ---------- */
+  .foot { border-top: 1px solid var(--line); padding-block: var(--s7); }
+  .foot-grid { display: grid; gap: var(--s5); }
+  .foot nav { display: flex; flex-wrap: wrap; gap: 0 var(--s5); }
+  .foot nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-2); text-decoration: none; transition: color .18s var(--ease); }
+  .foot nav a:hover { color: var(--gold-hi); }
+  .foot small { color: var(--ink-3); font-size: .875rem; }
+
+  /* ---------- Pantallas grandes ---------- */
+  @media (min-width: 900px) {
+    .hero-grid { grid-template-columns: 1.2fr .8fr; gap: var(--s7); }
+    .sec-grid { grid-template-columns: 5fr 7fr; gap: var(--s7); }
+    .band-grid { grid-template-columns: auto 1fr; gap: var(--s8); }
+    .label-strip { grid-template-columns: 5fr 7fr; gap: var(--s7); }
+    .qa { grid-template-columns: 1fr 1fr; gap: var(--s7) var(--s8); }
+    .foot-grid { grid-template-columns: 1fr auto; align-items: center; }
+    .foot small { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar { animation: none; }
+    * { transition-duration: 0s !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="./" aria-label="Lujo Urban, inicio">LUJO URBAN</a>
+    <a class="btn btn-ghost btn-sm" href="../vender/">Pedir mi cuenta</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>Tu música.<br>Tu tienda.<br>Tu plata.</h1>
+        <p class="hero-sub">Lujo Urban es la plataforma de Cali para vender tus beats desde una tienda que lleva tu nombre. Sin mensualidad: nosotros ganamos cuando tú ganas.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="../vender/">Pedir mi cuenta</a>
+          <a class="link" href="https://tienda.lujourban.com">Ver la tienda</a>
+        </div>
+        <p class="hero-note">Revisamos cada solicitud a mano. Por ahora no abrimos el registro a todo el mundo.</p>
+      </div>
+
+      <div class="store-wrap">
+        <div class="store" role="img" aria-label="Ejemplo de tienda de un productor en Lujo Urban, con sus tres licencias">
+          <div class="store-cover" aria-hidden="true">
+            <i class="bar" style="--h:30;--i:0"></i><i class="bar" style="--h:52;--i:1"></i><i class="bar" style="--h:40;--i:2"></i><i class="bar" style="--h:74;--i:3"></i><i class="bar" style="--h:48;--i:4"></i><i class="bar" style="--h:90;--i:5"></i><i class="bar" style="--h:62;--i:6"></i><i class="bar" style="--h:38;--i:7"></i><i class="bar" style="--h:66;--i:8"></i><i class="bar" style="--h:44;--i:9"></i><i class="bar" style="--h:28;--i:10"></i><i class="bar" style="--h:58;--i:11"></i><i class="bar" style="--h:80;--i:12"></i><i class="bar" style="--h:46;--i:13"></i><i class="bar" style="--h:70;--i:14"></i><i class="bar" style="--h:36;--i:15"></i><i class="bar" style="--h:54;--i:16"></i><i class="bar" style="--h:86;--i:17"></i><i class="bar" style="--h:42;--i:18"></i><i class="bar" style="--h:64;--i:19"></i><i class="bar" style="--h:32;--i:20"></i><i class="bar" style="--h:76;--i:21"></i><i class="bar" style="--h:50;--i:22"></i><i class="bar" style="--h:60;--i:23"></i><i class="bar" style="--h:34;--i:24"></i><i class="bar" style="--h:68;--i:25"></i><i class="bar" style="--h:44;--i:26"></i><i class="bar" style="--h:28;--i:27"></i>
+          </div>
+          <div class="store-head">
+            <span class="avatar" aria-hidden="true">TN</span>
+            <div>
+              <div class="store-name">Tu nombre</div>
+              <div class="store-sub">Tienda abierta</div>
+            </div>
+          </div>
+          <div class="store-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            Aprobado por Lujo Urban
+          </div>
+          <ul class="lic">
+            <li><div><strong>Básica</strong><span>MP3, uso no exclusivo</span></div><em>Tú decides</em></li>
+            <li><div><strong>Premium</strong><span>WAV, uso no exclusivo</span></div><em>Tú decides</em></li>
+            <li><div><strong>Ilimitada</strong><span>WAV + stems, uso no exclusivo</span></div><em>Tú decides</em></li>
+          </ul>
+        </div>
+        <p class="store-cap">Así se ve una tienda en Lujo Urban.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Por qué existe -->
+  <section class="sec" id="por-que">
+    <div class="wrap sec-grid">
+      <h2>Las plataformas grandes no saben quién eres.</h2>
+      <div class="prose">
+        <p>Muchas te cobran una mensualidad en dólares, atienden en inglés y para ellas eres una cuenta más entre millones.</p>
+        <p>Lujo Urban la armamos en Cali con una idea corta: <strong>si tú vendes, nosotros ganamos. Si no vendes, no pagas.</strong></p>
+        <p>Detrás hay un sello independiente, Zaetta Music, y un productor que construyó todo esto para que otros productores tengan dónde vender.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Qué incluye -->
+  <section class="sec" id="incluye">
+    <div class="wrap sec-grid">
+      <h2>Lo que tienes desde el primer día.</h2>
+      <ul class="rows">
+        <li>
+          <h3>Tu tienda</h3>
+          <p>Una dirección con tu nombre y tus beats. En tu página no aparece nadie más.</p>
+        </li>
+        <li>
+          <h3>Tu panel</h3>
+          <p>Entras y ves cuánto has ganado este mes, tus beats y tus últimas ventas.</p>
+        </li>
+        <li>
+          <h3>Tus licencias</h3>
+          <p>Básica, premium e ilimitada. Tú defines los precios y el comprador recibe sus archivos en el correo apenas paga.</p>
+        </li>
+        <li>
+          <h3>Pago directo a tu cuenta <span class="tag">Lo estamos mejorando</span></h3>
+          <p>Hoy el dinero de cada venta entra a Lujo Urban, en tu panel ves cuánto te toca y te lo pagamos nosotros. Estamos trabajando para que llegue directo a tu cuenta, y no lo prometemos hasta que funcione.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- El trato -->
+  <section class="band" id="trato" aria-labelledby="trato-titulo">
+    <div class="wrap band-grid">
+      <div class="big" aria-hidden="true">85<small>%</small></div>
+      <div>
+        <h2 id="trato-titulo">De cada $100.000 que vendas, $85.000 son tuyos.</h2>
+        <p>Nos quedamos con el 15 %, y solo cuando vendes. Lo demás es tuyo, sin descuentos escondidos.</p>
+        <ul class="facts">
+          <li>Sin mensualidad</li>
+          <li>Sin cuota de entrada</li>
+          <li>Tú pones los precios</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cómo se entra -->
+  <section class="sec" id="como">
+    <div class="wrap sec-grid">
+      <h2>Cómo entras.</h2>
+      <ol class="steps">
+        <li>
+          <div>
+            <h3>Pide tu cuenta</h3>
+            <p>Dinos cómo te conocen, tu correo y dónde suena tu música. Son tres datos.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>La revisamos a mano</h3>
+            <p>Escuchamos lo que haces antes de abrirte la tienda, para que quien compre sepa que cada tienda aquí está aprobada.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Publicamos tus beats contigo</h3>
+            <p>Nos mandas tus beats, tu portada y tus precios, y los dejamos publicados en tu tienda. Subirlos tú mismo viene después.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Compartes tu enlace</h3>
+            <p>Tu tienda ya tiene dirección propia. Pégala en tu biografía, en tus videos y en tus historias.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Artistas -->
+  <section class="sec" id="artistas">
+    <div class="wrap label-strip">
+      <h2>¿Eres artista?</h2>
+      <div>
+        <p>Una página con tus lanzamientos, tus enlaces y tus estadísticas, para pegar en tu biografía. Por ahora se entra por lista de espera.</p>
+        <a class="link" href="../unete/">Entrar a la lista de espera</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sello -->
+  <section class="sec" id="sello">
+    <div class="wrap label-strip">
+      <h2>Detrás hay un sello.</h2>
+      <div>
+        <p>Zaetta Music es un sello independiente de música urbana cristiana, de Cali. Lujo Urban salió de ahí.</p>
+        <a class="link" href="https://casa.lujourban.com">Conocer el sello</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preguntas -->
+  <section class="sec" id="preguntas">
+    <div class="wrap sec-grid">
+      <h2>Preguntas directas.</h2>
+      <dl class="qa">
+        <div>
+          <dt>¿Cuánto cuesta entrar?</dt>
+          <dd>Nada. Pagas el 15 % de cada venta y nada más.</dd>
+        </div>
+        <div>
+          <dt>¿Quién puede entrar?</dt>
+          <dd>Quien nosotros aprobemos. Por ahora revisamos cada solicitud antes de abrir la tienda.</dd>
+        </div>
+        <div>
+          <dt>¿Quién pone los precios?</dt>
+          <dd>Tú. Cada licencia de cada beat la defines tú.</dd>
+        </div>
+        <div>
+          <dt>¿Y si no vendo nada?</dt>
+          <dd>No pagas nada.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Cierre -->
+  <section class="sec close" id="cuenta">
+    <div class="wrap">
+      <h2>Pide tu cuenta.</h2>
+      <p>Estamos armando la primera camada de productores. Quien entre ahora sale con su tienda desde el principio.</p>
+      <a class="btn btn-primary" href="../vender/">Pedir mi cuenta</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <nav aria-label="Pie de página">
+      <a href="https://tienda.lujourban.com">Tienda</a>
+      <a href="https://casa.lujourban.com">Sello</a>
+      <a href="../vender/">Pedir mi cuenta</a>
+    </nav>
+    <span class="mark" aria-hidden="true">LUJO URBAN</span>
+    <small>Hecho en Cali, Colombia.</small>
+  </div>
+</footer>
+
+</body>
+</html>
