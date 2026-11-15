@@ -39,6 +39,7 @@ import { deleteBeatAction, toggleBeatStatusAction, toggleDemoBeatsAction, update
 import { resendOrderEmailAction } from './actions-orders';
 import { createProducerAction, toggleProducerStatusAction } from './actions-producers';
 import { ProducerAccess } from './components/ProducerAccess';
+import { ProducerPhotoControl } from './components/ProducerPhotoControl';
 import { ProducerApplications } from './components/ProducerApplications';
 import { displayUrl, producerStoreUrl } from '@/lib/producers/store-url';
 import { producerApplicationService, type ProducerApplication } from '@/lib/producer-applications';
@@ -1521,6 +1522,11 @@ export default async function DashboardPage() {
                             <CopyTextButton text={producerStoreUrl(producer.slug)} />
                           </p>
                         )}
+                        <ProducerPhotoControl
+                          producerId={producer.id}
+                          stageName={producer.stage_name}
+                          photoUrl={beatCoverUrl(producer.photo_path ?? null)}
+                        />
                         <ProducerAccess
                           producerId={producer.id}
                           stageName={producer.stage_name}

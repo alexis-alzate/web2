@@ -11,6 +11,8 @@ type ProducerRow = {
   email: string;
   platform_commission_percent: number | string;
   status: ProducerProfile['status'];
+  bio: string | null;
+  photo_path: string | null;
 };
 
 type BeatRow = {
@@ -47,7 +49,7 @@ export class SupabaseProducerRepository implements ProducerRepository {
   async findById(id: string): Promise<ProducerProfile | null> {
     const { data, error } = await this.client()
       .from('producers')
-      .select('id, stage_name, slug, email, platform_commission_percent, status')
+      .select('id, stage_name, slug, email, platform_commission_percent, status, bio, photo_path')
       .eq('id', id)
       .maybeSingle();
     if (error) throw unexpected('leer al productor', error.message);
@@ -60,8 +62,18 @@ export class SupabaseProducerRepository implements ProducerRepository {
       slug: row.slug,
       email: row.email,
       commissionPercent: Number(row.platform_commission_percent),
-      status: row.status
+      status: row.status,
+      bio: row.bio,
+      photoPath: row.photo_path
     };
+  }
+
+  async updateProfile(producerId: string, changes: { bio: string | null; photoPath: string | null }): Promise<void> {
+    const { error } = await this.client()
+      .from('producers')
+      .update({ bio: changes.bio, photo_path: changes.photoPath })
+      .eq('id', producerId);
+    if (error) throw unexpected('guardar el perfil', error.message);
   }
 
   async listBeats(producerId: string): Promise<ProducerBeat[]> {

@@ -4,6 +4,7 @@ import { formatCOP, formatSaleDate } from '@/lib/producers/format';
 import type { EarningRow, ProducerBeat } from '@/lib/producers/types';
 import { plural } from '@/lib/portal-format';
 import { beatStoreUrl } from '@/lib/producers/store-url';
+import { ProducerProfileSection } from './ProducerProfileSection';
 import { ProducerStoreLink } from './ProducerStoreLink';
 
 // Vista pura: recibe todo por props y no lee nada (ni base de datos, ni
@@ -20,6 +21,9 @@ type ProducerHomeViewProps = {
   // Su tienda publica y el origen de la tienda (para enlazar cada beat).
   storeUrl: string | null;
   storeOrigin: string;
+  // Perfil publico: descripcion y URL completa de la foto ('' = sin foto).
+  bio: string;
+  photoUrl: string;
 };
 
 const beatMeta = (beat: ProducerBeat) =>
@@ -32,7 +36,9 @@ export function ProducerHomeView({
   beats,
   recentSales,
   storeUrl,
-  storeOrigin
+  storeOrigin,
+  bio,
+  photoUrl
 }: ProducerHomeViewProps) {
   const firstName = stageName.split(/\s+/)[0];
   const share = Math.round((100 - commissionPercent) * 100) / 100;
@@ -42,6 +48,8 @@ export function ProducerHomeView({
       <h1 className="pt-title">Hola, {firstName}</h1>
 
       {storeUrl ? <ProducerStoreLink url={storeUrl} /> : null}
+
+      <ProducerProfileSection bio={bio} photoUrl={photoUrl} />
 
       <section className="pt-prod-sales" aria-label="Tus ganancias">
         <p className="pt-prod-label">Lo que has ganado</p>

@@ -15,6 +15,10 @@ export interface ProducerProfile {
   // Lo que se queda Lujo Urban. El productor recibe el resto.
   commissionPercent: number;
   status: ProducerStatus;
+  // Descripcion corta (maximo 160 caracteres) y ruta de su foto en el
+  // almacenamiento. Los dos se muestran en su tienda publica.
+  bio: string | null;
+  photoPath: string | null;
 }
 
 export interface ProducerBeat {
@@ -45,6 +49,15 @@ export interface ProducerRepository {
   findById(id: string): Promise<ProducerProfile | null>;
   listBeats(producerId: string): Promise<ProducerBeat[]>;
   listEarnings(producerId: string): Promise<EarningRow[]>;
+  updateProfile(producerId: string, changes: { bio: string | null; photoPath: string | null }): Promise<void>;
+}
+
+// Puerto sobre el almacenamiento de las fotos de los productores.
+export interface ProducerPhotoStore {
+  // Guarda la foto y devuelve su ruta (`productores/<id>/foto-<huella>.<ext>`).
+  save(producerId: string, image: { extension: 'jpg' | 'png' | 'webp'; contentBase64: string }): Promise<string>;
+  // Borra una foto. Quien llama decide si un fallo aqui importa.
+  remove(path: string): Promise<void>;
 }
 
 // ---- Accesos (cuentas de login) ----

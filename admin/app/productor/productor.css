@@ -201,3 +201,42 @@ body:has(.pt-prod) {
   outline: 2px solid var(--pt-green);
   outline-offset: 2px;
 }
+
+/* ---------- Perfil: descripcion y casilla de quitar foto ---------- */
+
+.pt .pt-bio {
+  display: grid;
+  gap: 6px;
+}
+
+.pt .pt-bio textarea {
+  width: 100%;
+  height: 92px;
+  resize: none;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.pt .pt-bio small {
+  min-height: 1.3em;
+  color: var(--pt-dim);
+  font-size: .8rem;
+}
+
+.pt .pt-bio small.is-over {
+  color: #e5736a;
+}
+
+.pt .pt-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.pt .pt-check input {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+}

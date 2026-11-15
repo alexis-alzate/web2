@@ -399,8 +399,22 @@ beats o no (sin beats muestra "Los primeros beats están por llegar").
   consulta por página, solo `id, slug`) y viaja como `Beat.producer_slug` y en el
   track del reproductor (`producerSlug`). `PlayerBar` y `BeatRow` no lo enlazan a
   propósito (son zonas de reproducir).
-- Pendiente: foto y bio del productor, y poder reenviar el enlace de la tienda a un
-  productor que ya tenía cuenta.
+- **Foto y descripción del productor** (migración 024, `producers.bio` y
+  `producers.photo_path`): el productor las pone en su portal (`/productor`, sección
+  "Tu perfil"). La tienda tiene un molde fijo: la foto llena el círculo de 72 px
+  (reemplaza la inicial) y la descripción, de **máximo 160 caracteres** en una sola
+  línea, va debajo del sello. No hay portada, colores ni más campos editables, a
+  propósito, para que nadie rompa el diseño. Capas: `producer-profile-actions.ts`
+  (controlador, el productor sale de la sesión) → `lib/producers/profile-service.ts`
+  (reglas y orden: sube la foto nueva, guarda en la base, borra la anterior; si la base
+  falla retira la recién subida) → `repository.ts` + `supabase-photo-store.ts`.
+  `profile-rules.ts` tiene las reglas puras. La foto vive en el bucket público
+  `beats-covers`, en `productores/<id>/foto-<huella>.<ext>` (la base exige ese formato).
+  El admin puede quitar la foto desde la tarjeta del productor (`ProducerPhotoControl`).
+  `bio` y `photo_path` son **públicos**: `getProducerBySlug` los lee. Correr la
+  migración 024 **antes** de desplegar el código: sin las columnas, el portal y las
+  tiendas de productor fallan.
+- Pendiente: poder reenviar el enlace de la tienda a un productor que ya tenía cuenta.
 
 ### Solicitud de cuenta de productor (autoservicio con aprobación)
 

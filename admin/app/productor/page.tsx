@@ -20,6 +20,8 @@ export default async function ProducerHomePage() {
       recentSales={producer.earnings.filter(sale => sale.status !== 'cancelled').slice(0, RECENT_SALES)}
       storeUrl={producer.profile.slug ? producerStoreUrl(producer.profile.slug, origin) : null}
       storeOrigin={origin}
+      bio={producer.profile.bio ?? ''}
+      photoUrl={beatCoverUrl(producer.profile.photoPath)}
     />
   );
 }
