@@ -15,6 +15,13 @@ export const HOLDER_MAX_LENGTH = 80;
 export const ACCOUNT_MAX_LENGTH = 80;
 export const REFERENCE_MAX_LENGTH = 120;
 
+// Cada venta espera estos dias antes de poder pagarse (cubre devoluciones). Es
+// el mismo valor que el DEFAULT de producer_earnings.available_at en la
+// migracion 025: si cambia uno, cambia el otro.
+export const HOLD_DAYS = 7;
+// No se registran pagos por menos de esto (el total liberado, no por venta).
+export const MIN_PAYOUT_AMOUNT = 50_000;
+
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/g;
 
 export const isPayoutMethod = (value: unknown): value is PayoutMethod =>
@@ -103,4 +110,12 @@ export const parseReference = (raw: unknown): string => {
     throw new ValidationError(`La referencia puede tener hasta ${REFERENCE_MAX_LENGTH} caracteres.`);
   }
   return text;
+};
+
+// Pista de la cuenta para mostrarla en un correo sin revelarla entera:
+// "•••• 4567" para celulares y cuentas; para texto libre, nada que filtrar.
+export const maskAccount = (method: PayoutMethod, account: string): string => {
+  if (method === 'otro') return 'la cuenta que registraste';
+  const digits = account.replace(/\D/g, '');
+  return digits.length >= 4 ? `•••• ${digits.slice(-4)}` : 'la cuenta que registraste';
 };

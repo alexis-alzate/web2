@@ -1545,8 +1545,10 @@ export default async function DashboardPage() {
                         <ProducerPayoutControl
                           producerId={producer.id}
                           stageName={producer.stage_name}
-                          pendingAmount={pendingByProducer.get(producer.id)?.amount ?? 0}
-                          pendingCount={pendingByProducer.get(producer.id)?.count ?? 0}
+                          availableAmount={pendingByProducer.get(producer.id)?.availableAmount ?? 0}
+                          availableCount={pendingByProducer.get(producer.id)?.availableCount ?? 0}
+                          holdingAmount={pendingByProducer.get(producer.id)?.holdingAmount ?? 0}
+                          nextReleaseAt={pendingByProducer.get(producer.id)?.nextReleaseAt ?? null}
                           payout={
                             producer.payout_method && producer.payout_account
                               ? {

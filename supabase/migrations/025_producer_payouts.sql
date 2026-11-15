@@ -9,9 +9,15 @@
 -- 3) `producer_earnings.payout_id` enlaza cada venta con el pago que la cubrio.
 --    Las ventas marcadas como pagadas antes de esta migracion quedan sin pago
 --    enlazado (payout_id null): son historia, no se tocan.
--- 4) `register_producer_payout` paga TODO lo pendiente de un productor en una
+-- 4) `producer_earnings.available_at` es el dia en que la venta se libera para
+--    pagarse. Cada venta nueva se libera 7 dias despues de comprarse (valor por
+--    defecto de la columna: la funcion que aprueba las ordenes NO cambia), para
+--    cubrir devoluciones. Las ventas pendientes que ya existian se liberan 7 dias
+--    despues de su propia fecha.
+-- 5) `register_producer_payout` paga TODO lo LIBERADO de un productor en una
 --    sola transaccion: suma, marca las ventas, crea el pago. Dos clics
---    seguidos no pueden pagar dos veces lo mismo.
+--    seguidos no pueden pagar dos veces lo mismo. Si lo liberado no llega al
+--    minimo que se le pasa, no paga nada.
 --
 -- ATENCION: la cuenta de cobro es un dato sensible. Las tablas quedan con RLS y
 -- sin politicas: solo el cliente de servicio (panel y portal, siempre desde el
@@ -71,15 +77,35 @@ alter table producer_earnings
 
 create index if not exists producer_earnings_payout_idx on producer_earnings (payout_id);
 
--- Paga todo lo pendiente de un productor.
+-- Dia en que cada venta se libera para pagarse. Se agrega sin valor, se rellena
+-- con la fecha de cada venta y SOLO DESPUES se fija el valor por defecto: asi las
+-- ventas viejas no quedan con "hoy + 7 dias".
+-- Si cambias los 7 dias, cambia tambien HOLD_DAYS en admin/lib/producers/payout-rules.ts.
+alter table producer_earnings add column if not exists available_at timestamptz;
+
+update producer_earnings
+set available_at = created_at + interval '7 days'
+where available_at is null;
+
+alter table producer_earnings alter column available_at set default (now() + interval '7 days');
+alter table producer_earnings alter column available_at set not null;
+
+create index if not exists producer_earnings_release_idx
+  on producer_earnings (producer_id, status, available_at);
+
+-- Paga todo lo LIBERADO (pendiente y con available_at ya cumplido) de un productor.
 --   p_expected_account: la cuenta que el admin tenia en pantalla al confirmar.
 --   Si el productor la cambio mientras tanto, NO se paga y se pide revisar.
+--   p_min_amount: pago minimo. Si lo liberado es menos, no se paga nada.
 -- Los mensajes que empiezan con "LU:" son para mostrarse tal cual al admin.
+drop function if exists register_producer_payout(uuid, text, text, text);
+
 create or replace function register_producer_payout(
   p_producer_id uuid,
   p_reference text,
   p_paid_by text,
-  p_expected_account text
+  p_expected_account text,
+  p_min_amount int default 0
 )
 returns table (out_payout_id uuid, out_amount int, out_count int)
 language plpgsql
@@ -116,7 +142,9 @@ begin
   with paid as (
     update producer_earnings
     set status = 'paid', paid_at = now(), payout_id = v_payout_id
-    where producer_id = p_producer_id and status = 'pending'
+    where producer_id = p_producer_id
+      and status = 'pending'
+      and available_at <= now()
     returning producer_amount
   )
   select coalesce(sum(producer_amount), 0)::int, count(*)::int
@@ -124,7 +152,12 @@ begin
   from paid;
 
   if v_count = 0 or v_amount <= 0 then
-    raise exception 'LU: Este productor no tiene ventas pendientes de pago.';
+    raise exception 'LU: Este productor no tiene ventas liberadas para pagar todavia.';
+  end if;
+
+  -- Al fallar aqui, el UPDATE de arriba se deshace: no queda nada pagado.
+  if v_amount < coalesce(p_min_amount, 0) then
+    raise exception 'LU: Lo liberado (% COP) no llega al pago minimo de % COP.', v_amount, p_min_amount;
   end if;
 
   insert into producer_payouts (
@@ -140,5 +173,7 @@ end;
 $$;
 
 -- Solo el servidor (service_role) puede pagar. Nadie con la llave publica.
-revoke execute on function register_producer_payout(uuid, text, text, text) from public, anon, authenticated;
-grant execute on function register_producer_payout(uuid, text, text, text) to service_role;
+revoke execute on function register_producer_payout(uuid, text, text, text, int) from public, anon, authenticated;
+grant execute on function register_producer_payout(uuid, text, text, text, int) to service_role;
+
+notify pgrst, 'reload schema';

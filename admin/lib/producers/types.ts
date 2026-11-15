@@ -55,6 +55,8 @@ export interface EarningRow {
   producerAmount: number;
   status: EarningStatus;
   createdAt: string;
+  // Dia desde el cual esta venta se puede pagar (la compra + los dias de espera).
+  availableAt: string;
 }
 
 // Un pago real que Lujo Urban le hizo a un productor.
@@ -76,14 +78,37 @@ export interface PayoutRow {
 
 // Lo que el panel muestra de cada productor para decidir si pagarle.
 export interface PendingTotal {
+  // Todo lo pendiente (liberado + en espera).
   amount: number;
   count: number;
+  // Lo que ya se puede pagar hoy.
+  availableAmount: number;
+  availableCount: number;
+  // Lo que todavia esta en los dias de espera y cuando se libera lo primero.
+  holdingAmount: number;
+  nextReleaseAt: string | null;
 }
 
 export interface PayoutResult {
   payoutId: string;
   amount: number;
   earningsCount: number;
+}
+
+// Aviso al productor de que se le pago.
+export interface PayoutNotice {
+  email: string;
+  stageName: string;
+  amount: number;
+  earningsCount: number;
+  method: PayoutMethod;
+  // Cuenta completa: el correo solo muestra una pista (ultimos 4 digitos).
+  account: string;
+  reference: string;
+}
+
+export interface PayoutMailer {
+  send(notice: PayoutNotice): Promise<void>;
 }
 
 export interface ProducerRepository {
@@ -96,12 +121,14 @@ export interface ProducerRepository {
   listRecentPayouts(limit: number): Promise<PayoutRow[]>;
   // Lo pendiente de pago por productor (clave = id del productor).
   pendingTotals(): Promise<Map<string, PendingTotal>>;
-  // Paga TODO lo pendiente del productor en una sola operacion atomica.
+  // Paga TODO lo liberado del productor en una sola operacion atomica. Si lo
+  // liberado no llega a `minAmount`, no paga nada.
   registerPayout(input: {
     producerId: string;
     reference: string;
     paidBy: string;
     expectedAccount: string;
+    minAmount: number;
   }): Promise<PayoutResult>;
 }
 

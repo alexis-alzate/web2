@@ -7,7 +7,8 @@
 //     ├─ ResendInviteMailer           (correo de invitacion)
 //     └─ getAppOrigin                 (direccion del panel para el enlace)
 //   ProducerPayoutService          (como cobra el productor y registro de pagos)
-//     └─ SupabaseProducerRepository
+//     ├─ SupabaseProducerRepository
+//     └─ ResendPayoutMailer           (aviso al productor cuando se le paga)
 //   ProducerProfileService
 //     ├─ SupabaseProducerRepository
 //     └─ SupabaseProducerPhotoStore   (bucket beats-covers, carpeta productores/)
@@ -19,6 +20,7 @@ import { ProducerPayoutService } from './payout-service';
 import { ProducerProfileService } from './profile-service';
 import { SupabaseProducerPhotoStore } from './supabase-photo-store';
 import { ResendInviteMailer } from './invite-email';
+import { ResendPayoutMailer } from './payout-email';
 import { SupabaseProducerRepository } from './repository';
 import { SupabaseAccessDirectory } from './supabase-access-directory';
 
@@ -36,7 +38,7 @@ export const producerProfileService = new ProducerProfileService(
   new SupabaseProducerPhotoStore(createSupabaseAdminClient)
 );
 
-export const producerPayoutService = new ProducerPayoutService(producerRepository);
+export const producerPayoutService = new ProducerPayoutService(producerRepository, new ResendPayoutMailer());
 
 export type {
   PayoutDetails,

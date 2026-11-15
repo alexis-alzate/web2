@@ -368,10 +368,23 @@ y aquí deja el registro.
   validan como celular colombiano (10 dígitos, empieza por 3). Es un dato
   **sensible**: `producers` sigue con RLS sin políticas y la tienda pública NO lo
   selecciona (`getProducerBySlug` pide solo columnas concretas; no ampliarlo).
+- **Dias de espera y pago minimo**: cada venta se **libera 7 dias despues** de la compra
+  (`producer_earnings.available_at`, valor por defecto de la columna: la funcion que
+  aprueba ordenes NO cambia) para cubrir devoluciones. El panel solo deja pagar lo
+  **liberado** y exige un total de al menos **$50.000** (`HOLD_DAYS` y
+  `MIN_PAYOUT_AMOUNT` en `payout-rules.ts`; si cambia `HOLD_DAYS`, cambia tambien el
+  `interval '7 days'` de la migracion 025). La funcion SQL lo vuelve a comprobar:
+  si lo liberado no llega al minimo, no paga nada.
+- **Transparencia para el productor**: al venderse un beat le llega un correo con lo que
+  va a recibir y la fecha en que se libera (`tienda/lib/email.ts`); en `/productor` ve
+  Disponible / En espera / Ya pagado y, en cada venta, "En espera · se libera el X";
+  y al registrarse un pago le llega otro correo con monto, ultimos 4 digitos de la
+  cuenta y referencia (`payout-email.ts`). Si ese correo falla, el pago NO se deshace:
+  el panel avisa para que se lo comuniques tu.
 - **Pagar** (panel, tarjeta del productor → `ProducerPayoutControl`): muestra lo
-  pendiente y la cuenta; el admin transfiere, escribe la referencia (comprobante),
-  marca "Ya transferí $X a esa cuenta" y registra. Un solo clic paga **todo lo
-  pendiente** del productor.
+  liberado ("Para pagar hoy"), lo que sigue en espera y la cuenta; el admin transfiere,
+  escribe la referencia (comprobante), marca "Ya transferí $X a esa cuenta" y
+  registra. Un solo clic paga **todo lo liberado** del productor.
 - **Atomicidad**: la función SQL `register_producer_payout` bloquea al productor,
   marca las ventas pendientes como pagadas y crea el pago en una sola transacción;
   el monto del pago es exactamente la suma de lo marcado. Dos clics (o dos
@@ -388,12 +401,17 @@ y aquí deja el registro.
   simultáneos, rollback, cuenta cambiada, permisos); no hay forma de probarla con
   dobles en memoria, así que si se cambia hay que volver a probarla en Postgres.
 - **Orden de despliegue**: correr la migración 025 **antes** de desplegar el
-  código; el portal y el panel leen las columnas nuevas.
+  código; el portal, el panel **y el correo de venta de la tienda** leen las columnas
+  nuevas (si falta `available_at`, el correo al productor no sale, aunque el pago del
+  comprador se aprueba igual).
 - **Medios de pago del comprador**: Checkout Pro Colombia ofrece tarjetas, cuenta
   Mercado Pago, PSE y Efecty; Nequi y Daviplata se pagan **a través de PSE**. No
   hay nada que configurar en el código para recibirlos.
 - Pendiente: reembolsos (un reembolso después de pagarle al productor deja la venta
-  pagada; hoy se resuelve a mano), pago mínimo, exportar el libro.
+  pagada; hoy se resuelve a mano), exportar el libro, y cuando haya muchos productores
+  **automatizar la transferencia** (pagos a terceros de Wompi/ePayco; la auditoría del
+  Split de Mercado Pago quedó en `AUDITORIA-SPLIT-MERCADOPAGO.md`, con un posible
+  bloqueante sin confirmar sobre PSE/Nequi).
 
 ### Tienda pública del productor
 

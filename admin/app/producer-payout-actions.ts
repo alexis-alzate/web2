@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { safeAction } from '@/lib/actions/safe-action';
 import { requireActiveProducer, requireAdmin } from '@/lib/auth';
-import { ValidationError } from '@/lib/errors';
+import { PublishError, ValidationError } from '@/lib/errors';
 import { producerPayoutService } from '@/lib/producers';
 
 // Controladores delgados de los pagos a productores. El productor sale SIEMPRE
@@ -42,5 +42,13 @@ export const registerProducerPayoutAction = safeAction(async (formData: FormData
 
   revalidatePath('/');
   revalidatePath('/productor');
+
+  // El pago ya quedo registrado; solo falto el correo. Se le dice al admin para
+  // que le avise al productor por su cuenta.
+  if (!result.notified) {
+    throw new PublishError(
+      'El pago quedó registrado, pero no pude avisarle al productor por correo. Avísale tú para que lo revise en su portal.'
+    );
+  }
   return result;
 });

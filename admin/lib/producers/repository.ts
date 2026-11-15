@@ -3,6 +3,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ValidationError } from '@/lib/errors';
+import { earningPhase } from './earnings-summary';
 import { isPayoutMethod } from './payout-rules';
 import type {
   EarningRow,
@@ -63,6 +64,7 @@ type EarningDbRow = {
   producer_amount: number;
   status: EarningRow['status'];
   created_at: string;
+  available_at: string;
   beats: { title: string } | { title: string }[] | null;
 };
 
@@ -155,7 +157,7 @@ export class SupabaseProducerRepository implements ProducerRepository {
   async listEarnings(producerId: string): Promise<EarningRow[]> {
     const { data, error } = await this.client()
       .from('producer_earnings')
-      .select('id, license_type, gross_amount, platform_fee_amount, producer_amount, status, created_at, beats(title)')
+      .select('id, license_type, gross_amount, platform_fee_amount, producer_amount, status, created_at, available_at, beats(title)')
       .eq('producer_id', producerId)
       .order('created_at', { ascending: false });
     if (error) throw unexpected('leer las ventas', error.message);
@@ -168,7 +170,8 @@ export class SupabaseProducerRepository implements ProducerRepository {
       platformFeeAmount: row.platform_fee_amount,
       producerAmount: row.producer_amount,
       status: row.status,
-      createdAt: row.created_at
+      createdAt: row.created_at,
+      availableAt: row.available_at
     }));
   }
 
@@ -206,21 +209,41 @@ export class SupabaseProducerRepository implements ProducerRepository {
 
   async pendingTotals(): Promise<Map<string, PendingTotal>> {
     const totals = new Map<string, PendingTotal>();
+    const now = new Date();
     // Se leen por paginas: la API devuelve como maximo 1000 filas por consulta.
     const PAGE = 1000;
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await this.client()
         .from('producer_earnings')
-        .select('id, producer_id, producer_amount')
+        .select('id, producer_id, producer_amount, available_at')
         .eq('status', 'pending')
         .order('id', { ascending: true })
         .range(from, from + PAGE - 1);
       if (error) throw unexpected('leer lo pendiente de pago', error.message);
 
-      const rows = (data || []) as Array<{ producer_id: string; producer_amount: number }>;
+      const rows = (data || []) as Array<{ producer_id: string; producer_amount: number; available_at: string }>;
       for (const row of rows) {
-        const current = totals.get(row.producer_id) ?? { amount: 0, count: 0 };
-        totals.set(row.producer_id, { amount: current.amount + row.producer_amount, count: current.count + 1 });
+        const current = totals.get(row.producer_id) ?? {
+          amount: 0,
+          count: 0,
+          availableAmount: 0,
+          availableCount: 0,
+          holdingAmount: 0,
+          nextReleaseAt: null
+        };
+        const next: PendingTotal = {
+          ...current,
+          amount: current.amount + row.producer_amount,
+          count: current.count + 1
+        };
+        if (earningPhase({ status: 'pending', availableAt: row.available_at }, now) === 'available') {
+          next.availableAmount += row.producer_amount;
+          next.availableCount += 1;
+        } else {
+          next.holdingAmount += row.producer_amount;
+          if (!next.nextReleaseAt || row.available_at < next.nextReleaseAt) next.nextReleaseAt = row.available_at;
+        }
+        totals.set(row.producer_id, next);
       }
       if (rows.length < PAGE) break;
     }
@@ -232,12 +255,14 @@ export class SupabaseProducerRepository implements ProducerRepository {
     reference: string;
     paidBy: string;
     expectedAccount: string;
+    minAmount: number;
   }): Promise<PayoutResult> {
     const { data, error } = await this.client().rpc('register_producer_payout', {
       p_producer_id: input.producerId,
       p_reference: input.reference,
       p_paid_by: input.paidBy,
-      p_expected_account: input.expectedAccount
+      p_expected_account: input.expectedAccount,
+      p_min_amount: input.minAmount
     });
 
     if (error) {

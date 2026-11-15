@@ -2,14 +2,17 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it } from 'vitest';
 import { ForbiddenError, NotFoundError, ValidationError } from '@/lib/errors';
 import {
+  HOLD_DAYS,
+  MIN_PAYOUT_AMOUNT,
   isPayoutMethod,
+  maskAccount,
   parsePayoutDetails,
   parseReference,
   payoutMethodLabel
 } from '@/lib/producers/payout-rules';
 import { ProducerPayoutService } from '@/lib/producers/payout-service';
 import { SupabaseProducerRepository } from '@/lib/producers/repository';
-import type { PayoutDetails, PayoutResult, ProducerProfile, ProducerRepository } from '@/lib/producers/types';
+import type { PayoutDetails, PayoutMailer, PayoutNotice, PayoutResult, ProducerProfile, ProducerRepository } from '@/lib/producers/types';
 import { PRODUCER } from './producer-helpers';
 
 const NEQUI: PayoutDetails = { method: 'nequi', account: '3001234567', holder: 'Helmer Perez' };
@@ -99,10 +102,22 @@ class FakeProducers implements Pick<ProducerRepository, 'findById' | 'updatePayo
   }
 }
 
+class FakeMailer implements PayoutMailer {
+  sent: PayoutNotice[] = [];
+  fail = false;
+
+  async send(notice: PayoutNotice) {
+    if (this.fail) throw new Error('resend caido');
+    this.sent.push(notice);
+  }
+}
+
 const build = (producer: ProducerProfile | null = PRODUCER) => {
   const repo = new FakeProducers(producer);
-  const service = new ProducerPayoutService(repo as unknown as ProducerRepository);
-  return { repo, service };
+  const mailer = new FakeMailer();
+  const logged: string[] = [];
+  const service = new ProducerPayoutService(repo as unknown as ProducerRepository, mailer, message => logged.push(message));
+  return { repo, mailer, logged, service };
 };
 
 describe('ProducerPayoutService.saveDetails', () => {
@@ -135,8 +150,51 @@ describe('ProducerPayoutService.registerPayout', () => {
 
     expect(result.amount).toBe(17000);
     expect(repo.registered).toEqual([
-      { producerId: PRODUCER.id, reference: 'Comp 123', paidBy: 'zaetta@correo.com', expectedAccount: '3001234567' }
+      {
+        producerId: PRODUCER.id,
+        reference: 'Comp 123',
+        paidBy: 'zaetta@correo.com',
+        expectedAccount: '3001234567',
+        minAmount: MIN_PAYOUT_AMOUNT
+      }
     ]);
+  });
+
+  it('le avisa al productor por correo con lo que se le pago', async () => {
+    const { mailer, service } = build(withPayout);
+    const result = await service.registerPayout(PRODUCER.id, { reference: 'Comp 123', paidBy: 'a@b.co' });
+
+    expect(result.notified).toBe(true);
+    expect(mailer.sent).toEqual([
+      {
+        email: PRODUCER.email,
+        stageName: PRODUCER.stageName,
+        amount: 17000,
+        earningsCount: 2,
+        method: 'nequi',
+        account: '3001234567',
+        reference: 'Comp 123'
+      }
+    ]);
+  });
+
+  it('si el correo falla, el pago queda registrado y se avisa que no salio', async () => {
+    const { repo, mailer, logged, service } = build(withPayout);
+    mailer.fail = true;
+    const result = await service.registerPayout(PRODUCER.id, { reference: 'Comp 123', paidBy: 'a@b.co' });
+
+    expect(repo.registered).toHaveLength(1);
+    expect(result.amount).toBe(17000);
+    expect(result.notified).toBe(false);
+    expect(logged).toHaveLength(1);
+  });
+
+  it('si la base rechaza el pago, no se manda ningun correo', async () => {
+    const { repo, mailer, service } = build(withPayout);
+    repo.registerPayout = async () => { throw new ValidationError('No llega al minimo'); };
+    await expect(service.registerPayout(PRODUCER.id, { reference: 'Comp 1', paidBy: 'a@b.co' }))
+      .rejects.toBeInstanceOf(ValidationError);
+    expect(mailer.sent).toEqual([]);
   });
 
   it('no paga si el productor no dijo como cobrar', async () => {
@@ -162,7 +220,7 @@ describe('ProducerPayoutService.registerPayout', () => {
 describe('SupabaseProducerRepository.registerPayout', () => {
   const clientWith = (rpc: () => Promise<{ data: unknown; error: { message: string } | null }>) =>
     (() => ({ rpc }) as unknown as SupabaseClient);
-  const input = { producerId: 'p1', reference: 'Comp 1', paidBy: 'a@b.co', expectedAccount: '3001234567' };
+  const input = { producerId: 'p1', reference: 'Comp 1', paidBy: 'a@b.co', expectedAccount: '3001234567', minAmount: 50_000 };
 
   it('traduce la respuesta de la base', async () => {
     const repo = new SupabaseProducerRepository(clientWith(async () => ({
@@ -190,5 +248,70 @@ describe('SupabaseProducerRepository.registerPayout', () => {
     const error = await repo.registerPayout(input).catch(e => e);
     expect(error).not.toBeInstanceOf(ValidationError);
     expect(error.message).toContain('registrar el pago');
+  });
+});
+
+describe('reglas de liberacion y minimo', () => {
+  it('fija los dias de espera y el pago minimo', () => {
+    expect(HOLD_DAYS).toBe(7);
+    expect(MIN_PAYOUT_AMOUNT).toBe(50_000);
+  });
+
+  it('muestra solo los ultimos 4 digitos de la cuenta en el correo', () => {
+    expect(maskAccount('nequi', '3001234567')).toBe('•••• 4567');
+    expect(maskAccount('bancolombia', '12345678901')).toBe('•••• 8901');
+    expect(maskAccount('otro', 'Davivienda ahorros 123456')).toBe('la cuenta que registraste');
+  });
+});
+
+describe('SupabaseProducerRepository.registerPayout (minimo)', () => {
+  it('manda el pago minimo a la base', async () => {
+    let received: Record<string, unknown> | null = null;
+    const repo = new SupabaseProducerRepository((() => ({
+      rpc: async (_name: string, args: Record<string, unknown>) => {
+        received = args;
+        return { data: [{ out_payout_id: 'p', out_amount: 60000, out_count: 2 }], error: null };
+      }
+    }) as unknown as SupabaseClient));
+    await repo.registerPayout({ producerId: 'p1', reference: 'R', paidBy: 'a@b.co', expectedAccount: '3001234567', minAmount: 50_000 });
+    expect(received).toMatchObject({ p_min_amount: 50_000, p_expected_account: '3001234567' });
+  });
+});
+
+describe('SupabaseProducerRepository.pendingTotals', () => {
+  // Cadena minima del cliente: from().select().eq().order().range() -> filas.
+  const clientWith = (rows: unknown[]) =>
+    (() => ({
+      from: () => {
+        const chain: Record<string, unknown> = {};
+        chain.select = () => chain;
+        chain.eq = () => chain;
+        chain.order = () => chain;
+        chain.range = async () => ({ data: rows, error: null });
+        return chain;
+      }
+    }) as unknown as SupabaseClient);
+
+  it('separa lo liberado de lo que sigue en espera, por productor', async () => {
+    const past = new Date(Date.now() - 86_400_000).toISOString();
+    const soon = new Date(Date.now() + 2 * 86_400_000).toISOString();
+    const later = new Date(Date.now() + 5 * 86_400_000).toISOString();
+    const repo = new SupabaseProducerRepository(clientWith([
+      { id: '1', producer_id: 'p1', producer_amount: 40_000, available_at: past },
+      { id: '2', producer_id: 'p1', producer_amount: 30_000, available_at: later },
+      { id: '3', producer_id: 'p1', producer_amount: 20_000, available_at: soon },
+      { id: '4', producer_id: 'p2', producer_amount: 5_000, available_at: past }
+    ]));
+
+    const totals = await repo.pendingTotals();
+    expect(totals.get('p1')).toEqual({
+      amount: 90_000,
+      count: 3,
+      availableAmount: 40_000,
+      availableCount: 1,
+      holdingAmount: 50_000,
+      nextReleaseAt: soon
+    });
+    expect(totals.get('p2')).toMatchObject({ availableAmount: 5_000, holdingAmount: 0, nextReleaseAt: null });
   });
 });
