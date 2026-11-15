@@ -7,7 +7,7 @@
 <meta name="description" content="Lujo Urban es la plataforma para productores de música urbana: tu tienda, tus licencias y el 85 % de cada venta. Por ahora, sin mensualidad.">
 <!-- BORRADOR: sin indexar hasta que se apruebe y se publique en la raíz -->
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#070605">
 <link rel="icon" href="../assets/lujo.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,43 +15,37 @@
 <style>
   /* ---------- Sistema ---------- */
   :root {
-    --bg: #000;
-    --ink: #f5efe4;
-    --ink-2: rgba(245, 239, 228, .74);
-    --ink-3: rgba(245, 239, 228, .52);
+    --bg: #070605;
+    --ink: #f4efe7;
+    --ink-2: rgba(244, 239, 231, .76);
+    --ink-3: rgba(244, 239, 231, .54);
     --gold: #e3b873;
     --gold-deep: #b9874a;
     --gold-hi: #fff3d9;
     --line: rgba(227, 184, 115, .22);
-    --surface: #0c0c0c;
+    --surface: #0f0c09;
 
     --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
-    --r-s: 12px; --r-m: 20px; --r-pill: 999px;
+    --r-m: 20px; --r-s: 10px; --r-pill: 999px;
 
     --display: "Bebas Neue", "Arial Narrow", Impact, sans-serif;
     --text: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
 
     --gutter: clamp(20px, 5vw, 48px);
-    --section-y: clamp(56px, 9vw, 112px);
+    --section-y: clamp(64px, 10vw, 128px);
     --ease: cubic-bezier(.2, .7, .2, 1);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--text);
-    font-size: 1.0625rem;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--text); font-size: 1.0625rem; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
   h1, h2, h3, p, ol, ul, dl, dd { margin: 0; }
   ul, ol { padding: 0; list-style: none; }
   a { color: inherit; }
-
   :focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 3px; border-radius: 4px; }
 
   .wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: var(--gutter); }
@@ -59,11 +53,9 @@
   /* ---------- Botones y enlaces (el tamaño nunca cambia al interactuar) ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center;
-    min-height: 52px; padding: 0 var(--s6);
-    border-radius: var(--r-pill);
-    font-family: var(--text); font-size: 1rem; font-weight: 600; letter-spacing: .01em;
-    text-decoration: none; cursor: pointer;
-    border: 1px solid transparent;
+    min-height: 54px; padding: 0 var(--s6); border-radius: var(--r-pill);
+    font-family: var(--text); font-size: 1.0625rem; font-weight: 600; letter-spacing: .01em;
+    text-decoration: none; cursor: pointer; border: 1px solid transparent;
     transition: background-color .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
   }
   .btn-primary { background: var(--gold); color: #000; }
@@ -73,64 +65,93 @@
   .btn-sm { min-height: 44px; padding: 0 var(--s5); font-size: .95rem; }
 
   .link {
-    display: inline-flex; align-items: center; min-height: 44px;
-    color: var(--ink); font-weight: 500;
+    display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-weight: 500;
     text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 6px;
     transition: text-decoration-color .18s var(--ease), color .18s var(--ease);
   }
   .link:hover { color: var(--gold-hi); text-decoration-color: var(--gold); }
 
-  /* ---------- Encabezado ---------- */
-  .top { padding-block: var(--s4); }
-  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); }
   .mark {
-    font-family: var(--display); font-size: 1.75rem; letter-spacing: .1em; line-height: 1;
-    text-decoration: none;
+    font-family: var(--display); font-size: 1.75rem; letter-spacing: .1em; line-height: 1; text-decoration: none;
     background: linear-gradient(110deg, var(--gold-deep) 20%, var(--gold) 45%, var(--gold-hi) 55%, var(--gold) 70%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
 
-  /* ---------- Hero ---------- */
-  .hero { padding-block: clamp(40px, 8vw, 96px) var(--section-y); }
-  .hero-grid { display: grid; gap: var(--s8); align-items: end; }
+  /* ---------- Hero: la carátula ---------- */
+  .hero {
+    position: relative; isolation: isolate; overflow: hidden;
+    min-height: 100vh; min-height: 100svh;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(70% 46% at 38% 100%, rgba(227, 184, 115, .20), transparent 72%),
+      radial-gradient(50% 36% at 90% 8%, rgba(157, 182, 199, .07), transparent 70%),
+      var(--bg);
+  }
+  /* Grano: la misma textura de la casa, solo donde importa */
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .06;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, .9) .6px, transparent .6px),
+      radial-gradient(rgba(255, 255, 255, .6) .6px, transparent .6px);
+    background-size: 3px 3px, 5px 5px; background-position: 0 0, 1.5px 2.5px;
+  }
+  .top { padding-block: var(--s4); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); }
+
+  .hero-body {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    padding-block: var(--s6) var(--s7);
+  }
   .hero h1 {
     font-family: var(--display); font-weight: 400;
-    font-size: clamp(3.9rem, 18.5vw, 8.5rem);
-    line-height: .9; letter-spacing: .01em; color: var(--ink);
+    font-size: clamp(4.4rem, min(22vw, 19vh), 13rem);
+    line-height: .86; letter-spacing: .005em;
+    padding-top: .16em; margin-top: -.16em;
+    /* metal: una pasada de brillo al cargar y queda quieto */
+    color: var(--gold-hi);
+    background:
+      linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .95) 50%, transparent 62%),
+      linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 52%, var(--gold-deep) 100%);
+    background-size: 260% 100%, 100% 100%;
+    background-repeat: no-repeat;
+    background-position: 130% 0, 0 0;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    animation: sheen 1.8s var(--ease) 1.3s both;
   }
-  .hero-sub { margin-top: var(--s6); max-width: 34rem; font-size: 1.1875rem; color: var(--ink-2); }
-  .hero-cta { margin-top: var(--s6); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s5); }
-  .hero-note { margin-top: var(--s5); max-width: 30rem; font-size: .9375rem; color: var(--ink-3); }
+  @keyframes sheen { from { background-position: 130% 0, 0 0; } to { background-position: -30% 0, 0 0; } }
+  .hero h1 span { display: block; white-space: nowrap; }
+
+  .hero-side { margin-top: var(--s6); }
+  .hero-side > :first-child { margin-top: 0; }
+  .hero-sub { margin-top: 0; max-width: 30rem; font-size: 1.25rem; line-height: 1.45; color: var(--ink-2); }
+  .hero-cta { margin-top: var(--s5); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s5); }
+  .hero-note { margin-top: var(--s4); font-size: .9375rem; color: var(--ink-3); }
+
+  /* La onda: una pista cargada, a medio sonar */
+  .wave { display: block; width: 100%; height: clamp(140px, min(26vw, 24vh), 300px); }
+  .wave .b { fill: var(--gold); transform-box: fill-box; transform-origin: center; animation: grow 1.1s var(--ease) both; animation-delay: calc(var(--i) * 13ms + 250ms); }
+  .wave .b.off { fill: var(--ink); }
+  .wave .head { stroke: var(--gold-hi); stroke-width: 2; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 6px rgba(227, 184, 115, .9)); animation: fade .6s ease 1.7s both; }
+  @keyframes grow { from { transform: scaleY(.03); } to { transform: scaleY(1); } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ---------- Secciones ---------- */
+  .sec { padding-block: var(--section-y); border-top: 1px solid var(--line); }
+  .sec-grid { display: grid; gap: var(--s6); }
+  h2 { font-family: var(--display); font-weight: 400; font-size: clamp(2.8rem, 9vw, 4.75rem); line-height: .92; letter-spacing: .01em; }
+  .prose h2 { color: var(--ink); }
+  .prose { max-width: 34rem; display: grid; align-content: start; gap: var(--s5); font-size: 1.25rem; line-height: 1.5; color: var(--ink-2); }
 
   /* Tienda de ejemplo */
-  .store-wrap { max-width: 440px; width: 100%; }
-  .store {
-    border: 1px solid var(--line); border-radius: var(--r-m);
-    background: var(--surface); overflow: hidden;
-  }
-  .store-cover {
-    height: 104px; display: flex; align-items: center; justify-content: center; gap: 4px;
-    border-bottom: 1px solid var(--line);
-  }
-  .bar {
-    width: 4px; height: calc(var(--h) * 1%); max-height: 72px; min-height: 8px;
-    border-radius: 2px; background: var(--gold);
-    transform-origin: center;
-    animation: rise .8s var(--ease) both; animation-delay: calc(var(--i) * 26ms + 150ms);
-  }
-  @keyframes rise { from { transform: scaleY(.06); opacity: .2; } to { transform: scaleY(1); opacity: 1; } }
+  .store-wrap { width: 100%; max-width: 460px; }
+  .store { border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); overflow: hidden; box-shadow: 0 30px 80px -30px rgba(227, 184, 115, .25); }
+  .store-cover { height: 112px; display: flex; align-items: center; justify-content: center; gap: 4px; border-bottom: 1px solid var(--line); }
+  .bar { width: 4px; height: calc(var(--h) * 1%); max-height: 76px; min-height: 8px; border-radius: 2px; background: var(--gold); }
   .store-head { display: flex; align-items: center; gap: var(--s4); padding: var(--s5); }
-  .avatar {
-    flex: none; width: 56px; height: 56px; border-radius: 50%;
-    border: 1px solid var(--gold-deep); display: grid; place-items: center;
-    font-family: var(--display); font-size: 1.5rem; color: var(--gold); letter-spacing: .04em;
-  }
+  .avatar { flex: none; width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--gold-deep); display: grid; place-items: center; font-family: var(--display); font-size: 1.5rem; color: var(--gold); letter-spacing: .04em; }
   .store-name { font-family: var(--display); font-size: 2rem; line-height: 1; letter-spacing: .02em; }
   .store-sub { font-size: .9375rem; color: var(--ink-3); }
-  .store-badge {
-    display: flex; align-items: center; gap: var(--s2);
-    padding: 0 var(--s5) var(--s5); font-size: .9375rem; font-weight: 500; color: var(--gold);
-  }
+  .store-badge { display: flex; align-items: center; gap: var(--s2); padding: 0 var(--s5) var(--s5); font-size: .9375rem; font-weight: 500; color: var(--gold); }
   .store-badge svg { width: 18px; height: 18px; flex: none; }
   .lic { border-top: 1px solid var(--line); }
   .lic li { display: flex; justify-content: space-between; align-items: center; gap: var(--s4); min-height: 68px; padding: var(--s3) var(--s5); }
@@ -138,61 +159,43 @@
   .lic strong { display: block; font-weight: 600; }
   .lic span { font-size: .875rem; color: var(--ink-3); }
   .lic em { flex: none; font-style: normal; font-size: .9375rem; color: var(--ink-2); }
-  .store-cap { margin-top: var(--s3); font-size: .875rem; color: var(--ink-3); }
-
-  /* ---------- Secciones ---------- */
-  .sec { padding-block: var(--section-y); border-top: 1px solid var(--line); }
-  .sec-grid { display: grid; gap: var(--s6); }
-  h2 {
-    font-family: var(--display); font-weight: 400;
-    font-size: clamp(2.6rem, 8vw, 4rem); line-height: .95; letter-spacing: .01em;
-  }
-  .prose { max-width: 36rem; display: grid; align-content: start; gap: var(--s5); font-size: 1.1875rem; color: var(--ink-2); }
-  .prose strong { color: var(--ink); font-weight: 600; }
 
   .rows > li { display: grid; gap: var(--s2); padding-block: var(--s5); border-top: 1px solid var(--line); }
   .rows > li:first-child { border-top: 0; padding-top: 0; }
-  .rows h3 { font-family: var(--display); font-weight: 400; font-size: 2rem; line-height: 1; letter-spacing: .02em; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); }
+  .rows h3 { font-family: var(--display); font-weight: 400; font-size: 2.25rem; line-height: 1; letter-spacing: .02em; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); }
   .rows p { max-width: 34rem; color: var(--ink-2); }
-  .tag {
-    font-family: var(--text); font-size: .8125rem; font-weight: 500; letter-spacing: 0;
-    border: 1px solid var(--gold-deep); color: var(--gold); border-radius: var(--r-pill); padding: 2px 10px;
-  }
+  .tag { font-family: var(--text); font-size: .8125rem; font-weight: 500; letter-spacing: 0; border: 1px solid var(--gold-deep); color: var(--gold); border-radius: var(--r-pill); padding: 2px 10px; }
 
   /* ---------- Banda del 85 ---------- */
   .band { background: var(--gold); color: #000; padding-block: var(--section-y); }
   .band-grid { display: grid; gap: var(--s6); align-items: end; }
-  .big {
-    font-family: var(--display); font-size: clamp(9rem, 44vw, 21rem); line-height: .78; letter-spacing: -.01em;
-    display: flex; align-items: flex-start; gap: .04em;
-  }
+  .big { font-family: var(--display); font-size: clamp(9rem, 46vw, 22rem); line-height: .78; letter-spacing: -.01em; display: flex; align-items: flex-start; gap: .04em; }
   .big small { font-size: .32em; line-height: 1; padding-top: .12em; }
   .band h2 { max-width: 14ch; }
-  .band p { margin-top: var(--s5); max-width: 32rem; font-size: 1.125rem; color: rgba(0, 0, 0, .78); }
-  .facts { margin-top: var(--s6); display: grid; gap: 0; max-width: 32rem; }
-  .facts li { padding-block: var(--s3); border-top: 1px solid rgba(0, 0, 0, .28); font-weight: 600; }
-  .facts li:last-child { border-bottom: 1px solid rgba(0, 0, 0, .28); }
+  .band p { margin-top: var(--s5); max-width: 32rem; font-size: 1.1875rem; color: rgba(0, 0, 0, .8); }
 
   /* ---------- Pasos (esto sí es una secuencia) ---------- */
   .steps { counter-reset: paso; }
-  .steps > li { counter-increment: paso; display: grid; grid-template-columns: 3.4rem 1fr; gap: var(--s4); padding-block: var(--s5); border-top: 1px solid var(--line); }
+  .steps > li { counter-increment: paso; display: grid; grid-template-columns: 3.6rem 1fr; gap: var(--s4); padding-block: var(--s5); border-top: 1px solid var(--line); }
   .steps > li:first-child { border-top: 0; padding-top: 0; }
-  .steps > li::before { content: counter(paso); font-family: var(--display); font-size: 3rem; line-height: .9; color: var(--gold); }
-  .steps h3 { font-family: var(--display); font-weight: 400; font-size: 2rem; line-height: 1; letter-spacing: .02em; }
+  .steps > li::before { content: counter(paso); font-family: var(--display); font-size: 3.4rem; line-height: .9; color: var(--gold); }
+  .steps h3 { font-family: var(--display); font-weight: 400; font-size: 2.25rem; line-height: 1; letter-spacing: .02em; }
   .steps p { margin-top: var(--s2); max-width: 32rem; color: var(--ink-2); }
 
-  /* ---------- Sello ---------- */
+  /* ---------- Artistas y sello ---------- */
   .label-strip { display: grid; gap: var(--s5); align-items: center; }
-  .label-strip p { max-width: 34rem; font-size: 1.1875rem; color: var(--ink-2); }
+  .label-strip p { max-width: 34rem; font-size: 1.25rem; line-height: 1.5; color: var(--ink-2); }
+  .covers { margin-top: var(--s5); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); max-width: 34rem; }
+  .covers img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-s); border: 1px solid var(--line); }
 
   /* ---------- Preguntas ---------- */
   .qa { display: grid; gap: var(--s6); }
-  .qa dt { font-weight: 600; font-size: 1.125rem; }
-  .qa dd { margin-top: var(--s2); max-width: 30rem; color: var(--ink-2); }
+  .qa dt { font-weight: 600; font-size: 1.1875rem; }
+  .qa dd { margin-top: var(--s2); max-width: 30rem; font-size: 1.125rem; color: var(--ink-2); }
 
   /* ---------- Cierre ---------- */
-  .close h2 { font-size: clamp(3.4rem, 13vw, 8rem); line-height: .9; }
-  .close p { margin-top: var(--s5); max-width: 30rem; font-size: 1.1875rem; color: var(--ink-2); }
+  .close h2 { font-size: clamp(3.8rem, 15vw, 9rem); line-height: .88; }
+  .close p { margin-top: var(--s5); max-width: 30rem; font-size: 1.25rem; color: var(--ink-2); }
 
   /* ---------- Pie ---------- */
   .foot { border-top: 1px solid var(--line); padding-block: var(--s7); }
@@ -204,7 +207,9 @@
 
   /* ---------- Pantallas grandes ---------- */
   @media (min-width: 900px) {
-    .hero-grid { grid-template-columns: 1.2fr .8fr; gap: var(--s7); }
+    .hero h1 { font-size: clamp(4.4rem, min(12.4vw, 19vh), 13rem); }
+    .hero-body { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: var(--s8); }
+    .hero-side { margin-top: 0; flex: none; width: min(24rem, 36%); padding-bottom: var(--s2); }
     .sec-grid { grid-template-columns: 5fr 7fr; gap: var(--s7); }
     .band-grid { grid-template-columns: auto 1fr; gap: var(--s8); }
     .label-strip { grid-template-columns: 5fr 7fr; gap: var(--s7); }
@@ -214,35 +219,46 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .bar { animation: none; }
+    .hero h1 { animation: none; background-position: -30% 0, 0 0; }
+    .wave .b, .wave .head { animation: none; }
     * { transition-duration: 0s !important; }
   }
 </style>
 </head>
 <body>
 
-<header class="top">
-  <div class="wrap">
-    <a class="mark" href="./" aria-label="Lujo Urban, inicio">LUJO URBAN</a>
-    <a class="btn btn-ghost btn-sm" href="../vender/">Pedí tu cuenta</a>
+<section class="hero" aria-label="Lujo Urban">
+  <header class="top">
+    <div class="wrap">
+      <a class="mark" href="./" aria-label="Lujo Urban, inicio">LUJO URBAN</a>
+      <a class="btn btn-ghost btn-sm" href="../vender/">Pedí tu cuenta</a>
+    </div>
+  </header>
+
+  <div class="wrap hero-body">
+    <h1><span>Tu música.</span><span>Tu tienda.</span><span>Tu plata.</span></h1>
+    <div class="hero-side">
+      <p class="hero-sub">Vendé tus beats desde una tienda con tu nombre. Por ahora, sin mensualidad.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="../vender/">Pedí tu cuenta</a>
+        <a class="link" href="https://tienda.lujourban.com">Mirá la tienda</a>
+      </div>
+      <p class="hero-note">Cada solicitud la revisamos a mano.</p>
+    </div>
   </div>
-</header>
+
+  <svg class="wave" viewBox="0 0 960 240" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect class="b on" style="--i:0" x="2.0" y="69.5" width="6" height="101.0" rx="3" fill-opacity="0.42"/><rect class="b on" style="--i:1" x="12.0" y="64.8" width="6" height="110.3" rx="3" fill-opacity="0.44"/><rect class="b on" style="--i:2" x="22.0" y="49.7" width="6" height="140.6" rx="3" fill-opacity="0.45"/><rect class="b on" style="--i:3" x="32.0" y="62.7" width="6" height="114.6" rx="3" fill-opacity="0.47"/><rect class="b on" style="--i:4" x="42.0" y="65.0" width="6" height="110.1" rx="3" fill-opacity="0.48"/><rect class="b on" style="--i:5" x="52.0" y="75.5" width="6" height="89.1" rx="3" fill-opacity="0.50"/><rect class="b on" style="--i:6" x="62.0" y="65.8" width="6" height="108.5" rx="3" fill-opacity="0.51"/><rect class="b on" style="--i:7" x="72.0" y="46.3" width="6" height="147.3" rx="3" fill-opacity="0.53"/><rect class="b on" style="--i:8" x="82.0" y="56.2" width="6" height="127.7" rx="3" fill-opacity="0.55"/><rect class="b on" style="--i:9" x="92.0" y="46.5" width="6" height="146.9" rx="3" fill-opacity="0.56"/><rect class="b on" style="--i:10" x="102.0" y="64.2" width="6" height="111.6" rx="3" fill-opacity="0.58"/><rect class="b on" style="--i:11" x="112.0" y="70.4" width="6" height="99.3" rx="3" fill-opacity="0.59"/><rect class="b on" style="--i:12" x="122.0" y="52.9" width="6" height="134.1" rx="3" fill-opacity="0.61"/><rect class="b on" style="--i:13" x="132.0" y="50.0" width="6" height="140.0" rx="3" fill-opacity="0.62"/><rect class="b on" style="--i:14" x="142.0" y="34.7" width="6" height="170.7" rx="3" fill-opacity="0.64"/><rect class="b on" style="--i:15" x="152.0" y="54.6" width="6" height="130.8" rx="3" fill-opacity="0.66"/><rect class="b on" style="--i:16" x="162.0" y="52.1" width="6" height="135.9" rx="3" fill-opacity="0.67"/><rect class="b on" style="--i:17" x="172.0" y="67.0" width="6" height="105.9" rx="3" fill-opacity="0.69"/><rect class="b on" style="--i:18" x="182.0" y="52.3" width="6" height="135.3" rx="3" fill-opacity="0.70"/><rect class="b on" style="--i:19" x="192.0" y="32.6" width="6" height="174.8" rx="3" fill-opacity="0.72"/><rect class="b on" style="--i:20" x="202.0" y="47.8" width="6" height="144.5" rx="3" fill-opacity="0.73"/><rect class="b on" style="--i:21" x="212.0" y="38.2" width="6" height="163.7" rx="3" fill-opacity="0.75"/><rect class="b on" style="--i:22" x="222.0" y="54.6" width="6" height="130.8" rx="3" fill-opacity="0.76"/><rect class="b on" style="--i:23" x="232.0" y="62.0" width="6" height="116.0" rx="3" fill-opacity="0.78"/><rect class="b on" style="--i:24" x="242.0" y="41.1" width="6" height="157.8" rx="3" fill-opacity="0.80"/><rect class="b on" style="--i:25" x="252.0" y="41.0" width="6" height="158.1" rx="3" fill-opacity="0.81"/><rect class="b on" style="--i:26" x="262.0" y="27.0" width="6" height="185.9" rx="3" fill-opacity="0.83"/><rect class="b on" style="--i:27" x="272.0" y="47.2" width="6" height="145.5" rx="3" fill-opacity="0.84"/><rect class="b on" style="--i:28" x="282.0" y="43.3" width="6" height="153.4" rx="3" fill-opacity="0.86"/><rect class="b on" style="--i:29" x="292.0" y="58.4" width="6" height="123.2" rx="3" fill-opacity="0.87"/><rect class="b on" style="--i:30" x="302.0" y="43.5" width="6" height="153.0" rx="3" fill-opacity="0.89"/><rect class="b on" style="--i:31" x="312.0" y="25.3" width="6" height="189.4" rx="3" fill-opacity="0.91"/><rect class="b on" style="--i:32" x="322.0" y="44.9" width="6" height="150.1" rx="3" fill-opacity="0.92"/><rect class="b on" style="--i:33" x="332.0" y="28.4" width="6" height="183.3" rx="3" fill-opacity="0.94"/><rect class="b on" style="--i:34" x="342.0" y="49.2" width="6" height="141.5" rx="3" fill-opacity="0.95"/><rect class="b on" style="--i:35" x="352.0" y="53.8" width="6" height="132.3" rx="3" fill-opacity="0.97"/><rect class="b on" style="--i:36" x="362.0" y="34.6" width="6" height="170.7" rx="3" fill-opacity="0.98"/><rect class="b on" style="--i:37" x="372.0" y="37.5" width="6" height="165.0" rx="3" fill-opacity="1.00"/><rect class="b off" style="--i:38" x="382.0" y="22.9" width="6" height="194.2" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:39" x="392.0" y="41.1" width="6" height="157.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:40" x="402.0" y="39.4" width="6" height="161.1" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:41" x="412.0" y="52.8" width="6" height="134.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:42" x="422.0" y="39.8" width="6" height="160.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:43" x="432.0" y="24.1" width="6" height="191.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:44" x="442.0" y="39.6" width="6" height="160.8" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:45" x="452.0" y="23.6" width="6" height="192.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:46" x="462.0" y="48.8" width="6" height="142.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:47" x="472.0" y="50.1" width="6" height="139.8" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:48" x="482.0" y="33.7" width="6" height="172.6" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:49" x="492.0" y="39.0" width="6" height="162.0" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:50" x="502.0" y="17.9" width="6" height="204.2" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:51" x="512.0" y="39.7" width="6" height="160.6" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:52" x="522.0" y="41.1" width="6" height="157.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:53" x="532.0" y="51.8" width="6" height="136.4" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:54" x="542.0" y="41.1" width="6" height="157.8" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:55" x="552.0" y="24.1" width="6" height="191.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:56" x="562.0" y="37.0" width="6" height="165.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:57" x="572.0" y="24.9" width="6" height="190.2" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:58" x="582.0" y="53.3" width="6" height="133.4" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:59" x="592.0" y="51.1" width="6" height="137.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:60" x="602.0" y="37.8" width="6" height="164.3" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:61" x="612.0" y="36.3" width="6" height="167.3" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:62" x="622.0" y="18.9" width="6" height="202.2" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:63" x="632.0" y="43.8" width="6" height="152.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:64" x="642.0" y="48.1" width="6" height="143.8" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:65" x="652.0" y="55.3" width="6" height="129.4" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:66" x="662.0" y="45.7" width="6" height="148.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:67" x="672.0" y="24.8" width="6" height="190.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:68" x="682.0" y="39.9" width="6" height="160.3" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:69" x="692.0" y="32.4" width="6" height="175.3" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:70" x="702.0" y="62.2" width="6" height="115.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:71" x="712.0" y="56.5" width="6" height="127.1" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:72" x="722.0" y="41.1" width="6" height="157.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:73" x="732.0" y="38.8" width="6" height="162.4" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:74" x="742.0" y="26.6" width="6" height="186.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:75" x="752.0" y="52.9" width="6" height="134.2" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:76" x="762.0" y="59.3" width="6" height="121.4" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:77" x="772.0" y="62.5" width="6" height="114.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:78" x="782.0" y="47.6" width="6" height="144.8" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:79" x="792.0" y="32.0" width="6" height="176.1" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:80" x="802.0" y="48.5" width="6" height="143.0" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:81" x="812.0" y="45.5" width="6" height="149.1" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:82" x="822.0" y="74.0" width="6" height="91.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:83" x="832.0" y="63.2" width="6" height="113.6" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:84" x="842.0" y="47.0" width="6" height="146.0" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:85" x="852.0" y="47.7" width="6" height="144.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:86" x="862.0" y="40.9" width="6" height="158.2" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:87" x="872.0" y="66.2" width="6" height="107.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:88" x="882.0" y="73.1" width="6" height="93.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:89" x="892.0" y="67.9" width="6" height="104.3" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:90" x="902.0" y="56.0" width="6" height="127.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:91" x="912.0" y="46.5" width="6" height="146.9" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:92" x="922.0" y="62.8" width="6" height="114.5" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:93" x="932.0" y="63.2" width="6" height="113.7" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:94" x="942.0" y="87.1" width="6" height="65.8" rx="3" fill-opacity="0.20"/><rect class="b off" style="--i:95" x="952.0" y="70.6" width="6" height="98.9" rx="3" fill-opacity="0.20"/><line class="head" x1="378" y1="0" x2="378" y2="240"/></svg>
+</section>
 
 <main>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <h1>Tu música.<br>Tu tienda.<br>Tu plata.</h1>
-        <p class="hero-sub">Vendé tus beats desde una tienda con tu nombre. Por ahora, sin mensualidad.</p>
-        <div class="hero-cta">
-          <a class="btn btn-primary" href="../vender/">Pedí tu cuenta</a>
-          <a class="link" href="https://tienda.lujourban.com">Mirá la tienda</a>
-        </div>
-        <p class="hero-note">Cada solicitud la revisamos a mano.</p>
+  <!-- Tu tienda -->
+  <section class="sec" id="tienda">
+    <div class="wrap sec-grid">
+      <div class="prose">
+        <h2>Una tienda con tu nombre.</h2>
+        <p>Tus compradores pagan en pesos con Mercado Pago, sin crear cuenta. Vos ponés el precio de cada licencia.</p>
       </div>
-
       <div class="store-wrap">
         <div class="store" role="img" aria-label="Ejemplo de tienda de un productor en Lujo Urban, con sus tres licencias">
           <div class="store-cover" aria-hidden="true">
@@ -265,17 +281,6 @@
             <li><div><strong>Ilimitada</strong><span>WAV + stems, uso no exclusivo</span></div><em>Vos decidís</em></li>
           </ul>
         </div>
-        <p class="store-cap">Así se ve una tienda en Lujo Urban.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Pagos -->
-  <section class="sec" id="por-que">
-    <div class="wrap sec-grid">
-      <h2>Pagos en pesos.</h2>
-      <div class="prose">
-        <p>Tus compradores pagan con Mercado Pago, sin crear cuenta.</p>
       </div>
     </div>
   </section>
@@ -366,6 +371,11 @@
       <h2>Detrás hay un sello.</h2>
       <div>
         <p>Zaetta Music, el sello de música urbana cristiana detrás de Lujo Urban.</p>
+        <div class="covers">
+          <img src="../assets/predicador-cover.jpg" alt="Portada de Predicador" width="600" height="600" loading="lazy">
+          <img src="../assets/gloriayhonra-cover.jpg" alt="Portada de Gloria y Honra" width="600" height="600" loading="lazy">
+          <img src="../assets/seguire-cover.jpg" alt="Portada de Seguiré" width="600" height="600" loading="lazy">
+        </div>
         <a class="link" href="https://casa.lujourban.com">Conocé el sello</a>
       </div>
     </div>
