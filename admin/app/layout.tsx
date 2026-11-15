@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './touch.css';
 
 export const metadata: Metadata = {
   title: 'Panel Lujo Urban',
