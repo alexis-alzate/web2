@@ -80,7 +80,8 @@ export default function BeatRow({ beat }: { beat: Beat }) {
       title: beat.title,
       coverUrl,
       license,
-      price: priceForLicense(beat, license)
+      price: priceForLicense(beat, license),
+      producerSlug: beat.producer_slug ?? null
     });
     setLicenseModalOpen(false);
     setJustAdded(true);

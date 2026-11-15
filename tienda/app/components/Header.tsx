@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useCart } from '../providers/CartProvider';
 import { formatCOP } from '@/lib/format';
@@ -9,9 +9,10 @@ import { CartIcon, SearchIcon } from './Icons';
 
 export default function Header() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { count, total, openCartPreview } = useCart();
+  const { count, total, openCartPreview, scopeSlug } = useCart();
+  // Dentro de la tienda de un productor, logo y buscador se quedan en esa tienda.
+  const homeHref = scopeSlug ? `/productor/${scopeSlug}` : '/';
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const [, startTransition] = useTransition();
   const [mounted, setMounted] = useState(false);
@@ -36,13 +37,13 @@ export default function Header() {
     else params.delete('q');
 
     startTransition(() => {
-      router.push(`${pathname === '/' ? '/' : '/'}${params.toString() ? `?${params.toString()}` : ''}`);
+      router.push(`${homeHref}${params.toString() ? `?${params.toString()}` : ''}`);
     });
   };
 
   return (
     <header className="site-header">
-      <Link href="/" className="brand-mark" aria-label="Inicio">
+      <Link href={homeHref} className="brand-mark" aria-label="Inicio">
         LUJO<span>URBAN</span>
       </Link>
 

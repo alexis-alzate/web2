@@ -12,7 +12,10 @@ import ProducerStoreHero from '../../components/producer-store/ProducerStoreHero
 
 export const revalidate = 60;
 
-type PageProps = { params: Promise<{ slug: string }> };
+type PageProps = {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ q?: string }>;
+};
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -27,8 +30,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function ProducerStorePage({ params }: PageProps) {
+export default async function ProducerStorePage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { q } = (await searchParams) ?? {};
   const producer = await getProducerBySlug(slug);
   if (!producer) notFound();
 
@@ -39,17 +43,28 @@ export default async function ProducerStorePage({ params }: PageProps) {
     .order('created_at', { ascending: false });
 
   // Todos los beats de esta pagina son del mismo productor: el slug ya se conoce.
-  const beats: Beat[] = error
+  const allBeats: Beat[] = error
     ? []
     : ((data as Beat[]) ?? []).map((beat) => ({ ...beat, producer_slug: producer.slug }));
-  const available = beats.filter((beat) => beat.status === 'available').length;
+  const available = allBeats.filter((beat) => beat.status === 'available').length;
+
+  // Buscador del header: filtra solo los beats de este productor.
+  const term = q?.trim().toLowerCase();
+  const beats = term
+    ? allBeats.filter((beat) =>
+        beat.title.toLowerCase().includes(term)
+        || (beat.genre ?? '').toLowerCase().includes(term)
+        || (beat.tags ?? []).some((tag) => tag.toLowerCase().includes(term))
+      )
+    : allBeats;
 
   return (
     <main className="pstore-page">
       <ProducerStoreHero slug={producer.slug} stageName={producer.stageName} availableCount={available} />
 
       {error && <p className="beats-loading">No se pudieron cargar los beats.</p>}
-      {!error && beats.length === 0 && <ProducerStoreEmpty stageName={producer.stageName} />}
+      {!error && allBeats.length === 0 && <ProducerStoreEmpty stageName={producer.stageName} />}
+      {!error && allBeats.length > 0 && beats.length === 0 && <p className="beats-loading">No hay beats que coincidan con tu búsqueda.</p>}
       {!error && beats.length > 0 && <BeatCatalog beats={beats} />}
     </main>
   );

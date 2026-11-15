@@ -5,7 +5,7 @@ import type { Beat, LicenseType } from '@/lib/types';
 import { LICENSE_LABELS, priceForLicense } from '@/lib/types';
 import { formatCOP, publicUrl } from '@/lib/format';
 import { usePlayer } from '../providers/PlayerProvider';
-import { useCart } from '../providers/CartProvider';
+import { useCart, useCartScope } from '../providers/CartProvider';
 import { CartIcon, CheckIcon, PlayIcon, PauseIcon } from './Icons';
 import ProducerName from './ProducerName';
 
@@ -14,6 +14,7 @@ const LICENSES: LicenseType[] = ['basic', 'premium', 'exclusive'];
 export default function BeatDetail({ beat }: { beat: Beat }) {
   const { track, isPlaying, progress, toggle } = usePlayer();
   const { addItem, removeItem, isInCart } = useCart();
+  useCartScope(beat.producer_slug ?? null);
   const [license, setLicense] = useState<LicenseType>('basic');
 
   const coverUrl = publicUrl('beats-covers', beat.cover_url);
@@ -40,7 +41,8 @@ export default function BeatDetail({ beat }: { beat: Beat }) {
       title: beat.title,
       coverUrl,
       license,
-      price: priceForLicense(beat, license)
+      price: priceForLicense(beat, license),
+      producerSlug: beat.producer_slug ?? null
     });
   };
 

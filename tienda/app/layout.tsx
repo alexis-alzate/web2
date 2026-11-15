@@ -5,6 +5,7 @@ import { Bebas_Neue, Inter, Barlow_Condensed } from 'next/font/google';
 import { CartProvider } from './providers/CartProvider';
 import { PlayerProvider } from './providers/PlayerProvider';
 import Header from './components/Header';
+import MarketplaceTop from './components/MarketplaceTop';
 import CartDrawer from './components/CartDrawer';
 import PlayerBar from './components/PlayerBar';
 import './globals.css';
@@ -89,29 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
         <PlayerProvider>
           <CartProvider>
-            <div className="marketplace-top">
-              <nav className="marketplace-nav" aria-label="Navegacion principal">
-                <a href="https://www.lujourban.com" className="marketplace-logo" aria-label="Lujo Urban Beats">
-                  <span className="marketplace-logo-text">LUJO<span>URBAN</span></span>
-                  <span className="marketplace-logo-tag">Beats</span>
-                </a>
-                <div className="marketplace-links">
-                  <a href="#tienda">Licencias</a>
-                  <a href="https://www.lujourban.com/servicios/">Servicios</a>
-                  <a href="https://www.lujourban.com">Blog</a>
-                  <a href="mailto:zaetaalex@gmail.com">Contacto</a>
-                </div>
-                <a href="#tienda" className="marketplace-buy-link">Comprar beats</a>
-              </nav>
-
-<section className="marketplace-hero" aria-labelledby="marketplace-title">
-                <div className="marketplace-hero-inner">
-                  <h1 id="marketplace-title">Marcando el ritmo de tu próximo hit</h1>
-                  <p>Escoge tus ritmos, revisalos y en minutos los tienes en tu correo, listos para usar.</p>
-                </div>
-              </section>
-
-            </div>
+            <MarketplaceTop />
 
             <div id="tienda" className="tienda-frame">
               <Suspense fallback={null}>
