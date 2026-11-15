@@ -929,6 +929,30 @@ body:has(.descarga-page) .tienda-frame {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.producer-invite {
+  margin: 0;
+  padding: 28px 18px 36px;
+  text-align: center;
+  color: var(--t-muted);
+  font-size: 0.9rem;
+}
+.producer-invite a {
+  display: inline-block;
+  padding: 10px 4px;
+  color: var(--t-gold);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.producer-invite a:hover {
+  color: var(--t-text);
+}
+.producer-invite a:focus-visible {
+  outline: 2px solid var(--t-gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .beats-loading {
   text-align: center;
   color: var(--t-muted);

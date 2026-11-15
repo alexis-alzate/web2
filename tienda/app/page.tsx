@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { withProducerSlugs } from '@/lib/producers';
 import type { Beat } from '@/lib/types';
 import BeatCatalog from './components/BeatCatalog';
+import ProducerInvite from './components/ProducerInvite';
 
 export const revalidate = 60;
 
@@ -63,6 +64,7 @@ export default async function HomePage({
     <main>
       {error && <p className="beats-loading">No se pudieron cargar los beats.</p>}
       {!error && <BeatCatalog beats={beats} />}
+      <ProducerInvite />
     </main>
   );
 }
